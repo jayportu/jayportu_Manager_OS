@@ -23,7 +23,9 @@ App personal de gestión de carrera DJ — **JAY PORTU**.
 
 1. `npm install`
 2. Crea `.env.local` siguiendo `.env.example`
-3. `npm run dev` → http://localhost:3000
+3. `npm run dev` → http://localhost:3010
+
+> Puerto **3010** (no 3000) para evitar conflicto con POSreach en la Mac de Jaime.
 
 ## Estructura
 
