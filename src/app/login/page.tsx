@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Logo } from "@/components/brand/logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -59,12 +60,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
       <div className="w-full max-w-md">
-        {/* Wordmark */}
-        <div className="text-center mb-8">
-          <div className="wordmark text-5xl leading-none">
-            <span className="block text-fg">JAY</span>
-            <span className="block text-accent">PORTU</span>
-          </div>
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <Logo variant="stacked" tone="light" size={160} priority />
           <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-3">
             Manager OS
           </div>

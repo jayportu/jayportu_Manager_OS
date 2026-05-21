@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/brand/logo";
 
 interface TopbarProps {
   userEmail?: string;
@@ -22,8 +23,8 @@ export function Topbar({ userEmail }: TopbarProps) {
   return (
     <header className="h-16 border-b border-border bg-bg flex items-center px-6 gap-4 shrink-0">
       {/* Logo mobile */}
-      <div className="md:hidden wordmark text-xl">
-        JAY <span className="text-accent">PORTU</span>
+      <div className="md:hidden flex items-center">
+        <Logo variant="horizontal" tone="light" size={22} />
       </div>
 
       {/* Search */}
