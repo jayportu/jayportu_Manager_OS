@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * JAY Manager OS — Studio Dark global styles
+ * shadcn/ui custom theme variables (en HSL para que shadcn pueda usarlas)
+ * Solo modo oscuro.
+ */
+@layer base {
+  :root {
+    /* Base */
+    --background: 240 5% 6.5%;        /* #0F0F11 */
+    --foreground: 0 0% 98%;            /* #FAFAFA */
+
+    /* Cards / paneles */
+    --card: 240 6% 10%;                /* #18181B */
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 6% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary (acción principal) = amarillo JAY PORTU */
+    --primary: 45 81% 52%;             /* #E8B923 */
+    --primary-foreground: 0 0% 0%;     /* texto negro sobre amarillo */
+
+    /* Secondary (acción secundaria) = gris medio */
+    --secondary: 240 5% 16%;           /* #27272A */
+    --secondary-foreground: 0 0% 98%;
+
+    /* Muted (texto secundario, fondos sutiles) */
+    --muted: 240 5% 16%;
+    --muted-foreground: 240 5% 65%;    /* #A1A1AA */
+
+    /* Accent (hover, highlights) */
+    --accent: 240 5% 16%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;          /* #EF4444 */
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders e inputs */
+    --border: 240 5% 16%;              /* #27272A */
+    --input: 240 5% 16%;
+    --ring: 45 81% 52%;                /* ring amarillo */
+
+    --radius: 0.625rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Selección de texto */
+  ::selection {
+    background-color: rgba(232, 185, 35, 0.3);
+    color: #FAFAFA;
+  }
+
+  /* Scrollbar dark */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0F0F11;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #27272A;
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3F3F46;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Wordmark JAY PORTU */
+  .wordmark {
+    font-family: var(--font-iceland), system-ui, sans-serif;
+    letter-spacing: 0.1em;
+  }
+}
