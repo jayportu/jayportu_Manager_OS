@@ -61,9 +61,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <Logo variant="stacked" tone="light" size={160} priority />
-          <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-3">
+        <div className="flex flex-col items-center mb-10">
+          <Logo variant="stacked" tone="light" size={240} priority />
+          <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-2">
             Manager OS
           </div>
         </div>

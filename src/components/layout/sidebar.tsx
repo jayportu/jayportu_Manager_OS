@@ -44,9 +44,9 @@ export function Sidebar({ userEmail }: SidebarProps) {
   return (
     <aside className="hidden md:flex w-60 shrink-0 flex-col bg-bg-subtle border-r border-border p-4">
       {/* Logo */}
-      <div className="px-3 py-2 mb-6 flex flex-col items-start">
-        <Logo variant="stacked" tone="light" size={96} priority />
-        <div className="text-[10px] uppercase tracking-widest text-fg-subtle mt-2 pl-1">
+      <div className="px-3 py-2 mb-6 flex flex-col items-center">
+        <Logo variant="stacked" tone="light" size={140} priority />
+        <div className="text-[10px] uppercase tracking-widest text-fg-subtle mt-1">
           Manager OS
         </div>
       </div>
