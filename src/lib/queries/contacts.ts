@@ -7,6 +7,38 @@ import type {
   ContactStatus,
   ContactType,
 } from "@/types/database";
+import { computeScoreForContact } from "@/lib/scoring";
+
+/**
+ * Calcula y aplica el score automático a un patch de contacto.
+ * Se usa al insertar y al actualizar.
+ * Si la operación es un update parcial, mezcla con el contacto existente.
+ */
+async function applyAutoScore(
+  current: Partial<Contact> | null,
+  patch: Partial<Contact>,
+  interactionsCount = 0,
+  lastInteractionAt: string | null = null
+): Promise<{ score: number; score_reason: string }> {
+  const merged = { ...current, ...patch };
+  const breakdown = computeScoreForContact(
+    {
+      type: (merged.type as ContactType) || "otro",
+      status: (merged.status as ContactStatus) || "nuevo",
+      city: merged.city || "",
+      country: merged.country || "",
+      email: merged.email || "",
+      whatsapp: merged.whatsapp || "",
+      instagram: merged.instagram || "",
+      website: merged.website || "",
+      contact_person: merged.contact_person || "",
+      music_style: merged.music_style || "",
+    },
+    interactionsCount,
+    lastInteractionAt
+  );
+  return { score: breakdown.score, score_reason: breakdown.reason };
+}
 
 export interface ListContactsParams {
   search?: string;
@@ -78,9 +110,11 @@ export async function getContact(id: string): Promise<Contact | null> {
 
 export async function createContact(input: ContactInsert): Promise<Contact> {
   const { supabase, user } = await getUserOrThrow();
+  // Auto-score
+  const { score, score_reason } = await applyAutoScore(null, input, 0, null);
   const { data, error } = await supabase
     .from("contacts")
-    .insert({ ...input, user_id: user.id })
+    .insert({ ...input, score, score_reason, user_id: user.id })
     .select("*")
     .single();
   if (error) throw new Error(error.message);
@@ -92,15 +126,58 @@ export async function updateContact(
   patch: ContactUpdate
 ): Promise<Contact> {
   const { supabase, user } = await getUserOrThrow();
+
+  // Leer estado actual + interactions count para recalcular score
+  const current = await getContact(id);
+  if (!current) throw new Error("Contacto no encontrado");
+
+  const { count } = await supabase
+    .from("interactions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("contact_id", id);
+
+  const lastInteractionAt = current.last_contact_at;
+
+  const { score, score_reason } = await applyAutoScore(
+    current,
+    patch,
+    count ?? 0,
+    lastInteractionAt
+  );
+
   const { data, error } = await supabase
     .from("contacts")
-    .update(patch)
+    .update({ ...patch, score, score_reason })
     .eq("user_id", user.id)
     .eq("id", id)
     .select("*")
     .single();
   if (error) throw new Error(error.message);
   return data as Contact;
+}
+
+/** Recalcula y guarda solo el score (usado después de addInteraction) */
+export async function recomputeContactScore(contactId: string): Promise<void> {
+  const { supabase, user } = await getUserOrThrow();
+  const current = await getContact(contactId);
+  if (!current) return;
+  const { count } = await supabase
+    .from("interactions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("contact_id", contactId);
+  const { score, score_reason } = await applyAutoScore(
+    current,
+    {},
+    count ?? 0,
+    current.last_contact_at
+  );
+  await supabase
+    .from("contacts")
+    .update({ score, score_reason })
+    .eq("user_id", user.id)
+    .eq("id", contactId);
 }
 
 export async function deleteContact(id: string): Promise<void> {
@@ -118,7 +195,13 @@ export async function bulkInsertContacts(
 ): Promise<{ inserted: number }> {
   const { supabase, user } = await getUserOrThrow();
   if (rows.length === 0) return { inserted: 0 };
-  const payload = rows.map((r) => ({ ...r, user_id: user.id }));
+  // Auto-score cada fila
+  const payload = await Promise.all(
+    rows.map(async (r) => {
+      const { score, score_reason } = await applyAutoScore(null, r, 0, null);
+      return { ...r, score, score_reason, user_id: user.id };
+    })
+  );
   const { data, error } = await supabase
     .from("contacts")
     .insert(payload)

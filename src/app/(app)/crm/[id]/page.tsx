@@ -19,6 +19,7 @@ import {
   CONTACT_STATUS_LABELS,
 } from "@/types/database";
 import { initials, scoreColor, normalizeUrl, whatsappLink } from "@/lib/format";
+import { computeScoreForContact, scoreLevel } from "@/lib/scoring";
 import { InteractionTimeline } from "./interaction-timeline";
 import { AddInteractionButton } from "./add-interaction-button";
 import { FollowUpsSection } from "./follow-ups-section";
@@ -38,6 +39,13 @@ export default async function ContactDetailPage({ params }: PageProps) {
   ]);
 
   const sc = scoreColor(contact.score);
+  const level = scoreLevel(contact.score);
+  // Recalcular en vivo para mostrar el desglose actualizado
+  const breakdown = computeScoreForContact(
+    contact,
+    interactions.length,
+    contact.last_contact_at
+  );
   const igHandle = contact.instagram?.replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
   const igUrl = igHandle ? `https://instagram.com/${igHandle}` : null;
   const waUrl = whatsappLink(contact.whatsapp);
@@ -146,6 +154,44 @@ export default async function ContactDetailPage({ params }: PageProps) {
               </a>
             </Button>
           )}
+        </div>
+      </Card>
+
+      {/* Desglose del score */}
+      <Card className="p-6 mb-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider">
+            Score automático
+          </h2>
+          <span className={`text-xs ${sc.text}`}>{level.label}</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className={`font-display text-5xl ${sc.text}`}>
+            {breakdown.score}
+          </div>
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-1.5">
+            {breakdown.factors.map((f, idx) => (
+              <div
+                key={idx}
+                className="text-xs flex items-center gap-1.5 px-2 py-1 rounded bg-bg border border-border"
+              >
+                <span
+                  className={`font-bold ${
+                    f.value >= 0 ? "text-success" : "text-danger"
+                  }`}
+                >
+                  {f.value >= 0 ? "+" : ""}
+                  {f.value}
+                </span>
+                <span className="text-fg-muted truncate">{f.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="text-[10px] text-fg-subtle mt-3">
+          Calculado automáticamente. Mejora completando info, registrando
+          interacciones recientes y moviendo el estado del pipeline. La IA local
+          (Sprint 4) va a refinar esto.
         </div>
       </Card>
 

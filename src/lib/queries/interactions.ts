@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { Interaction, InteractionInsert } from "@/types/database";
+import { recomputeContactScore } from "./contacts";
 
 async function getUserOrThrow() {
   const supabase = await createClient();
@@ -39,6 +40,10 @@ export async function addInteraction(
     .select("*")
     .single();
   if (error) throw new Error(error.message);
+
+  // Recalcular score del contacto (interactions count cambió)
+  await recomputeContactScore(input.contact_id);
+
   return data as Interaction;
 }
 

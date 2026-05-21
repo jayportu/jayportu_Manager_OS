@@ -47,8 +47,6 @@ const EMPTY: ContactInsert = {
   music_style: "",
   main_channel: "whatsapp",
   status: "nuevo",
-  score: 50,
-  score_reason: "",
   notes: "",
 };
 
@@ -72,8 +70,6 @@ export function ContactForm({ initial }: Props) {
           music_style: initial.music_style,
           main_channel: initial.main_channel,
           status: initial.status,
-          score: initial.score,
-          score_reason: initial.score_reason,
           notes: initial.notes,
         }
       : EMPTY
@@ -277,42 +273,48 @@ export function ContactForm({ initial }: Props) {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
           Pipeline
         </h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="status">Estado</Label>
-            <SelectNative
-              id="status"
-              value={form.status}
-              onChange={(e) => update("status", e.target.value as ContactStatus)}
-            >
-              {CONTACT_STATUS.map((s) => (
-                <option key={s} value={s}>
-                  {CONTACT_STATUS_LABELS[s]}
-                </option>
-              ))}
-            </SelectNative>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="score">Score (0–100)</Label>
-            <Input
-              id="score"
-              type="number"
-              min={0}
-              max={100}
-              value={form.score ?? 50}
-              onChange={(e) => update("score", parseInt(e.target.value, 10) || 0)}
-            />
-          </div>
-        </div>
         <div className="space-y-2">
-          <Label htmlFor="score_reason">¿Por qué este score?</Label>
-          <Input
-            id="score_reason"
-            value={form.score_reason || ""}
-            onChange={(e) => update("score_reason", e.target.value)}
-            placeholder="Tiene noches Tech House recurrentes + booker visible"
-          />
+          <Label htmlFor="status">Estado</Label>
+          <SelectNative
+            id="status"
+            value={form.status}
+            onChange={(e) => update("status", e.target.value as ContactStatus)}
+          >
+            {CONTACT_STATUS.map((s) => (
+              <option key={s} value={s}>
+                {CONTACT_STATUS_LABELS[s]}
+              </option>
+            ))}
+          </SelectNative>
         </div>
+        {initial && (
+          <div className="p-3 rounded-lg bg-bg border border-border">
+            <div className="text-xs text-fg-muted mb-1">
+              Score automático actual
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-display text-2xl text-accent">
+                {initial.score}
+              </span>
+              <span className="text-xs text-fg-muted leading-snug">
+                {initial.score_reason || "Se recalcula al guardar."}
+              </span>
+            </div>
+            <div className="text-[10px] text-fg-subtle mt-2">
+              El score se calcula automáticamente según los datos del contacto.
+              Se actualiza al guardar cambios o registrar interacciones.
+            </div>
+          </div>
+        )}
+        {!initial && (
+          <div className="p-3 rounded-lg bg-accent-soft border border-accent/30">
+            <div className="text-xs text-accent leading-snug">
+              El score se calcula automáticamente al guardar (0–100). Mientras
+              más completa esté la info, mejor matchee el estilo y más
+              interacciones registres, más alto el score.
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Notas */}
