@@ -1,6 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Bell, Star } from "lucide-react";
+import { TrendingUp, TrendingDown, Bell, Star, ArrowRight } from "lucide-react";
+import { getMyProfile } from "@/lib/queries/dj-profile";
+import Link from "next/link";
 
 const KPIS = [
   {
@@ -103,27 +104,56 @@ const ALERTS = [
 ];
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const profile = await getMyProfile();
 
   // Saludo según hora local
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Buenos días" : hour < 19 ? "Buenas tardes" : "Buenas noches";
 
+  // Nombre a mostrar: artist_name si existe, sino caemos a "Jay"
+  const displayName =
+    profile?.artist_name && profile.artist_name.trim().length > 0
+      ? profile.artist_name.trim()
+      : "Jay";
+
+  // Si no completó su perfil, mostrar CTA
+  const profileIncomplete =
+    !profile?.artist_name || profile.artist_name.trim().length === 0;
+
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-7">
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {greeting}, Jay
+          {greeting}, {displayName}
         </h1>
         <p className="text-sm text-fg-muted mt-1">
           Tienes 7 seguimientos pendientes y 1 propuesta esperando respuesta.
         </p>
       </div>
+
+      {/* CTA si el perfil está incompleto */}
+      {profileIncomplete && (
+        <Link
+          href="/configuracion"
+          className="flex items-center gap-3 p-4 mb-6 rounded-xl bg-accent-soft border border-accent/30 hover:border-accent transition-colors group"
+        >
+          <div className="w-8 h-8 rounded-md bg-accent text-bg flex items-center justify-center font-bold text-sm shrink-0">
+            !
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-fg">
+              Completa tu perfil de DJ
+            </div>
+            <div className="text-xs text-fg-muted mt-0.5">
+              Define tu nombre artístico, bio, estilos y canales públicos para
+              que el dashboard y press kit muestren tu identidad real.
+            </div>
+          </div>
+          <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-1 transition-transform shrink-0" />
+        </Link>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
@@ -270,8 +300,8 @@ export default async function DashboardPage() {
         </div>
       </Card>
 
-      <div className="text-center text-[10px] uppercase tracking-widest text-fg-subtle py-4">
-        Sesión: {user?.email} · v0.1 · Sprint 0
+      <div className="text-center text-[10px] uppercase tracking-widest text-fg-subtle py-6">
+        {profile?.city || "Santiago"} · {profile?.country || "Chile"}
       </div>
     </div>
   );
