@@ -1,11 +1,8 @@
 /**
  * GET /api/export
  *
- * Devuelve un JSON con TODOS los datos del usuario autenticado.
- * Pensado como respaldo manual desde día 1.
- *
- * Por ahora solo incluye dj_profile, pero el formato es extensible:
- * cada nueva tabla se agrega como una key más en el objeto raíz.
+ * Backup completo del usuario autenticado en formato JSON.
+ * Incluye todas las tablas del schema actual.
  */
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
@@ -22,23 +19,36 @@ export async function GET() {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  // dj_profile (1 fila)
-  const { data: dj_profile } = await supabase
-    .from("dj_profile")
-    .select("*")
-    .eq("user_id", user.id)
-    .single();
+  const [
+    { data: dj_profile },
+    { data: contacts },
+    { data: interactions },
+    { data: follow_ups },
+  ] = await Promise.all([
+    supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
+    supabase.from("contacts").select("*").eq("user_id", user.id),
+    supabase.from("interactions").select("*").eq("user_id", user.id),
+    supabase.from("follow_ups").select("*").eq("user_id", user.id),
+  ]);
 
   const payload = {
     meta: {
       app: "JAY Manager OS",
-      version: "0.2.0",
+      version: "0.3.0",
+      sprint: 2,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,
     },
     dj_profile,
-    // Próximas tablas (CRM, oportunidades, etc.) se agregan acá.
+    contacts: contacts || [],
+    interactions: interactions || [],
+    follow_ups: follow_ups || [],
+    counts: {
+      contacts: contacts?.length ?? 0,
+      interactions: interactions?.length ?? 0,
+      follow_ups: follow_ups?.length ?? 0,
+    },
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {
