@@ -17,7 +17,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "JAY Manager OS",
-  description: "App personal de gestión de carrera DJ — JAY PORTU",
+  description: "Manager OS para DJs: CRM, press kit público, growth tracking, calendario y plantillas. Costo $0.",
 };
 
 export default function RootLayout({
