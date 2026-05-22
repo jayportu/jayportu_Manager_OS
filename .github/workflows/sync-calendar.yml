@@ -1,0 +1,47 @@
+name: Sync Google Calendar (hourly)
+
+# Corre cada hora en punto (UTC) + permite trigger manual desde la UI de GitHub.
+# Llama al endpoint /api/gmail/sync-cron protegido con CRON_SECRET.
+#
+# Setup necesario:
+# - En Vercel:           env var CRON_SECRET (string random largo)
+# - En GitHub:           secret CRON_SECRET (mismo valor)
+# - En GitHub:           secret APP_URL = https://jayportu-manager-os.vercel.app
+
+on:
+  schedule:
+    # Cada hora en punto (minuto 0). UTC.
+    - cron: "0 * * * *"
+  workflow_dispatch: {} # Permite correr manualmente desde la UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit sync endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::APP_URL o CRON_SECRET no configurados en GitHub Secrets"
+            exit 1
+          fi
+
+          echo "Calling $APP_URL/api/gmail/sync-cron"
+          HTTP_CODE=$(curl -s -o /tmp/sync-response.json -w "%{http_code}" \
+            -X POST "$APP_URL/api/gmail/sync-cron" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --max-time 90)
+
+          echo "HTTP $HTTP_CODE"
+          echo "--- Response ---"
+          cat /tmp/sync-response.json
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Sync failed with status $HTTP_CODE"
+            exit 1
+          fi
