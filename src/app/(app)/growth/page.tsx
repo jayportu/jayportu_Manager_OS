@@ -24,13 +24,48 @@ import {
 import { SnapshotDialog } from "./snapshot-dialog";
 import { relativeTime, shortDate } from "@/lib/format";
 
+async function safe<T>(label: string, fn: () => Promise<T>): Promise<{ ok: true; value: T } | { ok: false; error: string; stack: string }> {
+  try {
+    const value = await fn();
+    return { ok: true, value };
+  } catch (e) {
+    const error = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error && e.stack ? e.stack : "";
+    console.error(`[growth] ${label} failed:`, error, stack);
+    return { ok: false, error: `${label}: ${error}`, stack };
+  }
+}
+
 export default async function GrowthPage() {
-  const [campaigns, recentPosts, deltas, snapshots] = await Promise.all([
-    listGrowthCampaigns({ status: "active", limit: 5 }),
-    listContentPosts({ limit: 8 }),
-    getGrowthDeltas(),
-    getLatestSnapshotsByPlatform(),
+  const results = await Promise.all([
+    safe("listGrowthCampaigns", () => listGrowthCampaigns({ status: "active", limit: 5 })),
+    safe("listContentPosts", () => listContentPosts({ limit: 8 })),
+    safe("getGrowthDeltas", () => getGrowthDeltas()),
+    safe("getLatestSnapshotsByPlatform", () => getLatestSnapshotsByPlatform()),
   ]);
+
+  const errors = results.filter((r) => !r.ok) as Array<{ ok: false; error: string; stack: string }>;
+  if (errors.length > 0) {
+    return (
+      <div className="p-6 md:p-10 max-w-3xl mx-auto">
+        <h1 className="text-xl font-bold mb-4 text-danger">Growth error (debug)</h1>
+        <div className="space-y-4">
+          {errors.map((e, i) => (
+            <pre key={i} className="text-xs bg-bg-subtle border border-border rounded p-3 overflow-auto whitespace-pre-wrap break-words">
+              {e.error}
+              {"\n\n"}
+              {e.stack}
+            </pre>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const campaigns = (results[0] as { ok: true; value: Awaited<ReturnType<typeof listGrowthCampaigns>> }).value;
+  const recentPosts = (results[1] as { ok: true; value: Awaited<ReturnType<typeof listContentPosts>> }).value;
+  const deltas = (results[2] as { ok: true; value: Awaited<ReturnType<typeof getGrowthDeltas>> }).value;
+  const snapshots = (results[3] as { ok: true; value: Awaited<ReturnType<typeof getLatestSnapshotsByPlatform>> }).value;
 
   const platformsWithSnapshots = Object.keys(snapshots);
   const isFirstTime = platformsWithSnapshots.length === 0;
