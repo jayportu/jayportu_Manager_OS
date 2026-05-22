@@ -1,11 +1,6 @@
 "use server";
 
 import {
-  runOverpassQuery,
-  normalizeOverpassElement,
-  findPreset,
-} from "@/lib/overpass";
-import {
   bulkUpsertLeads,
   updateLeadStatus,
   setPromotedContactId,
@@ -30,48 +25,51 @@ function err(e: unknown): { ok: false; error: string } {
 }
 
 /**
- * Corre una búsqueda Overpass por preset id, normaliza resultados,
- * y los inserta como discovered_leads (skip duplicados).
+ * Recibe leads ya normalizados desde el cliente (que hizo fetch a Overpass
+ * directamente desde el browser) y los inserta en discovered_leads.
+ *
+ * Por qué desde cliente: Vercel server-to-server a Overpass devuelve 406
+ * (probablemente filtrado por IP de datacenter). El browser sí funciona.
  */
-export async function runOverpassPresetAction(
-  presetId: string
-): Promise<Result<{ inserted: number; skipped: number; total: number }>> {
+export async function saveOverpassLeadsAction(args: {
+  presetId: string;
+  inferredType: ContactType;
+  leads: Array<{
+    name: string;
+    address: string;
+    lat: number | null;
+    lng: number | null;
+    instagram: string;
+    website: string;
+    phone: string;
+    email: string;
+    source_id: string;
+    raw_data: Record<string, unknown>;
+  }>;
+}): Promise<Result<{ inserted: number; skipped: number; total: number }>> {
   try {
-    const preset = findPreset(presetId);
-    if (!preset) return { ok: false, error: "Preset desconocido" };
+    const total = args.leads.length;
+    const payload: DiscoveredLeadInsert[] = args.leads.map((l) => ({
+      name: l.name,
+      type: args.inferredType,
+      city: "Santiago",
+      country: "Chile",
+      address: l.address,
+      lat: l.lat,
+      lng: l.lng,
+      instagram: l.instagram,
+      website: l.website,
+      phone: l.phone,
+      email: l.email,
+      source: "overpass",
+      source_id: l.source_id,
+      source_query: args.presetId,
+      raw_data: l.raw_data,
+    }));
 
-    const response = await runOverpassQuery(preset.ql);
-    const elements = response.elements || [];
-
-    const leads: DiscoveredLeadInsert[] = elements
-      .filter((el) => el.tags && (el.tags["name"] || el.tags["operator"]))
-      .map((el) => {
-        const normalized = normalizeOverpassElement(el, preset);
-        return {
-          name: normalized.name,
-          type: preset.inferredType as ContactType,
-          city: normalized.city,
-          country: normalized.country,
-          address: normalized.address,
-          lat: normalized.lat,
-          lng: normalized.lng,
-          instagram: normalized.instagram,
-          website: normalized.website,
-          phone: normalized.phone,
-          email: normalized.email,
-          source: "overpass" as const,
-          source_id: normalized.source_id,
-          source_query: preset.id,
-          raw_data: normalized.raw_data,
-        };
-      });
-
-    const { inserted, skipped } = await bulkUpsertLeads(leads);
+    const { inserted, skipped } = await bulkUpsertLeads(payload);
     revalidatePath("/descubrir");
-    return {
-      ok: true,
-      data: { inserted, skipped, total: elements.length },
-    };
+    return { ok: true, data: { inserted, skipped, total } };
   } catch (e) {
     return err(e);
   }

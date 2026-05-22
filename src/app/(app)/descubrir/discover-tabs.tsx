@@ -14,7 +14,12 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
-import { runOverpassPresetAction, importManualTextAction } from "./actions";
+import { saveOverpassLeadsAction, importManualTextAction } from "./actions";
+import {
+  runOverpassQuery,
+  findPreset,
+  normalizeOverpassElement,
+} from "@/lib/overpass";
 import { CONTACT_TYPES, CONTACT_TYPE_LABELS, type ContactType } from "@/types/database";
 import Link from "next/link";
 
@@ -45,22 +50,65 @@ export function DiscoverTabs({ presets }: Props) {
   const [manualText, setManualText] = useState("");
   const [manualType, setManualType] = useState<ContactType>("productora");
 
-  function handleRunPreset(presetId: string) {
+  async function handleRunPreset(presetId: string) {
     setResult(null);
     setRunning(presetId);
-    startTransition(async () => {
-      const r = await runOverpassPresetAction(presetId);
-      setRunning(null);
-      if (r.ok) {
-        setResult({
-          type: "ok",
-          text: `Encontrados ${r.data.total} · agregados ${r.data.inserted} (${r.data.skipped} duplicados)`,
-        });
-        router.refresh();
-      } else {
-        setResult({ type: "err", text: r.error });
+
+    try {
+      const preset = findPreset(presetId);
+      if (!preset) {
+        setRunning(null);
+        setResult({ type: "err", text: "Preset desconocido" });
+        return;
       }
-    });
+
+      // 1. Fetch directo a Overpass desde el browser (evita 406 de Vercel)
+      const response = await runOverpassQuery(preset.ql);
+      const elements = response.elements || [];
+
+      const leads = elements
+        .filter((el) => el.tags && (el.tags["name"] || el.tags["operator"]))
+        .map((el) => {
+          const n = normalizeOverpassElement(el, preset);
+          return {
+            name: n.name,
+            address: n.address,
+            lat: n.lat,
+            lng: n.lng,
+            instagram: n.instagram,
+            website: n.website,
+            phone: n.phone,
+            email: n.email,
+            source_id: n.source_id,
+            raw_data: n.raw_data,
+          };
+        });
+
+      // 2. Server action solo hace upsert (no llama Overpass)
+      startTransition(async () => {
+        const r = await saveOverpassLeadsAction({
+          presetId,
+          inferredType: preset.inferredType as ContactType,
+          leads,
+        });
+        setRunning(null);
+        if (r.ok) {
+          setResult({
+            type: "ok",
+            text: `Encontrados ${r.data.total} · agregados ${r.data.inserted} (${r.data.skipped} duplicados)`,
+          });
+          router.refresh();
+        } else {
+          setResult({ type: "err", text: r.error });
+        }
+      });
+    } catch (e) {
+      setRunning(null);
+      setResult({
+        type: "err",
+        text: e instanceof Error ? e.message : "Error consultando Overpass",
+      });
+    }
   }
 
   function handleImportManual() {
