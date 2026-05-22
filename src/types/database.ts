@@ -29,6 +29,7 @@ export interface DjProfile {
   tech_rider_ideal: string;
   tech_rider_alt: string;
   hospitality: string;
+  public_slug: string;
   created_at: string;
   updated_at: string;
 }
@@ -228,6 +229,87 @@ export type FollowUpInsert = {
   due_at: string;
   note?: string;
   priority?: FollowUpPriority;
+};
+
+// ════════════════════════════════════════════════════════════════════
+// presskit_events
+// ════════════════════════════════════════════════════════════════════
+export const PRESSKIT_EVENT_TYPES = [
+  "view",
+  "click_whatsapp",
+  "click_email",
+  "click_instagram",
+  "click_soundcloud",
+  "click_youtube",
+  "click_spotify",
+  "click_website",
+  "click_tech_rider",
+  "form_open",
+  "form_submit",
+] as const;
+export type PresskitEventType = (typeof PRESSKIT_EVENT_TYPES)[number];
+
+export interface PresskitEvent {
+  id: string;
+  user_id: string;
+  event: PresskitEventType;
+  referrer: string;
+  user_agent: string;
+  country: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export const PRESSKIT_EVENT_LABELS: Record<PresskitEventType, string> = {
+  view: "Visita",
+  click_whatsapp: "Click WhatsApp",
+  click_email: "Click Email",
+  click_instagram: "Click Instagram",
+  click_soundcloud: "Click SoundCloud",
+  click_youtube: "Click YouTube",
+  click_spotify: "Click Spotify",
+  click_website: "Click Website",
+  click_tech_rider: "Click Tech Rider",
+  form_open: "Abrió formulario",
+  form_submit: "Envió formulario",
+};
+
+// ════════════════════════════════════════════════════════════════════
+// booking_form_submissions
+// ════════════════════════════════════════════════════════════════════
+export const BOOKING_STATUS = [
+  "pendiente",
+  "leido",
+  "respondido",
+  "convertido",
+  "descartado",
+] as const;
+export type BookingStatus = (typeof BOOKING_STATUS)[number];
+
+export interface BookingSubmission {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  phone: string;
+  event_type: string;
+  event_date: string | null;
+  venue: string;
+  message: string;
+  status: BookingStatus;
+  created_contact_id: string | null;
+  referrer: string;
+  user_agent: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
+  pendiente: "Pendiente",
+  leido: "Leído",
+  respondido: "Respondido",
+  convertido: "Convertido en contacto",
+  descartado: "Descartado",
 };
 
 // ════════════════════════════════════════════════════════════════════
