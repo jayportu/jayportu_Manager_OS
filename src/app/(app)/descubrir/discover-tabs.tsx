@@ -19,6 +19,7 @@ import {
   runOverpassQuery,
   findPreset,
   normalizeOverpassElement,
+  classifyVenueByName,
 } from "@/lib/overpass";
 import { CONTACT_TYPES, CONTACT_TYPE_LABELS, type ContactType } from "@/types/database";
 import Link from "next/link";
@@ -66,23 +67,38 @@ export function DiscoverTabs({ presets }: Props) {
       const response = await runOverpassQuery(preset.ql);
       const elements = response.elements || [];
 
-      const leads = elements
+      // Normalizar + filtrar por blacklist de nombres
+      const allNormalized = elements
         .filter((el) => el.tags && (el.tags["name"] || el.tags["operator"]))
-        .map((el) => {
-          const n = normalizeOverpassElement(el, preset);
-          return {
+        .map((el) => normalizeOverpassElement(el, preset));
+
+      const filtered: typeof allNormalized = [];
+      const blocked: Array<{ name: string; reason: string }> = [];
+
+      for (const n of allNormalized) {
+        const classification = classifyVenueByName(n.name);
+        if (classification.blacklisted) {
+          blocked.push({
             name: n.name,
-            address: n.address,
-            lat: n.lat,
-            lng: n.lng,
-            instagram: n.instagram,
-            website: n.website,
-            phone: n.phone,
-            email: n.email,
-            source_id: n.source_id,
-            raw_data: n.raw_data,
-          };
-        });
+            reason: classification.blacklistMatch || "blacklist",
+          });
+          continue;
+        }
+        filtered.push(n);
+      }
+
+      const leads = filtered.map((n) => ({
+        name: n.name,
+        address: n.address,
+        lat: n.lat,
+        lng: n.lng,
+        instagram: n.instagram,
+        website: n.website,
+        phone: n.phone,
+        email: n.email,
+        source_id: n.source_id,
+        raw_data: n.raw_data,
+      }));
 
       // 2. Server action solo hace upsert (no llama Overpass)
       startTransition(async () => {
@@ -93,9 +109,16 @@ export function DiscoverTabs({ presets }: Props) {
         });
         setRunning(null);
         if (r.ok) {
+          const blockedSummary =
+            blocked.length > 0
+              ? ` · ${blocked.length} filtrados por nombre (${blocked
+                  .slice(0, 3)
+                  .map((b) => b.name)
+                  .join(", ")}${blocked.length > 3 ? "…" : ""})`
+              : "";
           setResult({
             type: "ok",
-            text: `Encontrados ${r.data.total} · agregados ${r.data.inserted} (${r.data.skipped} duplicados)`,
+            text: `Encontrados ${elements.length} · agregados ${r.data.inserted} (${r.data.skipped} duplicados)${blockedSummary}`,
           });
           router.refresh();
         } else {

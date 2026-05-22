@@ -116,6 +116,80 @@ export function findPreset(id: string): OverpassPreset | null {
   return OVERPASS_PRESETS.find((p) => p.id === id) || null;
 }
 
+/**
+ * Palabras en el nombre que sugieren que el venue NO es club de DJ.
+ * Schoperías, topless, cabarets, cafés con piernas, etc. — esos
+ * usan el tag amenity=nightclub en OSM pero no son nuestro target.
+ *
+ * Match es case-insensitive y por substring.
+ */
+export const VENUE_BLACKLIST_KEYWORDS = [
+  // Adult / strip
+  "topless",
+  "strip",
+  "cabaret",
+  "show de",
+  "vip lounge",
+  "burlesque",
+  "gentlemen",
+  "playboy",
+  "adult",
+  // Schoperías y cafés
+  "schop",
+  "schoperia",
+  "schopería",
+  "café con",
+  "cafe con",
+  "café con piernas",
+  // Casos específicos conocidos en Santiago
+  "passapoga",
+  "hand in hand",
+  "bunker top",
+  // Karaoke
+  "karaoke",
+];
+
+/**
+ * Palabras que aumentan confianza de que SÍ es club de electrónica/baile.
+ * Si el nombre/descripción matchea, marcamos como "high confidence".
+ */
+export const VENUE_DJ_KEYWORDS = [
+  "electronic",
+  "electrónica",
+  "techno",
+  "house",
+  "club",
+  "disco",
+  "rave",
+  "dance",
+  "music",
+  "música",
+  "dj",
+  "live",
+  "underground",
+];
+
+export interface VenueFilterResult {
+  blacklisted: boolean;
+  blacklistMatch?: string;
+  djMatch?: string;
+  highConfidence: boolean;
+}
+
+export function classifyVenueByName(name: string): VenueFilterResult {
+  const lower = name.toLowerCase();
+  const black = VENUE_BLACKLIST_KEYWORDS.find((kw) => lower.includes(kw));
+  if (black) {
+    return { blacklisted: true, blacklistMatch: black, highConfidence: false };
+  }
+  const dj = VENUE_DJ_KEYWORDS.find((kw) => lower.includes(kw));
+  return {
+    blacklisted: false,
+    djMatch: dj,
+    highConfidence: !!dj,
+  };
+}
+
 export async function runOverpassQuery(
   ql: string,
   signal?: AbortSignal
