@@ -116,11 +116,18 @@ export async function runOverpassQuery(
   ql: string,
   signal?: AbortSignal
 ): Promise<OverpassResponse> {
-  const body = new URLSearchParams({ data: ql });
-  const res = await fetch(OVERPASS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
+  // Overpass acepta varias formas:
+  //   1. GET con ?data=<QL>
+  //   2. POST con body = QL puro y Content-Type text/plain
+  //
+  // Usamos GET con query string que es el más robusto entre mirrors.
+  const url = `${OVERPASS_URL}?data=${encodeURIComponent(ql)}`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "JAY-Manager-OS/0.8 (https://jayportu-manager-os.vercel.app)",
+    },
     signal,
   });
   if (!res.ok) {
