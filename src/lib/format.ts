@@ -1,6 +1,16 @@
 /**
  * Helpers de formato compartidos.
+ *
+ * Todas las fechas se muestran en hora de Chile (America/Santiago)
+ * de forma EXPLÍCITA. Sin esto, Vercel SSR renderiza en UTC y se
+ * pierden 3-4 horas. El cliente las re-rendea con su tz, pero el
+ * SSR inicial queda mal.
+ *
+ * En el futuro (SaaS multi-DJ) cada workspace tendrá su timezone
+ * propia configurable.
  */
+
+const DJ_TIMEZONE = "America/Santiago";
 
 /** "hace 2 días" / "ayer" / "hoy" / "—" */
 export function relativeTime(date: string | null | undefined): string {
@@ -65,6 +75,7 @@ export function shortDate(date: string | null | undefined): string {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: DJ_TIMEZONE,
   });
 }
 
@@ -77,6 +88,20 @@ export function dateTime(date: string | null | undefined): string {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: DJ_TIMEZONE,
+  });
+}
+
+/** Solo hora: "22:00" */
+export function timeOnly(date: string | null | undefined): string {
+  if (!date) return "—";
+  const d = new Date(date);
+  return d.toLocaleString("es-CL", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: DJ_TIMEZONE,
   });
 }
 
