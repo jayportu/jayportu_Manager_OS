@@ -264,12 +264,23 @@ function PlatformKpi({
     delta: number | null;
     delta_pct: number | null;
     snapshot_at: string | null;
+    source: "manual" | "auto" | null;
   };
 }) {
   return (
     <Card className="p-4">
-      <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
-        {SOCIAL_PLATFORM_LABELS[delta.platform]}
+      <div className="flex items-center justify-between gap-1">
+        <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
+          {SOCIAL_PLATFORM_LABELS[delta.platform]}
+        </div>
+        {delta.source === "auto" && (
+          <span
+            className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent"
+            title="Última actualización vía sync automático"
+          >
+            auto
+          </span>
+        )}
       </div>
       <div className="font-display text-3xl leading-none mt-1.5">
         {delta.followers !== null

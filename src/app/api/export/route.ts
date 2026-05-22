@@ -34,6 +34,7 @@ export async function GET() {
     { data: growth_campaigns },
     { data: content_posts },
     { data: platform_snapshots },
+    { data: platform_accounts },
   ] = await Promise.all([
     supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
     supabase.from("contacts").select("*").eq("user_id", user.id),
@@ -49,13 +50,14 @@ export async function GET() {
     supabase.from("growth_campaigns").select("*").eq("user_id", user.id),
     supabase.from("content_posts").select("*").eq("user_id", user.id),
     supabase.from("platform_snapshots").select("*").eq("user_id", user.id),
+    supabase.from("platform_accounts").select("*").eq("user_id", user.id),
   ]);
 
   const payload = {
     meta: {
       app: "JAY Manager OS",
-      version: "0.10.0",
-      sprint: 10,
+      version: "0.11.0",
+      sprint: 11,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,
@@ -74,6 +76,7 @@ export async function GET() {
     growth_campaigns: growth_campaigns || [],
     content_posts: content_posts || [],
     platform_snapshots: platform_snapshots || [],
+    platform_accounts: platform_accounts || [],
     counts: {
       contacts: contacts?.length ?? 0,
       interactions: interactions?.length ?? 0,
@@ -88,6 +91,7 @@ export async function GET() {
       growth_campaigns: growth_campaigns?.length ?? 0,
       content_posts: content_posts?.length ?? 0,
       platform_snapshots: platform_snapshots?.length ?? 0,
+      platform_accounts: platform_accounts?.length ?? 0,
     },
   };
 

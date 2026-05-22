@@ -277,6 +277,7 @@ export async function createSnapshot(
       total_likes_lifetime: input.total_likes_lifetime ?? null,
       engagement_rate: input.engagement_rate ?? null,
       notes: input.notes || "",
+      source: input.source ?? "manual",
     })
     .select("*")
     .single();
@@ -302,6 +303,7 @@ export interface GrowthDelta {
   delta: number | null;
   delta_pct: number | null;
   snapshot_at: string | null;
+  source: "manual" | "auto" | null;
 }
 
 /**
@@ -312,7 +314,7 @@ export async function getGrowthDeltas(): Promise<GrowthDelta[]> {
   const { supabase, user } = await getUserOrThrow();
   const { data } = await supabase
     .from("platform_snapshots")
-    .select("platform, followers, snapshot_at")
+    .select("platform, followers, snapshot_at, source")
     .eq("user_id", user.id)
     .order("snapshot_at", { ascending: false });
 
@@ -343,6 +345,7 @@ export async function getGrowthDeltas(): Promise<GrowthDelta[]> {
       delta,
       delta_pct: deltaPct,
       snapshot_at: current?.snapshot_at ?? null,
+      source: current?.source ?? null,
     });
   });
   return result;

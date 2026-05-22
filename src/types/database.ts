@@ -778,6 +778,7 @@ export interface PlatformSnapshot {
   total_likes_lifetime: number | null;
   engagement_rate: number | null;
   notes: string;
+  source: "manual" | "auto";
   snapshot_at: string;
   created_at: string;
 }
@@ -791,6 +792,31 @@ export type PlatformSnapshotInsert = {
   total_likes_lifetime?: number | null;
   engagement_rate?: number | null;
   notes?: string;
+  source?: "manual" | "auto";
+};
+
+// ════════════════════════════════════════════════════════════════════
+// platform_accounts (Sprint 11 — auto-sync)
+// ════════════════════════════════════════════════════════════════════
+export interface PlatformAccount {
+  id: string;
+  user_id: string;
+  platform: SocialPlatform | "mixcloud";
+  username: string;
+  external_id: string | null;
+  auto_sync_enabled: boolean;
+  last_synced_at: string | null;
+  last_error: string | null;
+  last_followers: number | null;
+  last_track_count: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PlatformAccountInsert = {
+  platform: SocialPlatform | "mixcloud";
+  username: string;
+  auto_sync_enabled?: boolean;
 };
 
 // ════════════════════════════════════════════════════════════════════
