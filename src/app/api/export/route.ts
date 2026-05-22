@@ -29,6 +29,8 @@ export async function GET() {
     { data: ai_outputs },
     { data: calendar_events },
     { data: discovered_leads },
+    { data: campaigns },
+    { data: campaign_contacts },
   ] = await Promise.all([
     supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
     supabase.from("contacts").select("*").eq("user_id", user.id),
@@ -39,13 +41,15 @@ export async function GET() {
     supabase.from("ai_outputs").select("*").eq("user_id", user.id),
     supabase.from("calendar_events").select("*").eq("user_id", user.id),
     supabase.from("discovered_leads").select("*").eq("user_id", user.id),
+    supabase.from("campaigns").select("*").eq("user_id", user.id),
+    supabase.from("campaign_contacts").select("*").eq("user_id", user.id),
   ]);
 
   const payload = {
     meta: {
       app: "JAY Manager OS",
-      version: "0.8.0",
-      sprint: 8,
+      version: "0.9.0",
+      sprint: 9,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,
@@ -59,6 +63,8 @@ export async function GET() {
     ai_outputs: ai_outputs || [],
     calendar_events: calendar_events || [],
     discovered_leads: discovered_leads || [],
+    campaigns: campaigns || [],
+    campaign_contacts: campaign_contacts || [],
     counts: {
       contacts: contacts?.length ?? 0,
       interactions: interactions?.length ?? 0,
@@ -68,6 +74,8 @@ export async function GET() {
       ai_outputs: ai_outputs?.length ?? 0,
       calendar_events: calendar_events?.length ?? 0,
       discovered_leads: discovered_leads?.length ?? 0,
+      campaigns: campaigns?.length ?? 0,
+      campaign_contacts: campaign_contacts?.length ?? 0,
     },
   };
 

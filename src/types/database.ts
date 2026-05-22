@@ -501,6 +501,111 @@ export type DiscoveredLeadInsert = {
 };
 
 // ════════════════════════════════════════════════════════════════════
+// campaigns
+// ════════════════════════════════════════════════════════════════════
+export const CAMPAIGN_CHANNELS = [
+  "whatsapp",
+  "email",
+  "instagram",
+  "mixto",
+  "otro",
+] as const;
+export type CampaignChannel = (typeof CAMPAIGN_CHANNELS)[number];
+
+export const CAMPAIGN_STATUS = [
+  "draft",
+  "active",
+  "paused",
+  "done",
+  "archived",
+] as const;
+export type CampaignStatus = (typeof CAMPAIGN_STATUS)[number];
+
+export const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
+  draft: "Borrador",
+  active: "Activa",
+  paused: "Pausada",
+  done: "Terminada",
+  archived: "Archivada",
+};
+
+export const CAMPAIGN_CHANNEL_LABELS: Record<CampaignChannel, string> = {
+  whatsapp: "WhatsApp",
+  email: "Email",
+  instagram: "Instagram",
+  mixto: "Mixto",
+  otro: "Otro",
+};
+
+export interface Campaign {
+  id: string;
+  user_id: string;
+  name: string;
+  goal: string;
+  channel: CampaignChannel;
+  status: CampaignStatus;
+  template_id: string | null;
+  message_base: string;
+  started_at: string | null;
+  ended_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CampaignInsert = {
+  name: string;
+  goal?: string;
+  channel?: CampaignChannel;
+  status?: CampaignStatus;
+  template_id?: string | null;
+  message_base?: string;
+};
+
+export const CAMPAIGN_CONTACT_STATUS = [
+  "pendiente",
+  "preparado",
+  "enviado",
+  "respondio",
+  "interesado",
+  "no_respondio",
+  "seguimiento_pendiente",
+  "convertido",
+  "cerrado",
+  "descartado",
+] as const;
+export type CampaignContactStatus = (typeof CAMPAIGN_CONTACT_STATUS)[number];
+
+export const CAMPAIGN_CONTACT_STATUS_LABELS: Record<
+  CampaignContactStatus,
+  string
+> = {
+  pendiente: "Pendiente",
+  preparado: "Preparado",
+  enviado: "Enviado",
+  respondio: "Respondió",
+  interesado: "Interesado",
+  no_respondio: "No respondió",
+  seguimiento_pendiente: "Seguimiento pendiente",
+  convertido: "Convertido",
+  cerrado: "Cerrado",
+  descartado: "Descartado",
+};
+
+export interface CampaignContact {
+  id: string;
+  user_id: string;
+  campaign_id: string;
+  contact_id: string;
+  status: CampaignContactStatus;
+  contacted_at: string | null;
+  response_at: string | null;
+  last_message: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ════════════════════════════════════════════════════════════════════
 // Database root
 // ════════════════════════════════════════════════════════════════════
 export interface Database {
