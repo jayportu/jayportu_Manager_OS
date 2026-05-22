@@ -40,15 +40,50 @@ const ALERTS_MOCK = [
   },
 ];
 
+async function safe<T>(label: string, fn: () => Promise<T>): Promise<{ ok: true; value: T } | { ok: false; error: string; stack: string }> {
+  try {
+    const value = await fn();
+    return { ok: true, value };
+  } catch (e) {
+    const error = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error && e.stack ? e.stack : "";
+    console.error(`[dashboard] ${label} failed:`, error, stack);
+    return { ok: false, error: `${label}: ${error}`, stack };
+  }
+}
+
 export default async function DashboardPage() {
-  const [profile, stats, pendingFollowUps, recentInteractions, topContacts] =
-    await Promise.all([
-      getMyProfile(),
-      countContacts(),
-      listPendingFollowUps(10),
-      listRecentInteractions(8),
-      listContacts({ orderBy: "score" }),
-    ]);
+  const results = await Promise.all([
+    safe("getMyProfile", () => getMyProfile()),
+    safe("countContacts", () => countContacts()),
+    safe("listPendingFollowUps", () => listPendingFollowUps(10)),
+    safe("listRecentInteractions", () => listRecentInteractions(8)),
+    safe("listContacts", () => listContacts({ orderBy: "score" })),
+  ]);
+
+  const errors = results.filter((r) => !r.ok) as Array<{ ok: false; error: string; stack: string }>;
+  if (errors.length > 0) {
+    return (
+      <div className="p-6 md:p-10 max-w-3xl mx-auto">
+        <h1 className="text-xl font-bold mb-4 text-danger">Dashboard error (debug)</h1>
+        <div className="space-y-4">
+          {errors.map((e, i) => (
+            <pre key={i} className="text-xs bg-bg-subtle border border-border rounded p-3 overflow-auto whitespace-pre-wrap break-words">
+              {e.error}
+              {"\n\n"}
+              {e.stack}
+            </pre>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const profile = (results[0] as { ok: true; value: Awaited<ReturnType<typeof getMyProfile>> }).value;
+  const stats = (results[1] as { ok: true; value: Awaited<ReturnType<typeof countContacts>> }).value;
+  const pendingFollowUps = (results[2] as { ok: true; value: Awaited<ReturnType<typeof listPendingFollowUps>> }).value;
+  const recentInteractions = (results[3] as { ok: true; value: Awaited<ReturnType<typeof listRecentInteractions>> }).value;
+  const topContacts = (results[4] as { ok: true; value: Awaited<ReturnType<typeof listContacts>> }).value;
 
   // Saludo según hora local
   const hour = new Date().getHours();
