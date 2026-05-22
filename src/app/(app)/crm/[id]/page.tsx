@@ -1,6 +1,9 @@
 import { getContact } from "@/lib/queries/contacts";
 import { listInteractionsByContact } from "@/lib/queries/interactions";
 import { listFollowUpsByContact } from "@/lib/queries/follow-ups";
+import { getMyProfile } from "@/lib/queries/dj-profile";
+import { buildContactContext } from "@/lib/ai/prompts";
+import { AIPanel } from "./ai-panel";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -33,10 +36,19 @@ export default async function ContactDetailPage({ params }: PageProps) {
   const contact = await getContact(id);
   if (!contact) notFound();
 
-  const [interactions, followUps] = await Promise.all([
+  const [interactions, followUps, djProfile] = await Promise.all([
     listInteractionsByContact(id),
     listFollowUpsByContact(id),
+    getMyProfile(),
   ]);
+
+  // Contexto para la IA
+  const contactContext = buildContactContext(contact, interactions, djProfile);
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+  const presskitUrl = djProfile?.public_slug
+    ? `${baseUrl}/p/${djProfile.public_slug}`
+    : "";
 
   const sc = scoreColor(contact.score);
   const level = scoreLevel(contact.score);
@@ -194,6 +206,15 @@ export default async function ContactDetailPage({ params }: PageProps) {
           (Sprint 4) va a refinar esto.
         </div>
       </Card>
+
+      {/* IA Panel */}
+      <AIPanel
+        contactId={contact.id}
+        contactContext={contactContext}
+        presskitUrl={presskitUrl}
+        contactWhatsapp={contact.whatsapp}
+        contactEmail={contact.email}
+      />
 
       {/* Follow-ups */}
       <FollowUpsSection contactId={contact.id} followUps={followUps} />

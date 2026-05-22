@@ -2,6 +2,7 @@ import { getMyProfile } from "@/lib/queries/dj-profile";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "./profile-form";
 import { ExportButton } from "./export-button";
+import { OllamaSetup } from "./ollama-setup";
 
 export default async function ConfiguracionPage() {
   const profile = await getMyProfile();
@@ -20,6 +21,15 @@ export default async function ConfiguracionPage() {
       </div>
 
       <ProfileForm initialProfile={profile} />
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <h2 className="text-lg font-semibold mb-2">IA local (Ollama)</h2>
+        <p className="text-sm text-fg-muted mb-4">
+          Corre IA gratis en tu Mac sin pagar APIs. Estado en vivo, instrucciones
+          de setup y check de modelo descargado.
+        </p>
+        <OllamaSetup />
+      </div>
 
       <div className="mt-12 pt-8 border-t border-border">
         <h2 className="text-lg font-semibold mb-2">Respaldo de datos</h2>
