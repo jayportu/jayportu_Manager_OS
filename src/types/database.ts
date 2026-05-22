@@ -413,6 +413,94 @@ export interface GmailThreadCache {
 }
 
 // ════════════════════════════════════════════════════════════════════
+// discovered_leads
+// ════════════════════════════════════════════════════════════════════
+export const LEAD_SOURCES = [
+  "overpass",
+  "manual_text",
+  "csv",
+  "ai_extracted",
+  "gmail_thread",
+] as const;
+export type LeadSource = (typeof LEAD_SOURCES)[number];
+
+export const LEAD_STATUS = [
+  "new",
+  "reviewed",
+  "added_to_crm",
+  "dismissed",
+  "ignored",
+] as const;
+export type LeadStatus = (typeof LEAD_STATUS)[number];
+
+export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
+  new: "Nuevo",
+  reviewed: "Revisado",
+  added_to_crm: "En CRM",
+  dismissed: "Descartado",
+  ignored: "Ignorado",
+};
+
+export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
+  overpass: "OpenStreetMap",
+  manual_text: "Texto pegado",
+  csv: "CSV",
+  ai_extracted: "Extraído por IA",
+  gmail_thread: "Hilo Gmail",
+};
+
+export interface DiscoveredLead {
+  id: string;
+  user_id: string;
+  name: string;
+  type: ContactType;
+  city: string;
+  country: string;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+  instagram: string;
+  whatsapp: string;
+  email: string;
+  website: string;
+  phone: string;
+  source: LeadSource;
+  source_id: string;
+  source_query: string;
+  raw_data: Record<string, unknown>;
+  ai_summary: string;
+  ai_score: number | null;
+  ai_score_reason: string;
+  music_style_guess: string;
+  action_recommended: string;
+  status: LeadStatus;
+  promoted_contact_id: string | null;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type DiscoveredLeadInsert = {
+  name: string;
+  type?: ContactType;
+  city?: string;
+  country?: string;
+  address?: string;
+  lat?: number | null;
+  lng?: number | null;
+  instagram?: string;
+  whatsapp?: string;
+  email?: string;
+  website?: string;
+  phone?: string;
+  source?: LeadSource;
+  source_id?: string;
+  source_query?: string;
+  raw_data?: Record<string, unknown>;
+  notes?: string;
+};
+
+// ════════════════════════════════════════════════════════════════════
 // Database root
 // ════════════════════════════════════════════════════════════════════
 export interface Database {
