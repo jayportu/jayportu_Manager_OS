@@ -313,6 +313,73 @@ export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
 };
 
 // ════════════════════════════════════════════════════════════════════
+// templates
+// ════════════════════════════════════════════════════════════════════
+export const TEMPLATE_CATEGORIES = [
+  "primer_contacto",
+  "follow_up",
+  "envio_press_kit",
+  "propuesta",
+  "agradecimiento",
+  "confirmacion",
+  "rider",
+  "otro",
+] as const;
+export type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number];
+
+export const TEMPLATE_CHANNELS = [
+  "whatsapp",
+  "email",
+  "instagram",
+  "otro",
+] as const;
+export type TemplateChannel = (typeof TEMPLATE_CHANNELS)[number];
+
+export interface Template {
+  id: string;
+  user_id: string;
+  name: string;
+  category: TemplateCategory;
+  channel_suggested: TemplateChannel;
+  subject: string;
+  body: string;
+  times_used: number;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TemplateInsert = {
+  name: string;
+  category?: TemplateCategory;
+  channel_suggested?: TemplateChannel;
+  subject?: string;
+  body: string;
+};
+
+export type TemplateUpdate = Partial<
+  Omit<Template, "id" | "user_id" | "created_at" | "updated_at" | "times_used">
+>;
+
+export const TEMPLATE_CATEGORY_LABELS: Record<TemplateCategory, string> = {
+  primer_contacto: "Primer contacto",
+  follow_up: "Follow-up",
+  envio_press_kit: "Envío de press kit",
+  propuesta: "Propuesta",
+  agradecimiento: "Agradecimiento",
+  confirmacion: "Confirmación",
+  rider: "Tech rider",
+  otro: "Otro",
+};
+
+export const TEMPLATE_CHANNEL_LABELS: Record<TemplateChannel, string> = {
+  whatsapp: "WhatsApp",
+  email: "Email",
+  instagram: "Instagram",
+  otro: "Otro",
+};
+
+// ════════════════════════════════════════════════════════════════════
 // Database root
 // ════════════════════════════════════════════════════════════════════
 export interface Database {

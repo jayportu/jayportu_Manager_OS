@@ -3,7 +3,9 @@ import { listInteractionsByContact } from "@/lib/queries/interactions";
 import { listFollowUpsByContact } from "@/lib/queries/follow-ups";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { buildContactContext } from "@/lib/ai/prompts";
+import { buildVars } from "@/lib/templates/variables";
 import { AIPanel } from "./ai-panel";
+import { TemplatePicker } from "./template-picker";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -49,6 +51,9 @@ export default async function ContactDetailPage({ params }: PageProps) {
   const presskitUrl = djProfile?.public_slug
     ? `${baseUrl}/p/${djProfile.public_slug}`
     : "";
+
+  // Vars para plantillas (resuelve {contact_name}, {my_name}, {presskit_url}, etc.)
+  const templateVars = buildVars(contact, djProfile, baseUrl);
 
   const sc = scoreColor(contact.score);
   const level = scoreLevel(contact.score);
@@ -166,6 +171,13 @@ export default async function ContactDetailPage({ params }: PageProps) {
               </a>
             </Button>
           )}
+          <TemplatePicker
+            contactId={contact.id}
+            contactName={contact.name}
+            contactWhatsapp={contact.whatsapp}
+            contactEmail={contact.email}
+            vars={templateVars}
+          />
         </div>
       </Card>
 

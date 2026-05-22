@@ -24,18 +24,24 @@ export async function GET() {
     { data: contacts },
     { data: interactions },
     { data: follow_ups },
+    { data: templates },
+    { data: booking_form_submissions },
+    { data: ai_outputs },
   ] = await Promise.all([
     supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
     supabase.from("contacts").select("*").eq("user_id", user.id),
     supabase.from("interactions").select("*").eq("user_id", user.id),
     supabase.from("follow_ups").select("*").eq("user_id", user.id),
+    supabase.from("templates").select("*").eq("user_id", user.id),
+    supabase.from("booking_form_submissions").select("*").eq("user_id", user.id),
+    supabase.from("ai_outputs").select("*").eq("user_id", user.id),
   ]);
 
   const payload = {
     meta: {
       app: "JAY Manager OS",
-      version: "0.3.0",
-      sprint: 2,
+      version: "0.5.0",
+      sprint: 5,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,
@@ -44,10 +50,16 @@ export async function GET() {
     contacts: contacts || [],
     interactions: interactions || [],
     follow_ups: follow_ups || [],
+    templates: templates || [],
+    booking_form_submissions: booking_form_submissions || [],
+    ai_outputs: ai_outputs || [],
     counts: {
       contacts: contacts?.length ?? 0,
       interactions: interactions?.length ?? 0,
       follow_ups: follow_ups?.length ?? 0,
+      templates: templates?.length ?? 0,
+      bookings: booking_form_submissions?.length ?? 0,
+      ai_outputs: ai_outputs?.length ?? 0,
     },
   };
 
