@@ -116,23 +116,22 @@ export async function runOverpassQuery(
   ql: string,
   signal?: AbortSignal
 ): Promise<OverpassResponse> {
-  // Overpass acepta varias formas:
-  //   1. GET con ?data=<QL>
-  //   2. POST con body = QL puro y Content-Type text/plain
-  //
-  // Usamos GET con query string que es el más robusto entre mirrors.
-  const url = `${OVERPASS_URL}?data=${encodeURIComponent(ql)}`;
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "JAY-Manager-OS/0.8 (https://jayportu-manager-os.vercel.app)",
-    },
+  // Importante (cross-origin desde browser):
+  // - NO setear User-Agent (header prohibido en fetch del browser,
+  //   rompe el preflight CORS y Overpass responde 406).
+  // - NO setear Accept custom (browser default es OK).
+  // - Usamos POST con body URL-encoded que Overpass acepta sin
+  //   triggear preflight (Content-Type application/x-www-form-urlencoded
+  //   está en la lista CORS-safelisted).
+  const body = new URLSearchParams({ data: ql });
+  const res = await fetch(OVERPASS_URL, {
+    method: "POST",
+    body,
     signal,
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
-    throw new Error(`Overpass ${res.status}: ${txt.slice(0, 300)}`);
+    throw new Error(`Overpass ${res.status}: ${txt.slice(0, 200)}`);
   }
   return (await res.json()) as OverpassResponse;
 }
