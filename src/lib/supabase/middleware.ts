@@ -14,6 +14,8 @@ const PUBLIC_PATHS = [
   "/p/", // press kit públicos
   "/api/track", // tracking endpoint
   "/api/booking", // formulario público
+  // /api/gmail/callback NO es público — el callback verifica sesión adentro.
+  // Pero /api/gmail/auth y /disconnect requieren sesión, las dejamos detrás del middleware.
 ];
 
 export async function updateSession(request: NextRequest) {

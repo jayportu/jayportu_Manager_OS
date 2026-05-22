@@ -380,6 +380,39 @@ export const TEMPLATE_CHANNEL_LABELS: Record<TemplateChannel, string> = {
 };
 
 // ════════════════════════════════════════════════════════════════════
+// gmail
+// ════════════════════════════════════════════════════════════════════
+export interface GmailConnection {
+  user_id: string;
+  google_email: string;
+  access_token: string;
+  refresh_token: string;
+  scope: string;
+  token_type: string;
+  expires_at: string;
+  last_sync_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GmailThreadCache {
+  id: string;
+  user_id: string;
+  thread_id: string;
+  contact_id: string | null;
+  subject: string;
+  snippet: string;
+  from_email: string;
+  from_name: string;
+  to_emails: string;
+  messages_count: number;
+  last_message_at: string | null;
+  ai_summary: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ════════════════════════════════════════════════════════════════════
 // Database root
 // ════════════════════════════════════════════════════════════════════
 export interface Database {

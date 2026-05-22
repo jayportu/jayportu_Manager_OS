@@ -1,0 +1,129 @@
+/**
+ * Google OAuth 2.0 flow para Gmail.
+ *
+ * Por qué OAuth manual (no Supabase Auth Google provider):
+ *   Supabase Auth con Google solo guarda la sesión, no permite acceso
+ *   API continuo (refresh tokens). Para llamar Gmail API necesitamos
+ *   manejo manual de tokens.
+ *
+ * Scopes que pedimos:
+ *   - gmail.readonly: leer hilos + mensajes
+ *   - gmail.compose: crear borradores
+ *   - gmail.send: enviar mensajes (requerirá confirmación de Jaime)
+ */
+
+export const GOOGLE_OAUTH_AUTH_URL =
+  "https://accounts.google.com/o/oauth2/v2/auth";
+export const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
+export const GOOGLE_USERINFO_URL =
+  "https://www.googleapis.com/oauth2/v2/userinfo";
+
+export const GMAIL_SCOPES = [
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/gmail.compose",
+  "https://www.googleapis.com/auth/gmail.send",
+];
+
+export function getRedirectUri(): string {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://jayportu-manager-os.vercel.app";
+  return `${base}/api/gmail/callback`;
+}
+
+export function buildAuthUrl(state: string): string {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) throw new Error("GOOGLE_CLIENT_ID no configurado");
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: getRedirectUri(),
+    response_type: "code",
+    scope: GMAIL_SCOPES.join(" "),
+    access_type: "offline", // refresh_token
+    prompt: "consent",       // forzar refresh_token siempre
+    include_granted_scopes: "true",
+    state,
+  });
+  return `${GOOGLE_OAUTH_AUTH_URL}?${params.toString()}`;
+}
+
+export interface GoogleTokens {
+  access_token: string;
+  refresh_token?: string;
+  expires_in: number;
+  scope: string;
+  token_type: string;
+  id_token?: string;
+}
+
+export async function exchangeCodeForTokens(
+  code: string
+): Promise<GoogleTokens> {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error("GOOGLE_CLIENT_ID/SECRET no configurados");
+  }
+
+  const body = new URLSearchParams({
+    code,
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: getRedirectUri(),
+    grant_type: "authorization_code",
+  });
+
+  const res = await fetch(GOOGLE_OAUTH_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`Token exchange falló: ${res.status} ${txt}`);
+  }
+  return (await res.json()) as GoogleTokens;
+}
+
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<Pick<GoogleTokens, "access_token" | "expires_in" | "scope" | "token_type">> {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error("GOOGLE_CLIENT_ID/SECRET no configurados");
+  }
+
+  const body = new URLSearchParams({
+    refresh_token: refreshToken,
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: "refresh_token",
+  });
+
+  const res = await fetch(GOOGLE_OAUTH_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`Refresh falló: ${res.status} ${txt}`);
+  }
+  return (await res.json()) as Pick<
+    GoogleTokens,
+    "access_token" | "expires_in" | "scope" | "token_type"
+  >;
+}
+
+export async function getGoogleUserInfo(
+  accessToken: string
+): Promise<{ email: string; name?: string }> {
+  const res = await fetch(GOOGLE_USERINFO_URL, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new Error("No se pudo obtener email del usuario");
+  return (await res.json()) as { email: string; name?: string };
+}
