@@ -5,8 +5,8 @@ import { Topbar } from "@/components/layout/topbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 
 /**
- * Layout protegido. Cualquier ruta dentro de (app) requiere sesión.
- * Si no hay user, el middleware ya lo redirigió, pero validamos también acá.
+ * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
+ * y onboarding completado. Si falta cualquiera de los dos, redirige.
  */
 export default async function AppLayout({
   children,
@@ -19,6 +19,14 @@ export default async function AppLayout({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("dj_profile")
+    .select("onboarding_completed_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!profile?.onboarding_completed_at) redirect("/welcome");
 
   return (
     <div className="flex min-h-screen">

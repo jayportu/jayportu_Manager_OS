@@ -30,6 +30,7 @@ export interface DjProfile {
   tech_rider_alt: string;
   hospitality: string;
   public_slug: string;
+  onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
