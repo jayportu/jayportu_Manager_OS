@@ -326,22 +326,22 @@ export async function getGrowthDeltas(): Promise<GrowthDelta[]> {
 
   const result: GrowthDelta[] = [];
   byPlatform.forEach((snapshots, platform) => {
-    const current = snapshots[0];
-    const previous = snapshots[1] || null;
+    const current = snapshots[0] ?? null;
+    const previous = snapshots[1] ?? null;
+    const currentFollowers = current?.followers ?? null;
+    const previousFollowers = previous?.followers ?? null;
     const delta =
-      current?.followers !== null && previous?.followers !== null
-        ? (current.followers as number) - (previous.followers as number)
+      currentFollowers !== null && previousFollowers !== null
+        ? currentFollowers - previousFollowers
         : null;
     const deltaPct =
-      delta !== null &&
-      previous?.followers !== null &&
-      (previous.followers as number) > 0
-        ? Math.round((delta / (previous.followers as number)) * 1000) / 10
+      delta !== null && previousFollowers !== null && previousFollowers > 0
+        ? Math.round((delta / previousFollowers) * 1000) / 10
         : null;
     result.push({
       platform: platform as SocialPlatform,
-      followers: current?.followers ?? null,
-      previous_followers: previous?.followers ?? null,
+      followers: currentFollowers,
+      previous_followers: previousFollowers,
       delta,
       delta_pct: deltaPct,
       snapshot_at: current?.snapshot_at ?? null,
