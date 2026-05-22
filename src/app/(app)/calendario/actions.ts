@@ -73,13 +73,23 @@ export async function createEventAction(args: {
 }
 
 /**
- * Sincroniza: trae todos los eventos próximos de Google y los inserta/actualiza en DB.
+ * Sincroniza: trae eventos de Google (90 días pasados + 180 futuros)
+ * y los inserta/actualiza en DB. Actualiza last_sync_at en gmail_connections.
  */
 export async function syncEventsAction(): Promise<
   Result<{ pulled: number }>
 > {
   try {
-    const events = await listGCalEvents({ maxResults: 200 });
+    const now = new Date();
+    const past90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    const future180 = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000);
+
+    const events = await listGCalEvents({
+      timeMin: past90.toISOString(),
+      timeMax: future180.toISOString(),
+      maxResults: 250,
+    });
+
     let pulled = 0;
     for (const ev of events) {
       if (!ev.id) continue;
@@ -92,7 +102,7 @@ export async function syncEventsAction(): Promise<
       // Inferir type del título si tiene keywords (best-effort)
       const titleLower = (ev.summary || "").toLowerCase();
       let type: CalendarEventType = "otro";
-      if (/show|gig|jay\s*portu|set/i.test(titleLower)) type = "show";
+      if (/show|gig|jay\s*portu|set|@\s/i.test(titleLower)) type = "show";
       else if (/reuni|meeting|call/i.test(titleLower)) type = "reunion";
       else if (/follow|seguim/i.test(titleLower)) type = "follow_up";
       else if (/bloqueo|busy|unavailable/i.test(titleLower)) type = "bloqueo";
@@ -111,6 +121,24 @@ export async function syncEventsAction(): Promise<
       });
       pulled++;
     }
+
+    // Actualizar last_sync_at en gmail_connections
+    try {
+      const { createClient } = await import("@/lib/supabase/server");
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from("gmail_connections")
+          .update({ last_sync_at: new Date().toISOString() })
+          .eq("user_id", user.id);
+      }
+    } catch {
+      // non-fatal
+    }
+
     revalidatePath("/calendario");
     revalidatePath("/dashboard");
     return { ok: true, data: { pulled } };

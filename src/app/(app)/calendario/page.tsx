@@ -6,7 +6,8 @@ import { Calendar, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { SyncButton } from "./sync-button";
 import { NewEventButton } from "./new-event-button";
-import { dateTime, shortDate } from "@/lib/format";
+import { AutoSync } from "./auto-sync";
+import { dateTime, shortDate, relativeTime } from "@/lib/format";
 
 interface PageProps {
   searchParams: Promise<{ error?: string; synced?: string }>;
@@ -64,6 +65,8 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
+      <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />
+
       <div className="flex items-center justify-between flex-wrap gap-3 mb-7">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
@@ -72,6 +75,10 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           <p className="text-sm text-fg-muted mt-1">
             {upcoming.length} próximos · {past.length} pasados · conectado a{" "}
             <span className="text-fg">{conn.google_email}</span>
+          </p>
+          <p className="text-[11px] text-fg-subtle mt-0.5">
+            Última sincronización: {relativeTime(conn.last_sync_at)} · se
+            sincroniza automático al abrir la pantalla
           </p>
         </div>
         <div className="flex gap-2">
