@@ -9,7 +9,20 @@
  * https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide
  */
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+/**
+ * Mirrors de Overpass API ordenados por confiabilidad observada.
+ * Intentamos en orden y caemos al siguiente si el actual falla.
+ *
+ * Histórico:
+ * - overpass-api.de (oficial): a veces responde 406 a POST. Skipeable.
+ * - kumi.systems: mirror estable mantenido por la comunidad. Buen uptime.
+ * - lz4.overpass-api.de: load-balancer del principal, mismo problema.
+ */
+const OVERPASS_MIRRORS = [
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+];
 
 export interface OverpassNode {
   type: "node" | "way" | "relation";
@@ -118,22 +131,33 @@ export async function runOverpassQuery(
 ): Promise<OverpassResponse> {
   // Importante (cross-origin desde browser):
   // - NO setear User-Agent (header prohibido en fetch del browser,
-  //   rompe el preflight CORS y Overpass responde 406).
+  //   rompe el preflight CORS).
   // - NO setear Accept custom (browser default es OK).
-  // - Usamos POST con body URL-encoded que Overpass acepta sin
-  //   triggear preflight (Content-Type application/x-www-form-urlencoded
-  //   está en la lista CORS-safelisted).
+  // - POST con URLSearchParams (Content-Type form-urlencoded está
+  //   CORS-safelisted, no triggea preflight).
+  // - Failover entre mirrors si uno falla.
   const body = new URLSearchParams({ data: ql });
-  const res = await fetch(OVERPASS_URL, {
-    method: "POST",
-    body,
-    signal,
-  });
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`Overpass ${res.status}: ${txt.slice(0, 200)}`);
+  const errors: string[] = [];
+
+  for (const url of OVERPASS_MIRRORS) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body,
+        signal,
+      });
+      if (res.ok) {
+        return (await res.json()) as OverpassResponse;
+      }
+      errors.push(`${new URL(url).hostname}: ${res.status}`);
+    } catch (e) {
+      errors.push(
+        `${new URL(url).hostname}: ${e instanceof Error ? e.message : "net err"}`
+      );
+    }
   }
-  return (await res.json()) as OverpassResponse;
+
+  throw new Error(`Todos los mirrors fallaron — ${errors.join(" · ")}`);
 }
 
 /**
