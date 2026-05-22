@@ -606,6 +606,194 @@ export interface CampaignContact {
 }
 
 // ════════════════════════════════════════════════════════════════════
+// Growth: growth_campaigns + content_posts + platform_snapshots
+// ════════════════════════════════════════════════════════════════════
+
+export const SOCIAL_PLATFORMS = [
+  "instagram",
+  "youtube",
+  "soundcloud",
+  "tiktok",
+  "twitter",
+  "facebook",
+  "otro",
+] as const;
+export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
+
+export const SOCIAL_PLATFORM_LABELS: Record<SocialPlatform, string> = {
+  instagram: "Instagram",
+  youtube: "YouTube",
+  soundcloud: "SoundCloud",
+  tiktok: "TikTok",
+  twitter: "Twitter / X",
+  facebook: "Facebook",
+  otro: "Otro",
+};
+
+export const POST_FORMATS = [
+  "reel",
+  "post",
+  "story",
+  "carousel",
+  "video",
+  "short",
+  "live",
+  "set",
+  "track",
+  "mix",
+  "otro",
+] as const;
+export type PostFormat = (typeof POST_FORMATS)[number];
+
+export const POST_FORMAT_LABELS: Record<PostFormat, string> = {
+  reel: "Reel",
+  post: "Post",
+  story: "Story",
+  carousel: "Carrusel",
+  video: "Video",
+  short: "Short",
+  live: "Live",
+  set: "Set",
+  track: "Track",
+  mix: "Mix",
+  otro: "Otro",
+};
+
+export const POST_STATUS = ["planeado", "publicado", "cancelado"] as const;
+export type PostStatus = (typeof POST_STATUS)[number];
+
+export const POST_STATUS_LABELS: Record<PostStatus, string> = {
+  planeado: "Planeado",
+  publicado: "Publicado",
+  cancelado: "Cancelado",
+};
+
+export const GROWTH_CAMPAIGN_STATUS = [
+  "draft",
+  "active",
+  "paused",
+  "done",
+  "archived",
+] as const;
+export type GrowthCampaignStatus = (typeof GROWTH_CAMPAIGN_STATUS)[number];
+
+export const GROWTH_CAMPAIGN_STATUS_LABELS: Record<
+  GrowthCampaignStatus,
+  string
+> = {
+  draft: "Borrador",
+  active: "Activa",
+  paused: "Pausada",
+  done: "Terminada",
+  archived: "Archivada",
+};
+
+export interface GrowthCampaign {
+  id: string;
+  user_id: string;
+  name: string;
+  goal: string;
+  status: GrowthCampaignStatus;
+  platforms: SocialPlatform[];
+  target_followers: Record<string, number>;
+  target_engagement_rate: number | null;
+  target_posts_count: number | null;
+  target_reach: number | null;
+  baseline_followers: Record<string, number>;
+  baseline_at: string | null;
+  started_at: string | null;
+  end_date: string | null;
+  ended_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type GrowthCampaignInsert = {
+  name: string;
+  goal?: string;
+  status?: GrowthCampaignStatus;
+  platforms: SocialPlatform[];
+  target_followers?: Record<string, number>;
+  target_engagement_rate?: number | null;
+  target_posts_count?: number | null;
+  target_reach?: number | null;
+  baseline_followers?: Record<string, number>;
+  end_date?: string | null;
+};
+
+export interface ContentPost {
+  id: string;
+  user_id: string;
+  growth_campaign_id: string | null;
+  platform: SocialPlatform;
+  format: PostFormat;
+  title: string;
+  description: string;
+  url: string;
+  status: PostStatus;
+  planned_at: string | null;
+  published_at: string | null;
+  views: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  saves: number | null;
+  plays: number | null;
+  reach: number | null;
+  notes: string;
+  ai_analysis: string;
+  performance_score: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ContentPostInsert = {
+  platform: SocialPlatform;
+  format?: PostFormat;
+  title?: string;
+  description?: string;
+  url?: string;
+  status?: PostStatus;
+  planned_at?: string | null;
+  published_at?: string | null;
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  saves?: number | null;
+  plays?: number | null;
+  reach?: number | null;
+  notes?: string;
+  growth_campaign_id?: string | null;
+};
+
+export interface PlatformSnapshot {
+  id: string;
+  user_id: string;
+  platform: SocialPlatform;
+  followers: number | null;
+  following: number | null;
+  total_posts: number | null;
+  total_views_lifetime: number | null;
+  total_likes_lifetime: number | null;
+  engagement_rate: number | null;
+  notes: string;
+  snapshot_at: string;
+  created_at: string;
+}
+
+export type PlatformSnapshotInsert = {
+  platform: SocialPlatform;
+  followers?: number | null;
+  following?: number | null;
+  total_posts?: number | null;
+  total_views_lifetime?: number | null;
+  total_likes_lifetime?: number | null;
+  engagement_rate?: number | null;
+  notes?: string;
+};
+
+// ════════════════════════════════════════════════════════════════════
 // Database root
 // ════════════════════════════════════════════════════════════════════
 export interface Database {

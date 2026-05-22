@@ -31,6 +31,9 @@ export async function GET() {
     { data: discovered_leads },
     { data: campaigns },
     { data: campaign_contacts },
+    { data: growth_campaigns },
+    { data: content_posts },
+    { data: platform_snapshots },
   ] = await Promise.all([
     supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
     supabase.from("contacts").select("*").eq("user_id", user.id),
@@ -43,13 +46,16 @@ export async function GET() {
     supabase.from("discovered_leads").select("*").eq("user_id", user.id),
     supabase.from("campaigns").select("*").eq("user_id", user.id),
     supabase.from("campaign_contacts").select("*").eq("user_id", user.id),
+    supabase.from("growth_campaigns").select("*").eq("user_id", user.id),
+    supabase.from("content_posts").select("*").eq("user_id", user.id),
+    supabase.from("platform_snapshots").select("*").eq("user_id", user.id),
   ]);
 
   const payload = {
     meta: {
       app: "JAY Manager OS",
-      version: "0.9.0",
-      sprint: 9,
+      version: "0.10.0",
+      sprint: 10,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,
@@ -65,6 +71,9 @@ export async function GET() {
     discovered_leads: discovered_leads || [],
     campaigns: campaigns || [],
     campaign_contacts: campaign_contacts || [],
+    growth_campaigns: growth_campaigns || [],
+    content_posts: content_posts || [],
+    platform_snapshots: platform_snapshots || [],
     counts: {
       contacts: contacts?.length ?? 0,
       interactions: interactions?.length ?? 0,
@@ -76,6 +85,9 @@ export async function GET() {
       discovered_leads: discovered_leads?.length ?? 0,
       campaigns: campaigns?.length ?? 0,
       campaign_contacts: campaign_contacts?.length ?? 0,
+      growth_campaigns: growth_campaigns?.length ?? 0,
+      content_posts: content_posts?.length ?? 0,
+      platform_snapshots: platform_snapshots?.length ?? 0,
     },
   };
 

@@ -12,7 +12,7 @@ import {
   Image as ImageIcon,
   FileText,
   Sparkles,
-  BarChart3,
+  TrendingUp,
   Settings,
   Mail,
 } from "lucide-react";
@@ -29,8 +29,8 @@ const NAV_ITEMS = [
   { href: "/press-kit", label: "Press kit", icon: ImageIcon },
   { href: "/plantillas", label: "Plantillas", icon: FileText },
   { href: "/gmail", label: "Gmail", icon: Mail },
-  { href: "/contenido", label: "Contenido", icon: Sparkles },
-  { href: "/metricas", label: "Métricas", icon: BarChart3 },
+  { href: "/growth", label: "Growth", icon: TrendingUp },
+  { href: "/ia", label: "IA · Strategy", icon: Sparkles },
   { href: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
