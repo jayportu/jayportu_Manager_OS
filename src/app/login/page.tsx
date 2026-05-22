@@ -75,7 +75,7 @@ export default function LoginPage() {
           <p className="text-sm text-fg-muted mb-6">
             {mode === "login"
               ? "Bienvenido de vuelta."
-              : "Solo para uso personal de Jaime."}
+              : "Crea tu cuenta y empieza a gestionar tu carrera como DJ."}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -162,7 +162,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="text-center mt-6 text-[10px] uppercase tracking-widest text-fg-subtle">
-          Costo $0 · Personal · v0.1
+          Manager OS para DJs · v0.12
         </div>
       </div>
     </div>

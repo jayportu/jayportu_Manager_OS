@@ -58,7 +58,7 @@ export default async function DashboardPage() {
   const displayName =
     profile?.artist_name && profile.artist_name.trim().length > 0
       ? profile.artist_name.trim()
-      : "Jay";
+      : "Artista";
 
   const profileIncomplete =
     !profile?.artist_name || profile.artist_name.trim().length === 0;
