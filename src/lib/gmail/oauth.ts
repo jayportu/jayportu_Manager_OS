@@ -18,12 +18,22 @@ export const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 export const GOOGLE_USERINFO_URL =
   "https://www.googleapis.com/oauth2/v2/userinfo";
 
-export const GMAIL_SCOPES = [
+/**
+ * Scopes que pedimos. Cubre Gmail + Calendar en un solo OAuth flow.
+ * Cuando se agregan nuevos scopes, el usuario tiene que RECONECTAR.
+ */
+export const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
+  // Gmail
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.compose",
   "https://www.googleapis.com/auth/gmail.send",
+  // Calendar
+  "https://www.googleapis.com/auth/calendar.events",
 ];
+
+// Backward compat
+export const GMAIL_SCOPES = GOOGLE_SCOPES;
 
 export function getRedirectUri(): string {
   const base =
@@ -40,7 +50,7 @@ export function buildAuthUrl(state: string): string {
     client_id: clientId,
     redirect_uri: getRedirectUri(),
     response_type: "code",
-    scope: GMAIL_SCOPES.join(" "),
+    scope: GOOGLE_SCOPES.join(" "),
     access_type: "offline", // refresh_token
     prompt: "consent",       // forzar refresh_token siempre
     include_granted_scopes: "true",

@@ -6,6 +6,7 @@ import { buildContactContext } from "@/lib/ai/prompts";
 import { buildVars } from "@/lib/templates/variables";
 import { AIPanel } from "./ai-panel";
 import { TemplatePicker } from "./template-picker";
+import { NewEventButton } from "../../calendario/new-event-button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -177,6 +178,12 @@ export default async function ContactDetailPage({ params }: PageProps) {
             contactWhatsapp={contact.whatsapp}
             contactEmail={contact.email}
             vars={templateVars}
+          />
+          <NewEventButton
+            contactId={contact.id}
+            buttonLabel="Agendar evento"
+            buttonVariant="outline"
+            buttonSize="sm"
           />
         </div>
       </Card>

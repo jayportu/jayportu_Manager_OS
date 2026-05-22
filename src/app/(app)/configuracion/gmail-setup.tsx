@@ -47,12 +47,12 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
               {connectedEmail
                 ? `Conectado a ${connectedEmail}`
                 : serverConfigured
-                ? "Server configurado · falta conectar Gmail"
+                ? "Server configurado · falta conectar Google"
                 : "Server no configurado"}
             </div>
             <div className="text-xs text-fg-muted mt-0.5">
               {connectedEmail
-                ? "Puedes usar /gmail para leer hilos y asociarlos al CRM."
+                ? "Gmail + Calendar disponibles. Si Calendar da error, reconecta con el botón de abajo."
                 : serverConfigured
                 ? "Ve a /gmail y haz click en 'Conectar Gmail' para autorizar."
                 : "Falta configurar GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en el servidor."}
@@ -60,18 +60,36 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
           </div>
         </div>
         {connectedEmail ? (
-          <Button asChild variant="outline" size="sm">
-            <a href="/gmail">Ir a Gmail</a>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm">
+              <a href="/api/gmail/auth">
+                <Mail className="w-4 h-4" />
+                Reconectar
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <a href="/gmail">Ir a Gmail</a>
+            </Button>
+          </div>
         ) : serverConfigured ? (
           <Button asChild size="sm">
             <a href="/api/gmail/auth">
               <Mail className="w-4 h-4" />
-              Conectar Gmail
+              Conectar Google
             </a>
           </Button>
         ) : null}
       </div>
+
+      {/* Aviso de reconexión necesaria para Calendar */}
+      {connectedEmail && (
+        <div className="text-xs bg-accent-soft border border-accent/30 rounded p-3">
+          <strong className="text-accent">💡 Calendar habilitado:</strong> Si
+          conectaste Gmail antes del Sprint 7, necesitas hacer click en{" "}
+          <strong>Reconectar</strong> arriba para autorizar también
+          Google Calendar (te va a pedir el nuevo permiso de calendario).
+        </div>
+      )}
 
       {/* Instrucciones */}
       {!connectedEmail && (
