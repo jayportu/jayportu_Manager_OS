@@ -30,7 +30,7 @@ export function Topbar({ userEmail }: TopbarProps) {
     >
       {/* Logo mobile */}
       <div className="md:hidden flex items-center">
-        <Logo variant="horizontal" tone="light" size={22} />
+        <Logo variant="stacked" tone="light" size={36} />
       </div>
 
       {/* Search */}
