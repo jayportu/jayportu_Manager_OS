@@ -20,7 +20,6 @@ interface LogoProps {
 }
 
 export function Logo({
-  variant: _variant = "stacked",
   tone = "light",
   size = 64,
   className,
