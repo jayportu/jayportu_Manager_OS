@@ -1,0 +1,46 @@
+name: Push notifications daily
+
+# Corre 1 vez al día a las 13:00 UTC (9am Santiago verano, 10am invierno).
+# Llama al endpoint /api/push/send-cron protegido con CRON_SECRET.
+# Evalúa follow-ups vencidos, delta SoundCloud y recordatorio lunes.
+#
+# Setup necesario (mismos secrets que sync-calendar.yml y sync-growth.yml):
+# - GitHub secret CRON_SECRET
+# - GitHub secret APP_URL = https://jayportu-manager-os.vercel.app
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit push send-cron endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::APP_URL o CRON_SECRET no configurados en GitHub Secrets"
+            exit 1
+          fi
+
+          echo "Calling $APP_URL/api/push/send-cron"
+          HTTP_CODE=$(curl -s -o /tmp/push-response.json -w "%{http_code}" \
+            -X POST "$APP_URL/api/push/send-cron" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --max-time 120)
+
+          echo "HTTP $HTTP_CODE"
+          echo "--- Response ---"
+          cat /tmp/push-response.json
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Push cron failed with status $HTTP_CODE"
+            exit 1
+          fi

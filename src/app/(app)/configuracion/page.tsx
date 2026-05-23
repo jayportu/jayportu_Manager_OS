@@ -7,6 +7,7 @@ import { ExportButton } from "./export-button";
 import { OllamaSetup } from "./ollama-setup";
 import { GmailSetup } from "./gmail-setup";
 import { PlatformAccountsSection } from "./platform-accounts-section";
+import { PushSetup } from "./push-setup";
 
 export default async function ConfiguracionPage() {
   const profile = await getMyProfile();
@@ -50,6 +51,16 @@ export default async function ConfiguracionPage() {
           serverConfigured={gmailConfigured}
           connectedEmail={gmailConnection?.google_email || null}
         />
+      </div>
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <h2 className="text-lg font-semibold mb-2">Notificaciones push</h2>
+        <p className="text-sm text-fg-muted mb-4">
+          Recibe avisos en este dispositivo cuando tienes follow-ups
+          vencidos, cuando crece tu audiencia o como recordatorio
+          semanal de snapshot.
+        </p>
+        <PushSetup />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">

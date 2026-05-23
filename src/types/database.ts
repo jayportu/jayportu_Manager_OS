@@ -821,6 +821,21 @@ export type PlatformAccountInsert = {
 };
 
 // ════════════════════════════════════════════════════════════════════
+// push_subscriptions
+// ════════════════════════════════════════════════════════════════════
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent: string;
+  created_at: string;
+  last_used_at: string | null;
+  last_error: string | null;
+}
+
+// ════════════════════════════════════════════════════════════════════
 // Database root
 // ════════════════════════════════════════════════════════════════════
 export interface Database {

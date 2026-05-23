@@ -16,6 +16,9 @@ const PUBLIC_PATHS = [
   "/api/booking", // formulario público
   "/api/gmail/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/growth/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
+  "/api/push/send-cron", // cron endpoint (protegido con CRON_SECRET en header)
+  "/sw.js", // service worker debe ser servido sin auth gate
+  "/manifest.json", // manifest PWA público
   // /api/gmail/callback NO es público — el callback verifica sesión adentro.
   // Pero /api/gmail/auth y /disconnect requieren sesión, las dejamos detrás del middleware.
 ];
