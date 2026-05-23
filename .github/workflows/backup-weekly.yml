@@ -41,7 +41,18 @@ jobs:
             exit 1
           fi
           if ! printf '%s' "$DATABASE_URL" | grep -Eq '^postgres(ql)?://'; then
-            echo "::error::DATABASE_URL no empieza con postgres:// o postgresql://. Revisa el secret en GitHub — debe ser SOLO el connection string, sin el prefijo 'DATABASE_URL=' ni comillas."
+            echo "::error::DATABASE_URL no empieza con postgres:// o postgresql://"
+            echo "Diagnóstico (sin exponer valor):"
+            echo "  Longitud: ${#DATABASE_URL}"
+            case "$DATABASE_URL" in
+              "DATABASE_URL="*) echo "  → Empieza con 'DATABASE_URL=' — borra ese prefijo del secret" ;;
+              '"'*) echo "  → Empieza con comilla doble — quita las comillas del secret" ;;
+              "'"*) echo "  → Empieza con comilla simple — quita las comillas del secret" ;;
+              " "*) echo "  → Empieza con espacio en blanco — borra el espacio inicial" ;;
+              "postgres"*) echo "  → Empieza con 'postgres' pero no con 'postgres://' — revisa el formato" ;;
+              "") echo "  → Está vacío (longitud 0)" ;;
+              *) echo "  → Empieza con un caracter no esperado. ¿Copiaste solo el valor del .env.local?" ;;
+            esac
             exit 1
           fi
 
