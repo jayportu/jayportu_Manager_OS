@@ -33,7 +33,14 @@ export default async function AppLayout({
       <Sidebar userEmail={user.email} />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar userEmail={user.email} />
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
+        <main
+          className="flex-1 overflow-y-auto md:pb-0"
+          style={{
+            paddingBottom: "calc(5rem + env(safe-area-inset-bottom))",
+          }}
+        >
+          {children}
+        </main>
       </div>
       <BottomNav />
     </div>

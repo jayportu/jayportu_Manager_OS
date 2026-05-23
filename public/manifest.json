@@ -1,6 +1,7 @@
 {
+  "id": "/jayportu-manager-os",
   "name": "JAY Manager OS",
-  "short_name": "Manager OS",
+  "short_name": "JAY OS",
   "description": "Manager OS para DJs: CRM, press kit, growth, calendario y plantillas.",
   "start_url": "/dashboard",
   "scope": "/",
@@ -9,6 +10,7 @@
   "background_color": "#0F0F11",
   "theme_color": "#0F0F11",
   "lang": "es-CL",
+  "categories": ["music", "productivity"],
   "icons": [
     {
       "src": "/icons/icon-192.png",

@@ -21,7 +21,13 @@ export function Topbar({ userEmail }: TopbarProps) {
   }
 
   return (
-    <header className="h-16 border-b border-border bg-bg flex items-center px-6 gap-4 shrink-0">
+    <header
+      className="border-b border-border bg-bg flex items-center px-4 md:px-6 gap-4 shrink-0 h-16"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        height: "calc(4rem + env(safe-area-inset-top))",
+      }}
+    >
       {/* Logo mobile */}
       <div className="md:hidden flex items-center">
         <Logo variant="horizontal" tone="light" size={22} />

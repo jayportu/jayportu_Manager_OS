@@ -22,7 +22,13 @@ const MOBILE_ITEMS = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 h-16 bg-bg-subtle border-t border-border flex z-50">
+    <nav
+      className="md:hidden fixed bottom-0 inset-x-0 bg-bg-subtle border-t border-border flex z-50"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom)",
+        height: "calc(4rem + env(safe-area-inset-bottom))",
+      }}
+    >
       {MOBILE_ITEMS.map(({ href, label, icon: Icon }) => {
         const isActive =
           pathname === href ||
