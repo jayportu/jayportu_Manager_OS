@@ -40,6 +40,10 @@ jobs:
             echo "::error::DATABASE_URL no configurado en secrets"
             exit 1
           fi
+          if ! printf '%s' "$DATABASE_URL" | grep -Eq '^postgres(ql)?://'; then
+            echo "::error::DATABASE_URL no empieza con postgres:// o postgresql://. Revisa el secret en GitHub — debe ser SOLO el connection string, sin el prefijo 'DATABASE_URL=' ni comillas."
+            exit 1
+          fi
 
           DATE=$(date -u +%Y-%m-%d)
           FILE="backup-${DATE}.sql"
