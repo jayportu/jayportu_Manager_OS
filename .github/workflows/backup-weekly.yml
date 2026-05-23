@@ -102,27 +102,7 @@ jobs:
           # Si no hay commits, inicializar README + estructura
           if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
             echo "Repo vacío — inicializando con README"
-            cat > README.md <<'README_EOF'
-# JAY Manager OS — Backups
-
-Dumps semanales del schema `public` de la DB de Supabase.
-
-Generados automáticamente por el workflow `backup-weekly.yml` del repo
-público `jayportu_Manager_OS`, los domingos a las 06:00 UTC.
-
-## Estructura
-
-- `dumps/YYYY/backup-YYYY-MM-DD.sql.gz` — pg_dump comprimido
-
-## Cómo restaurar
-
-```bash
-gunzip dumps/2026/backup-2026-05-23.sql.gz
-psql "$DATABASE_URL" -f dumps/2026/backup-2026-05-23.sql
-```
-
-Los dumps usan `--clean --if-exists` para que el restore sea idempotente.
-README_EOF
+            printf '%s\n' '# JAY Manager OS — Backups' '' 'Dumps semanales del schema `public` de la DB de Supabase.' '' 'Generados automaticamente por el workflow `backup-weekly.yml` del repo publico `jayportu_Manager_OS`, los domingos a las 06:00 UTC.' '' '## Estructura' '' '- `dumps/YYYY/backup-YYYY-MM-DD.sql.gz` — pg_dump comprimido' '' '## Como restaurar' '' '```bash' 'gunzip dumps/2026/backup-2026-05-23.sql.gz' 'psql "$DATABASE_URL" -f dumps/2026/backup-2026-05-23.sql' '```' '' 'Los dumps usan `--clean --if-exists` para que el restore sea idempotente.' > README.md
             git checkout -b main 2>/dev/null || git checkout main
             git add README.md
             git commit -m "Initial commit (auto)"
