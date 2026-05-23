@@ -82,18 +82,63 @@ jobs:
           git config --global user.name "backup-bot"
           git config --global user.email "backup-bot@users.noreply.github.com"
 
-          mkdir -p ../backup-repo
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ env.BACKUP_REPO }}.git" ../backup-repo
-
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ env.BACKUP_REPO }}.git"
           YEAR=$(echo "$BACKUP_DATE" | cut -d- -f1)
-          mkdir -p "../backup-repo/dumps/${YEAR}"
-          cp "$DUMP_FILE" "../backup-repo/dumps/${YEAR}/"
+          WORK=../backup-repo
 
-          cd ../backup-repo
+          # Intenta clonar el repo. Si está vacío (sin commits) el clone
+          # imprime warning pero crea un repo vacío local — lo manejamos
+          # inicializándolo nosotros.
+          git clone "$REPO_URL" "$WORK" 2>&1 | tee /tmp/clone.log || true
+
+          if [ ! -d "$WORK/.git" ]; then
+            echo "::error::Clone falló completamente"
+            cat /tmp/clone.log
+            exit 1
+          fi
+
+          cd "$WORK"
+
+          # Si no hay commits, inicializar README + estructura
+          if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+            echo "Repo vacío — inicializando con README"
+            cat > README.md <<'README_EOF'
+# JAY Manager OS — Backups
+
+Dumps semanales del schema `public` de la DB de Supabase.
+
+Generados automáticamente por el workflow `backup-weekly.yml` del repo
+público `jayportu_Manager_OS`, los domingos a las 06:00 UTC.
+
+## Estructura
+
+- `dumps/YYYY/backup-YYYY-MM-DD.sql.gz` — pg_dump comprimido
+
+## Cómo restaurar
+
+```bash
+gunzip dumps/2026/backup-2026-05-23.sql.gz
+psql "$DATABASE_URL" -f dumps/2026/backup-2026-05-23.sql
+```
+
+Los dumps usan `--clean --if-exists` para que el restore sea idempotente.
+README_EOF
+            git checkout -b main 2>/dev/null || git checkout main
+            git add README.md
+            git commit -m "Initial commit (auto)"
+          fi
+
+          mkdir -p "dumps/${YEAR}"
+          cp "../../${DUMP_FILE}" "dumps/${YEAR}/" 2>/dev/null \
+            || cp "$GITHUB_WORKSPACE/${DUMP_FILE}" "dumps/${YEAR}/"
           git add "dumps/${YEAR}/${DUMP_FILE}"
 
           if git diff --cached --quiet; then
             echo "No hay cambios — backup ya existía con este nombre"
+            # Si solo había README nuevo, igualmente push
+            if git log origin/main..HEAD 2>/dev/null | grep -q commit; then
+              git push origin HEAD:main
+            fi
             exit 0
           fi
 
