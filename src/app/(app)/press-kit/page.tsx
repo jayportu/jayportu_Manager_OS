@@ -14,6 +14,9 @@ import {
   ExternalLink,
   ArrowRight,
   Inbox,
+  FileText,
+  Wand2,
+  Settings,
 } from "lucide-react";
 import {
   PRESSKIT_EVENT_LABELS,
@@ -56,6 +59,73 @@ export default async function PressKitAdminPage() {
           bookers, propuestas.
         </p>
       </div>
+
+      {/* Estado del press kit (modo actual + PDF si aplica) */}
+      <Card
+        className={`p-5 mb-6 ${
+          profile.press_kit_mode === "pdf"
+            ? "bg-accent-soft/40 border-accent/30"
+            : ""
+        }`}
+      >
+        <div className="flex items-start gap-4 flex-wrap">
+          <div
+            className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${
+              profile.press_kit_mode === "pdf"
+                ? "bg-accent text-bg"
+                : "bg-secondary border border-border text-fg-muted"
+            }`}
+          >
+            {profile.press_kit_mode === "pdf" ? (
+              <FileText className="w-6 h-6" />
+            ) : (
+              <Wand2 className="w-6 h-6" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-fg-muted font-semibold mb-1">
+              Modo actual
+            </div>
+            <div className="text-lg font-semibold">
+              {profile.press_kit_mode === "pdf"
+                ? "PDF propio"
+                : "Generado por la app"}
+            </div>
+            {profile.press_kit_mode === "pdf" ? (
+              <div className="text-sm text-fg-muted mt-1">
+                Tu press kit público muestra el PDF que subiste:{" "}
+                <strong className="text-fg">
+                  {profile.press_kit_pdf_filename || "press-kit.pdf"}
+                </strong>{" "}
+                ({formatBytes(profile.press_kit_pdf_size_bytes)})
+              </div>
+            ) : (
+              <div className="text-sm text-fg-muted mt-1">
+                Tu press kit público se arma automáticamente desde tus datos
+                de perfil (bio, géneros, links, tech rider).
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 shrink-0">
+            {profile.press_kit_mode === "pdf" && profile.press_kit_pdf_url && (
+              <a
+                href={profile.press_kit_pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-accent hover:underline inline-flex items-center gap-1 justify-end"
+              >
+                Abrir PDF <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            <Link
+              href="/configuracion"
+              className="text-xs text-fg-muted hover:text-accent inline-flex items-center gap-1 justify-end"
+            >
+              Cambiar modo <Settings className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+      </Card>
 
       {/* URL pública */}
       <Card className="p-6 mb-6">
@@ -194,6 +264,13 @@ export default async function PressKitAdminPage() {
       </Card>
     </div>
   );
+}
+
+function formatBytes(bytes: number): string {
+  if (!bytes) return "—";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function KpiCard({
