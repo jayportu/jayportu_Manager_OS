@@ -27,10 +27,14 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 bg-ink border-t-2 border-orange flex z-50"
+      className="md:hidden fixed bottom-0 left-0 right-0 bg-ink border-t-2 border-orange flex z-50"
       style={{
         paddingBottom: "env(safe-area-inset-bottom)",
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
         height: "calc(4rem + env(safe-area-inset-bottom))",
+        width: "100vw",
+        maxWidth: "100vw",
       }}
     >
       {MOBILE_ITEMS.map(({ href, label, icon: Icon }) => {

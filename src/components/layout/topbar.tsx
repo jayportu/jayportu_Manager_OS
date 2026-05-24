@@ -25,9 +25,11 @@ export function Topbar({ userEmail }: TopbarProps) {
 
   return (
     <header
-      className="border-b-2 border-ink bg-cream flex items-center px-4 md:px-6 gap-4 shrink-0 relative"
+      className="border-b-2 border-ink bg-cream flex items-center gap-4 shrink-0 relative w-full"
       style={{
         paddingTop: "env(safe-area-inset-top)",
+        paddingLeft: "max(env(safe-area-inset-left), 16px)",
+        paddingRight: "max(env(safe-area-inset-right), 16px)",
         height: "calc(4rem + env(safe-area-inset-top))",
       }}
     >
