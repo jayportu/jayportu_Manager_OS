@@ -11,6 +11,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchSoundCloudProfile } from "./soundcloud";
+import { fetchYouTubeChannel } from "./youtube";
 
 interface AccountRow {
   id: string;
@@ -39,24 +40,51 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
   };
 
   try {
-    if (acc.platform !== "soundcloud") {
+    let followers: number;
+    let trackOrVideoCount: number;
+    let externalId: string | null;
+    let notes: string;
+    let snapshotExtras: Record<string, number | null> = {};
+
+    if (acc.platform === "soundcloud") {
+      const profile = await fetchSoundCloudProfile(acc.username);
+      followers = profile.followers_count;
+      trackOrVideoCount = profile.track_count;
+      externalId = profile.external_id;
+      notes = `Auto-sync de soundcloud.com/${profile.username}`;
+      snapshotExtras = {
+        following: profile.followings_count,
+        total_likes_lifetime: profile.likes_count,
+      };
+    } else if (acc.platform === "youtube") {
+      const channel = await fetchYouTubeChannel(acc.username);
+      if (channel.subscriber_count < 0) {
+        throw new Error(
+          "El canal tiene los suscriptores ocultos. Activa la visibilidad en YouTube Studio → Settings → Channel → Advanced settings."
+        );
+      }
+      followers = channel.subscriber_count;
+      trackOrVideoCount = channel.video_count;
+      externalId = channel.channel_id;
+      notes = `Auto-sync de youtube.com/${channel.handle || channel.custom_url || channel.channel_id}`;
+      snapshotExtras = {
+        total_views_lifetime: channel.view_count,
+      };
+    } else {
       throw new Error(`Plataforma "${acc.platform}" no soporta auto-sync aún`);
     }
-
-    const profile = await fetchSoundCloudProfile(acc.username);
 
     // Insertar snapshot con source='auto'
     const { error: snapErr } = await admin
       .from("platform_snapshots")
       .insert({
         user_id: acc.user_id,
-        platform: "soundcloud",
-        followers: profile.followers_count,
-        following: profile.followings_count,
-        total_posts: profile.track_count,
-        total_likes_lifetime: profile.likes_count,
-        notes: `Auto-sync de soundcloud.com/${profile.username}`,
+        platform: acc.platform,
+        followers,
+        total_posts: trackOrVideoCount,
+        notes,
         source: "auto",
+        ...snapshotExtras,
       });
     if (snapErr) throw new Error(`Snapshot insert: ${snapErr.message}`);
 
@@ -65,22 +93,20 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
       .from("platform_accounts")
       .update({
         last_synced_at: new Date().toISOString(),
-        last_followers: profile.followers_count,
-        last_track_count: profile.track_count,
-        external_id: profile.external_id,
+        last_followers: followers,
+        last_track_count: trackOrVideoCount,
+        external_id: externalId,
         last_error: null,
       })
       .eq("id", acc.id);
 
     const delta =
-      acc.last_followers !== null
-        ? profile.followers_count - acc.last_followers
-        : null;
+      acc.last_followers !== null ? followers - acc.last_followers : null;
 
     return {
       ...base,
       ok: true,
-      followers: profile.followers_count,
+      followers,
       delta,
     };
   } catch (e) {

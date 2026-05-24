@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Trash2, Check, AlertCircle } from "lucide-react";
 import {
   saveSoundCloudAccountAction,
+  saveYouTubeAccountAction,
   deletePlatformAccountAction,
   syncNowAction,
 } from "./platform-accounts-actions";
@@ -27,6 +28,9 @@ export function PlatformAccountsSection({ accounts }: Props) {
 
   const soundcloud = accounts.find((a) => a.platform === "soundcloud");
   const [scUsername, setScUsername] = useState(soundcloud?.username || "");
+
+  const youtube = accounts.find((a) => a.platform === "youtube");
+  const [ytHandle, setYtHandle] = useState(youtube?.username || "");
 
   function saveSC() {
     setError(null);
@@ -59,6 +63,42 @@ export function PlatformAccountsSection({ accounts }: Props) {
     startTransition(async () => {
       await deletePlatformAccountAction("soundcloud");
       setScUsername("");
+      setInfo(null);
+      router.refresh();
+    });
+  }
+
+  function saveYT() {
+    setError(null);
+    setInfo(null);
+    if (!ytHandle.trim()) {
+      setError("Ingresa el handle o URL de tu canal de YouTube");
+      return;
+    }
+    startTransition(async () => {
+      const r = await saveYouTubeAccountAction({
+        handle: ytHandle,
+        auto_sync_enabled: true,
+      });
+      if (r.ok) {
+        setInfo("Guardado. Pulsa 'Sincronizar ahora' para traer la data.");
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
+    });
+  }
+
+  function removeYT() {
+    if (
+      !confirm(
+        "¿Quitar la cuenta de YouTube? Los snapshots ya guardados quedan, pero deja de sincronizar."
+      )
+    )
+      return;
+    startTransition(async () => {
+      await deletePlatformAccountAction("youtube");
+      setYtHandle("");
       setInfo(null);
       router.refresh();
     });
@@ -156,6 +196,82 @@ export function PlatformAccountsSection({ accounts }: Props) {
               <div className="flex items-start gap-1.5 text-danger mt-2">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <span>Último error: {soundcloud.last_error}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* YouTube */}
+      <div className="pt-5 border-t border-border">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="font-semibold flex items-center gap-2">
+              YouTube
+              {youtube && (
+                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success/15 border border-success/30 text-success">
+                  conectado
+                </span>
+              )}
+            </h3>
+            <p className="text-xs text-fg-muted mt-0.5">
+              Auto-sync diario de suscriptores, videos y views (YouTube Data API v3)
+            </p>
+          </div>
+          {youtube && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={removeYT}
+              disabled={isPending}
+              className="text-danger border-danger/30 hover:bg-danger/10 hover:text-danger"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-end gap-2">
+          <div className="flex-1 space-y-1">
+            <Label htmlFor="yt-handle" className="text-xs">
+              Handle o URL del canal
+            </Label>
+            <Input
+              id="yt-handle"
+              value={ytHandle}
+              onChange={(e) => setYtHandle(e.target.value)}
+              placeholder="@JayPortu  o  https://youtube.com/@JayPortu"
+              disabled={isPending}
+            />
+          </div>
+          <Button onClick={saveYT} disabled={isPending} size="sm">
+            {youtube ? "Actualizar" : "Conectar"}
+          </Button>
+        </div>
+
+        {youtube && (
+          <div className="mt-3 text-xs text-fg-muted space-y-1">
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {youtube.last_followers !== null && (
+                <span>
+                  Suscriptores: <strong className="text-fg">{youtube.last_followers.toLocaleString("es-CL")}</strong>
+                </span>
+              )}
+              {youtube.last_track_count !== null && (
+                <span>
+                  Videos: <strong className="text-fg">{youtube.last_track_count}</strong>
+                </span>
+              )}
+              {youtube.last_synced_at && (
+                <span>
+                  Última sync: <strong className="text-fg">{relativeTime(youtube.last_synced_at)}</strong>
+                </span>
+              )}
+            </div>
+            {youtube.last_error && (
+              <div className="flex items-start gap-1.5 text-danger mt-2">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>Último error: {youtube.last_error}</span>
               </div>
             )}
           </div>

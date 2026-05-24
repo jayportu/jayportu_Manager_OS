@@ -55,6 +55,16 @@ export async function saveSocials(input: SocialsInput) {
       auto_sync_enabled: true,
     });
   }
+
+  if (yt) {
+    // Guardamos la URL/handle tal cual lo dió el user; el sync-job
+    // normaliza con normalizeYouTubeInput al momento de llamar a la API.
+    await upsertPlatformAccount({
+      platform: "youtube",
+      username: yt,
+      auto_sync_enabled: true,
+    });
+  }
 }
 
 export async function completeOnboarding() {

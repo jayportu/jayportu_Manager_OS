@@ -8,6 +8,7 @@ import {
 } from "@/lib/queries/platform-accounts";
 import { syncUserAccounts } from "@/lib/integrations/sync-job";
 import { normalizeSoundCloudHandle } from "@/lib/integrations/soundcloud";
+import { normalizeYouTubeInput } from "@/lib/integrations/youtube";
 
 type Result<T = void> =
   | { ok: true; data: T }
@@ -29,6 +30,32 @@ export async function saveSoundCloudAccountAction(input: {
     const acc = await upsertPlatformAccount({
       platform: "soundcloud",
       username: handle,
+      auto_sync_enabled: input.auto_sync_enabled ?? true,
+    });
+    revalidatePath("/configuracion");
+    revalidatePath("/growth");
+    return { ok: true, data: { id: acc.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+export async function saveYouTubeAccountAction(input: {
+  handle: string;
+  auto_sync_enabled?: boolean;
+}): Promise<Result<{ id: string }>> {
+  try {
+    const raw = input.handle.trim();
+    if (!raw) return { ok: false, error: "Ingresá el handle o URL del canal" };
+    // Validar que normalize produzca algo válido
+    const norm = normalizeYouTubeInput(raw);
+    if (!norm.value || norm.value.length > 100) {
+      return { ok: false, error: "Handle/URL inválido" };
+    }
+    // Guardamos el input tal cual lo dió el user (el sync resuelve)
+    const acc = await upsertPlatformAccount({
+      platform: "youtube",
+      username: raw,
       auto_sync_enabled: input.auto_sync_enabled ?? true,
     });
     revalidatePath("/configuracion");
