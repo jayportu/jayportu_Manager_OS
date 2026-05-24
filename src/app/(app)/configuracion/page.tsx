@@ -36,7 +36,7 @@ export default async function ConfiguracionPage() {
         <h2 className="text-lg font-semibold mb-2">Press kit</h2>
         <p className="text-sm text-fg-muted mb-4">
           Elegí si tu página pública se arma automáticamente con tus datos
-          o si querés mostrar un PDF propio que ya tengas diseñado.
+          o si quieres mostrar un PDF propio que ya tengas diseñado.
         </p>
         <PressKitSection
           mode={profile.press_kit_mode}

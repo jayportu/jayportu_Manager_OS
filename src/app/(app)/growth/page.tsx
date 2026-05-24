@@ -122,7 +122,7 @@ export default async function GrowthPage() {
         {campaigns.length === 0 ? (
           <Card className="p-6 text-center">
             <p className="text-sm text-fg-muted mb-3">
-              No tenés campañas activas. Una campaña te ayuda a planificar
+              No tienes campañas activas. Una campaña te ayuda a planificar
               contenido coordinado para crecer.
             </p>
             <Button asChild>

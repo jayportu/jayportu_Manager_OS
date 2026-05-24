@@ -268,7 +268,7 @@ booking@sonar.cl
         <div className="text-center py-6 space-y-3">
           <FileSpreadsheet className="w-10 h-10 mx-auto text-fg-subtle" />
           <p className="text-sm text-fg-muted max-w-md mx-auto">
-            Si tienes una lista en CSV, podés importarla directo al CRM (no
+            Si tienes una lista en CSV, puedes importarla directo al CRM (no
             pasa por la cola de Descubrir).
           </p>
           <Button asChild variant="outline">

@@ -151,7 +151,7 @@ export function NewCampaignForm({ contacts, templates }: Props) {
             rows={3}
             value={messageBase}
             onChange={(e) => setMessageBase(e.target.value)}
-            placeholder="Si no usas plantilla, podés poner aquí el mensaje base que vas a personalizar por contacto."
+            placeholder="Si no usas plantilla, puedes poner aquí el mensaje base que vas a personalizar por contacto."
           />
         </div>
       </Card>

@@ -7,7 +7,7 @@ interface LogoProps {
    *
    * Nota: en versiones anteriores existía "horizontal" pero los PNGs eran
    * incorrectos. Para mantener compatibilidad con call sites antiguos, la
-   * prop sigue existiendo pero siempre renderiza el stacked. Si querés
+   * prop sigue existiendo pero siempre renderiza el stacked. Si quieres
    * un logo horizontal real, agregá un PNG nuevo y actualizá este file.
    */
   variant?: "stacked" | "horizontal";

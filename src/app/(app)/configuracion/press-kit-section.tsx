@@ -200,7 +200,7 @@ export function PressKitSection({
         ) : (
           <div>
             <p className="text-xs text-fg-muted mb-3">
-              Si ya tenés un press kit diseñado en PDF, subilo. Máximo 10 MB.
+              Si ya tienes un press kit diseñado en PDF, súbelo. Máximo 10 MB.
             </p>
             <Button onClick={chooseFile} disabled={isPending} size="sm">
               <Upload className="w-3.5 h-3.5" />
