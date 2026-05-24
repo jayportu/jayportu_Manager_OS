@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Settings,
   Mail,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/logo";
@@ -34,9 +35,10 @@ const NAV_ITEMS = [
 
 interface SidebarProps {
   userEmail?: string;
+  isAdmin?: boolean;
 }
 
-export function Sidebar({ userEmail }: SidebarProps) {
+export function Sidebar({ userEmail, isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -71,6 +73,24 @@ export function Sidebar({ userEmail }: SidebarProps) {
             </Link>
           );
         })}
+
+        {isAdmin && (
+          <>
+            <div className="my-2 mx-3 h-px bg-border" />
+            <Link
+              href="/admin"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                pathname.startsWith("/admin")
+                  ? "bg-bg-panel text-accent border-l-2 border-accent pl-[10px]"
+                  : "text-fg-muted hover:bg-bg-panel hover:text-accent"
+              )}
+            >
+              <Shield className="w-[18px] h-[18px] shrink-0" />
+              <span>Admin</span>
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* User block */}

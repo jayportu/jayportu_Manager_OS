@@ -31,6 +31,7 @@ export interface DjProfile {
   hospitality: string;
   public_slug: string;
   onboarding_completed_at: string | null;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 }

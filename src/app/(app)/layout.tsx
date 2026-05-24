@@ -22,7 +22,7 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("dj_profile")
-    .select("onboarding_completed_at")
+    .select("onboarding_completed_at, is_admin")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -30,7 +30,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar userEmail={user.email} />
+      <Sidebar userEmail={user.email} isAdmin={profile?.is_admin === true} />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar userEmail={user.email} />
         <main
