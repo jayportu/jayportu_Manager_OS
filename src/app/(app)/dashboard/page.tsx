@@ -129,16 +129,17 @@ export default async function DashboardPage() {
             — {new Date().toLocaleDateString("es-CL", { weekday: "short", day: "2-digit", month: "short" }).toUpperCase().replace(/\./g, "")} · {new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false })}
           </div>
           <h1
-            className="mt-2 leading-none"
+            className="mt-2 leading-none break-words"
             style={{
               fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-              fontSize: "clamp(48px, 8vw, 80px)",
-              lineHeight: 0.85,
+              fontSize: "clamp(34px, 7vw, 72px)",
+              lineHeight: 0.88,
               letterSpacing: "-0.01em",
               textTransform: "uppercase",
             }}
           >
-            {greeting.toUpperCase().split(" ")[0]} <span className="text-ink">{displayName.toUpperCase()}</span>
+            {greeting.toUpperCase()},{" "}
+            <span className="text-ink">{displayName.toUpperCase()}</span>
             <span className="text-orange">.</span>
           </h1>
           <p className="text-sm md:text-base mt-3 max-w-2xl text-fg">{heroSubtitle}</p>
