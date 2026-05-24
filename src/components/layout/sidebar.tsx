@@ -44,7 +44,7 @@ export function Sidebar({
   const avatarChar = displayName.charAt(0);
 
   return (
-    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-ink text-cream relative overflow-hidden border-r-2 border-orange">
+    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-ink text-cream relative overflow-hidden border-r-2 border-orange h-full">
       {/* Watermark D. de fondo */}
       <span
         aria-hidden="true"
@@ -82,7 +82,7 @@ export function Sidebar({
       </span>
 
       {/* Logo + LIVE indicator */}
-      <div className="relative z-10 px-[22px] pt-[22px] pb-[18px] border-b-2 border-orange flex items-start justify-between">
+      <div className="relative z-10 shrink-0 px-[22px] pt-[22px] pb-[18px] border-b-2 border-orange flex items-start justify-between">
         <span
           className="select-none"
           style={{
@@ -105,7 +105,7 @@ export function Sidebar({
       </div>
 
       {/* Manifesto block (donde irá próximo gig cuando haya data) */}
-      <div className="relative z-10 px-[22px] py-[14px] bg-orange text-ink border-b-2 border-ink">
+      <div className="relative z-10 shrink-0 px-[22px] py-[14px] bg-orange text-ink border-b-2 border-ink">
         <div className="font-mono text-[9px] font-bold tracking-[0.12em]">
           — THE DJ OS
         </div>
@@ -126,13 +126,13 @@ export function Sidebar({
       </div>
 
       {/* Section header */}
-      <div className="relative z-10 px-[22px] pt-[18px] pb-[6px] flex items-center gap-2 font-mono text-[9px] font-bold tracking-[0.14em] text-[#555]">
+      <div className="relative z-10 shrink-0 px-[22px] pt-[18px] pb-[6px] flex items-center gap-2 font-mono text-[9px] font-bold tracking-[0.14em] text-[#555]">
         <span>NAVEGACIÓN</span>
         <span className="flex-1 h-px bg-[#2a2a2a]" />
       </div>
 
-      {/* Nav items */}
-      <nav className="relative z-10 flex flex-col flex-1 overflow-y-auto">
+      {/* Nav items (scrollea si el nav es más alto que el espacio disponible) */}
+      <nav className="relative z-10 flex flex-col flex-1 min-h-0 overflow-y-auto">
         {NAV_ITEMS.map(({ href, label }) => {
           const isActive =
             pathname === href ||
@@ -172,8 +172,8 @@ export function Sidebar({
         )}
       </nav>
 
-      {/* User card */}
-      <div className="relative z-10 mt-auto m-[14px] p-[14px] bg-[#161616] border border-[#2a2a2a]">
+      {/* User card — siempre visible al pie del sidebar */}
+      <div className="relative z-10 shrink-0 m-[14px] p-[14px] bg-[#161616] border border-[#2a2a2a]">
         <div
           className="absolute -top-[8px] left-[12px] bg-ink px-[6px] font-mono text-[8px] font-bold text-orange"
           style={{ letterSpacing: "0.12em" }}

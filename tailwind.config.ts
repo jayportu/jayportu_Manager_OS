@@ -39,8 +39,8 @@ const config: Config = {
         },
         fg: {
           DEFAULT: "#0A0A0A",    // INK — texto principal
-          muted: "#555555",      // texto secundario
-          subtle: "#888888",     // texto terciario
+          muted: "#3A3A3A",      // texto secundario (más oscuro para contraste sobre cream)
+          subtle: "#6B6B6B",     // texto terciario
         },
         accent: {
           DEFAULT: "#FF5C00",    // ORANGE — acento único

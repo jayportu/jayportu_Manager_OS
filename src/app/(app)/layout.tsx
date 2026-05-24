@@ -29,13 +29,15 @@ export default async function AppLayout({
   if (!profile?.onboarding_completed_at) redirect("/welcome");
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar fijo (desktop) — se mantiene en su lugar, scrollea internamente si hace falta */}
       <Sidebar
         userEmail={user.email}
         isAdmin={profile?.is_admin === true}
         artistName={profile?.artist_name ?? null}
       />
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Columna derecha: topbar fijo arriba + main scrolleable */}
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         <Topbar userEmail={user.email} />
         <main
           className="flex-1 overflow-y-auto md:pb-0"
@@ -46,6 +48,7 @@ export default async function AppLayout({
           {children}
         </main>
       </div>
+      {/* Bottom nav (mobile only) — ya es fixed bottom-0 */}
       <BottomNav />
     </div>
   );

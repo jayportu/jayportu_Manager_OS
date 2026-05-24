@@ -84,7 +84,7 @@ export default async function ContactDetailPage({ params }: PageProps) {
       {/* Header */}
       <Card className="p-6 mb-5">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-full bg-secondary border border-border-strong flex items-center justify-center font-bold text-lg shrink-0">
+          <div className="w-14 h-14 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center font-bold text-lg shrink-0">
             {initials(contact.name)}
           </div>
           <div className="flex-1 min-w-0">

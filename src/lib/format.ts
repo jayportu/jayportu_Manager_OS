@@ -44,26 +44,26 @@ export function initials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-/** Color del badge según score */
+/** Color del badge según score — Type Beat: alto contraste, sin pasteles */
 export function scoreColor(score: number): { bg: string; text: string } {
   if (score >= 80)
     return {
-      bg: "bg-accent-soft border border-accent/30",
-      text: "text-accent",
+      bg: "bg-orange border-2 border-ink",
+      text: "text-ink",
     };
   if (score >= 60)
     return {
-      bg: "bg-success/15 border border-success/30",
-      text: "text-success",
+      bg: "bg-success border-2 border-ink",
+      text: "text-white",
     };
   if (score >= 40)
     return {
-      bg: "bg-warning/15 border border-warning/30",
-      text: "text-warning",
+      bg: "bg-warning border-2 border-ink",
+      text: "text-white",
     };
   return {
-    bg: "bg-secondary border border-border",
-    text: "text-fg-muted",
+    bg: "bg-cream border-2 border-ink",
+    text: "text-ink",
   };
 }
 

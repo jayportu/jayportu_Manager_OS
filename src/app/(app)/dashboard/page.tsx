@@ -379,7 +379,7 @@ export default async function DashboardPage() {
                     href={`/crm/${c.id}`}
                     className="flex items-center gap-3 px-3.5 py-3 rounded-lg bg-bg border border-border hover:border-accent/30 transition-colors group"
                   >
-                    <div className="w-9 h-9 rounded-full bg-secondary border border-border-strong flex items-center justify-center text-xs font-bold shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center text-xs font-bold shrink-0">
                       {initials(c.name)}
                     </div>
                     <div className="flex-1 min-w-0">

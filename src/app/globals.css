@@ -24,13 +24,16 @@
     --primary: 22 100% 50%;            /* #FF5C00 */
     --primary-foreground: 0 0% 4%;     /* texto INK sobre orange */
 
-    /* Secondary (acción secundaria) = INK */
-    --secondary: 0 0% 4%;              /* #0A0A0A */
-    --secondary-foreground: 34 30% 92%;/* CREAM sobre INK */
+    /* Secondary (acción secundaria) = cream tinted gris claro
+       (era INK pero los muchos usos como badge/pill con texto encima
+       lo hacían inservible — INK sobre INK invisible). Para avatares
+       prominentes usar bg-ink + text-cream explícito. */
+    --secondary: 30 22% 87%;           /* #E8E1D3 cream oscuro */
+    --secondary-foreground: 0 0% 4%;   /* INK sobre el gris */
 
     /* Muted (texto secundario, fondos sutiles) */
     --muted: 30 20% 88%;
-    --muted-foreground: 0 0% 33%;      /* #555 */
+    --muted-foreground: 0 0% 23%;      /* #3A3A3A — buen contraste sobre cream */
 
     /* Accent (hover, highlights) */
     --accent: 22 100% 50%;             /* ORANGE */

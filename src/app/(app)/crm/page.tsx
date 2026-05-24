@@ -154,7 +154,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                           href={`/crm/${c.id}`}
                           className="flex items-center gap-3 group"
                         >
-                          <div className="w-9 h-9 rounded-full bg-secondary border border-border-strong flex items-center justify-center text-xs font-bold shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center text-xs font-bold shrink-0">
                             {initials(c.name)}
                           </div>
                           <div className="min-w-0">
@@ -174,13 +174,13 @@ export default async function CrmPage({ searchParams }: PageProps) {
                         {c.city || "—"}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="text-xs px-2 py-1 rounded bg-secondary text-fg-muted border border-border">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 border-2 border-ink bg-cream text-ink">
                           {CONTACT_STATUS_LABELS[c.status]}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`text-xs font-bold px-2 py-1 rounded ${sc.bg} ${sc.text}`}
+                          className={`inline-block min-w-[40px] text-center font-mono text-[11px] font-bold px-2 py-1 ${sc.bg} ${sc.text}`}
                         >
                           {c.score}
                         </span>
