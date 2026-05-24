@@ -126,7 +126,7 @@ export default async function DashboardPage() {
         </span>
         <div className="relative">
           <div className="font-mono text-[11px] font-bold tracking-[0.12em] text-orange uppercase">
-            — {new Date().toLocaleDateString("es-CL", { weekday: "short", day: "2-digit", month: "short" }).toUpperCase().replace(/\./g, "")} · {new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false })}
+            — {new Date().toLocaleDateString("es-CL", { weekday: "short", day: "2-digit", month: "short", timeZone: "America/Santiago" }).toUpperCase().replace(/\./g, "")} · {new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Santiago" })}
           </div>
           <h1
             className="mt-2 leading-none break-words"

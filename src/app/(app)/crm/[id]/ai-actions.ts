@@ -54,6 +54,7 @@ export async function appendToContactNotesAction(
       month: "short",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "America/Santiago",
     });
     const newNotes = `${current.notes || ""}\n\n--- IA · ${stamp} ---\n${textToAppend}`.trim();
 

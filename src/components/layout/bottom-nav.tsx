@@ -42,16 +42,16 @@ export function BottomNav() {
             key={href}
             href={href}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-1 transition-colors border-r border-[#1a1a1a] last:border-r-0",
+              "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 transition-colors border-r border-[#1a1a1a] last:border-r-0",
               isActive
                 ? "bg-orange text-ink"
                 : "text-[#888] hover:text-cream"
             )}
           >
-            <Icon className="w-5 h-5" />
+            <Icon className="w-5 h-5 shrink-0" />
             <span
-              className="font-mono text-[9px] font-bold uppercase"
-              style={{ letterSpacing: "0.08em" }}
+              className="font-mono text-[9px] font-bold uppercase truncate max-w-full"
+              style={{ letterSpacing: "0.04em" }}
             >
               {label}
             </span>
