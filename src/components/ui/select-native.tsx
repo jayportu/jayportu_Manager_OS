@@ -2,6 +2,10 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
+/**
+ * DROP. — SelectNative (Type Beat).
+ * Borde 2px ink, fondo white, chevron a la derecha.
+ */
 export type SelectNativeProps = React.SelectHTMLAttributes<HTMLSelectElement>;
 
 const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProps>(
@@ -11,14 +15,14 @@ const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProps>(
         <select
           ref={ref}
           className={cn(
-            "flex h-10 w-full appearance-none rounded-md border border-input bg-bg-panel pl-3 pr-9 py-2 text-sm text-foreground placeholder:text-fg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "flex h-10 w-full appearance-none border-2 border-ink bg-white pl-3 pr-9 py-2 text-sm text-ink font-sans placeholder:text-fg-muted focus-visible:outline-none focus-visible:border-orange disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
             className
           )}
           {...props}
         >
           {children}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-muted" />
+        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink" />
       </div>
     );
   }

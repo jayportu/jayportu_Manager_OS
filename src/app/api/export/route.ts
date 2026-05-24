@@ -55,9 +55,9 @@ export async function GET() {
 
   const payload = {
     meta: {
-      app: "JAY Manager OS",
-      version: "0.11.0",
-      sprint: 11,
+      app: "DROP",
+      version: "0.13.0",
+      sprint: 18,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,

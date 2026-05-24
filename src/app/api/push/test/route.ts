@@ -23,7 +23,7 @@ export async function POST() {
 
   try {
     const result = await sendPushToUser(user.id, {
-      title: "Manager OS — Prueba",
+      title: "DROP. — Prueba",
       body: "Si ves esto, las notificaciones funcionan en este dispositivo.",
       url: "/configuracion",
       tag: "test",

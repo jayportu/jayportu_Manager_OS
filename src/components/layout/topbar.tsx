@@ -1,15 +1,18 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/brand/logo";
 
 interface TopbarProps {
   userEmail?: string;
 }
 
+/**
+ * DROP. — Topbar (Type Beat).
+ * Bg cream con borde inferior 2px ink. Mobile: logo + ticker.
+ * Desktop: search + email + cerrar sesión en estilo brutalist.
+ */
 export function Topbar({ userEmail }: TopbarProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -22,7 +25,7 @@ export function Topbar({ userEmail }: TopbarProps) {
 
   return (
     <header
-      className="border-b border-border bg-bg flex items-center px-4 md:px-6 gap-4 shrink-0 h-16"
+      className="border-b-2 border-ink bg-cream flex items-center px-4 md:px-6 gap-4 shrink-0 relative"
       style={{
         paddingTop: "env(safe-area-inset-top)",
         height: "calc(4rem + env(safe-area-inset-top))",
@@ -30,16 +33,30 @@ export function Topbar({ userEmail }: TopbarProps) {
     >
       {/* Logo mobile */}
       <div className="md:hidden flex items-center">
-        <Logo variant="stacked" tone="light" size={52} />
+        <span
+          className="select-none"
+          style={{
+            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontSize: "30px",
+            lineHeight: 0.85,
+            color: "#0A0A0A",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          DROP<span style={{ color: "#FF5C00" }}>.</span>
+        </span>
+        <span className="ml-3 font-mono text-[9px] font-bold tracking-[0.15em] text-fg-muted hidden sm:inline">
+          — THE DJ OS
+        </span>
       </div>
 
-      {/* Search */}
+      {/* Search (desktop) */}
       <div className="hidden md:flex flex-1 max-w-md relative">
         <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
-          placeholder="Buscar contacto, venue, fecha…"
-          className="w-full h-10 pl-10 pr-4 rounded-lg bg-bg-panel border border-border text-sm placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-accent"
+          placeholder="BUSCAR CONTACTO, VENUE, FECHA…"
+          className="w-full h-10 pl-10 pr-4 bg-white border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.05em] placeholder:text-fg-subtle focus:outline-none focus:border-orange transition-colors"
         />
       </div>
 
@@ -47,16 +64,16 @@ export function Topbar({ userEmail }: TopbarProps) {
 
       {/* User actions */}
       <div className="flex items-center gap-3">
-        <span className="hidden sm:inline text-xs text-fg-muted">
+        <span className="hidden lg:inline font-mono text-[10px] font-bold text-fg-muted tracking-[0.08em] uppercase">
           {userEmail}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
+        <button
           onClick={handleLogout}
+          className="h-9 px-3 border-2 border-ink bg-ink text-orange hover:bg-orange hover:text-ink font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5"
         >
-          Cerrar sesión
-        </Button>
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">SALIR</span>
+        </button>
       </div>
     </header>
   );

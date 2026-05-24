@@ -3,27 +3,43 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+/**
+ * DROP. — Button (Type Beat).
+ * Bordes 2px ink, sin border-radius, font-mono uppercase + tracking.
+ * Variantes:
+ *   - default: bg ink + texto orange (CTA primario)
+ *   - orange:  bg orange + texto ink (CTA secundario fuerte)
+ *   - outline: borde 2px ink, fondo cream
+ *   - ghost:   sin borde, sin fondo
+ *   - destructive: bg danger + texto blanco
+ *   - secondary: alias de outline (compat retro)
+ *   - link: texto subrayable
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 border-2",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/90 font-semibold",
+          "bg-ink text-orange border-ink hover:bg-orange hover:text-ink",
+        orange:
+          "bg-orange text-ink border-ink hover:bg-ink hover:text-orange",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-danger text-white border-danger hover:bg-danger/90",
         outline:
-          "border border-border bg-transparent hover:bg-secondary hover:text-foreground",
+          "border-ink bg-transparent text-ink hover:bg-ink hover:text-orange",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-secondary hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border-ink bg-cream text-ink hover:bg-ink hover:text-orange",
+        ghost:
+          "border-transparent bg-transparent text-ink hover:bg-ink hover:text-orange",
+        link:
+          "border-transparent bg-transparent text-orange underline-offset-4 hover:underline tracking-normal normal-case font-sans font-semibold",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        sm: "h-8 px-3 text-[10px]",
+        lg: "h-12 px-6 text-[12px]",
+        icon: "h-10 w-10 p-0",
       },
     },
     defaultVariants: {

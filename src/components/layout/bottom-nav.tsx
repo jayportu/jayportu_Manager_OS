@@ -19,11 +19,15 @@ const MOBILE_ITEMS = [
   { href: "/mas", label: "Más", icon: MoreHorizontal },
 ];
 
+/**
+ * DROP. — Bottom nav mobile (Type Beat).
+ * Bg INK con borde superior 2px ORANGE. Item activo en bloque ORANGE.
+ */
 export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 bg-bg-subtle border-t border-border flex z-50"
+      className="md:hidden fixed bottom-0 inset-x-0 bg-ink border-t-2 border-orange flex z-50"
       style={{
         paddingBottom: "env(safe-area-inset-bottom)",
         height: "calc(4rem + env(safe-area-inset-bottom))",
@@ -38,12 +42,19 @@ export function BottomNav() {
             key={href}
             href={href}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-1 transition-colors",
-              isActive ? "text-accent" : "text-fg-muted hover:text-fg"
+              "flex-1 flex flex-col items-center justify-center gap-1 transition-colors border-r border-[#1a1a1a] last:border-r-0",
+              isActive
+                ? "bg-orange text-ink"
+                : "text-[#888] hover:text-cream"
             )}
           >
             <Icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{label}</span>
+            <span
+              className="font-mono text-[9px] font-bold uppercase"
+              style={{ letterSpacing: "0.08em" }}
+            >
+              {label}
+            </span>
           </Link>
         );
       })}

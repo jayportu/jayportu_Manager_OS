@@ -3,49 +3,50 @@
 @tailwind utilities;
 
 /**
- * JAY Manager OS — Studio Dark global styles
- * shadcn/ui custom theme variables (en HSL para que shadcn pueda usarlas)
- * Solo modo oscuro.
+ * DROP — Type Beat global styles
+ * Modo "light" sobre fondo cream. Bordes 2px ink, sin radius por defecto.
+ * shadcn vars en HSL apuntando a la paleta DROP.
  */
 @layer base {
   :root {
     /* Base */
-    --background: 240 5% 6.5%;        /* #0F0F11 */
-    --foreground: 0 0% 98%;            /* #FAFAFA */
+    --background: 34 30% 92%;          /* #F4EFE7 CREAM */
+    --foreground: 0 0% 4%;             /* #0A0A0A INK */
 
     /* Cards / paneles */
-    --card: 240 6% 10%;                /* #18181B */
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;                 /* #FFFFFF */
+    --card-foreground: 0 0% 4%;
 
-    --popover: 240 6% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
 
-    /* Primary (acción principal) = amarillo JAY PORTU */
-    --primary: 45 81% 52%;             /* #E8B923 */
-    --primary-foreground: 0 0% 0%;     /* texto negro sobre amarillo */
+    /* Primary (acción principal) = ORANGE DROP */
+    --primary: 22 100% 50%;            /* #FF5C00 */
+    --primary-foreground: 0 0% 4%;     /* texto INK sobre orange */
 
-    /* Secondary (acción secundaria) = gris medio */
-    --secondary: 240 5% 16%;           /* #27272A */
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary (acción secundaria) = INK */
+    --secondary: 0 0% 4%;              /* #0A0A0A */
+    --secondary-foreground: 34 30% 92%;/* CREAM sobre INK */
 
     /* Muted (texto secundario, fondos sutiles) */
-    --muted: 240 5% 16%;
-    --muted-foreground: 240 5% 65%;    /* #A1A1AA */
+    --muted: 30 20% 88%;
+    --muted-foreground: 0 0% 33%;      /* #555 */
 
     /* Accent (hover, highlights) */
-    --accent: 240 5% 16%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 22 100% 50%;             /* ORANGE */
+    --accent-foreground: 0 0% 4%;
 
     /* Destructive */
-    --destructive: 0 72% 51%;          /* #EF4444 */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 60% 48%;          /* #C53030 */
+    --destructive-foreground: 0 0% 100%;
 
     /* Borders e inputs */
-    --border: 240 5% 16%;              /* #27272A */
-    --input: 240 5% 16%;
-    --ring: 45 81% 52%;                /* ring amarillo */
+    --border: 0 0% 4%;                 /* INK */
+    --input: 0 0% 4%;
+    --ring: 22 100% 50%;               /* ring ORANGE */
 
-    --radius: 0.625rem;
+    /* Radius = 0 (brutalist). Avatares usan rounded-full directo. */
+    --radius: 0px;
   }
 
   * {
@@ -57,26 +58,26 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Selección de texto */
+  /* Selección de texto en ORANGE */
   ::selection {
-    background-color: rgba(232, 185, 35, 0.3);
-    color: #FAFAFA;
+    background-color: rgba(255, 92, 0, 0.35);
+    color: #0A0A0A;
   }
 
-  /* Scrollbar dark */
+  /* Scrollbar light */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0F0F11;
+    background: #F4EFE7;
   }
   ::-webkit-scrollbar-thumb {
-    background: #27272A;
-    border-radius: 5px;
+    background: #0A0A0A;
+    border-radius: 0;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3F3F46;
+    background: #FF5C00;
   }
 }
 
@@ -85,9 +86,28 @@
     text-wrap: balance;
   }
 
-  /* Wordmark JAY PORTU */
+  /* Wordmark DROP — Anton condensed */
   .wordmark {
-    font-family: var(--font-iceland), system-ui, sans-serif;
+    font-family: var(--font-anton), Impact, system-ui, sans-serif;
+    letter-spacing: 0;
+    line-height: 0.85;
+    font-weight: 400;
+  }
+
+  /* Grid paper background (textura técnica sutil cream) */
+  .grid-paper {
+    background-image:
+      linear-gradient(rgba(10, 10, 10, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 10, 10, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Label tag estilo Type Beat — separador "—" inicial */
+  .mono-label {
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.1em;
   }
 }

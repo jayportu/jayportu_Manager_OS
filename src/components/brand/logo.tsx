@@ -1,42 +1,74 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
   /**
-   * Solo disponible "stacked" — JAY arriba + PORTU abajo, cuadrado 500x500.
-   *
-   * Nota: en versiones anteriores existía "horizontal" pero los PNGs eran
-   * incorrectos. Para mantener compatibilidad con call sites antiguos, la
-   * prop sigue existiendo pero siempre renderiza el stacked. Si quieres
-   * un logo horizontal real, agregá un PNG nuevo y actualizá este file.
+   * "wordmark" = `DROP.` completo (default).
+   * "monogram" = `D.` solo, para favicons/badges/sidebars compactos.
+   * `stacked` y `horizontal` se preservan por retrocompatibilidad — ambos
+   * renderizan el wordmark.
    */
-  variant?: "stacked" | "horizontal";
-  /** "light" para fondos oscuros (default), "dark" para fondos claros */
-  tone?: "light" | "dark";
-  /** Tamaño cuadrado en px */
+  variant?: "wordmark" | "monogram" | "stacked" | "horizontal";
+  /**
+   * Tono del texto:
+   * - "ink" (default) → texto INK sobre fondos claros (CREAM/WHITE)
+   * - "cream" → texto CREAM sobre fondos oscuros (INK)
+   * - "orange" → texto ORANGE
+   *
+   * Aliases legacy: "light" (= cream, para fondos oscuros) y
+   * "dark" (= ink, para fondos claros) siguen siendo válidos.
+   */
+  tone?: "ink" | "cream" | "orange" | "light" | "dark";
+  /** Tamaño del wordmark en px. */
   size?: number;
+  /** Clase extra. */
   className?: string;
+  /** No tiene efecto, se preserva por compat (era para next/image priority). */
   priority?: boolean;
 }
 
+function resolveTone(tone: LogoProps["tone"]): "ink" | "cream" | "orange" {
+  if (tone === "light") return "cream";
+  if (tone === "dark") return "ink";
+  return tone ?? "ink";
+}
+
+const TONE_COLOR: Record<"ink" | "cream" | "orange", string> = {
+  ink: "#0A0A0A",
+  cream: "#F4EFE7",
+  orange: "#FF5C00",
+};
+
+/**
+ * DROP. wordmark — renderizado como texto Anton + punto naranja.
+ * El punto SIEMPRE va en orange #FF5C00, salvo cuando el wordmark mismo es
+ * orange (caso extremo, el punto pasa a cream para contraste).
+ */
 export function Logo({
-  tone = "light",
-  size = 64,
+  variant = "wordmark",
+  tone = "ink",
+  size = 48,
   className,
-  priority = false,
 }: LogoProps) {
-  const src = `/brand/logo-mark-${tone}.png`;
-  const alt = "JAY PORTU";
+  const color = resolveTone(tone);
+  const isMonogram = variant === "monogram";
+  const text = isMonogram ? "D" : "DROP";
+  const dotColor = color === "orange" ? "#F4EFE7" : "#FF5C00";
 
   return (
-    <Image
-      src={src}
-      alt={alt}
-      width={size}
-      height={size}
-      priority={priority}
-      className={cn("select-none", className)}
-      draggable={false}
-    />
+    <span
+      className={cn("inline-flex items-baseline select-none", className)}
+      style={{
+        fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+        fontWeight: 400,
+        fontSize: `${size}px`,
+        lineHeight: 0.85,
+        letterSpacing: 0,
+        color: TONE_COLOR[color],
+      }}
+      aria-label={isMonogram ? "DROP" : "DROP."}
+    >
+      {text}
+      <span aria-hidden="true" style={{ color: dotColor }}>.</span>
+    </span>
   );
 }

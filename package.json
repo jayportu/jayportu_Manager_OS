@@ -1,7 +1,7 @@
 {
-  "name": "jay-manager-os",
-  "description": "App personal de gestión de carrera DJ JAY PORTU",
-  "version": "0.12.0",
+  "name": "drop-dj",
+  "description": "DROP. — The DJ OS. Manager OS para DJs.",
+  "version": "0.13.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3010",

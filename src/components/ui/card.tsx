@@ -1,12 +1,17 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * DROP. — Card (Type Beat).
+ * Borde 2px ink, fondo white, sin radius, sin sombra.
+ * Header con mono label, title en Anton display.
+ */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "rounded-xl border border-border bg-card text-card-foreground shadow-sm",
+        "border-2 border-ink bg-white text-ink",
         className
       )}
       {...props}
@@ -26,7 +31,10 @@ const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("text-xs font-semibold uppercase tracking-wider text-fg-muted", className)}
+      className={cn(
+        "font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange",
+        className
+      )}
       {...props}
     />
   )

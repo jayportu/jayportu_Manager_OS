@@ -99,19 +99,50 @@ export default async function DashboardPage() {
     recentInteractions.length === 0;
 
   const heroSubtitle = isFirstTime
-    ? "Bienvenido a tu Manager OS. Estos son tus próximos pasos para arrancar."
+    ? "Bienvenido a DROP. Estos son tus próximos pasos para arrancar."
     : `${pendingFollowUps.length} ${
         pendingFollowUps.length === 1 ? "follow-up pendiente" : "follow-ups pendientes"
       }${overdueCount > 0 ? ` · ${overdueCount} atrasados` : ""}.`;
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-7">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {greeting}, {displayName}
-        </h1>
-        <p className="text-sm text-fg-muted mt-1">{heroSubtitle}</p>
+    <div className="p-6 md:p-10 max-w-7xl mx-auto grid-paper">
+      {/* Hero header — Type Beat */}
+      <div className="border-2 border-ink bg-white p-6 md:p-8 mb-6 relative overflow-hidden">
+        {/* Watermark DROP. al fondo */}
+        <span
+          aria-hidden="true"
+          className="absolute pointer-events-none select-none hidden md:inline"
+          style={{
+            top: "-40px",
+            right: "-50px",
+            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontSize: "180px",
+            lineHeight: 0.85,
+            color: "rgba(255,92,0,0.07)",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          DROP.
+        </span>
+        <div className="relative">
+          <div className="font-mono text-[11px] font-bold tracking-[0.12em] text-orange uppercase">
+            — {new Date().toLocaleDateString("es-CL", { weekday: "short", day: "2-digit", month: "short" }).toUpperCase().replace(/\./g, "")} · {new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false })}
+          </div>
+          <h1
+            className="mt-2 leading-none"
+            style={{
+              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+              fontSize: "clamp(48px, 8vw, 80px)",
+              lineHeight: 0.85,
+              letterSpacing: "-0.01em",
+              textTransform: "uppercase",
+            }}
+          >
+            {greeting.toUpperCase().split(" ")[0]} <span className="text-ink">{displayName.toUpperCase()}</span>
+            <span className="text-orange">.</span>
+          </h1>
+          <p className="text-sm md:text-base mt-3 max-w-2xl text-fg">{heroSubtitle}</p>
+        </div>
       </div>
 
       {/* CTA si el perfil está incompleto */}
@@ -406,7 +437,7 @@ export default async function DashboardPage() {
       )}
 
       <div className="text-center text-[10px] uppercase tracking-widest text-fg-subtle py-6">
-        {profile?.city || "Santiago"} · {profile?.country || "Chile"} · v0.12
+        {profile?.city || "Santiago"} · {profile?.country || "Chile"} · DROP. v0.13
       </div>
     </div>
   );

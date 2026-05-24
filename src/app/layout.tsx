@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Iceland, Inter } from "next/font/google";
+import { Anton, Inter, Space_Mono } from "next/font/google";
 import "./globals.css";
 
-const iceland = Iceland({
+const anton = Anton({
   subsets: ["latin"],
   weight: ["400"],
-  variable: "--font-iceland",
+  variable: "--font-anton",
   display: "swap",
 });
 
@@ -15,14 +15,22 @@ const inter = Inter({
   display: "swap",
 });
 
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "JAY Manager OS",
-  description: "Manager OS para DJs: CRM, press kit público, growth tracking, calendario y plantillas. Costo $0.",
+  title: "DROP. — The DJ OS",
+  description:
+    "DROP. Manager OS para DJs: CRM, press kit público, growth tracking, calendario y plantillas. El sistema operativo del DJ.",
   manifest: "/manifest.json",
-  applicationName: "Manager OS",
+  applicationName: "DROP",
   appleWebApp: {
     capable: true,
-    title: "Manager OS",
+    title: "DROP",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -35,7 +43,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#0F0F11",
+  themeColor: "#0A0A0A",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover" as const,
@@ -47,9 +55,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es">
       <body
-        className={`${iceland.variable} ${inter.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
+        className={`${anton.variable} ${inter.variable} ${spaceMono.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
       >
         {children}
       </body>

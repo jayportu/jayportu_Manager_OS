@@ -1,9 +1,15 @@
 import type { Config } from "tailwindcss";
 
 /**
- * JAY Manager OS — Studio Dark theme
- * Paleta basada en el press kit oficial de JAY PORTU
- * Acento amarillo #E8B923 solo en CTAs, badges, números clave
+ * DROP — Type Beat theme (brutalist poster)
+ * Paleta: CREAM (#F4EFE7) + INK (#0A0A0A) + ORANGE (#FF5C00).
+ * Sin gradientes, sin tonos intermedios. Bordes 2px, sin border-radius
+ * por defecto (border-radius global se desactiva via --radius: 0;
+ * el `rounded-full` sigue funcionando para avatares).
+ *
+ * NOTA: los nombres de los tokens (bg, fg, accent...) se mantienen
+ * idénticos a la versión Studio Dark anterior para preservar TODAS las
+ * clases existentes en la app — solo cambian los valores que apuntan.
  */
 const config: Config = {
   darkMode: ["class"],
@@ -20,31 +26,36 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Studio Dark paleta
+        // DROP paleta — tokens preservan nomenclatura anterior
         bg: {
-          DEFAULT: "#0F0F11",
-          panel: "#18181B",
-          subtle: "#0A0A0C",
+          DEFAULT: "#F4EFE7",   // CREAM — fondo principal de la app
+          panel: "#FFFFFF",      // paneles / cards sobre el cream
+          subtle: "#E8E1D3",     // cream más oscuro — hover de tablas, fondos secundarios
+          dark: "#0A0A0A",       // INK — sidebar / barras oscuras (usa bg-bg-dark si necesitas oscuro)
         },
         border: {
-          DEFAULT: "#27272A",
-          strong: "#3F3F46",
+          DEFAULT: "#0A0A0A",    // INK — bordes 2px estilo Type Beat
+          strong: "#0A0A0A",
         },
         fg: {
-          DEFAULT: "#FAFAFA",
-          muted: "#A1A1AA",
-          subtle: "#71717A",
+          DEFAULT: "#0A0A0A",    // INK — texto principal
+          muted: "#555555",      // texto secundario
+          subtle: "#888888",     // texto terciario
         },
         accent: {
-          DEFAULT: "#E8B923",
-          soft: "rgba(232, 185, 35, 0.15)",
-          ring: "rgba(232, 185, 35, 0.3)",
+          DEFAULT: "#FF5C00",    // ORANGE — acento único
+          soft: "rgba(255, 92, 0, 0.12)",
+          ring: "rgba(255, 92, 0, 0.35)",
         },
-        // Estados semánticos
-        success: "#10B981",
-        warning: "#F59E0B",
-        danger: "#EF4444",
-        info: "#3B82F6",
+        // Cream + ink + orange expuestos directamente
+        cream: "#F4EFE7",
+        ink: "#0A0A0A",
+        orange: "#FF5C00",
+        // Estados semánticos (paleta DROP)
+        success: "#1F8A5C",
+        warning: "#C77A00",
+        danger: "#C53030",
+        info: "#2B5BA8",
         // shadcn vars compat (las usamos via CSS vars en globals.css)
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -76,15 +87,29 @@ const config: Config = {
         ring: "hsl(var(--ring))",
       },
       fontFamily: {
-        // Iceland para display (logo + headings grandes)
-        display: ["var(--font-iceland)", "system-ui", "sans-serif"],
+        // Anton para display (wordmark, KPI numbers, headers brutalist)
+        display: ["var(--font-anton)", "Impact", "system-ui", "sans-serif"],
         // Inter para body
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        // Space Mono para labels, tickers, data
+        mono: ["var(--font-space-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        // Todos los rounded-* derivan de --radius (que es 0 en DROP)
+        // EXCEPTO rounded-full (avatares circulares) y rounded-none.
+        none: "0",
+        sm: "calc(var(--radius) * 0.5)",
+        DEFAULT: "var(--radius)",
+        md: "var(--radius)",
+        lg: "calc(var(--radius) * 1.5)",
+        xl: "calc(var(--radius) * 2)",
+        "2xl": "calc(var(--radius) * 3)",
+        "3xl": "calc(var(--radius) * 4)",
+        full: "9999px",
+      },
+      borderWidth: {
+        DEFAULT: "1px",
+        "2": "2px",
       },
       keyframes: {
         "accordion-down": {
@@ -95,10 +120,20 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "ticker-scroll": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+        blink: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.3" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "ticker-scroll": "ticker-scroll 28s linear infinite",
+        blink: "blink 1.5s ease-in-out infinite",
       },
     },
   },

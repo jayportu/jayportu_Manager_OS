@@ -2,58 +2,138 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  Megaphone,
-  Search,
-  Calendar,
-  Image as ImageIcon,
-  FileText,
-  Sparkles,
-  TrendingUp,
-  Settings,
-  Mail,
-  Shield,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Logo } from "@/components/brand/logo";
+
+/**
+ * DROP. — Sidebar desktop (Type Beat brutalist poster).
+ * Fondo INK, navegación tipo setlist con dash, item activo en bloque ORANGE,
+ * watermark D. de fondo, user card al pie con stats.
+ *
+ * Sólo visible en md+. En mobile se muestra Topbar + BottomNav.
+ */
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/crm", label: "CRM", icon: Users },
-  { href: "/descubrir", label: "Descubrir", icon: Search },
-  { href: "/campanas", label: "Campañas", icon: Megaphone },
-  { href: "/calendario", label: "Calendario", icon: Calendar },
-  { href: "/press-kit", label: "Press kit", icon: ImageIcon },
-  { href: "/plantillas", label: "Plantillas", icon: FileText },
-  { href: "/gmail", label: "Gmail", icon: Mail },
-  { href: "/growth", label: "Growth", icon: TrendingUp },
-  { href: "/ia", label: "IA · Strategy", icon: Sparkles },
-  { href: "/configuracion", label: "Configuración", icon: Settings },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/crm", label: "CRM" },
+  { href: "/descubrir", label: "Descubrir" },
+  { href: "/campanas", label: "Campañas" },
+  { href: "/calendario", label: "Calendario" },
+  { href: "/press-kit", label: "Press kit" },
+  { href: "/plantillas", label: "Plantillas" },
+  { href: "/gmail", label: "Gmail" },
+  { href: "/growth", label: "Growth" },
+  { href: "/ia", label: "IA · Strategy" },
+  { href: "/configuracion", label: "Configuración" },
 ];
 
 interface SidebarProps {
   userEmail?: string;
   isAdmin?: boolean;
+  artistName?: string | null;
 }
 
-export function Sidebar({ userEmail, isAdmin = false }: SidebarProps) {
+export function Sidebar({
+  userEmail,
+  isAdmin = false,
+  artistName,
+}: SidebarProps) {
   const pathname = usePathname();
+  const displayName = artistName && artistName.trim().length > 0
+    ? artistName.trim().toUpperCase()
+    : "TU NOMBRE";
+  const avatarChar = displayName.charAt(0);
 
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col bg-bg-subtle border-r border-border p-4">
-      {/* Logo */}
-      <div className="px-3 py-2 mb-6 flex flex-col items-center">
-        <Logo variant="stacked" tone="light" size={140} priority />
-        <div className="text-[10px] uppercase tracking-widest text-fg-subtle mt-1">
-          Manager OS
+    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-ink text-cream relative overflow-hidden border-r-2 border-orange">
+      {/* Watermark D. de fondo */}
+      <span
+        aria-hidden="true"
+        className="absolute pointer-events-none select-none"
+        style={{
+          bottom: "-60px",
+          right: "-40px",
+          fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+          fontSize: "320px",
+          lineHeight: 0.75,
+          color: "rgba(255, 92, 0, 0.05)",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        D.
+      </span>
+
+      {/* Vertical ticker tag */}
+      <span
+        aria-hidden="true"
+        className="absolute pointer-events-none font-mono"
+        style={{
+          left: "8px",
+          top: "50%",
+          transform: "translateY(-50%) rotate(-90deg)",
+          transformOrigin: "left center",
+          fontSize: "8px",
+          color: "#333",
+          letterSpacing: "0.3em",
+          fontWeight: 700,
+          whiteSpace: "nowrap",
+        }}
+      >
+        v0.13 · BETA · DROP OS · LATAM
+      </span>
+
+      {/* Logo + LIVE indicator */}
+      <div className="relative z-10 px-[22px] pt-[22px] pb-[18px] border-b-2 border-orange flex items-start justify-between">
+        <span
+          className="select-none"
+          style={{
+            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontSize: "56px",
+            lineHeight: 0.78,
+            color: "#F4EFE7",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          DROP<span style={{ color: "#FF5C00" }}>.</span>
+        </span>
+        <span className="font-mono text-[9px] font-bold tracking-[0.1em] text-orange flex items-center gap-[5px]">
+          <span
+            className="w-[7px] h-[7px] bg-orange rounded-full animate-blink"
+            aria-hidden="true"
+          />
+          LIVE
+        </span>
+      </div>
+
+      {/* Manifesto block (donde irá próximo gig cuando haya data) */}
+      <div className="relative z-10 px-[22px] py-[14px] bg-orange text-ink border-b-2 border-ink">
+        <div className="font-mono text-[9px] font-bold tracking-[0.12em]">
+          — THE DJ OS
+        </div>
+        <div
+          className="mt-[6px]"
+          style={{
+            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontSize: "22px",
+            lineHeight: 0.95,
+            letterSpacing: "0.01em",
+          }}
+        >
+          EL DJ EN CONTROL.
+        </div>
+        <div className="font-mono text-[10px] font-bold mt-[4px]">
+          CRM · GIGS · GROWTH
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 flex flex-col gap-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+      {/* Section header */}
+      <div className="relative z-10 px-[22px] pt-[18px] pb-[6px] flex items-center gap-2 font-mono text-[9px] font-bold tracking-[0.14em] text-[#555]">
+        <span>NAVEGACIÓN</span>
+        <span className="flex-1 h-px bg-[#2a2a2a]" />
+      </div>
+
+      {/* Nav items */}
+      <nav className="relative z-10 flex flex-col flex-1 overflow-y-auto">
+        {NAV_ITEMS.map(({ href, label }) => {
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href));
@@ -62,48 +142,103 @@ export function Sidebar({ userEmail, isAdmin = false }: SidebarProps) {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                "px-[22px] py-[9px] grid grid-cols-[1fr_auto] gap-[10px] items-center transition-colors font-mono text-[12px] font-bold uppercase tracking-[0.08em] border-l-[3px] border-transparent",
                 isActive
-                  ? "bg-bg-panel text-fg border-l-2 border-accent pl-[10px]"
-                  : "text-fg-muted hover:bg-bg-panel hover:text-fg"
+                  ? "bg-orange text-ink border-l-ink"
+                  : "text-[#aaa] hover:text-cream"
               )}
             >
-              <Icon className="w-[18px] h-[18px] shrink-0" />
               <span>{label}</span>
+              <span aria-hidden="true">{isActive ? "◉" : ""}</span>
             </Link>
           );
         })}
 
         {isAdmin && (
           <>
-            <div className="my-2 mx-3 h-px bg-border" />
+            <div className="my-[10px] mx-[22px] border-t-2 border-dashed border-[#2a2a2a]" />
             <Link
               href="/admin"
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                "mx-[22px] px-3 py-[7px] border border-orange font-mono text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2",
                 pathname.startsWith("/admin")
-                  ? "bg-bg-panel text-accent border-l-2 border-accent pl-[10px]"
-                  : "text-fg-muted hover:bg-bg-panel hover:text-accent"
+                  ? "bg-orange text-ink"
+                  : "text-orange hover:bg-orange hover:text-ink"
               )}
             >
-              <Shield className="w-[18px] h-[18px] shrink-0" />
-              <span>Admin</span>
+              + ADMIN · BACKSTAGE
             </Link>
           </>
         )}
       </nav>
 
-      {/* User block */}
-      <div className="mt-4 p-3 rounded-xl bg-bg-panel border border-border flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-secondary border border-border-strong flex items-center justify-center text-sm font-bold">
-          JP
+      {/* User card */}
+      <div className="relative z-10 mt-auto m-[14px] p-[14px] bg-[#161616] border border-[#2a2a2a]">
+        <div
+          className="absolute -top-[8px] left-[12px] bg-ink px-[6px] font-mono text-[8px] font-bold text-orange"
+          style={{ letterSpacing: "0.12em" }}
+        >
+          — ARTISTA
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold text-fg truncate">
-            Jay Portu
+        <div className="flex items-center gap-[10px]">
+          <div
+            className="w-[38px] h-[38px] bg-orange text-ink flex items-center justify-center"
+            style={{
+              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+              fontSize: "22px",
+              lineHeight: 0.85,
+            }}
+          >
+            {avatarChar}
           </div>
-          <div className="text-[10px] text-fg-muted truncate">
-            {userEmail || "DJ · Santiago"}
+          <div className="min-w-0 flex-1">
+            <div
+              className="text-cream truncate"
+              style={{
+                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                fontSize: "18px",
+                lineHeight: 0.9,
+              }}
+            >
+              {displayName}
+            </div>
+            <div className="font-mono text-[8px] text-[#666] mt-[2px] truncate" style={{ letterSpacing: "0.04em" }}>
+              {userEmail || "DJ · LATAM"}
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-3 border-t border-[#2a2a2a] pt-[10px]">
+          <div>
+            <div className="font-mono text-[8px] text-[#666]" style={{ letterSpacing: "0.08em" }}>
+              CONTACTOS
+            </div>
+            <div
+              className="text-cream"
+              style={{
+                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                fontSize: "18px",
+                lineHeight: 0.9,
+                marginTop: "2px",
+              }}
+            >
+              —
+            </div>
+          </div>
+          <div>
+            <div className="font-mono text-[8px] text-[#666]" style={{ letterSpacing: "0.08em" }}>
+              GIGS · MES
+            </div>
+            <div
+              className="text-cream"
+              style={{
+                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                fontSize: "18px",
+                lineHeight: 0.9,
+                marginTop: "2px",
+              }}
+            >
+              —
+            </div>
           </div>
         </div>
       </div>

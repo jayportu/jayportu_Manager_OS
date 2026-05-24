@@ -129,9 +129,9 @@ export function WelcomeWizard({
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <Logo variant="stacked" tone="light" size={140} priority />
-          <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-2">
-            Manager OS
+          <Logo variant="wordmark" tone="ink" size={96} priority />
+          <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-2 font-mono">
+            — The DJ OS
           </div>
         </div>
 
@@ -205,8 +205,8 @@ export function WelcomeWizard({
           </div>
         </Card>
 
-        <div className="text-center mt-6 text-[10px] uppercase tracking-widest text-fg-subtle">
-          Manager OS para DJs · v0.12
+        <div className="text-center mt-6 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
+          DROP. · THE DJ OS · v0.13
         </div>
       </div>
     </div>
