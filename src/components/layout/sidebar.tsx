@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  Briefcase,
   Megaphone,
   Search,
   Calendar,
@@ -22,9 +21,8 @@ import { Logo } from "@/components/brand/logo";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/crm", label: "CRM", icon: Users },
-  { href: "/oportunidades", label: "Oportunidades", icon: Briefcase },
-  { href: "/campanas", label: "Campañas", icon: Megaphone },
   { href: "/descubrir", label: "Descubrir", icon: Search },
+  { href: "/campanas", label: "Campañas", icon: Megaphone },
   { href: "/calendario", label: "Calendario", icon: Calendar },
   { href: "/press-kit", label: "Press kit", icon: ImageIcon },
   { href: "/plantillas", label: "Plantillas", icon: FileText },

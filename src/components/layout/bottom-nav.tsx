@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  Briefcase,
+  TrendingUp,
   FileText,
   MoreHorizontal,
 } from "lucide-react";
@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const MOBILE_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/crm", label: "CRM", icon: Users },
-  { href: "/oportunidades", label: "Opps", icon: Briefcase },
+  { href: "/growth", label: "Growth", icon: TrendingUp },
   { href: "/plantillas", label: "Plantillas", icon: FileText },
   { href: "/mas", label: "Más", icon: MoreHorizontal },
 ];
