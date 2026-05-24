@@ -25,24 +25,23 @@ export function Topbar({ userEmail }: TopbarProps) {
 
   return (
     <header
-      className="border-b-2 border-ink bg-cream flex items-center gap-4 shrink-0 relative w-full"
+      className="border-b-2 border-ink bg-cream flex items-center gap-3 shrink-0 relative w-full px-4 md:px-6"
       style={{
         paddingTop: "env(safe-area-inset-top)",
-        paddingLeft: "max(env(safe-area-inset-left), 16px)",
-        paddingRight: "max(env(safe-area-inset-right), 16px)",
+        paddingLeft: "max(env(safe-area-inset-left), 1rem)",
+        paddingRight: "max(env(safe-area-inset-right), 1rem)",
         height: "calc(4rem + env(safe-area-inset-top))",
       }}
     >
       {/* Logo mobile */}
-      <div className="md:hidden flex items-center">
+      <div className="md:hidden flex items-center shrink-0">
         <span
-          className="select-none"
+          className="select-none inline-block"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-            fontSize: "30px",
+            fontSize: "28px",
             lineHeight: 0.85,
             color: "#0A0A0A",
-            letterSpacing: "-0.01em",
           }}
         >
           DROP<span style={{ color: "#FF5C00" }}>.</span>

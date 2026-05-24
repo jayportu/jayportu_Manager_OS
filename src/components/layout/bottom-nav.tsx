@@ -33,8 +33,6 @@ export function BottomNav() {
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
         height: "calc(4rem + env(safe-area-inset-bottom))",
-        width: "100vw",
-        maxWidth: "100vw",
       }}
     >
       {MOBILE_ITEMS.map(({ href, label, icon: Icon }) => {
