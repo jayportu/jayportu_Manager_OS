@@ -5,6 +5,7 @@ import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
 import { BookingForm } from "./booking-form";
 import { SoundcloudEmbed, YoutubeEmbed } from "./embeds";
+import { PdfPressKit } from "./pdf-press-kit";
 import { whatsappLink, normalizeUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
@@ -40,6 +41,24 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const { slug } = await params;
   const profile = await getProfileBySlug(slug);
   if (!profile) notFound();
+
+  // Modo PDF: el DJ subió un press kit propio. Mostramos el PDF tal cual
+  // a pantalla completa, con botones flotantes mínimos para contacto.
+  if (profile.press_kit_mode === "pdf" && profile.press_kit_pdf_url) {
+    return (
+      <>
+        <TrackBeacon userId={profile.user_id} event="view" />
+        <PdfPressKit
+          pdfUrl={profile.press_kit_pdf_url}
+          pdfFilename={profile.press_kit_pdf_filename}
+          artistName={profile.artist_name || "DJ"}
+          userId={profile.user_id}
+          publicEmail={profile.public_email}
+          whatsapp={profile.whatsapp}
+        />
+      </>
+    );
+  }
 
   const wa = whatsappLink(profile.whatsapp);
   const email = profile.public_email;

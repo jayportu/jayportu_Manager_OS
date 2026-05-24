@@ -8,6 +8,7 @@ import { OllamaSetup } from "./ollama-setup";
 import { GmailSetup } from "./gmail-setup";
 import { PlatformAccountsSection } from "./platform-accounts-section";
 import { PushSetup } from "./push-setup";
+import { PressKitSection } from "./press-kit-section";
 
 export default async function ConfiguracionPage() {
   const profile = await getMyProfile();
@@ -30,6 +31,21 @@ export default async function ConfiguracionPage() {
       </div>
 
       <ProfileForm initialProfile={profile} />
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <h2 className="text-lg font-semibold mb-2">Press kit</h2>
+        <p className="text-sm text-fg-muted mb-4">
+          Elegí si tu página pública se arma automáticamente con tus datos
+          o si querés mostrar un PDF propio que ya tengas diseñado.
+        </p>
+        <PressKitSection
+          mode={profile.press_kit_mode}
+          pdfUrl={profile.press_kit_pdf_url}
+          pdfFilename={profile.press_kit_pdf_filename}
+          pdfSizeBytes={profile.press_kit_pdf_size_bytes}
+          publicSlug={profile.public_slug}
+        />
+      </div>
 
       <div className="mt-12 pt-8 border-t border-border">
         <h2 className="text-lg font-semibold mb-2">Cuentas externas</h2>

@@ -32,6 +32,10 @@ export interface DjProfile {
   public_slug: string;
   onboarding_completed_at: string | null;
   is_admin: boolean;
+  press_kit_mode: "generated" | "pdf";
+  press_kit_pdf_url: string;
+  press_kit_pdf_filename: string;
+  press_kit_pdf_size_bytes: number;
   created_at: string;
   updated_at: string;
 }
