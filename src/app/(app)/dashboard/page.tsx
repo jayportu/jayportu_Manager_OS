@@ -63,8 +63,17 @@ export default async function DashboardPage() {
       listContacts({ orderBy: "score" }),
     ]);
 
-  // Saludo según hora local
-  const hour = new Date().getHours();
+  // Saludo según hora local de Santiago (Vercel corre en UTC).
+  // Antes usábamos new Date().getHours() que daba el saludo equivocado:
+  // a las 17:00 hora Chile, UTC es 20:00 → "Buenas noches" incorrecto.
+  const hour = parseInt(
+    new Intl.DateTimeFormat("es-CL", {
+      hour: "2-digit",
+      hour12: false,
+      timeZone: "America/Santiago",
+    }).format(new Date()),
+    10
+  );
   const greeting =
     hour < 12 ? "Buenos días" : hour < 19 ? "Buenas tardes" : "Buenas noches";
 
