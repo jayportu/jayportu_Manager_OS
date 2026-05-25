@@ -9,7 +9,12 @@ import {
   upsertCalendarEvent,
   deleteCalendarEvent,
 } from "@/lib/queries/calendar-events";
-import type { CalendarEventType } from "@/lib/calendar/types";
+import { createClient } from "@/lib/supabase/server";
+import type {
+  CalendarEventType,
+  PaymentStatus,
+  DocumentType,
+} from "@/lib/calendar/types";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { revalidatePath } from "next/cache";
 
@@ -32,6 +37,10 @@ export async function createEventAction(args: {
   startISO: string;
   endISO: string;
   contactId?: string | null;
+  /** Sprint 19 — Tracking financiero */
+  amount_clp?: number | null;
+  payment_status?: PaymentStatus;
+  document_type?: DocumentType;
 }): Promise<Result<{ id: string }>> {
   try {
     const conn = await getMyGmailConnection();
@@ -61,12 +70,56 @@ export async function createEventAction(args: {
       end_at: args.endISO,
       contact_id: args.contactId || null,
       sync_state: "synced",
+      // Sprint 19
+      amount_clp: args.amount_clp ?? null,
+      payment_status: args.payment_status ?? "none",
+      document_type: args.document_type ?? "none",
     });
 
     revalidatePath("/calendario");
     revalidatePath("/dashboard");
     if (args.contactId) revalidatePath(`/crm/${args.contactId}`);
     return { ok: true, data: { id: row.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+/**
+ * Sprint 19 — Actualiza los campos financieros de un evento existente.
+ * Se llama desde la lista del calendario via dialog de edición rápida.
+ */
+export async function updateEventFinanceAction(
+  eventId: string,
+  patch: {
+    amount_clp?: number | null;
+    payment_status?: PaymentStatus;
+    document_type?: DocumentType;
+    paid_at?: string | null;
+  }
+): Promise<Result> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    // Si pasa a paid y no hay paid_at, setearlo a now
+    if (patch.payment_status === "paid" && !patch.paid_at) {
+      patch.paid_at = new Date().toISOString();
+    }
+
+    const { error } = await supabase
+      .from("calendar_events")
+      .update(patch)
+      .eq("user_id", user.id)
+      .eq("id", eventId);
+    if (error) throw new Error(error.message);
+
+    revalidatePath("/calendario");
+    revalidatePath("/dashboard");
+    return { ok: true, data: undefined };
   } catch (e) {
     return err(e);
   }

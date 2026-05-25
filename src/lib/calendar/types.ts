@@ -22,6 +22,27 @@ export const CALENDAR_EVENT_TYPE_LABELS: Record<CalendarEventType, string> = {
   otro: "Otro",
 };
 
+/** Sprint 19 — Estado del cobro de un gig */
+export const PAYMENT_STATUSES = ["paid", "pending", "partial", "none"] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  paid: "Pagado",
+  pending: "Pendiente",
+  partial: "Parcial",
+  none: "Sin cobro / canje",
+};
+
+/** Sprint 19 — Tipo de documento emitido */
+export const DOCUMENT_TYPES = ["boleta", "factura", "none"] as const;
+export type DocumentType = (typeof DOCUMENT_TYPES)[number];
+
+export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
+  boleta: "Boleta de honorarios",
+  factura: "Factura",
+  none: "Sin documento",
+};
+
 export interface CalendarEventRow {
   id: string;
   user_id: string;
@@ -37,6 +58,11 @@ export interface CalendarEventRow {
   contact_id: string | null;
   sync_state: string;
   last_synced_at: string | null;
+  /** Sprint 19 — Tracking financiero */
+  amount_clp: number | null;
+  payment_status: PaymentStatus;
+  document_type: DocumentType;
+  paid_at: string | null;
   created_at: string;
   updated_at: string;
 }

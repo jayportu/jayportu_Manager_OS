@@ -119,6 +119,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             name: c.name,
             type: c.type,
             score: c.score,
+            tags: c.tags ?? [],
           }))}
         />
       </div>
@@ -136,6 +137,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
               name: c.name,
               type: c.type,
               score: c.score,
+              tags: c.tags ?? [],
             }))}
             buttonLabel="Agregar primer contacto"
             buttonVariant="default"

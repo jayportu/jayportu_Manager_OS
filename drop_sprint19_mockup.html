@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DROP. · Sprint 19 — CRM avanzado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F4EFE7;
+    --ink: #0A0A0A;
+    --orange: #FF5C00;
+    --success: #1F8A5C;
+    --warning: #C77A00;
+    --danger: #C53030;
+    --info: #2B5BA8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--cream); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .anton { font-family: 'Anton'; line-height: 0.85; letter-spacing: 0.005em; }
+  .mono { font-family: 'Space Mono', monospace; }
+
+  /* COVER */
+  .cover {
+    background: var(--ink); color: var(--cream);
+    padding: 60px 40px 70px; position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: '19'; position: absolute; bottom: -100px; right: -40px;
+    font-family: 'Anton'; font-size: 580px; line-height: 0.75;
+    color: rgba(255,92,0,0.08); pointer-events: none;
+  }
+  .cover .kicker {
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.18em; color: var(--orange);
+  }
+  .cover h1 {
+    font-family: 'Anton'; font-size: clamp(72px, 12vw, 168px);
+    line-height: 0.78; margin-top: 16px; letter-spacing: -0.01em;
+  }
+  .cover h1 .dot { color: var(--orange); }
+  .cover .sub {
+    font-family: 'Anton'; font-size: clamp(24px, 3.5vw, 40px);
+    line-height: 0.95; margin-top: 16px; color: var(--cream);
+    max-width: 800px;
+  }
+  .cover .sub em { color: var(--orange); font-style: normal; }
+  .cover .meta-row {
+    margin-top: 36px; display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; max-width: 920px; position: relative; z-index: 1;
+  }
+  .cover .meta-row .cell { border-top: 1px solid #2a2a2a; padding-top: 12px; }
+  .cover .meta-row .cell .lbl {
+    font-family: 'Space Mono'; font-size: 9px;
+    font-weight: 700; letter-spacing: 0.12em; color: var(--orange);
+  }
+  .cover .meta-row .cell .val {
+    font-family: 'Anton'; font-size: 24px; line-height: 0.95;
+    margin-top: 4px; color: var(--cream);
+  }
+  @media (max-width: 680px) { .cover .meta-row { grid-template-columns: 1fr 1fr; } }
+
+  .ticker {
+    background: var(--orange); color: var(--ink);
+    overflow: hidden; white-space: nowrap;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 9px 0;
+  }
+  .ticker .track {
+    display: inline-block; animation: scroll 30s linear infinite;
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em;
+  }
+  .ticker .track span { padding: 0 22px; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* SECTION */
+  section { padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 18px; margin-bottom: 40px;
+    border-bottom: 2px solid var(--ink); padding-bottom: 14px;
+    max-width: 1280px; margin-left: auto; margin-right: auto;
+  }
+  .sec-head .num {
+    font-family: 'Anton'; font-size: 48px; color: var(--orange); line-height: 0.85;
+  }
+  .sec-head .ttl {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+  }
+  .sec-head .sub {
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em; color: #555;
+    margin-left: auto; align-self: center;
+  }
+  .sec-body { max-width: 1280px; margin: 0 auto; }
+
+  .lead {
+    font-size: 16px; line-height: 1.55; max-width: 800px; margin-bottom: 28px;
+  }
+  .lead strong { color: var(--orange); }
+
+  /* FRAME */
+  .frame {
+    border: 2px solid var(--ink); background: #FFF;
+    box-shadow: 8px 8px 0 var(--orange);
+    margin-bottom: 24px;
+  }
+  .frame .chrome {
+    background: #2a2a2a; height: 32px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; border-bottom: 2px solid var(--ink);
+  }
+  .frame .chrome .dot { width: 11px; height: 11px; border-radius: 100%; }
+  .frame .chrome .url {
+    flex: 1; background: var(--ink); color: var(--orange);
+    font-size: 11px; padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .frame .label {
+    position: absolute; top: -14px; left: 24px;
+    background: var(--ink); color: var(--orange);
+    padding: 4px 10px; font-family: 'Space Mono';
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  }
+  .frame-wrap { position: relative; }
+
+  /* SIDEBAR + main inside frame */
+  .app-layout { display: flex; min-height: 720px; }
+  .app-sidebar {
+    width: 220px; background: var(--ink); color: var(--cream);
+    padding: 18px 0; flex-shrink: 0; position: relative; overflow: hidden;
+    border-right: 2px solid var(--orange);
+  }
+  .app-sidebar::before {
+    content: 'D.'; position: absolute; bottom: -60px; right: -40px;
+    font-family: 'Anton'; font-size: 280px; line-height: 0.75;
+    color: rgba(255,92,0,0.05);
+  }
+  .app-sidebar .logo {
+    padding: 0 22px 18px; border-bottom: 2px solid var(--orange);
+    font-family: 'Anton'; font-size: 36px; color: var(--cream);
+  }
+  .app-sidebar .logo .dot { color: var(--orange); }
+  .app-sidebar .nav-item {
+    padding: 9px 22px; font-family: 'Space Mono', monospace;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #888;
+    border-left: 3px solid transparent;
+  }
+  .app-sidebar .nav-item.active {
+    background: var(--orange); color: var(--ink);
+    border-left-color: var(--ink);
+  }
+  .app-main {
+    flex: 1; background: var(--cream); padding: 28px;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* HERO de página interna */
+  .page-hero {
+    border: 2px solid var(--ink); background: #FFF; padding: 24px 28px;
+    margin-bottom: 20px; position: relative;
+  }
+  .page-hero .kicker {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .page-hero h2 {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+    margin-top: 6px; text-transform: uppercase;
+  }
+  .page-hero h2 .dot { color: var(--orange); }
+  .page-hero p { margin-top: 10px; font-size: 14px; max-width: 600px; }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--ink); color: var(--orange); border: 2px solid var(--ink);
+    padding: 10px 16px; font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 120ms; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--orange); color: var(--ink); }
+  .btn.orange { background: var(--orange); color: var(--ink); }
+  .btn.outline { background: transparent; color: var(--ink); }
+  .btn.sm { padding: 6px 12px; font-size: 10px; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; background: var(--ink); color: #FFF;
+    padding: 3px 9px; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .tag.orange { background: var(--orange); color: var(--ink); }
+  .tag.outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
+  .tag.success { background: var(--success); color: #FFF; }
+  .tag.warning { background: var(--warning); color: #FFF; }
+  .tag.danger { background: var(--danger); color: #FFF; }
+  .tag.info { background: var(--info); color: #FFF; }
+
+  /* Custom hashtag-style tags (Sprint 19 nuevo) */
+  .ctag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border: 2px solid var(--ink);
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: lowercase;
+    background: var(--cream); color: var(--ink); cursor: pointer;
+  }
+  .ctag .x { color: #666; font-size: 11px; line-height: 1; }
+  .ctag.orange { background: var(--orange); }
+  .ctag.success { background: #D7F0E1; }
+  .ctag.warning { background: #FEF3D6; }
+  .ctag.info { background: #DDE7F5; }
+
+  /* KPI grid */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    border: 2px solid var(--ink); background: var(--ink); margin-bottom: 20px;
+  }
+  .kpi {
+    padding: 18px; background: #FFF; border-right: 2px solid var(--ink);
+  }
+  .kpi:last-child { border-right: 0; }
+  .kpi.orange { background: var(--orange); }
+  .kpi.ink { background: var(--ink); color: var(--cream); }
+  .kpi.success-bg { background: var(--success); color: #FFF; }
+  .kpi .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .kpi.ink .lbl { color: var(--orange); }
+  .kpi .num {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+    margin: 8px 0 6px;
+  }
+  .kpi .delta {
+    font-family: 'Space Mono'; font-size: 11px; font-weight: 700;
+  }
+
+  /* TABLE */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    border: 2px solid var(--ink); background: #FFF;
+  }
+  .data-table th {
+    background: var(--ink); color: var(--orange);
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--ink);
+  }
+  .data-table td {
+    padding: 14px; border-bottom: 1px solid #ddd; font-size: 13px;
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table .num {
+    font-family: 'Anton'; font-size: 22px; line-height: 0.85;
+  }
+  .data-table .mono-num {
+    font-family: 'Space Mono'; font-weight: 700; font-size: 13px;
+  }
+
+  /* CARDS */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  @media (max-width: 960px) { .card-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+  .card {
+    border: 2px solid var(--ink); background: #FFF; padding: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .card.dark { background: var(--ink); color: var(--cream); }
+  .card.orange { background: var(--orange); }
+  .card .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange);
+  }
+  .card .h {
+    font-family: 'Anton'; font-size: 26px; line-height: 0.95;
+  }
+
+  /* CALENDAR */
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border: 2px solid var(--ink); background: var(--ink);
+  }
+  .cal-grid .day-head {
+    background: var(--ink); color: var(--orange); padding: 6px;
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em; text-align: center;
+  }
+  .cal-grid .day {
+    background: #FFF; min-height: 88px; padding: 6px;
+    border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+    font-family: 'Inter'; font-size: 11px;
+    display: flex; flex-direction: column;
+  }
+  .cal-grid .day .dn {
+    font-family: 'Anton'; font-size: 18px; line-height: 1;
+  }
+  .cal-grid .day.empty { background: #F5F0E5; opacity: 0.5; }
+  .cal-grid .day.with-gig {
+    background: var(--cream);
+  }
+  .cal-grid .day .gig-pill {
+    background: var(--orange); color: var(--ink);
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    padding: 2px 4px; margin-top: 4px;
+    border: 1px solid var(--ink);
+  }
+  .cal-grid .day .money {
+    font-family: 'Anton'; font-size: 14px; color: var(--success);
+    line-height: 1; margin-top: 4px;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 2px solid var(--ink);
+    background: #FFF; font-family: 'Inter'; font-size: 13px;
+    color: var(--ink);
+  }
+
+  /* RECURRING DIAGRAM */
+  .recur-diagram {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+    align-items: center;
+  }
+  @media (max-width: 720px) { .recur-diagram { grid-template-columns: 1fr; } }
+  .recur-node {
+    border: 2px solid var(--ink); padding: 12px;
+    text-align: center; position: relative;
+  }
+  .recur-node.done { background: var(--success); color: #FFF; }
+  .recur-node.today { background: var(--orange); }
+  .recur-node.next { background: #FFF; border-style: dashed; }
+  .recur-node .l {
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .recur-node .d {
+    font-family: 'Anton'; font-size: 28px; line-height: 0.95;
+    margin-top: 4px;
+  }
+  .recur-arrow {
+    text-align: center; font-family: 'Anton';
+    font-size: 32px; color: var(--orange);
+  }
+
+  /* PHONE */
+  .phone-shell {
+    background: var(--ink); border-radius: 36px; padding: 6px;
+    width: 270px; box-shadow: 8px 8px 0 var(--orange);
+    border: 2px solid var(--ink); flex-shrink: 0;
+  }
+  .phone-shell .screen {
+    background: var(--cream); border-radius: 30px; overflow: hidden;
+    height: 540px; display: flex; flex-direction: column;
+  }
+  .phone-shell .screen .topb {
+    background: var(--cream); padding: 14px 14px 10px;
+    border-bottom: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .phone-shell .screen .topb .logo {
+    font-family: 'Anton'; font-size: 18px;
+  }
+  .phone-shell .screen .topb .logo .dot { color: var(--orange); }
+  .phone-shell .screen .content {
+    flex: 1; padding: 14px; overflow-y: auto;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .phone-shell .screen .bottomb {
+    background: var(--ink); padding: 8px; display: grid;
+    grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--orange);
+  }
+  .phone-shell .screen .bottomb .item {
+    text-align: center; font-family: 'Space Mono'; font-size: 7px;
+    color: #888; padding: 4px 2px;
+  }
+  .phone-shell .screen .bottomb .item.active { background: var(--orange); color: var(--ink); }
+
+  /* MISC */
+  hr.dash {
+    border: 0; border-top: 2px dashed var(--ink); margin: 24px 0;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="kicker">— SPRINT 19 · PRÓXIMO EN ROADMAP</div>
+  <h1>CRM<span class="dot">.</span></h1>
+  <div class="sub">Tracking <em>financiero</em>, tags custom, notas privadas y follow-ups <em>recurrentes</em>.</div>
+
+  <div class="meta-row">
+    <div class="cell">
+      <div class="lbl">— TIEMPO ESTIMADO</div>
+      <div class="val">4 SESIONES</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— MIGRATIONS</div>
+      <div class="val">0017</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— BLOQUES</div>
+      <div class="val">04 (E1·E2·E3·E4)</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— COSTO</div>
+      <div class="val">$0</div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="track">
+    <span>E1 · INGRESOS POR GIG · E2 · TAGS CUSTOM · E3 · NOTAS PRIVADAS · E4 · FOLLOW-UPS RECURRENTES · EXPORT CSV</span>
+    <span>E1 · INGRESOS POR GIG · E2 · TAGS CUSTOM · E3 · NOTAS PRIVADAS · E4 · FOLLOW-UPS RECURRENTES · EXPORT CSV</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- E1 · TRACKING FINANCIERO -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">E1</div>
+    <div class="ttl">TRACKING FINANCIERO</div>
+    <div class="sub">INGRESOS POR GIG · DASHBOARD · EXPORT CSV</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Cada evento del calendario puede tener un <strong>monto cobrado</strong> en CLP. DROP suma automáticamente
+      por mes, venue y categoría. Genera CSV exportable para tu contador. Sin Excel, sin perder plata por olvido.
+    </p>
+
+    <!-- Calendar with money -->
+    <div class="frame-wrap">
+      <div class="label">E1A / /CALENDARIO · VISTA MES CON $$$</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/calendario?month=may</div>
+        </div>
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div class="nav-item">— DASHBOARD</div>
+            <div class="nav-item">— CRM</div>
+            <div class="nav-item active">— CALENDARIO</div>
+            <div class="nav-item">— GROWTH</div>
+            <div class="nav-item">— CONFIG</div>
+          </aside>
+          <main class="app-main">
+            <div class="page-hero">
+              <div class="kicker">— CALENDARIO · MAYO 2026</div>
+              <h2 class="anton">INGRESOS DEL MES<span class="dot">.</span></h2>
+              <p>5 gigs confirmados · $2.450.000 facturado · 1 pendiente de cobro · vista pasada/futura.</p>
+            </div>
+
+            <!-- KPIs financieros -->
+            <div class="kpi-grid">
+              <div class="kpi success-bg">
+                <div class="lbl">— TOTAL MES</div>
+                <div class="num">$2.450K</div>
+                <div class="delta">CLP · MAYO</div>
+              </div>
+              <div class="kpi">
+                <div class="lbl">— GIGS CONFIRMADOS</div>
+                <div class="num">05</div>
+                <div class="delta">de 7 propuestas</div>
+              </div>
+              <div class="kpi orange">
+                <div class="lbl">— PROMEDIO GIG</div>
+                <div class="num">$490K</div>
+                <div class="delta">↗ +18% VS ABR</div>
+              </div>
+              <div class="kpi ink">
+                <div class="lbl">— PENDIENTE COBRO</div>
+                <div class="num">$320K</div>
+                <div class="delta">1 venue · 12 días</div>
+              </div>
+            </div>
+
+            <!-- Mini calendar with money -->
+            <div class="cal-grid">
+              <div class="day-head">L</div><div class="day-head">M</div><div class="day-head">M</div>
+              <div class="day-head">J</div><div class="day-head">V</div><div class="day-head">S</div>
+              <div class="day-head">D</div>
+
+              <div class="day empty"></div><div class="day empty"></div><div class="day empty"></div>
+              <div class="day"><div class="dn">01</div></div>
+              <div class="day"><div class="dn">02</div></div>
+              <div class="day with-gig"><div class="dn">03</div><div class="gig-pill">CLUB ROOM</div><div class="money">$380K</div></div>
+              <div class="day"><div class="dn">04</div></div>
+
+              <div class="day"><div class="dn">05</div></div>
+              <div class="day"><div class="dn">06</div></div>
+              <div class="day"><div class="dn">07</div></div>
+              <div class="day"><div class="dn">08</div></div>
+              <div class="day with-gig"><div class="dn">09</div><div class="gig-pill">SUBTERRÁNEO</div><div class="money">$550K</div></div>
+              <div class="day with-gig"><div class="dn">10</div><div class="gig-pill">PHUKET</div><div class="money">$420K</div></div>
+              <div class="day"><div class="dn">11</div></div>
+
+              <div class="day"><div class="dn">12</div></div>
+              <div class="day"><div class="dn">13</div></div>
+              <div class="day"><div class="dn">14</div></div>
+              <div class="day"><div class="dn">15</div></div>
+              <div class="day with-gig"><div class="dn">16</div><div class="gig-pill">CANDELARIA</div><div class="money" style="color: var(--warning);">$320K · ⏱ deb.</div></div>
+              <div class="day with-gig"><div class="dn">17</div><div class="gig-pill">LA FERIA</div><div class="money">$780K</div></div>
+              <div class="day"><div class="dn">18</div></div>
+
+              <div class="day"><div class="dn">19</div></div>
+              <div class="day"><div class="dn">20</div></div>
+              <div class="day"><div class="dn">21</div></div>
+              <div class="day"><div class="dn">22</div></div>
+              <div class="day"><div class="dn">23</div></div>
+              <div class="day"><div class="dn">24</div></div>
+              <div class="day"><div class="dn">25</div></div>
+
+              <div class="day"><div class="dn">26</div></div><div class="day"><div class="dn">27</div></div>
+              <div class="day"><div class="dn">28</div></div><div class="day"><div class="dn">29</div></div>
+              <div class="day"><div class="dn">30</div></div><div class="day"><div class="dn">31</div></div>
+              <div class="day empty"></div>
+            </div>
+
+            <p style="font-size: 12px; color: #555; margin-top: 14px;">
+              <strong style="color: var(--orange);">— ÁMBAR:</strong> gig confirmado pero pago todavía pendiente. DROP te avisa con push si pasan 30+ días sin cobrar.
+            </p>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form edit gig with money -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">— EDITAR GIG · CAMPO NUEVO $</div>
+        <h3 class="anton" style="font-size: 22px;">MONTO + ESTADO PAGO</h3>
+        <div class="form-group" style="margin-top: 12px;">
+          <label>Monto cobrado (CLP)</label>
+          <input value="$550.000" />
+        </div>
+        <div class="form-group">
+          <label>Estado del pago</label>
+          <select>
+            <option>Pagado</option>
+            <option>Pendiente</option>
+            <option>Parcial (anticipo recibido)</option>
+            <option>No aplica (favor / canje)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Documento</label>
+          <select>
+            <option>Boleta de honorarios</option>
+            <option>Factura</option>
+            <option>Sin documento</option>
+          </select>
+        </div>
+      </div>
+      <div class="card dark">
+        <div class="lbl">— EXPORT CSV PARA CONTADOR</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream);">RESUMEN ANUAL · 1 CLIC</h3>
+        <p style="font-size: 13px; color: #ccc;">Genera CSV con columnas: fecha · venue · monto · documento · estado. Filtros por año, mes, venue.</p>
+        <div class="form-group" style="margin-top: 8px;">
+          <label style="color: var(--orange);">Rango</label>
+          <select>
+            <option>Año actual (2026)</option>
+            <option>Mes actual (mayo)</option>
+            <option>Año fiscal Chile (abr 2025 - mar 2026)</option>
+            <option>Personalizado…</option>
+          </select>
+        </div>
+        <button class="btn orange" style="margin-top: 10px; align-self: flex-start;">↓ EXPORTAR CSV</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- E2 · TAGS CUSTOM -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">E2</div>
+    <div class="ttl">TAGS CUSTOM</div>
+    <div class="sub">SEGMENTACIÓN POR ETIQUETAS · USO EN CAMPAÑAS</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Tags arbitrarios (libres) por contacto. Te servirán para <strong>filtrar quién recibe qué campaña</strong>:
+      <em>"campaign con tag #booker-stgo-centro + #tech-house-friendly"</em>. Sin limites de tags por contacto.
+    </p>
+
+    <!-- Detalle de contacto con tags -->
+    <div class="frame-wrap">
+      <div class="label">E2A / /CRM/[ID] · CONTACTO CON TAGS</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/crm/phuket-tardeo</div>
+        </div>
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div class="nav-item">— DASHBOARD</div>
+            <div class="nav-item active">— CRM</div>
+            <div class="nav-item">— CALENDARIO</div>
+            <div class="nav-item">— CAMPAÑAS</div>
+            <div class="nav-item">— CONFIG</div>
+          </aside>
+          <main class="app-main">
+            <div class="page-hero">
+              <div class="kicker">— CRM · CONTACTO #042</div>
+              <h2 class="anton">PHUKET / TARDEO<span class="dot">.</span></h2>
+              <p>Bar · Santiago centro · Confirmado · score 100 · 3 gigs en 2026.</p>
+            </div>
+
+            <!-- Tags actuales -->
+            <div class="card" style="margin-bottom: 18px;">
+              <div class="lbl">— TAGS</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                <span class="ctag orange"># booker-stgo-centro <span class="x">×</span></span>
+                <span class="ctag success"># tech-house-friendly <span class="x">×</span></span>
+                <span class="ctag info"># paga-rapido <span class="x">×</span></span>
+                <span class="ctag warning"># exige-rider-tecnico <span class="x">×</span></span>
+                <span class="ctag"># residente-potencial <span class="x">×</span></span>
+                <span class="ctag" style="background: transparent; border-style: dashed;">+ agregar tag…</span>
+              </div>
+              <p style="font-size: 11px; color: #555; margin-top: 10px;">
+                <strong style="color: var(--orange);">— TIP:</strong> tags en lowercase, sin espacios (usa guiones). Aparecen en autocomplete cuando los volves a usar en otros contactos.
+              </p>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="lbl">— PERFIL Y CONTACTO</div>
+                <div class="anton" style="font-size: 18px;">TOMÁS BOOKER</div>
+                <div style="font-size: 13px; color: #555;">tomas@phuket.cl · +56 9 1234 5678</div>
+              </div>
+              <div class="card">
+                <div class="lbl">— ÚLTIMOS GIGS</div>
+                <ul style="font-size: 13px; line-height: 1.8; list-style: none; padding: 0;">
+                  <li>10-may-2026 · <strong>$420K</strong> · pagado</li>
+                  <li>15-mar-2026 · <strong>$380K</strong> · pagado</li>
+                  <li>22-ene-2026 · <strong>$340K</strong> · pagado</li>
+                </ul>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtro por tags en CRM lista -->
+    <div class="frame-wrap" style="margin-top: 28px;">
+      <div class="label">E2B / /CRM · FILTRO POR TAGS</div>
+      <div class="frame" style="padding: 24px;">
+        <div class="kicker mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase;">— CRM · FILTROS NUEVOS</div>
+        <h3 class="anton" style="font-size: 28px; margin-top: 4px;">FILTRAR POR TAGS<span style="color: var(--orange);">.</span></h3>
+
+        <hr class="dash" />
+
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: #555; letter-spacing: 0.1em; margin-bottom: 8px;">— ACTIVOS:</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;">
+          <span class="ctag orange"># booker-stgo-centro <span class="x">×</span></span>
+          <span class="ctag success"># tech-house-friendly <span class="x">×</span></span>
+          <span class="mono" style="font-size: 11px; color: #555; align-self: center;">+ AND</span>
+        </div>
+
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: #555; letter-spacing: 0.1em; margin-bottom: 8px;">— DISPONIBLES (clicker para agregar):</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; opacity: 0.5;">
+          <span class="ctag"># paga-rapido</span>
+          <span class="ctag"># exige-rider-tecnico</span>
+          <span class="ctag"># residente-potencial</span>
+          <span class="ctag"># nuevo-circuito</span>
+          <span class="ctag"># productora-corporativa</span>
+          <span class="ctag"># club-grande</span>
+          <span class="ctag"># club-underground</span>
+          <span class="ctag"># manager-de-otros</span>
+        </div>
+
+        <div style="background: var(--cream); border-left: 4px solid var(--orange); padding: 12px 16px; margin-bottom: 14px;">
+          <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange);">— RESULTADO</div>
+          <div class="anton" style="font-size: 22px; margin-top: 4px;">3 CONTACTOS COINCIDEN</div>
+          <div style="font-size: 13px; color: #555; margin-top: 4px;">Phuket / Tardeo · La Feria · Club Subterráneo</div>
+        </div>
+
+        <button class="btn orange">USAR ESTOS 3 EN UNA CAMPAÑA →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- E3 · NOTAS PRIVADAS POR VENUE -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">E3</div>
+    <div class="ttl">NOTAS PRIVADAS</div>
+    <div class="sub">CAMPO INTERNO POR CONTACTO · NUNCA PÚBLICO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Campo "Notas internas" en cada contacto. <strong>Nunca se exporta, nunca aparece en press kit, nunca el contacto las ve.</strong>
+      Útil para cosas que NO querés olvidar: el dueño es tu amigo, no le gusta el techno duro, pidió rider, paga tarde, etc.
+    </p>
+
+    <div class="grid-2">
+      <!-- Detail con notas -->
+      <div class="frame-wrap">
+        <div class="label">E3 / NOTAS PRIVADAS EN CONTACTO</div>
+        <div class="frame" style="padding: 24px;">
+          <div class="kicker mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase;">— CONTACTO #042 · PHUKET / TARDEO</div>
+          <h3 class="anton" style="font-size: 28px; margin-top: 4px;">NOTAS INTERNAS<span style="color: var(--orange);">.</span></h3>
+
+          <div style="margin-top: 14px; background: var(--ink); color: var(--cream); padding: 14px; border: 2px solid var(--ink); position: relative;">
+            <div style="position: absolute; top: -10px; left: 12px; background: var(--orange); color: var(--ink); padding: 2px 8px; font-family: 'Space Mono'; font-size: 9px; font-weight: 700;">🔒 PRIVADO</div>
+            <div style="font-family: 'Inter'; font-size: 13px; line-height: 1.6; margin-top: 4px;">
+              · Dueño se llama Tomás, hijo de un amigo del Marco.<br/>
+              · No le gustan los sets &gt; 130 BPM al inicio.<br/>
+              · Paga el lunes siguiente, NUNCA en efectivo el mismo día.<br/>
+              · Pide rider técnico siempre (CDJ-3000s, no menos).<br/>
+              · Le importa que el DJ llegue 1h antes (no lo dice pero se molesta).<br/>
+              · OK con compartir con otros DJs los viernes.
+            </div>
+          </div>
+
+          <hr class="dash" />
+
+          <div style="background: var(--orange); padding: 10px 14px; border: 2px solid var(--ink);">
+            <div class="mono" style="font-size: 9px; font-weight: 700; letter-spacing: 0.1em;">— HIGHLIGHT EN GIG CONFIRMADO</div>
+            <div style="font-size: 13px; font-weight: 600; margin-top: 4px;">
+              ⚠ Cuando confirmes gig con este contacto, DROP muestra estas notas arriba del todo en el detalle del evento del calendario. No te vas a olvidar.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reglas -->
+      <div>
+        <div class="card" style="margin-bottom: 14px;">
+          <div class="lbl">— DÓNDE APARECE</div>
+          <ul style="font-size: 13px; line-height: 1.7; padding-left: 18px; margin-top: 8px;">
+            <li>Ficha del contacto en /crm/[id]</li>
+            <li>Highlight automático en /calendario al confirmar gig con ese contacto</li>
+            <li>Push notification 24h antes del gig: <em>"Recordá: PAGA EL LUNES, no efectivo"</em></li>
+          </ul>
+        </div>
+        <div class="card dark">
+          <div class="lbl">— DÓNDE NO APARECE NUNCA</div>
+          <ul style="font-size: 13px; line-height: 1.7; padding-left: 18px; margin-top: 8px; color: #ccc;">
+            <li>Press kit público (drop.dj/p/jaime)</li>
+            <li>Export CSV para contador</li>
+            <li>Email/Gmail outbound — DROP nunca lo incluye en plantillas</li>
+            <li>Vistas compartidas (cuando llegue el SaaS multi-user)</li>
+            <li>Logs / audit</li>
+          </ul>
+          <p style="font-size: 12px; color: var(--orange); margin-top: 8px;">
+            <strong>RLS:</strong> Solo el owner ve sus notas. Service role NO accede salvo audit explícito.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- E4 · FOLLOW-UPS RECURRENTES -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">E4</div>
+    <div class="ttl">FOLLOW-UPS RECURRENTES</div>
+    <div class="sub">CADA N DÍAS/MESES · AUTO-GENERA SIGUIENTE AL CERRAR</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Algunos contactos requieren <strong>tocarlos cada N días/semanas</strong>. DROP los marca como recurrentes y,
+      al cerrar uno, crea el siguiente automático. Cero esfuerzo de tu lado para mantener el ritmo.
+    </p>
+
+    <!-- Diagrama de recurrencia -->
+    <div class="frame-wrap">
+      <div class="label">E4A / DIAGRAMA DE RECURRENCIA</div>
+      <div class="frame" style="padding: 28px; background: #FFF;">
+        <div class="kicker mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FOLLOW-UP "MENSAJEAR A CANDELARIA" · CADA 30 DÍAS</div>
+        <h3 class="anton" style="font-size: 28px; margin-top: 4px;">CICLO AUTOMÁTICO<span style="color: var(--orange);">.</span></h3>
+
+        <div class="recur-diagram" style="margin-top: 22px;">
+          <div class="recur-node done">
+            <div class="l">— CERRADO</div>
+            <div class="d">15-MAR</div>
+            <div style="font-size: 10px; margin-top: 4px;">✓ Le escribí</div>
+          </div>
+          <div class="recur-arrow">→</div>
+          <div class="recur-node done">
+            <div class="l">— CERRADO</div>
+            <div class="d">14-ABR</div>
+            <div style="font-size: 10px; margin-top: 4px;">✓ Contestó</div>
+          </div>
+          <div class="recur-arrow">→</div>
+          <div class="recur-node today">
+            <div class="l">— HOY</div>
+            <div class="d">14-MAY</div>
+            <div style="font-size: 10px; margin-top: 4px;">○ Pendiente</div>
+          </div>
+        </div>
+
+        <div class="recur-diagram" style="margin-top: 14px;">
+          <div></div>
+          <div></div>
+          <div class="recur-arrow" style="font-size: 24px;">↓</div>
+          <div></div>
+          <div></div>
+        </div>
+
+        <div style="background: var(--orange); padding: 16px 20px; border: 2px solid var(--ink); margin-top: 10px; max-width: 240px;">
+          <div class="mono" style="font-size: 9px; font-weight: 700; letter-spacing: 0.1em;">— AL CERRAR HOY...</div>
+          <div class="anton" style="font-size: 24px; margin-top: 4px;">SE CREA AUTO PARA<br/>13-JUN</div>
+        </div>
+
+        <hr class="dash" />
+
+        <div class="grid-3">
+          <div>
+            <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— FRECUENCIAS DISPONIBLES</div>
+            <ul style="font-size: 13px; line-height: 1.8; padding-left: 16px; margin-top: 6px;">
+              <li>Cada N días (3, 7, 14, 30, …)</li>
+              <li>Cada N semanas</li>
+              <li>Cada N meses</li>
+              <li>Cada 1er lunes del mes (cron tipo)</li>
+            </ul>
+          </div>
+          <div>
+            <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— OPCIONES AL CERRAR</div>
+            <ul style="font-size: 13px; line-height: 1.8; padding-left: 16px; margin-top: 6px;">
+              <li>Marcar hecho → genera siguiente</li>
+              <li>Posponer N días</li>
+              <li>Pausar recurrencia (no genera más)</li>
+              <li>Eliminar serie completa</li>
+            </ul>
+          </div>
+          <div>
+            <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— TIPOS COMUNES (UI sugiere)</div>
+            <ul style="font-size: 13px; line-height: 1.8; padding-left: 16px; margin-top: 6px;">
+              <li>"Saludar al booker · 30d"</li>
+              <li>"Pedir feedback post-gig · 7d"</li>
+              <li>"Actualizar press kit · 90d"</li>
+              <li>"Revisar pipeline · 7d"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form crear follow-up con opción recurrente -->
+    <div class="grid-2" style="margin-top: 22px;">
+      <div class="card">
+        <div class="lbl">— CREAR FOLLOW-UP · TOGGLE RECURRENTE</div>
+        <h3 class="anton" style="font-size: 22px;">NUEVO FOLLOW-UP</h3>
+        <div class="form-group" style="margin-top: 12px;">
+          <label>Nota</label>
+          <input value="Mensajear a Candelaria — preguntar por fechas de jun" />
+        </div>
+        <div class="form-group">
+          <label>Vence</label>
+          <input value="14-may-2026" />
+        </div>
+        <hr class="dash" style="margin: 12px 0;" />
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="checkbox" checked style="accent-color: var(--orange); width: 18px; height: 18px;" />
+          <label style="margin: 0;">Hacer recurrente</label>
+        </div>
+        <div style="display: grid; grid-template-columns: 80px 1fr; gap: 8px; margin-top: 10px;">
+          <div class="form-group" style="margin: 0;">
+            <label>Cada</label>
+            <input value="30" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Unidad</label>
+            <select>
+              <option>Días</option>
+              <option>Semanas</option>
+              <option>Meses</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn orange" style="margin-top: 14px; align-self: flex-start;">CREAR FOLLOW-UP →</button>
+      </div>
+      <div class="card dark">
+        <div class="lbl">— VISTA "MIS RECURRENTES"</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream);">PIPELINE DE RUTINA</h3>
+        <p style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Nueva pantalla en /crm/recurrentes con tu lista de follow-ups que se repiten.</p>
+        <ul style="font-size: 12px; line-height: 1.7; padding-left: 0; list-style: none; color: var(--cream);">
+          <li style="padding: 6px 0; border-bottom: 1px solid #2a2a2a;">
+            <strong>Saludar Candelaria</strong> · 30d · próx. 14-may
+            <span style="color: var(--orange); font-family: 'Space Mono'; font-size: 10px; margin-left: 6px;">3/12</span>
+          </li>
+          <li style="padding: 6px 0; border-bottom: 1px solid #2a2a2a;">
+            <strong>Mensaje a Marco</strong> · 14d · próx. 18-may
+            <span style="color: var(--orange); font-family: 'Space Mono'; font-size: 10px; margin-left: 6px;">7/26</span>
+          </li>
+          <li style="padding: 6px 0; border-bottom: 1px solid #2a2a2a;">
+            <strong>Pedir feedback Subterráneo</strong> · 7d · próx. 21-may
+            <span style="color: var(--orange); font-family: 'Space Mono'; font-size: 10px; margin-left: 6px;">12/52</span>
+          </li>
+          <li style="padding: 6px 0;">
+            <strong>Actualizar press kit</strong> · 90d · próx. 12-jul
+            <span style="color: var(--orange); font-family: 'Space Mono'; font-size: 10px; margin-left: 6px;">2/4</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 05 · MOBILE -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">05</div>
+    <div class="ttl">MOBILE</div>
+    <div class="sub">PRINCIPALES VISTAS EN IPHONE</div>
+  </div>
+  <div class="sec-body">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
+      <!-- Phone 1: Ingresos del mes -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— CALENDARIO · MAY 2026</div>
+            <div class="anton" style="font-size: 22px; margin-top: 4px;">INGRESOS<span style="color: var(--orange);">.</span></div>
+
+            <div style="border: 2px solid var(--ink); background: var(--success); color: #FFF; padding: 12px; margin-top: 12px;">
+              <div class="mono" style="font-size: 8px; font-weight: 700;">— TOTAL MES</div>
+              <div class="anton" style="font-size: 30px; line-height: 1; margin-top: 4px;">$2.450K</div>
+              <div class="mono" style="font-size: 8px; margin-top: 4px;">5 GIGS · CLP</div>
+            </div>
+
+            <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <div style="border: 2px solid var(--ink); padding: 8px; background: var(--orange);">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">PROM/GIG</div>
+                <div class="anton" style="font-size: 18px;">$490K</div>
+              </div>
+              <div style="border: 2px solid var(--ink); padding: 8px; background: var(--ink); color: var(--cream);">
+                <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--orange);">PENDIENTE</div>
+                <div class="anton" style="font-size: 18px;">$320K</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 12px;">
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">17-MAY · LA FERIA</div>
+                <div class="anton" style="font-size: 14px; color: var(--success);">$780K</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">09-MAY · SUBTERRÁNEO</div>
+                <div class="anton" style="font-size: 14px; color: var(--success);">$550K</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: var(--warning); color: #FFF; padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">16-MAY · CANDELARIA</div>
+                <div class="anton" style="font-size: 14px;">$320K · ⏱ debe</div>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px;">↓ EXPORTAR CSV</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item active">CAL</div>
+            <div class="item">GROWTH</div>
+            <div class="item">MÁS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2: Tags filter -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— CRM · FILTROS</div>
+            <div class="anton" style="font-size: 22px; margin-top: 4px;">TAGS ACTIVOS<span style="color: var(--orange);">.</span></div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px;">
+              <span class="ctag orange" style="font-size: 8px;"># booker-stgo-centro <span class="x">×</span></span>
+              <span class="ctag success" style="font-size: 8px;"># tech-house-friendly <span class="x">×</span></span>
+            </div>
+
+            <div style="background: var(--orange); border: 2px solid var(--ink); padding: 10px; margin-top: 12px;">
+              <div class="mono" style="font-size: 9px; font-weight: 700;">— RESULTADO</div>
+              <div class="anton" style="font-size: 22px; line-height: 1;">3 MATCHES</div>
+            </div>
+
+            <div style="margin-top: 12px;">
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px; display: flex; gap: 6px; align-items: center;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--cream); display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 14px;">PT</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="anton" style="font-size: 12px;">PHUKET / TARDEO</div>
+                  <div class="mono" style="font-size: 8px; color: #666;">Bar · STGO</div>
+                </div>
+                <div class="anton" style="font-size: 14px; color: var(--success);">100</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px; display: flex; gap: 6px; align-items: center;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--cream); display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 14px;">LF</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="anton" style="font-size: 12px;">LA FERIA</div>
+                  <div class="mono" style="font-size: 8px; color: #666;">Club · STGO</div>
+                </div>
+                <div class="anton" style="font-size: 14px; color: var(--success);">79</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px; display: flex; gap: 6px; align-items: center;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--cream); display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 14px;">SU</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="anton" style="font-size: 12px;">SUBTERRÁNEO</div>
+                  <div class="mono" style="font-size: 8px; color: #666;">Club · STGO</div>
+                </div>
+                <div class="anton" style="font-size: 14px; color: var(--success);">100</div>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px;">USAR EN CAMPAÑA →</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item active">CRM</div>
+            <div class="item">CAL</div>
+            <div class="item">GROWTH</div>
+            <div class="item">MÁS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 3: Recurring follow-up -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— CRM · RECURRENTES</div>
+            <div class="anton" style="font-size: 20px; margin-top: 4px;">FOLLOW-UPS<br/>EN RUTINA<span style="color: var(--orange);">.</span></div>
+
+            <div style="margin-top: 12px;">
+              <div style="border: 2px solid var(--orange); background: var(--orange); padding: 10px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">— HOY · VENCE</div>
+                <div class="anton" style="font-size: 14px; margin-top: 2px;">SALUDAR CANDELARIA</div>
+                <div class="mono" style="font-size: 8px; margin-top: 4px;">CADA 30D · CICLO 3/12</div>
+                <div style="display: flex; gap: 4px; margin-top: 6px;">
+                  <button class="btn sm" style="padding: 3px 6px; font-size: 8px;">✓ HECHO</button>
+                  <button class="btn sm outline" style="padding: 3px 6px; font-size: 8px;">+7d</button>
+                </div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">— PRÓX · 18-MAY</div>
+                <div class="anton" style="font-size: 14px; margin-top: 2px;">MENSAJE A MARCO</div>
+                <div class="mono" style="font-size: 8px; margin-top: 4px;">CADA 14D · CICLO 7/26</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">— PRÓX · 21-MAY</div>
+                <div class="anton" style="font-size: 14px; margin-top: 2px;">FEEDBACK SUBTERRÁNEO</div>
+                <div class="mono" style="font-size: 8px; margin-top: 4px;">CADA 7D · CICLO 12/52</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">— PRÓX · 12-JUL</div>
+                <div class="anton" style="font-size: 14px; margin-top: 2px;">ACTUALIZAR PRESS KIT</div>
+                <div class="mono" style="font-size: 8px; margin-top: 4px;">CADA 90D · CICLO 2/4</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item active">CRM</div>
+            <div class="item">CAL</div>
+            <div class="item">GROWTH</div>
+            <div class="item">MÁS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TECH BLOCK -->
+<!-- ============================================================ -->
+<section style="background: var(--ink); color: var(--cream); padding: 60px 24px;">
+  <div class="sec-head" style="border-bottom-color: var(--orange);">
+    <div class="num">06</div>
+    <div class="ttl" style="color: var(--cream);">FASES TÉCNICAS</div>
+    <div class="sub" style="color: var(--orange);">CÓMO SE IMPLEMENTA · NO TOCA NADA EXISTENTE</div>
+  </div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE A · DB</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">MIGRATION 0017</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>ALTER calendar_events: monto_clp, payment_status, document_type</li>
+          <li>ALTER contacts: tags[] text[], private_notes text</li>
+          <li>ALTER follow_ups: is_recurring bool, recurrence_days int, recurrence_series_id uuid</li>
+          <li>Índices: contacts.tags GIN, follow_ups.is_recurring</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE B · UI</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">PANTALLAS</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>/calendario: campos $ + KPIs + month view colorized</li>
+          <li>/api/export-finance/csv (server route)</li>
+          <li>/crm/[id]: tags + private notes + highlight</li>
+          <li>/crm filtros por tag (AND/OR)</li>
+          <li>/crm/recurrentes (nueva pantalla)</li>
+          <li>Form follow-up con toggle recurrente</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE C · LÓGICA</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">AUTOMATIZACIÓN</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>Al cerrar follow-up recurrente, server action genera el siguiente</li>
+          <li>Cron diario: pago pendiente +30d → push notification</li>
+          <li>Highlight de private_notes en /calendario al confirmar gig</li>
+          <li>Filtro de tags en campañas (Sprint 9 extiende su query)</li>
+          <li>Validación: tags lowercase + sin espacios</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 2px dashed var(--orange); margin: 32px 0;" />
+
+    <div class="grid-2">
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— LO QUE SÍ HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Monto y estado de pago por gig</li>
+          <li>KPIs financieros mensuales en /calendario</li>
+          <li>Export CSV anual/mensual/personalizado para contador</li>
+          <li>Tags arbitrarios sin límite por contacto</li>
+          <li>Filtro AND/OR de tags + autocomplete</li>
+          <li>Notas privadas con RLS estricto</li>
+          <li>Highlight de notas al confirmar gig</li>
+          <li>Follow-ups recurrentes con auto-renovación</li>
+          <li>Vista "recurrentes" con contador de ciclos</li>
+          <li>Push notification de pagos atrasados</li>
+        </ul>
+      </div>
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: #C53030; letter-spacing: 0.12em;">— LO QUE NO HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Integración con SII Chile (boletas automáticas)</li>
+          <li>Cálculo de impuestos / 10% honorarios</li>
+          <li>Cobro automático con Stripe/Mercado Pago (eso es Sprint 24)</li>
+          <li>Notas privadas compartidas con workspace (eso es Sprint 24)</li>
+          <li>Tags pre-definidos por DROP (todos son del user)</li>
+          <li>Análisis predictivo de cashflow (out of scope)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background: var(--cream); padding: 50px 24px; border-top: 4px solid var(--orange);">
+  <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FIN DEL MOCKUP · SPRINT 19</div>
+      <h2 class="anton" style="font-size: 60px; margin-top: 8px;">CRM<span style="color: var(--orange);">.</span></h2>
+    </div>
+    <div style="text-align: right;">
+      <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em;">DROP. · THE DJ OS · v0.14 (next)</div>
+      <div class="mono" style="font-size: 9px; color: #555; margin-top: 4px;">propuesto · pendiente de aprobación</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

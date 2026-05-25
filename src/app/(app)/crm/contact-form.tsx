@@ -48,7 +48,23 @@ const EMPTY: ContactInsert = {
   main_channel: "whatsapp",
   status: "nuevo",
   notes: "",
+  // Sprint 19 — Tags + notas privadas
+  tags: [],
+  private_notes: "",
 };
+
+/** Sprint 19 — Normaliza tag a lowercase + dashes (sin espacios). */
+function normalizeTag(raw: string): string {
+  return raw
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // remove accents
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+}
 
 export function ContactForm({ initial }: Props) {
   const router = useRouter();
@@ -71,10 +87,31 @@ export function ContactForm({ initial }: Props) {
           main_channel: initial.main_channel,
           status: initial.status,
           notes: initial.notes,
+          tags: initial.tags ?? [],
+          private_notes: initial.private_notes ?? "",
         }
       : EMPTY
   );
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [tagInput, setTagInput] = useState("");
+
+  function addTag(raw: string) {
+    const tag = normalizeTag(raw);
+    if (!tag) return;
+    setForm((f) => {
+      const current = f.tags ?? [];
+      if (current.includes(tag)) return f;
+      return { ...f, tags: [...current, tag] };
+    });
+    setTagInput("");
+  }
+
+  function removeTag(tag: string) {
+    setForm((f) => ({
+      ...f,
+      tags: (f.tags ?? []).filter((t) => t !== tag),
+    }));
+  }
 
   function update<K extends keyof ContactInsert>(
     field: K,
@@ -317,6 +354,62 @@ export function ContactForm({ initial }: Props) {
         )}
       </Card>
 
+      {/* Tags — Sprint 19 */}
+      <Card className="p-6 space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          Tags
+        </h2>
+        <p className="text-xs text-fg-muted -mt-1">
+          Etiquetas libres para segmentar. Útil para filtrar en /crm y para
+          campañas dirigidas. Lowercase, sin espacios (DROP las normaliza).
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {(form.tags ?? []).map((t) => (
+            <span
+              key={t}
+              className="inline-flex items-center gap-1.5 border-2 border-ink bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5"
+            >
+              <span>#{t}</span>
+              <button
+                type="button"
+                onClick={() => removeTag(t)}
+                className="text-fg-muted hover:text-danger leading-none"
+                aria-label={`Quitar tag ${t}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+          {(form.tags ?? []).length === 0 && (
+            <span className="text-xs text-fg-subtle">Sin tags todavía.</span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                if (tagInput.trim()) addTag(tagInput);
+              }
+              if (e.key === "Backspace" && !tagInput && (form.tags ?? []).length > 0) {
+                removeTag((form.tags as string[])[form.tags!.length - 1]);
+              }
+            }}
+            placeholder="Ej: booker-stgo-centro (Enter para agregar)"
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => tagInput.trim() && addTag(tagInput)}
+          >
+            + Tag
+          </Button>
+        </div>
+      </Card>
+
       {/* Notas */}
       <Card className="p-6 space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
@@ -327,6 +420,29 @@ export function ContactForm({ initial }: Props) {
           onChange={(e) => update("notes", e.target.value)}
           rows={4}
           placeholder="Cualquier contexto adicional sobre este contacto."
+        />
+      </Card>
+
+      {/* Notas privadas — Sprint 19 */}
+      <Card className="p-6 space-y-3" style={{ borderColor: "#0A0A0A", borderWidth: "2px" }}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-orange flex items-center gap-2">
+            🔒 Notas privadas
+          </h2>
+          <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-ink text-orange">
+            solo vos
+          </span>
+        </div>
+        <p className="text-xs text-fg-muted -mt-1">
+          Nunca aparecen en press kit, export CSV ni plantillas de mail. Para
+          cosas que NO querés olvidar: cómo paga, qué le molesta, conexiones
+          personales, etc.
+        </p>
+        <Textarea
+          value={form.private_notes || ""}
+          onChange={(e) => update("private_notes", e.target.value)}
+          rows={5}
+          placeholder="Ej: Paga el lunes siguiente, no efectivo. Pide rider técnico. Hijo de un amigo del Marco."
         />
       </Card>
 

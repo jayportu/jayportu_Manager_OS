@@ -188,6 +188,49 @@ export default async function ContactDetailPage({ params }: PageProps) {
         </div>
       </Card>
 
+      {/* Sprint 19 — Tags */}
+      {contact.tags && contact.tags.length > 0 && (
+        <Card className="p-5 mb-5">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange mb-3">
+            — TAGS
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {contact.tags.map((t) => (
+              <Link
+                key={t}
+                href={`/crm?tag=${encodeURIComponent(t)}`}
+                className="inline-flex items-center border-2 border-ink bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
+              >
+                #{t}
+              </Link>
+            ))}
+          </div>
+          <p className="text-[10px] text-fg-subtle mt-3">
+            Click en un tag para ver todos los contactos que lo tienen.
+          </p>
+        </Card>
+      )}
+
+      {/* Sprint 19 — Notas privadas (solo si hay contenido) */}
+      {contact.private_notes && contact.private_notes.trim().length > 0 && (
+        <Card className="p-5 mb-5 bg-ink text-cream" style={{ borderColor: "#0A0A0A" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
+              🔒 NOTAS PRIVADAS
+            </div>
+            <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink">
+              solo vos
+            </span>
+          </div>
+          <p className="text-sm whitespace-pre-wrap leading-relaxed">
+            {contact.private_notes}
+          </p>
+          <p className="text-[10px] text-orange mt-3 opacity-70">
+            Nunca exportado · nunca en press kit · nunca compartido.
+          </p>
+        </Card>
+      )}
+
       {/* Desglose del score */}
       <Card className="p-6 mb-5">
         <div className="flex items-center justify-between mb-3">

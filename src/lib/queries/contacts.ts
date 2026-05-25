@@ -47,6 +47,8 @@ export interface ListContactsParams {
   city?: string;
   minScore?: number;
   orderBy?: "score" | "last_contact_at" | "created_at" | "name";
+  /** Sprint 19 — Filtrar contactos que tengan TODOS estos tags (AND). */
+  tags?: string[];
 }
 
 async function getUserOrThrow() {
@@ -80,6 +82,10 @@ export async function listContacts(
       `name.ilike.%${s}%,city.ilike.%${s}%,contact_person.ilike.%${s}%,music_style.ilike.%${s}%,notes.ilike.%${s}%`
     );
   }
+  // Sprint 19 — Filtro AND por tags (contiene TODOS los tags pedidos)
+  if (params.tags && params.tags.length > 0) {
+    q = q.contains("tags", params.tags);
+  }
 
   const { data, error } = await q
     .order(orderBy, { ascending, nullsFirst: false })
@@ -90,6 +96,30 @@ export async function listContacts(
     return [];
   }
   return data as Contact[];
+}
+
+/**
+ * Sprint 19 — Lista todos los tags únicos usados por el user en sus contactos,
+ * con un conteo de cuántos contactos los tienen. Útil para autocomplete + filtros.
+ */
+export async function listAllUserTags(): Promise<
+  { tag: string; count: number }[]
+> {
+  const { supabase, user } = await getUserOrThrow();
+  const { data, error } = await supabase
+    .from("contacts")
+    .select("tags")
+    .eq("user_id", user.id);
+  if (error) return [];
+  const counts = new Map<string, number>();
+  for (const row of (data || []) as { tags: string[] | null }[]) {
+    for (const t of row.tags ?? []) {
+      counts.set(t, (counts.get(t) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 export async function getContact(id: string): Promise<Contact | null> {

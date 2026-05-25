@@ -9,6 +9,7 @@
  *  3. Recordatorio semanal (solo lunes): "revisa tus stats de la semana"
  *  4. Sprint 18 — Campaña pagada activa al 90%+ del objetivo (sugerir cerrar)
  *  5. Sprint 18 — Silencio 7+ días sin postear (recordatorio amable)
+ *  6. Sprint 19 — Pago atrasado +30 días (gig con payment_status=pending)
  *
  * Cada trigger se envía con tag distinto para que el navegador agrupe
  * en lugar de apilar. No envía si no hay nada relevante.
@@ -25,12 +26,14 @@ async function buildTriggers(userId: string): Promise<PushPayload[]> {
   const out: PushPayload[] = [];
 
   // ─── Trigger 1: follow-ups vencidos ─────────────────────────────────
+  // Sprint 19 fix: la columna real es `done` (boolean) + `done_at`, no
+  // `completed_at`. Corregido el filtro.
   const nowIso = new Date().toISOString();
   const { count: overdueCount } = await admin
     .from("follow_ups")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
-    .is("completed_at", null)
+    .eq("done", false)
     .lte("due_at", nowIso);
 
   if (overdueCount && overdueCount > 0) {
@@ -161,6 +164,49 @@ async function buildTriggers(userId: string): Promise<PushPayload[]> {
         tag: "growth-silence-7d",
       });
     }
+  }
+
+  // ─── Trigger 6: pago atrasado +30 días (Sprint 19) ──────────────────
+  // Si hay un gig confirmado (type=show, payment_status=pending) cuyo start_at
+  // fue hace 30+ días, recordatorio para cobrar.
+  const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+    .toISOString();
+  const { data: lateGigs } = await admin
+    .from("calendar_events")
+    .select("id, title, location, amount_clp, start_at")
+    .eq("user_id", userId)
+    .eq("type", "show")
+    .eq("payment_status", "pending")
+    .lte("start_at", thirtyDaysAgo)
+    .order("start_at", { ascending: true })
+    .limit(5);
+
+  if (lateGigs && lateGigs.length > 0) {
+    type LateGig = {
+      id: string;
+      title: string;
+      location: string | null;
+      amount_clp: number | null;
+      start_at: string;
+    };
+    const first = lateGigs[0] as LateGig;
+    const totalPending = (lateGigs as LateGig[]).reduce(
+      (sum, g) => sum + (g.amount_clp ?? 0),
+      0
+    );
+    const totalLabel =
+      totalPending > 0
+        ? `$${totalPending.toLocaleString("es-CL")}`
+        : "monto pendiente";
+    out.push({
+      title: "💰 Pago atrasado",
+      body:
+        lateGigs.length === 1
+          ? `"${first.title}" tiene 30+ días sin cobrar (${totalLabel}). Sigue tu cobro.`
+          : `${lateGigs.length} gigs con 30+ días sin cobrar (${totalLabel} total).`,
+      url: "/calendario",
+      tag: "calendar-payment-late",
+    });
   }
 
   return out;

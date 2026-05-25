@@ -58,6 +58,10 @@ export async function upsertCalendarEvent(input: {
   all_day?: boolean;
   contact_id?: string | null;
   sync_state?: string;
+  /** Sprint 19 — Tracking financiero */
+  amount_clp?: number | null;
+  payment_status?: import("@/lib/calendar/types").PaymentStatus;
+  document_type?: import("@/lib/calendar/types").DocumentType;
 }): Promise<CalendarEventRow> {
   const { supabase, user } = await getUserOrThrow();
   const payload = {
@@ -74,6 +78,11 @@ export async function upsertCalendarEvent(input: {
     contact_id: input.contact_id || null,
     sync_state: input.sync_state || "synced",
     last_synced_at: new Date().toISOString(),
+    // Sprint 19 — Tracking financiero. NULL/undefined = no se setea (compatible
+    // con events que vienen del sync de Google sin info financiera).
+    ...(input.amount_clp !== undefined ? { amount_clp: input.amount_clp } : {}),
+    ...(input.payment_status ? { payment_status: input.payment_status } : {}),
+    ...(input.document_type ? { document_type: input.document_type } : {}),
   };
 
   if (input.google_event_id) {
@@ -93,6 +102,62 @@ export async function upsertCalendarEvent(input: {
     .single();
   if (error) throw new Error(error.message);
   return data as CalendarEventRow;
+}
+
+/**
+ * Sprint 19 — KPIs financieros del mes actual (Santiago tz).
+ * Devuelve total facturado + pendiente + cantidad de gigs confirmados con monto.
+ */
+export interface FinanceKpis {
+  monthLabel: string;
+  totalCobrado: number;    // suma de amount_clp con payment_status='paid'
+  totalPendiente: number;  // suma de amount_clp con payment_status='pending'
+  totalGigs: number;       // gigs del mes con cualquier amount_clp
+  gigsPagados: number;
+  gigsPendientes: number;
+  avgPerGig: number;       // total cobrado / gigs pagados
+}
+
+export async function getFinanceKpis(): Promise<FinanceKpis> {
+  const { supabase, user } = await getUserOrThrow();
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const { data } = await supabase
+    .from("calendar_events")
+    .select("amount_clp, payment_status")
+    .eq("user_id", user.id)
+    .eq("type", "show")
+    .gte("start_at", monthStart.toISOString())
+    .lt("start_at", nextMonth.toISOString());
+
+  const rows = (data || []) as Array<{
+    amount_clp: number | null;
+    payment_status: string;
+  }>;
+  const withAmount = rows.filter((r) => r.amount_clp && r.amount_clp > 0);
+  const paid = withAmount.filter((r) => r.payment_status === "paid");
+  const pending = withAmount.filter((r) => r.payment_status === "pending");
+  const totalCobrado = paid.reduce((sum, r) => sum + (r.amount_clp ?? 0), 0);
+  const totalPendiente = pending.reduce(
+    (sum, r) => sum + (r.amount_clp ?? 0),
+    0
+  );
+
+  return {
+    monthLabel: monthStart.toLocaleDateString("es-CL", {
+      month: "long",
+      year: "numeric",
+      timeZone: "America/Santiago",
+    }),
+    totalCobrado,
+    totalPendiente,
+    totalGigs: withAmount.length,
+    gigsPagados: paid.length,
+    gigsPendientes: pending.length,
+    avgPerGig: paid.length > 0 ? Math.round(totalCobrado / paid.length) : 0,
+  };
 }
 
 export async function deleteCalendarEvent(id: string): Promise<{

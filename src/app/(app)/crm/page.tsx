@@ -1,4 +1,4 @@
-import { listContacts } from "@/lib/queries/contacts";
+import { listContacts, listAllUserTags } from "@/lib/queries/contacts";
 import {
   CONTACT_TYPES,
   CONTACT_STATUS,
@@ -21,17 +21,45 @@ interface PageProps {
     type?: ContactType;
     status?: ContactStatus;
     score?: string;
+    /** Sprint 19 — comma-separated list of tags for AND filter */
+    tag?: string;
+    tags?: string;
   }>;
+}
+
+/** Sprint 19 — Helper para construir URL preservando otros params + cambiando tags */
+function buildHref(
+  current: Record<string, string | undefined>,
+  override: Partial<Record<"tag" | "tags", string | undefined>>
+): string {
+  const params = new URLSearchParams();
+  const merged = { ...current, ...override };
+  for (const [k, v] of Object.entries(merged)) {
+    if (v && v.trim().length > 0) params.set(k, v);
+  }
+  const qs = params.toString();
+  return qs ? `/crm?${qs}` : "/crm";
 }
 
 export default async function CrmPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-  const contacts = await listContacts({
-    search: sp.q,
-    type: sp.type,
-    status: sp.status,
-    minScore: sp.score ? parseInt(sp.score, 10) : undefined,
-  });
+
+  // Sprint 19 — Parse tags from URL (acepta ?tag=x para uno o ?tags=x,y,z para varios)
+  const activeTags = (sp.tags || sp.tag || "")
+    .split(",")
+    .map((t) => t.trim().toLowerCase())
+    .filter((t) => t.length > 0);
+
+  const [contacts, allTags] = await Promise.all([
+    listContacts({
+      search: sp.q,
+      type: sp.type,
+      status: sp.status,
+      minScore: sp.score ? parseInt(sp.score, 10) : undefined,
+      tags: activeTags.length > 0 ? activeTags : undefined,
+    }),
+    listAllUserTags(),
+  ]);
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
@@ -41,7 +69,9 @@ export default async function CrmPage({ searchParams }: PageProps) {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">CRM</h1>
           <p className="text-sm text-fg-muted mt-1">
             {contacts.length} {contacts.length === 1 ? "contacto" : "contactos"}
-            {sp.q || sp.type || sp.status || sp.score ? " (filtrado)" : ""}
+            {sp.q || sp.type || sp.status || sp.score || activeTags.length > 0
+              ? " (filtrado)"
+              : ""}
           </p>
         </div>
         <div className="flex gap-2">
@@ -59,6 +89,69 @@ export default async function CrmPage({ searchParams }: PageProps) {
           </Button>
         </div>
       </div>
+
+      {/* Sprint 19 — Filtro por tags */}
+      {(allTags.length > 0 || activeTags.length > 0) && (
+        <Card className="p-4 mb-3">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange mb-2">
+            — TAGS · FILTRO AND
+          </div>
+          {activeTags.length > 0 && (
+            <div className="mb-3">
+              <div className="font-mono text-[9px] font-bold uppercase text-fg-muted mb-1.5">
+                Activos:
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {activeTags.map((t) => {
+                  const remaining = activeTags.filter((x) => x !== t);
+                  const newTags = remaining.length > 0 ? remaining.join(",") : undefined;
+                  return (
+                    <Link
+                      key={t}
+                      href={buildHref(sp, { tag: undefined, tags: newTags })}
+                      className="inline-flex items-center gap-1.5 border-2 border-ink bg-orange font-mono text-[10px] font-bold lowercase px-2 py-0.5"
+                    >
+                      <span>#{t}</span>
+                      <span className="text-ink/60">×</span>
+                    </Link>
+                  );
+                })}
+                <Link
+                  href={buildHref(sp, { tag: undefined, tags: undefined })}
+                  className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-ink"
+                >
+                  limpiar
+                </Link>
+              </div>
+            </div>
+          )}
+          {allTags.length > 0 && (
+            <div>
+              <div className="font-mono text-[9px] font-bold uppercase text-fg-muted mb-1.5">
+                {activeTags.length > 0 ? "Sumar otro:" : "Filtrar por:"}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {allTags
+                  .filter((t) => !activeTags.includes(t.tag))
+                  .slice(0, 30)
+                  .map((t) => {
+                    const newTags = [...activeTags, t.tag].join(",");
+                    return (
+                      <Link
+                        key={t.tag}
+                        href={buildHref(sp, { tag: undefined, tags: newTags })}
+                        className="inline-flex items-center gap-1.5 border-2 border-ink bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
+                      >
+                        <span>#{t.tag}</span>
+                        <span className="text-fg-muted">{t.count}</span>
+                      </Link>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Filtros */}
       <Card className="p-4 mb-5">

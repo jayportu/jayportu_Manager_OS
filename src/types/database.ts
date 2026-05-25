@@ -111,6 +111,10 @@ export interface Contact {
   last_contact_at: string | null;
   next_followup_at: string | null;
   notes: string;
+  /** Sprint 19 — Tags arbitrarios para segmentación (lowercase, sin espacios) */
+  tags: string[];
+  /** Sprint 19 — Notas privadas (RLS estricto, solo owner, nunca exportadas) */
+  private_notes: string;
   created_at: string;
   updated_at: string;
 }
@@ -217,6 +221,16 @@ export const INTERACTION_CHANNEL_LABELS: Record<InteractionChannel, string> = {
 // ════════════════════════════════════════════════════════════════════
 export type FollowUpPriority = "alta" | "normal" | "baja";
 
+/** Sprint 19 — Unidades de recurrencia de follow-ups */
+export const RECURRENCE_UNITS = ["days", "weeks", "months"] as const;
+export type RecurrenceUnit = (typeof RECURRENCE_UNITS)[number];
+
+export const RECURRENCE_UNIT_LABELS: Record<RecurrenceUnit, string> = {
+  days: "Días",
+  weeks: "Semanas",
+  months: "Meses",
+};
+
 export interface FollowUp {
   id: string;
   user_id: string;
@@ -226,6 +240,13 @@ export interface FollowUp {
   priority: FollowUpPriority;
   done: boolean;
   done_at: string | null;
+  /** Sprint 19 — Recurrencia */
+  is_recurring: boolean;
+  recurrence_value: number | null;
+  recurrence_unit: RecurrenceUnit | null;
+  recurrence_series_id: string | null;
+  recurrence_index: number;
+  recurrence_max: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -235,6 +256,10 @@ export type FollowUpInsert = {
   due_at: string;
   note?: string;
   priority?: FollowUpPriority;
+  is_recurring?: boolean;
+  recurrence_value?: number | null;
+  recurrence_unit?: RecurrenceUnit | null;
+  recurrence_max?: number | null;
 };
 
 // ════════════════════════════════════════════════════════════════════

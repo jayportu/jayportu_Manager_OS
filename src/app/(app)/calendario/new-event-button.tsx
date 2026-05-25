@@ -12,7 +12,13 @@ import { Plus, X } from "lucide-react";
 import {
   CALENDAR_EVENT_TYPES,
   CALENDAR_EVENT_TYPE_LABELS,
+  PAYMENT_STATUSES,
+  PAYMENT_STATUS_LABELS,
+  DOCUMENT_TYPES,
+  DOCUMENT_TYPE_LABELS,
   type CalendarEventType,
+  type PaymentStatus,
+  type DocumentType,
 } from "@/lib/calendar/types";
 import { createEventAction } from "./actions";
 
@@ -61,6 +67,11 @@ export function NewEventButton({
   const [description, setDescription] = useState("");
   const [startAt, setStartAt] = useState(defaultStart());
   const [endAt, setEndAt] = useState(defaultEnd());
+  // Sprint 19 — campos financieros opcionales
+  const [showFinance, setShowFinance] = useState(false);
+  const [amountClp, setAmountClp] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("none");
+  const [documentType, setDocumentType] = useState<DocumentType>("none");
 
   function close() {
     setOpen(false);
@@ -78,6 +89,7 @@ export function NewEventButton({
       setError("La fecha de fin debe ser posterior a la de inicio.");
       return;
     }
+    const amount = amountClp ? parseInt(amountClp.replace(/\D/g, ""), 10) : null;
     startTransition(async () => {
       const result = await createEventAction({
         type,
@@ -87,6 +99,10 @@ export function NewEventButton({
         startISO: new Date(startAt).toISOString(),
         endISO: new Date(endAt).toISOString(),
         contactId: contactId || null,
+        // Sprint 19 — solo enviar si el bloque está abierto + valor válido
+        amount_clp: showFinance && amount && !isNaN(amount) ? amount : null,
+        payment_status: showFinance ? paymentStatus : "none",
+        document_type: showFinance ? documentType : "none",
       });
       if (result.ok) {
         close();
@@ -211,6 +227,82 @@ export function NewEventButton({
                   placeholder="Fee, condiciones, rider, etc."
                 />
               </div>
+
+              {/* Sprint 19 — Bloque financiero opcional */}
+              {type === "show" && (
+                <div className="border-2 border-dashed border-ink p-3 space-y-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showFinance}
+                      onChange={(e) => setShowFinance(e.target.checked)}
+                      className="w-4 h-4 accent-orange"
+                    />
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange">
+                      💰 Agregar info de cobro
+                    </span>
+                  </label>
+                  {showFinance && (
+                    <div className="space-y-3 pl-6">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="amount" className="text-[10px]">
+                          Monto (CLP)
+                        </Label>
+                        <Input
+                          id="amount"
+                          value={amountClp}
+                          onChange={(e) => {
+                            const v = e.target.value.replace(/\D/g, "");
+                            setAmountClp(
+                              v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : ""
+                            );
+                          }}
+                          placeholder="$420.000"
+                          inputMode="numeric"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="pay-status" className="text-[10px]">
+                            Estado pago
+                          </Label>
+                          <SelectNative
+                            id="pay-status"
+                            value={paymentStatus}
+                            onChange={(e) =>
+                              setPaymentStatus(e.target.value as PaymentStatus)
+                            }
+                          >
+                            {PAYMENT_STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {PAYMENT_STATUS_LABELS[s]}
+                              </option>
+                            ))}
+                          </SelectNative>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="doc" className="text-[10px]">
+                            Documento
+                          </Label>
+                          <SelectNative
+                            id="doc"
+                            value={documentType}
+                            onChange={(e) =>
+                              setDocumentType(e.target.value as DocumentType)
+                            }
+                          >
+                            {DOCUMENT_TYPES.map((d) => (
+                              <option key={d} value={d}>
+                                {DOCUMENT_TYPE_LABELS[d]}
+                              </option>
+                            ))}
+                          </SelectNative>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {error && (
                 <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded px-3 py-2">

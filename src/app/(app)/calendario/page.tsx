@@ -1,16 +1,51 @@
-import { listMyEvents, CALENDAR_EVENT_TYPE_LABELS } from "@/lib/queries/calendar-events";
+import {
+  listMyEvents,
+  CALENDAR_EVENT_TYPE_LABELS,
+  getFinanceKpis,
+} from "@/lib/queries/calendar-events";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
+import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle } from "lucide-react";
+import { Calendar, AlertCircle, Download } from "lucide-react";
 import Link from "next/link";
 import { SyncButton } from "./sync-button";
 import { NewEventButton } from "./new-event-button";
 import { AutoSync } from "./auto-sync";
+import { FinanceEditDialog } from "./finance-edit";
 import { dateTime, shortDate, relativeTime } from "@/lib/format";
+import {
+  PAYMENT_STATUS_LABELS,
+  type CalendarEventRow,
+  type PaymentStatus,
+} from "@/lib/calendar/types";
 
 interface PageProps {
   searchParams: Promise<{ error?: string; synced?: string }>;
+}
+
+function formatClp(n: number | null | undefined): string {
+  if (n === null || n === undefined) return "—";
+  return `$${n.toLocaleString("es-CL")}`;
+}
+
+/** Trae las private_notes de los contactos asociados a los gigs (Sprint 19 E3). */
+async function getContactPrivateNotes(
+  contactIds: string[]
+): Promise<Map<string, string>> {
+  if (contactIds.length === 0) return new Map();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("contacts")
+    .select("id, private_notes")
+    .in("id", contactIds);
+  const map = new Map<string, string>();
+  for (const c of (data || []) as { id: string; private_notes: string }[]) {
+    if (c.private_notes && c.private_notes.trim().length > 0) {
+      map.set(c.id, c.private_notes);
+    }
+  }
+  return map;
 }
 
 export default async function CalendarioPage({ searchParams }: PageProps) {
@@ -43,22 +78,19 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
   const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const future120 = new Date(now.getTime() + 120 * 24 * 60 * 60 * 1000);
 
-  const events = await listMyEvents({
-    fromISO: past30.toISOString(),
-    toISO: future120.toISOString(),
-  });
+  const [events, kpis] = await Promise.all([
+    listMyEvents({
+      fromISO: past30.toISOString(),
+      toISO: future120.toISOString(),
+    }),
+    getFinanceKpis(),
+  ]);
 
-  // Agrupar por mes
-  const groups = new Map<string, typeof events>();
-  for (const ev of events) {
-    const d = new Date(ev.start_at);
-    const key = d.toLocaleDateString("es-CL", {
-      year: "numeric",
-      month: "long",
-    });
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(ev);
-  }
+  // Sprint 19 — Cargar private_notes de contactos asociados a los gigs
+  const contactIds = Array.from(
+    new Set(events.map((e) => e.contact_id).filter((id): id is string => !!id))
+  );
+  const privateNotes = await getContactPrivateNotes(contactIds);
 
   const upcoming = events.filter((e) => new Date(e.start_at) >= now);
   const past = events.filter((e) => new Date(e.start_at) < now);
@@ -67,28 +99,87 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />
 
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-7">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Calendario
-          </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            {upcoming.length} próximos · {past.length} pasados · conectado a{" "}
-            <span className="text-fg">{conn.google_email}</span>
-          </p>
-          <p className="text-[11px] text-fg-subtle mt-0.5">
-            Última sincronización: {relativeTime(conn.last_sync_at)} · se
-            sincroniza automático al abrir la pantalla
-          </p>
+      {/* Hero brutalist */}
+      <div className="border-2 border-ink bg-white p-6 mb-5 relative">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — CALENDARIO · GIGS Y EVENTOS
         </div>
-        <div className="flex gap-2">
+        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
+          AGENDA<span className="text-orange">.</span>
+        </h1>
+        <p className="text-sm text-fg-muted mt-2">
+          {upcoming.length} próximos · {past.length} pasados · conectado a{" "}
+          <span className="text-ink">{conn.google_email}</span>
+        </p>
+        <p className="font-mono text-[10px] text-fg-subtle mt-1">
+          Última sync: {relativeTime(conn.last_sync_at)} · auto al abrir
+        </p>
+        <div className="mt-4 flex gap-2 flex-wrap items-center">
           <SyncButton />
           <NewEventButton />
+          <a
+            href={`/api/export/finance?from=${now.getFullYear()}-01-01&to=${now.getFullYear() + 1}-01-01`}
+            className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3 py-2 border-2 border-ink bg-cream hover:bg-ink hover:text-orange transition-colors"
+            download
+            title="Exportar CSV de finanzas año actual"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export CSV
+          </a>
         </div>
       </div>
 
+      {/* Sprint 19 — KPIs financieros del mes */}
+      {kpis.totalGigs > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
+          <div className="bg-success text-white p-4 border-r-2 border-ink">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+              — COBRADO ESTE MES
+            </div>
+            <div className="font-display text-3xl leading-none mt-2">
+              {formatClp(kpis.totalCobrado)}
+            </div>
+            <div className="font-mono text-[10px] mt-2 opacity-90">
+              {kpis.gigsPagados} {kpis.gigsPagados === 1 ? "gig" : "gigs"} CLP
+            </div>
+          </div>
+          <div className="bg-white p-4 border-r-2 border-ink">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+              — TOTAL GIGS
+            </div>
+            <div className="font-display text-3xl leading-none mt-2">
+              {kpis.totalGigs.toString().padStart(2, "0")}
+            </div>
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">
+              {kpis.monthLabel.toUpperCase()}
+            </div>
+          </div>
+          <div className="bg-orange p-4 border-r-2 border-ink">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+              — PROMEDIO / GIG
+            </div>
+            <div className="font-display text-3xl leading-none mt-2">
+              {kpis.avgPerGig > 0 ? formatClp(kpis.avgPerGig) : "—"}
+            </div>
+            <div className="font-mono text-[10px] mt-2">SOLO PAGADOS</div>
+          </div>
+          <div className="bg-ink p-4 text-cream">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-warning">
+              — PENDIENTE COBRO
+            </div>
+            <div className="font-display text-3xl leading-none mt-2">
+              {kpis.totalPendiente > 0 ? formatClp(kpis.totalPendiente) : "—"}
+            </div>
+            <div className="font-mono text-[10px] mt-2 text-warning">
+              {kpis.gigsPendientes}{" "}
+              {kpis.gigsPendientes === 1 ? "venue debe" : "venues deben"}
+            </div>
+          </div>
+        </div>
+      )}
+
       {sp.error && (
-        <Card className="p-4 mb-5 bg-danger/10 border-danger/30">
+        <Card className="p-4 mb-5 bg-danger/10 border-2 border-danger">
           <div className="flex gap-2 text-sm text-danger">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
@@ -100,7 +191,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       )}
 
       {sp.synced && (
-        <Card className="p-3 mb-4 bg-success/10 border-success/30">
+        <Card className="p-3 mb-4 bg-success/10 border-2 border-success">
           <div className="text-sm text-success">
             ✓ {sp.synced} eventos sincronizados desde Google Calendar.
           </div>
@@ -125,16 +216,18 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {/* Próximos */}
       {upcoming.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3">
-            Próximos
+          <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
+            — PRÓXIMOS
           </h2>
-          <Card className="overflow-hidden">
-            <ul>
-              {upcoming.map((ev, i) => (
-                <EventRow key={ev.id} ev={ev} isFirst={i === 0} />
-              ))}
-            </ul>
-          </Card>
+          <ul className="space-y-2">
+            {upcoming.map((ev) => (
+              <EventRow
+                key={ev.id}
+                ev={ev}
+                privateNote={ev.contact_id ? privateNotes.get(ev.contact_id) : undefined}
+              />
+            ))}
+          </ul>
         </section>
       )}
 
@@ -142,19 +235,21 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {past.length > 0 && (
         <section className="mb-8">
           <details>
-            <summary className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3 cursor-pointer hover:text-fg">
-              Últimos 30 días ({past.length})
+            <summary className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3 cursor-pointer">
+              — ÚLTIMOS 30 DÍAS ({past.length})
             </summary>
-            <Card className="overflow-hidden mt-3">
-              <ul>
-                {past
-                  .slice()
-                  .reverse()
-                  .map((ev, i) => (
-                    <EventRow key={ev.id} ev={ev} isFirst={i === 0} />
-                  ))}
-              </ul>
-            </Card>
+            <ul className="space-y-2 mt-3">
+              {past
+                .slice()
+                .reverse()
+                .map((ev) => (
+                  <EventRow
+                    key={ev.id}
+                    ev={ev}
+                    privateNote={ev.contact_id ? privateNotes.get(ev.contact_id) : undefined}
+                  />
+                ))}
+            </ul>
           </details>
         </section>
       )}
@@ -164,41 +259,90 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
 
 function EventRow({
   ev,
-  isFirst,
+  privateNote,
 }: {
-  ev: import("@/lib/queries/calendar-events").CalendarEventRow;
-  isFirst: boolean;
+  ev: CalendarEventRow;
+  privateNote?: string;
 }) {
   const d = new Date(ev.start_at);
+  const isShow = ev.type === "show";
+  const hasAmount = ev.amount_clp !== null && ev.amount_clp > 0;
+  const status: PaymentStatus = ev.payment_status;
+
+  // Tinte según estado de pago (solo si tiene amount o status != none)
+  let tint = "border-ink bg-white";
+  if (hasAmount && status === "paid") tint = "border-success bg-success/5";
+  else if (hasAmount && status === "pending") tint = "border-warning bg-warning/5";
+  else if (hasAmount && status === "partial") tint = "border-info bg-info/5";
+
   return (
-    <li
-      className={`flex items-center gap-4 px-4 py-3 ${
-        !isFirst ? "border-t border-border" : ""
-      } hover:bg-bg-subtle transition-colors`}
-    >
-      <div className="flex flex-col items-center min-w-[44px]">
-        <div className="font-display text-2xl leading-none text-accent">
-          {d.getDate().toString().padStart(2, "0")}
-        </div>
-        <div className="text-[10px] uppercase tracking-widest text-fg-muted mt-0.5">
-          {d.toLocaleString("es-CL", { month: "short" })}
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold truncate">{ev.title}</span>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-secondary text-fg-muted border border-border">
-            {CALENDAR_EVENT_TYPE_LABELS[ev.type]}
-          </span>
-        </div>
-        <div className="text-xs text-fg-muted mt-0.5">
-          {ev.all_day ? shortDate(ev.start_at) : dateTime(ev.start_at)}
-          {ev.location ? ` · ${ev.location}` : ""}
-        </div>
-        {ev.description && (
-          <div className="text-xs text-fg-subtle mt-1 truncate">
-            {ev.description}
+    <li className={`border-2 ${tint} px-4 py-3`}>
+      <div className="flex items-start gap-4">
+        <div className="flex flex-col items-center min-w-[44px]">
+          <div className="font-display text-2xl leading-none text-orange">
+            {d.getDate().toString().padStart(2, "0")}
           </div>
+          <div className="font-mono text-[9px] uppercase tracking-widest text-fg-muted mt-0.5">
+            {d.toLocaleString("es-CL", { month: "short", timeZone: "America/Santiago" })}
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold truncate">{ev.title}</span>
+            <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream">
+              {CALENDAR_EVENT_TYPE_LABELS[ev.type]}
+            </span>
+            {hasAmount && (
+              <span
+                className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border-2 border-ink ${
+                  status === "paid"
+                    ? "bg-success text-white"
+                    : status === "pending"
+                    ? "bg-warning text-white"
+                    : status === "partial"
+                    ? "bg-info text-white"
+                    : "bg-cream"
+                }`}
+              >
+                {formatClp(ev.amount_clp)}
+                {status !== "none" && ` · ${PAYMENT_STATUS_LABELS[status]}`}
+              </span>
+            )}
+          </div>
+          <div className="font-mono text-[11px] text-fg-muted mt-1">
+            {ev.all_day ? shortDate(ev.start_at) : dateTime(ev.start_at)}
+            {ev.location ? ` · ${ev.location}` : ""}
+          </div>
+          {ev.description && (
+            <div className="text-xs text-fg-subtle mt-1 truncate">
+              {ev.description}
+            </div>
+          )}
+
+          {/* Sprint 19 — Highlight notas privadas del contacto */}
+          {privateNote && (
+            <div className="mt-3 p-2.5 bg-ink text-cream border-2 border-ink relative">
+              <div className="absolute -top-2 left-3 bg-orange text-ink px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider">
+                🔒 RECORDÁ
+              </div>
+              <p className="text-xs leading-relaxed whitespace-pre-wrap mt-1">
+                {privateNote}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Sprint 19 — Botón edit finance para shows */}
+        {isShow && (
+          <FinanceEditDialog
+            eventId={ev.id}
+            title={ev.title}
+            current={{
+              amount_clp: ev.amount_clp,
+              payment_status: ev.payment_status,
+              document_type: ev.document_type,
+            }}
+          />
         )}
       </div>
     </li>

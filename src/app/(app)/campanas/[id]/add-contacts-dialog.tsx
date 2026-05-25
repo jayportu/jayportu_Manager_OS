@@ -21,6 +21,8 @@ interface Props {
     name: string;
     type: ContactType;
     score: number;
+    /** Sprint 19 — tags arbitrarios del contacto */
+    tags?: string[];
   }>;
   buttonLabel?: string;
   buttonVariant?: "default" | "outline" | "ghost";
@@ -38,6 +40,8 @@ export function AddContactsDialog({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [filterText, setFilterText] = useState("");
   const [filterType, setFilterType] = useState<ContactType | "">("");
+  // Sprint 19 — Filtro por tags (AND)
+  const [filterTags, setFilterTags] = useState<Set<string>>(new Set());
 
   function toggle(id: string) {
     const next = new Set(selectedIds);
@@ -46,10 +50,30 @@ export function AddContactsDialog({
     setSelectedIds(next);
   }
 
+  function toggleTag(t: string) {
+    const next = new Set(filterTags);
+    if (next.has(t)) next.delete(t);
+    else next.add(t);
+    setFilterTags(next);
+  }
+
+  // Lista de todos los tags disponibles entre los candidatos
+  const allTags = Array.from(
+    new Set(candidates.flatMap((c) => c.tags ?? []))
+  ).sort();
+
   const filtered = candidates.filter((c) => {
     if (filterType && c.type !== filterType) return false;
     if (filterText && !c.name.toLowerCase().includes(filterText.toLowerCase()))
       return false;
+    // Sprint 19 — AND de tags: el contacto debe tener TODOS los filtrados
+    if (filterTags.size > 0) {
+      const ctags = c.tags ?? [];
+      const tagsArray = Array.from(filterTags);
+      for (const t of tagsArray) {
+        if (!ctags.includes(t)) return false;
+      }
+    }
     return true;
   });
 
@@ -124,6 +148,44 @@ export function AddContactsDialog({
                 ))}
               </SelectNative>
             </div>
+
+            {/* Sprint 19 — Filtro por tags (AND) */}
+            {allTags.length > 0 && (
+              <div className="mb-3 p-3 border-2 border-dashed border-ink">
+                <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-orange mb-2">
+                  — FILTRAR POR TAGS (AND)
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {allTags.slice(0, 30).map((t) => {
+                    const active = filterTags.has(t);
+                    return (
+                      <button
+                        type="button"
+                        key={t}
+                        onClick={() => toggleTag(t)}
+                        className={`inline-flex items-center border-2 border-ink font-mono text-[10px] font-bold lowercase px-2 py-0.5 transition-colors ${
+                          active
+                            ? "bg-orange text-ink"
+                            : "bg-cream hover:bg-orange"
+                        }`}
+                      >
+                        #{t}
+                        {active && <span className="ml-1.5 text-ink/60">×</span>}
+                      </button>
+                    );
+                  })}
+                  {filterTags.size > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFilterTags(new Set())}
+                      className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-ink"
+                    >
+                      limpiar
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="max-h-80 overflow-y-auto border border-border rounded-lg mb-3">
               {filtered.length === 0 ? (
