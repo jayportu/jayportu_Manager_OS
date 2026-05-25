@@ -7,6 +7,7 @@ import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { NpsModal } from "@/components/feedback/nps-modal";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { getBetaState } from "@/lib/beta-status";
+import { consumeBetaInviteIfAny } from "@/lib/queries/beta-invite";
 
 /**
  * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
@@ -23,6 +24,13 @@ export default async function AppLayout({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  // Sprint 23.5 — si hay cookie de invite pendiente, activar beta antes
+  // de leer el profile. Idempotente y best-effort.
+  await consumeBetaInviteIfAny({
+    userId: user.id,
+    userEmail: user.email ?? null,
+  });
 
   const { data: profile } = await supabase
     .from("dj_profile")

@@ -1,60 +1,30 @@
-"use client";
+/**
+ * /login — Server component que detecta invite tokens y pre-rellena el form.
+ *
+ * Si llega con `?invite=<token>`:
+ *   - Validamos el token contra beta_requests (status=approved, no consumido).
+ *   - Seteamos cookie HttpOnly por 30min con el request_id.
+ *   - Pre-llenamos email + nombre artístico en el form.
+ *   - Forzamos modo signup en lugar de login.
+ *   - Mostramos banner naranja "Estás dentro · DROP. Beta".
+ *
+ * El consumo del invite (activar beta_status) ocurre en el primer ingreso
+ * a `(app)/layout.tsx` después de que el user complete signup/login.
+ */
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/brand/logo";
+import { LoginForm } from "./login-form";
+import { startBetaInviteFlow } from "@/lib/queries/beta-invite";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const supabase = createClient();
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
+interface PageProps {
+  searchParams: Promise<{ invite?: string }>;
+}
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setInfo(null);
-    setLoading(true);
-
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-        return;
-      }
-      router.refresh();
-      router.push("/dashboard");
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-        return;
-      }
-      setInfo(
-        "Te enviamos un email para confirmar tu cuenta. Revisa tu bandeja."
-      );
-      setLoading(false);
-    }
+export default async function LoginPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  let invite: { email: string; artist_name: string } | null = null;
+  if (sp.invite && typeof sp.invite === "string") {
+    invite = await startBetaInviteFlow(sp.invite);
   }
 
   return (
@@ -68,98 +38,25 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Card className="p-8">
-          <h1 className="text-xl font-semibold mb-1">
-            {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
-          </h1>
-          <p className="text-sm text-fg-muted mb-6">
-            {mode === "login"
-              ? "Bienvenido de vuelta."
-              : "Crea tu cuenta y empieza a gestionar tu carrera como DJ."}
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="hola@drop.dj"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
+        {/* Banner de invite (si aplica) */}
+        {invite && (
+          <div className="mb-5 border-2 border-ink bg-orange p-4">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] mb-1">
+              — ESTÁS DENTRO · BETA
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                autoComplete={mode === "login" ? "current-password" : "new-password"}
-              />
+            <div className="text-sm leading-relaxed">
+              Hola <strong>{invite.artist_name}</strong>, te aprobamos
+              para la beta cerrada de DROP. Crea tu cuenta con el email{" "}
+              <strong className="font-mono break-all">{invite.email}</strong>{" "}
+              para activar tus 15 días.
             </div>
-
-            {error && (
-              <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
-                {error}
-              </div>
-            )}
-            {info && (
-              <div className="text-sm text-accent bg-accent-soft border border-accent/30 rounded-md px-3 py-2">
-                {info}
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading
-                ? "Procesando…"
-                : mode === "login"
-                ? "Entrar"
-                : "Crear cuenta"}
-            </Button>
-          </form>
-
-          <div className="text-center mt-6 text-sm text-fg-muted">
-            {mode === "login" ? (
-              <>
-                ¿Primera vez?{" "}
-                <button
-                  type="button"
-                  className="text-accent hover:underline"
-                  onClick={() => {
-                    setMode("signup");
-                    setError(null);
-                    setInfo(null);
-                  }}
-                >
-                  Crear cuenta
-                </button>
-              </>
-            ) : (
-              <>
-                ¿Ya tienes cuenta?{" "}
-                <button
-                  type="button"
-                  className="text-accent hover:underline"
-                  onClick={() => {
-                    setMode("login");
-                    setError(null);
-                    setInfo(null);
-                  }}
-                >
-                  Iniciar sesión
-                </button>
-              </>
-            )}
           </div>
-        </Card>
+        )}
+
+        <LoginForm
+          inviteEmail={invite?.email ?? null}
+          inviteArtistName={invite?.artist_name ?? null}
+        />
 
         <div className="text-center mt-6 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
           DROP. · THE DJ OS · v0.13
