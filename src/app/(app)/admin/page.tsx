@@ -48,9 +48,29 @@ export default async function AdminPage() {
             registrados.
           </p>
         </div>
-        <span className="text-[10px] uppercase tracking-widest text-fg-subtle">
-          Solo admin
-        </span>
+        <div className="flex items-center gap-3 flex-wrap">
+          <a
+            href="/admin/beta-requests"
+            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+          >
+            Solicitudes Beta →
+          </a>
+          <a
+            href="/admin/feedback"
+            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+          >
+            Feedback →
+          </a>
+          <a
+            href="/admin/analytics"
+            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+          >
+            Analytics →
+          </a>
+          <span className="text-[10px] uppercase tracking-widest text-fg-subtle">
+            Solo admin
+          </span>
+        </div>
       </div>
 
       {/* KPIs */}

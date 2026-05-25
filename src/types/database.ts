@@ -44,6 +44,10 @@ export interface DjProfile {
   /** Sprint 21 — Webhook genérico (Zapier/Make/n8n) para auto-post */
   auto_post_webhook_url: string | null;
   auto_post_enabled: boolean;
+  /** Sprint 23.5 — Estado del usuario en la beta cerrada */
+  beta_status: BetaStatus;
+  beta_approved_at: string | null;
+  beta_request_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -1044,6 +1048,153 @@ export interface PushSubscriptionRow {
   last_used_at: string | null;
   last_error: string | null;
 }
+
+// ════════════════════════════════════════════════════════════════════
+// Sprint 23.5 — Beta 15 días
+// ════════════════════════════════════════════════════════════════════
+
+export const BETA_STATUSES = ["none", "active", "expired", "paying"] as const;
+export type BetaStatus = (typeof BETA_STATUSES)[number];
+
+export const BETA_STATUS_LABELS: Record<BetaStatus, string> = {
+  none: "Sin beta",
+  active: "Beta activa",
+  expired: "Beta expirada",
+  paying: "Suscrito",
+};
+
+// ── beta_requests ──────────────────────────────────────────
+export const BETA_REQUEST_STATUSES = [
+  "new",
+  "approved",
+  "rejected",
+  "waitlist",
+] as const;
+export type BetaRequestStatus = (typeof BETA_REQUEST_STATUSES)[number];
+
+export const BETA_REQUEST_STATUS_LABELS: Record<BetaRequestStatus, string> = {
+  new: "Nuevo",
+  approved: "Aprobado",
+  rejected: "Rechazado",
+  waitlist: "En espera",
+};
+
+export interface BetaRequest {
+  id: string;
+  artist_name: string;
+  email: string;
+  instagram: string;
+  city: string;
+  genres: string[];
+  motivation: string;
+  status: BetaRequestStatus;
+  invite_token: string | null;
+  invite_sent_at: string | null;
+  approved_at: string | null;
+  rejected_at: string | null;
+  reject_reason: string;
+  user_id: string | null;
+  ip_address: string | null;
+  user_agent: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type BetaRequestInsert = {
+  artist_name: string;
+  email: string;
+  instagram?: string;
+  city?: string;
+  genres?: string[];
+  motivation?: string;
+  ip_address?: string;
+  user_agent?: string;
+};
+
+// ── feedback_reports ──────────────────────────────────────
+export const FEEDBACK_KINDS = ["bug", "idea", "copy", "otro"] as const;
+export type FeedbackKind = (typeof FEEDBACK_KINDS)[number];
+
+export const FEEDBACK_KIND_LABELS: Record<FeedbackKind, string> = {
+  bug: "Bug",
+  idea: "Idea",
+  copy: "Copy",
+  otro: "Otro",
+};
+
+export const FEEDBACK_STATUSES = [
+  "new",
+  "read",
+  "in_progress",
+  "resolved",
+  "dismissed",
+] as const;
+export type FeedbackStatus = (typeof FEEDBACK_STATUSES)[number];
+
+export const FEEDBACK_STATUS_LABELS: Record<FeedbackStatus, string> = {
+  new: "Nuevo",
+  read: "Leído",
+  in_progress: "En curso",
+  resolved: "Resuelto",
+  dismissed: "Descartado",
+};
+
+export interface FeedbackReport {
+  id: string;
+  user_id: string;
+  kind: FeedbackKind;
+  description: string;
+  page_url: string;
+  user_agent: string;
+  screenshot_url: string;
+  status: FeedbackStatus;
+  admin_notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type FeedbackReportInsert = {
+  kind: FeedbackKind;
+  description: string;
+  page_url?: string;
+  user_agent?: string;
+  screenshot_url?: string;
+};
+
+// ── nps_responses ─────────────────────────────────────────
+export const NPS_MILESTONES = ["day_7", "day_15"] as const;
+export type NpsMilestone = (typeof NPS_MILESTONES)[number];
+
+export interface NpsResponse {
+  id: string;
+  user_id: string;
+  milestone: NpsMilestone;
+  score: number;
+  comment: string;
+  created_at: string;
+}
+
+export type NpsResponseInsert = {
+  milestone: NpsMilestone;
+  score: number;
+  comment?: string;
+};
+
+// ── usage_events ──────────────────────────────────────────
+export interface UsageEvent {
+  id: string;
+  user_id: string;
+  event: string;
+  page: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export type UsageEventInsert = {
+  event: string;
+  page?: string;
+  metadata?: Record<string, unknown>;
+};
 
 // ════════════════════════════════════════════════════════════════════
 // Database root

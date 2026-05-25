@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { FeedbackWidget } from "@/components/feedback/feedback-widget";
+import { NpsModal } from "@/components/feedback/nps-modal";
+import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { getBetaState } from "@/lib/beta-status";
 
 /**
  * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
@@ -22,11 +26,23 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("dj_profile")
-    .select("onboarding_completed_at, is_admin, artist_name")
+    .select("onboarding_completed_at, is_admin, artist_name, beta_status, beta_approved_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
   if (!profile?.onboarding_completed_at) redirect("/welcome");
+
+  // El widget de feedback flotante solo aparece a beta users activos
+  // o al admin (para que pueda probar el widget también).
+  const showFeedbackWidget =
+    profile?.beta_status === "active" || profile?.is_admin === true;
+
+  // Estado beta para banner y NPS modal
+  const betaState = await getBetaState({
+    userId: user.id,
+    betaStatus: profile?.beta_status ?? null,
+    betaApprovedAt: profile?.beta_approved_at ?? null,
+  });
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -38,7 +54,10 @@ export default async function AppLayout({
       />
       {/* Columna derecha: topbar fijo arriba + main scrolleable */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        <Topbar userEmail={user.email} />
+        <Topbar
+          userEmail={user.email}
+          betaDaysRemaining={betaState.daysRemaining}
+        />
         <main
           className="flex-1 overflow-y-auto md:pb-0"
           style={{
@@ -50,6 +69,12 @@ export default async function AppLayout({
       </div>
       {/* Bottom nav (mobile only) — ya es fixed bottom-0 */}
       <BottomNav />
+      {/* Sprint 23.5 — Widget feedback flotante (beta users + admin) */}
+      {showFeedbackWidget && <FeedbackWidget />}
+      {/* Sprint 23.5 — Modal NPS día 7 / día 15 (solo beta active con hito pendiente) */}
+      {betaState.pendingNps && <NpsModal milestone={betaState.pendingNps} />}
+      {/* Sprint 23.5 — Tracker silent de page_view (cero impacto en LCP) */}
+      <PageViewTracker />
     </div>
   );
 }

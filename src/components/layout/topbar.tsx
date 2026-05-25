@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 
 interface TopbarProps {
   userEmail?: string;
+  /** Sprint 23.5 — banner con días restantes de beta. null si no es beta. */
+  betaDaysRemaining?: number | null;
 }
 
 /**
@@ -13,7 +15,28 @@ interface TopbarProps {
  * Bg cream con borde inferior 2px ink. Mobile: logo + ticker.
  * Desktop: search + email + cerrar sesión en estilo brutalist.
  */
-export function Topbar({ userEmail }: TopbarProps) {
+export function Topbar({ userEmail, betaDaysRemaining }: TopbarProps) {
+  // Banner color según días restantes:
+  // - >2 días → orange (normal)
+  // - 0-2 días → warning (yellow)
+  // - <0 días → danger (expirado)
+  const betaBannerColor =
+    betaDaysRemaining === null || betaDaysRemaining === undefined
+      ? null
+      : betaDaysRemaining < 0
+      ? "bg-danger text-white border-danger"
+      : betaDaysRemaining <= 2
+      ? "bg-warning text-ink border-ink"
+      : "bg-orange text-ink border-ink";
+
+  const betaLabel =
+    betaDaysRemaining === null || betaDaysRemaining === undefined
+      ? null
+      : betaDaysRemaining < 0
+      ? "BETA TERMINÓ"
+      : betaDaysRemaining === 0
+      ? "BETA · ÚLTIMO DÍA"
+      : `BETA · ${betaDaysRemaining} ${betaDaysRemaining === 1 ? "DÍA" : "DÍAS"}`;
   const router = useRouter();
   const supabase = createClient();
 
@@ -51,6 +74,16 @@ export function Topbar({ userEmail }: TopbarProps) {
           — THE DJ OS
         </span>
       </div>
+
+      {/* Sprint 23.5 — Banner beta (mobile + desktop) */}
+      {betaLabel && betaBannerColor && (
+        <span
+          className={`hidden sm:inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 ${betaBannerColor}`}
+          title="Estás en la beta cerrada"
+        >
+          {betaLabel}
+        </span>
+      )}
 
       {/* Search (desktop) */}
       <div className="hidden md:flex flex-1 max-w-md relative">

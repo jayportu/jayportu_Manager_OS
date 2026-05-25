@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DROP. · Sprint 23.5 · Beta 15 días — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream:#F4EFE7;
+    --ink:#0A0A0A;
+    --orange:#FF5C00;
+    --gray:#7A7670;
+    --warn:#F2C94C;
+    --ok:#3DA672;
+    --err:#D94545;
+    --info:#3B82F6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 120px; }
+  .display { font-family: 'Anton', sans-serif; letter-spacing: -0.01em; line-height: 1; }
+  .mono { font-family: 'Space Mono', monospace; }
+
+  /* Top hero */
+  .hero {
+    border: 3px solid var(--ink);
+    padding: 40px 32px;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero .tag {
+    font-family:'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 0.9;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .dot { color: var(--orange); }
+  .hero .sub {
+    margin-top: 16px;
+    max-width: 720px;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .hero .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+    border: 2px solid var(--ink);
+    background: var(--cream);
+  }
+  .chip.orange { background: var(--orange); }
+  .chip.ink { background: var(--ink); color: var(--cream); }
+
+  /* Section dividers */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 80px 0 24px;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 12px;
+  }
+  .section-header .num {
+    font-family: 'Anton', sans-serif;
+    font-size: 64px;
+    color: var(--orange);
+    line-height: 0.9;
+  }
+  .section-header h2 {
+    font-family: 'Anton', sans-serif;
+    font-size: 40px;
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .section-header .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Card / mock screen */
+  .screen {
+    border: 3px solid var(--ink);
+    background: #fff;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .screen-bar {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .screen-bar .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--orange);
+    display: inline-block;
+  }
+  .screen-body { padding: 28px; }
+
+  /* /beta — landing público */
+  .beta-landing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .beta-pitch h3 {
+    font-family: 'Anton', sans-serif;
+    font-size: 56px;
+    line-height: 0.95;
+    margin: 0 0 12px;
+  }
+  .beta-pitch .lead {
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 480px;
+  }
+  .beta-pitch ul {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    font-size: 14px;
+  }
+  .beta-pitch li {
+    padding: 10px 0;
+    border-top: 1px solid #00000022;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .beta-pitch li::before {
+    content: "→";
+    color: var(--orange);
+    font-weight: 700;
+  }
+  .beta-form {
+    border: 2px solid var(--ink);
+    padding: 20px;
+    background: var(--cream);
+  }
+  .beta-form .form-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .field { display: block; margin: 14px 0; }
+  .field label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    border: 2px solid var(--ink);
+    background: #fff;
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: 2px solid var(--ink);
+    background: var(--orange);
+    color: var(--ink);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .btn.outline { background: var(--cream); }
+  .btn.ink { background: var(--ink); color: var(--cream); }
+  .btn.danger { background: var(--err); color: #fff; }
+
+  /* admin requests table */
+  table.requests {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.requests th, table.requests td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #00000022;
+    vertical-align: middle;
+  }
+  table.requests th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--cream);
+  }
+  table.requests td.actions { text-align: right; }
+  .pill {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border: 1.5px solid var(--ink);
+    background: #fff;
+  }
+  .pill.new { background: var(--orange); }
+  .pill.approved { background: var(--ok); color: #fff; border-color: var(--ok); }
+  .pill.rejected { background: var(--err); color: #fff; border-color: var(--err); }
+  .pill.waitlist { background: var(--warn); }
+
+  /* feedback widget */
+  .browser-frame {
+    border: 2px solid var(--ink);
+    background: #fff;
+    position: relative;
+    height: 380px;
+    overflow: hidden;
+  }
+  .browser-frame .url-bar {
+    background: var(--cream);
+    border-bottom: 2px solid var(--ink);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+  }
+  .browser-frame .url-bar .dots {
+    display: flex;
+    gap: 5px;
+  }
+  .browser-frame .url-bar .dots span {
+    width: 10px;
+    height: 10px;
+    background: var(--ink);
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.4;
+  }
+  .browser-frame .ghost {
+    padding: 24px;
+    color: #00000055;
+  }
+  .floating-feedback {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    background: var(--orange);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    box-shadow: 4px 4px 0 0 var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback-modal {
+    position: absolute;
+    right: 16px;
+    bottom: 72px;
+    width: 360px;
+    background: #fff;
+    border: 3px solid var(--ink);
+    padding: 16px;
+    box-shadow: 8px 8px 0 0 var(--ink);
+  }
+  .feedback-modal .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+  .feedback-modal .head .ttl {
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+  }
+  .feedback-modal .head .x {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .seg {
+    display: flex;
+    gap: 4px;
+    margin: 10px 0 14px;
+  }
+  .seg span {
+    flex: 1;
+    text-align: center;
+    border: 1.5px solid var(--ink);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 7px 0;
+    background: #fff;
+  }
+  .seg span.active { background: var(--orange); }
+
+  /* NPS modal */
+  .nps-mock {
+    background: rgba(0,0,0,0.65);
+    padding: 32px;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nps-card {
+    background: var(--cream);
+    border: 3px solid var(--ink);
+    box-shadow: 10px 10px 0 0 var(--ink);
+    padding: 28px;
+    max-width: 480px;
+    width: 100%;
+  }
+  .nps-card .day-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--orange);
+  }
+  .nps-card h3 {
+    font-family: 'Anton', sans-serif;
+    font-size: 36px;
+    margin: 6px 0 16px;
+    line-height: 1;
+  }
+  .nps-scale {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 4px;
+    margin: 14px 0 6px;
+  }
+  .nps-scale span {
+    border: 1.5px solid var(--ink);
+    text-align: center;
+    padding: 8px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    background: #fff;
+    cursor: pointer;
+  }
+  .nps-scale span.picked { background: var(--orange); }
+  .nps-legend {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* analytics dashboard */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 3px solid var(--ink);
+  }
+  .kpi {
+    padding: 18px;
+    border-right: 2px solid var(--ink);
+    background: #fff;
+  }
+  .kpi:last-child { border-right: 0; }
+  .kpi.orange { background: var(--orange); }
+  .kpi.ink { background: var(--ink); color: var(--cream); }
+  .kpi .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .kpi .value {
+    font-family: 'Anton', sans-serif;
+    font-size: 44px;
+    line-height: 1;
+    margin-top: 10px;
+  }
+  .kpi .delta {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    margin-top: 6px;
+    opacity: 0.8;
+  }
+
+  .features-bar {
+    margin-top: 20px;
+  }
+  .features-bar .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0;
+  }
+  .features-bar .label-col {
+    flex: 0 0 220px;
+    font-size: 14px;
+  }
+  .features-bar .bar {
+    height: 22px;
+    background: var(--orange);
+    border: 1.5px solid var(--ink);
+  }
+  .features-bar .pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+  }
+
+  /* Topbar banner */
+  .topbar-mock {
+    border: 2px solid var(--ink);
+    background: #fff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .topbar-mock .logo {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+  }
+  .topbar-mock .logo .dot { color: var(--orange); }
+  .topbar-mock .beta-banner {
+    background: var(--orange);
+    border: 2px solid var(--ink);
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+  }
+  .topbar-mock .spacer { flex: 1; }
+  .topbar-mock .user-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+  }
+
+  /* DB schema */
+  .schema {
+    border: 3px solid var(--ink);
+    background: var(--ink);
+    color: var(--cream);
+    padding: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .schema .k { color: var(--orange); font-weight: 700; }
+  .schema .c { color: #98C379; }
+  .schema .n { color: #61AFEF; }
+
+  /* phases */
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .phase {
+    border: 2px solid var(--ink);
+    padding: 18px;
+    background: #fff;
+  }
+  .phase .num {
+    font-family: 'Anton', sans-serif;
+    font-size: 48px;
+    line-height: 0.9;
+    color: var(--orange);
+  }
+  .phase .ttl {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    margin: 4px 0 8px;
+  }
+  .phase .desc { font-size: 13px; line-height: 1.5; }
+  .phase .est {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 12px;
+  }
+
+  /* small */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .muted { color: var(--gray); font-size: 13px; }
+
+  @media (max-width: 720px) {
+    .beta-landing, .grid-2, .grid-3, .phases { grid-template-columns: 1fr !important; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi { border-bottom: 2px solid var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="tag">— SPRINT 23.5 · BETA 15 DÍAS</div>
+    <h1>BETA<span class="dot">.</span></h1>
+    <p class="sub">
+      Invitar DJs reales a usar DROP por 15 días, capturar feedback estructurado,
+      medir uso real, y construir buzz para el lanzamiento abierto del Sprint 24.
+      Mockup completo de las 6 pantallas + schema DB + fases de implementación.
+    </p>
+    <div class="meta">
+      <span class="chip orange">Acceso · Form + aprobación</span>
+      <span class="chip">Feedback · Widget flotante</span>
+      <span class="chip">NPS · Día 7 + Día 15</span>
+      <span class="chip">Analytics · Eventos in-app</span>
+      <span class="chip ink">8 Fases</span>
+    </div>
+  </section>
+
+  <!-- ─── 01 · /beta landing ─── -->
+  <header class="section-header">
+    <div class="num">01</div>
+    <h2>/BETA · LANDING PÚBLICO</h2>
+    <div class="tag">público · sin auth</div>
+  </header>
+  <p class="muted">
+    Página de aterrizaje pública para reclutar DJs beta. Form con validación
+    client + server, honeypot anti-spam, rate limit por IP. Estado se guarda
+    en <code class="mono">beta_requests</code>.
+  </p>
+
+  <div class="screen">
+    <div class="screen-bar">
+      <span class="dot"></span>
+      drop.dj/beta
+      <span style="margin-left:auto; opacity:0.6;">VISITORS · 247 · ESTA SEMANA</span>
+    </div>
+    <div class="screen-body">
+      <div class="beta-landing">
+        <div class="beta-pitch">
+          <div class="form-tag mono" style="color:var(--orange); font-size:11px; letter-spacing:0.12em;">— ACCESO ANTICIPADO</div>
+          <h3>SOY DJ.<br/>QUIERO ENTRAR<span style="color:var(--orange);">.</span></h3>
+          <p class="lead">
+            DROP es el sistema operativo para DJs independientes. CRM,
+            calendario con $, growth, tracklists, press kit. Todo en uno.
+            Hoy en beta cerrada con 15 días gratis.
+          </p>
+          <ul>
+            <li>15 días sin restricciones</li>
+            <li>Soporte directo conmigo (Jay Portu)</li>
+            <li>Tu feedback decide el roadmap</li>
+            <li>Si te queda, prioridad en el lanzamiento abierto</li>
+          </ul>
+        </div>
+        <form class="beta-form" onsubmit="event.preventDefault(); alert('Solicitud enviada (mock)');">
+          <div class="form-tag">— FORMULARIO DE SOLICITUD</div>
+          <div class="field">
+            <label>Nombre artístico</label>
+            <input type="text" placeholder="ej: Jay Portu" />
+          </div>
+          <div class="field">
+            <label>Instagram</label>
+            <input type="text" placeholder="@tuhandle" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" placeholder="hola@tudominio.com" />
+          </div>
+          <div class="field">
+            <label>Ciudad</label>
+            <input type="text" placeholder="Santiago, Chile" />
+          </div>
+          <div class="field">
+            <label>Géneros (separados por coma)</label>
+            <input type="text" placeholder="techno, house, breakbeat" />
+          </div>
+          <div class="field">
+            <label>¿Por qué quieres entrar a DROP?</label>
+            <textarea placeholder="Cuéntame qué problema te resuelve hoy esta app…"></textarea>
+          </div>
+          <!-- honeypot oculto -->
+          <input type="text" name="website" autocomplete="off" tabindex="-1" style="position:absolute; left:-9999px;" />
+          <button class="btn" type="submit">
+            Enviar solicitud →
+          </button>
+          <p class="muted" style="margin-top:14px; font-size:11px;">
+            Te respondemos en 24-48hrs. Solo aceptamos DJs activos
+            (mínimo 1 toque en los últimos 6 meses).
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 02 · /admin/beta-requests ─── -->
+  <header class="section-header">
+    <div class="num">02</div>
+    <h2>/ADMIN/BETA-REQUESTS · WORKFLOW</h2>
+    <div class="tag">solo is_admin</div>
+  </header>
+  <p class="muted">
+    Inbox de solicitudes. Click en una fila expande detalles. Aprobar genera
+    invite link mágico (token UUID) que sirve por 7 días, dispara email de
+    bienvenida con el link, y crea contact en CRM con tag <code class="mono">beta_user</code>.
+    Rechazar es soft (queda en histórico). Waitlist = "te aviso cuando haya cupo".
+  </p>
+
+  <div class="screen">
+    <div class="screen-bar">
+      <span class="dot"></span>
+      /admin/beta-requests
+      <span style="margin-left:auto; opacity:0.6;">12 NUEVOS · 8 APROBADOS · 3 RECHAZADOS</span>
+    </div>
+    <div class="screen-body" style="padding:0;">
+      <table class="requests">
+        <thead>
+          <tr>
+            <th>Solicitud</th>
+            <th>Géneros</th>
+            <th>Estado</th>
+            <th>Pedido</th>
+            <th class="actions">—</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:700;">Frank LD</div>
+              <div class="muted">@franklddj · Concepción · hola@frankld.cl</div>
+              <div class="muted" style="margin-top:4px;">"Llevo 3 años con un Excel pa todo. Necesito orden."</div>
+            </td>
+            <td><span class="pill">Techno · Hard groove</span></td>
+            <td><span class="pill new">Nuevo</span></td>
+            <td class="muted">hace 2h</td>
+            <td class="actions">
+              <button class="btn" style="padding:6px 10px;">Aprobar</button>
+              <button class="btn outline" style="padding:6px 10px;">Waitlist</button>
+              <button class="btn danger" style="padding:6px 10px;">Rechazar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:700;">Camila R.</div>
+              <div class="muted">@camir_dj · Valparaíso · cami@gmail.com</div>
+              <div class="muted" style="margin-top:4px;">"Quiero pasar mi press kit a la app, suena más pro."</div>
+            </td>
+            <td><span class="pill">House · Disco</span></td>
+            <td><span class="pill new">Nuevo</span></td>
+            <td class="muted">hace 5h</td>
+            <td class="actions">
+              <button class="btn" style="padding:6px 10px;">Aprobar</button>
+              <button class="btn outline" style="padding:6px 10px;">Waitlist</button>
+              <button class="btn danger" style="padding:6px 10px;">Rechazar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:700;">Andrés Quezada</div>
+              <div class="muted">@aquezada.set · Santiago · aq@protonmail.com</div>
+              <div class="muted" style="margin-top:4px;">"Vi el reel de drop en IG. Quiero ver cómo se ve mi tracklist."</div>
+            </td>
+            <td><span class="pill">Drum&Bass</span></td>
+            <td><span class="pill approved">Aprobado · día 3</span></td>
+            <td class="muted">hace 3d</td>
+            <td class="actions">
+              <button class="btn outline" style="padding:6px 10px;">Ver actividad</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:700;">Booker Berlín XYZ</div>
+              <div class="muted">@booker_xyz · Berlin · spam@spammy.tk</div>
+              <div class="muted" style="margin-top:4px;">"hi i want to test this product please give access"</div>
+            </td>
+            <td><span class="pill">—</span></td>
+            <td><span class="pill rejected">Rechazado · spam</span></td>
+            <td class="muted">hace 1d</td>
+            <td class="actions">
+              <span class="muted">—</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:700;">Tomás "T-Reck"</div>
+              <div class="muted">@treck.dj · Concepción · treck@me.cl</div>
+              <div class="muted" style="margin-top:4px;">"Toco 1 vez al mes en bares. Quiero ordenar gigs."</div>
+            </td>
+            <td><span class="pill">Indie · Electrónica</span></td>
+            <td><span class="pill waitlist">Waitlist</span></td>
+            <td class="muted">hace 6h</td>
+            <td class="actions">
+              <button class="btn" style="padding:6px 10px;">Aprobar</button>
+              <button class="btn danger" style="padding:6px 10px;">Rechazar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── 03 · Widget feedback flotante ─── -->
+  <header class="section-header">
+    <div class="num">03</div>
+    <h2>WIDGET FEEDBACK FLOTANTE</h2>
+    <div class="tag">solo beta users</div>
+  </header>
+  <p class="muted">
+    Botón naranja persistente en la esquina inferior derecha. Solo visible
+    si <code class="mono">dj_profile.beta_status = 'active'</code>. El modal
+    captura: tipo, descripción, URL actual auto-rellena, user-agent,
+    screenshot opcional (data URL hasta 800kb).
+  </p>
+
+  <div class="grid-2">
+    <!-- Frame 1: botón visible -->
+    <div class="browser-frame">
+      <div class="url-bar">
+        <span class="dots"><span></span><span></span><span></span></span>
+        drop.dj/calendario
+      </div>
+      <div class="ghost">
+        <div class="mono" style="font-size:11px; opacity:0.5; letter-spacing:0.1em; text-transform:uppercase;">— Mock de cualquier pantalla de la app</div>
+        <div style="font-family:'Anton',sans-serif; font-size:48px; line-height:1; margin-top:8px;">AGENDA<span style="color:var(--orange);">.</span></div>
+        <div class="muted" style="margin-top:8px;">5 gigs próximos · 2 follow-ups</div>
+      </div>
+      <div class="floating-feedback">
+        <span>↑</span> FEEDBACK
+      </div>
+    </div>
+
+    <!-- Frame 2: modal abierto -->
+    <div class="browser-frame">
+      <div class="url-bar">
+        <span class="dots"><span></span><span></span><span></span></span>
+        drop.dj/calendario
+      </div>
+      <div class="ghost">
+        <div class="mono" style="font-size:11px; opacity:0.3;">— Modal abierto</div>
+      </div>
+      <div class="floating-feedback" style="opacity:0.3;">
+        <span>↑</span> FEEDBACK
+      </div>
+      <div class="feedback-modal">
+        <div class="head">
+          <div class="ttl">Feedback<span style="color:var(--orange);">.</span></div>
+          <div class="x">✕</div>
+        </div>
+        <div class="seg">
+          <span class="active">BUG</span>
+          <span>IDEA</span>
+          <span>COPY</span>
+          <span>OTRO</span>
+        </div>
+        <div class="field" style="margin-top:0;">
+          <label>¿Qué pasa?</label>
+          <textarea placeholder="Al apretar 'tracklist' en un show me lleva a 404…"></textarea>
+        </div>
+        <div class="field">
+          <label>Screenshot (opcional · max 800kb)</label>
+          <input type="file" />
+        </div>
+        <div class="muted" style="font-size:10px; font-family:'Space Mono', monospace;">
+          URL: drop.dj/calendario · Mobile · Chrome 138
+        </div>
+        <div style="text-align:right; margin-top:12px;">
+          <button class="btn">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 04 · NPS modal día 7 + 15 ─── -->
+  <header class="section-header">
+    <div class="num">04</div>
+    <h2>NPS · DÍA 7 + DÍA 15</h2>
+    <div class="tag">trigger por push + modal in-app</div>
+  </header>
+  <p class="muted">
+    Cron diario a las 11:00 hora Santiago revisa users beta cuyo
+    <code class="mono">approved_at</code> calza en (hoy - 7d) o (hoy - 15d).
+    Manda push notification "¿Cómo te ha ido con DROP?". Al abrir la app
+    aparece este modal. Sólo se muestra 1 vez por hito (D7, D15).
+  </p>
+
+  <div class="screen">
+    <div class="screen-bar">
+      <span class="dot"></span>
+      drop.dj/dashboard · modal NPS día 7
+    </div>
+    <div class="screen-body nps-mock">
+      <div class="nps-card">
+        <div class="day-chip">— DÍA 7 DE 15 · BETA</div>
+        <h3>¿RECOMENDARÍAS DROP<span style="color:var(--orange);">.</span></h3>
+        <p style="margin:0 0 14px; font-size:14px; line-height:1.4;">
+          A otros DJs, del 0 al 10. Sin filtro. Esto nos ayuda
+          a saber si vamos bien.
+        </p>
+        <div class="nps-scale">
+          <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span class="picked">8</span><span>9</span><span>10</span>
+        </div>
+        <div class="nps-legend">
+          <span>Nada probable</span>
+          <span>Súper probable</span>
+        </div>
+        <div class="field" style="margin-top:18px;">
+          <label>¿Qué te hace dar un 8?</label>
+          <textarea placeholder="Lo que más te sirvió, lo que aún no termina de convencerte…"></textarea>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <button class="btn outline" style="padding:8px 12px;">Después</button>
+          <button class="btn">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 05 · Analytics ─── -->
+  <header class="section-header">
+    <div class="num">05</div>
+    <h2>/ADMIN/ANALYTICS · USO REAL</h2>
+    <div class="tag">solo is_admin</div>
+  </header>
+  <p class="muted">
+    Eventos tracking client-side cero-cookie, cero terceros. Tabla
+    <code class="mono">usage_events</code> con
+    <code class="mono">{user_id, event, metadata, created_at}</code>.
+    Vista admin con KPIs de adopción, top features, retención day-0/7/15
+    y funnel de onboarding.
+  </p>
+
+  <div class="screen">
+    <div class="screen-bar">
+      <span class="dot"></span>
+      /admin/analytics · últimos 15 días
+    </div>
+    <div class="screen-body">
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi orange">
+          <div class="label">— USERS BETA ACTIVOS</div>
+          <div class="value">14</div>
+          <div class="delta">de 20 invitados</div>
+        </div>
+        <div class="kpi">
+          <div class="label">— RETENCIÓN D7</div>
+          <div class="value">79%</div>
+          <div class="delta">↑ 11 de 14 volvieron</div>
+        </div>
+        <div class="kpi">
+          <div class="label">— NPS PROMEDIO</div>
+          <div class="value">8.2</div>
+          <div class="delta">9 respuestas día 7</div>
+        </div>
+        <div class="kpi ink">
+          <div class="label">— FEEDBACK NUEVO</div>
+          <div class="value">23</div>
+          <div class="delta">7 bugs · 12 ideas · 4 copy</div>
+        </div>
+      </div>
+
+      <!-- Top features -->
+      <h3 style="font-family:'Anton',sans-serif; font-size:24px; margin:32px 0 8px;">TOP FEATURES (% USO)</h3>
+      <div class="features-bar">
+        <div class="row">
+          <div class="label-col">Crear contacto CRM</div>
+          <div class="bar" style="width:92%;"></div>
+          <div class="pct">92%</div>
+        </div>
+        <div class="row">
+          <div class="label-col">Conectar Gmail</div>
+          <div class="bar" style="width:71%;"></div>
+          <div class="pct">71%</div>
+        </div>
+        <div class="row">
+          <div class="label-col">Cargar tech rider</div>
+          <div class="bar" style="width:64%;"></div>
+          <div class="pct">64%</div>
+        </div>
+        <div class="row">
+          <div class="label-col">Crear tracklist post-show</div>
+          <div class="bar" style="width:43%;"></div>
+          <div class="pct">43%</div>
+        </div>
+        <div class="row">
+          <div class="label-col">Copiar texto SoundCloud</div>
+          <div class="bar" style="width:36%;"></div>
+          <div class="pct">36%</div>
+        </div>
+        <div class="row">
+          <div class="label-col">Importar CSV Rekordbox</div>
+          <div class="bar" style="width:21%;"></div>
+          <div class="pct">21%</div>
+        </div>
+        <div class="row">
+          <div class="label-col">Configurar webhook auto-post</div>
+          <div class="bar" style="width:14%;"></div>
+          <div class="pct">14%</div>
+        </div>
+      </div>
+
+      <!-- Funnel -->
+      <h3 style="font-family:'Anton',sans-serif; font-size:24px; margin:32px 0 8px;">FUNNEL ONBOARDING</h3>
+      <table class="requests">
+        <thead>
+          <tr><th>Paso</th><th>Users</th><th>%</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Recibieron invite link</td><td>20</td><td>100%</td></tr>
+          <tr><td>2. Hicieron magic-link signup</td><td>18</td><td>90%</td></tr>
+          <tr><td>3. Completaron /welcome wizard</td><td>15</td><td>75%</td></tr>
+          <tr><td>4. Crearon 1+ contacto en CRM</td><td>14</td><td>70%</td></tr>
+          <tr><td>5. Conectaron Gmail</td><td>10</td><td>50%</td></tr>
+          <tr><td>6. Crearon 1+ tracklist</td><td>6</td><td>30%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── 06 · Topbar banner ─── -->
+  <header class="section-header">
+    <div class="num">06</div>
+    <h2>TOPBAR BANNER · BETA</h2>
+    <div class="tag">solo beta users</div>
+  </header>
+  <p class="muted">
+    Recordatorio visual del estado beta + días restantes. Calcula en server
+    side desde <code class="mono">beta_approved_at</code>. Al día 15 cambia
+    a "Beta termina hoy" en rojo. Después del día 15 muestra "Suscríbete"
+    (preludio del Sprint 24).
+  </p>
+
+  <div class="grid-3">
+    <div>
+      <div class="muted mono" style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">Día 1-13 (normal)</div>
+      <div class="topbar-mock">
+        <div class="logo">DROP<span class="dot">.</span></div>
+        <div class="beta-banner">BETA · 12 DÍAS</div>
+        <div class="spacer"></div>
+        <div class="user-chip">JAY PORTU</div>
+      </div>
+    </div>
+    <div>
+      <div class="muted mono" style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">Día 14-15 (warning)</div>
+      <div class="topbar-mock">
+        <div class="logo">DROP<span class="dot">.</span></div>
+        <div class="beta-banner" style="background:var(--warn);">BETA · 2 DÍAS</div>
+        <div class="spacer"></div>
+        <div class="user-chip">JAY PORTU</div>
+      </div>
+    </div>
+    <div>
+      <div class="muted mono" style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">Día 15+ (expirado)</div>
+      <div class="topbar-mock">
+        <div class="logo">DROP<span class="dot">.</span></div>
+        <div class="beta-banner" style="background:var(--err); color:#fff; border-color:var(--err);">BETA TERMINÓ</div>
+        <div class="spacer"></div>
+        <div class="user-chip">JAY PORTU</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 07 · Schema DB ─── -->
+  <header class="section-header">
+    <div class="num">07</div>
+    <h2>SCHEMA · MIGRATION 0020</h2>
+    <div class="tag">4 tablas + 3 columnas</div>
+  </header>
+  <p class="muted">4 tablas nuevas + 3 columnas en <code class="mono">dj_profile</code>. RLS estricto en feedback/NPS, los analytics se leen solo via service_role.</p>
+
+  <pre class="schema"><span class="k">create table</span> public.beta_requests (
+  id           uuid <span class="k">primary key default</span> gen_random_uuid(),
+  artist_name  text <span class="k">not null</span>,
+  email        text <span class="k">not null</span>,
+  instagram    text <span class="c">-- handle sin @</span>,
+  city         text,
+  genres       text[] <span class="k">not null default</span> '{}',
+  motivation   text,
+  status       text <span class="k">not null default</span> '<span class="c">new</span>'
+               <span class="k">check</span> (status <span class="k">in</span> ('<span class="c">new</span>','<span class="c">approved</span>','<span class="c">rejected</span>','<span class="c">waitlist</span>')),
+  invite_token uuid <span class="c">-- generado al aprobar</span>,
+  invite_sent_at  timestamptz,
+  approved_at  timestamptz,
+  rejected_at  timestamptz,
+  reject_reason text,
+  user_id      uuid <span class="k">references</span> auth.users(id) <span class="c">-- set tras signup</span>,
+  ip_address   inet,
+  user_agent   text,
+  created_at   timestamptz <span class="k">not null default</span> now()
+);
+
+<span class="k">create table</span> public.feedback_reports (
+  id           uuid <span class="k">primary key default</span> gen_random_uuid(),
+  user_id      uuid <span class="k">not null references</span> auth.users(id) <span class="k">on delete cascade</span>,
+  kind         text <span class="k">not null check</span> (kind <span class="k">in</span> ('<span class="c">bug</span>','<span class="c">idea</span>','<span class="c">copy</span>','<span class="c">otro</span>')),
+  description  text <span class="k">not null</span>,
+  page_url     text,
+  user_agent   text,
+  screenshot_url text <span class="c">-- Supabase Storage</span>,
+  status       text <span class="k">not null default</span> '<span class="c">new</span>'
+               <span class="k">check</span> (status <span class="k">in</span> ('<span class="c">new</span>','<span class="c">read</span>','<span class="c">in_progress</span>','<span class="c">resolved</span>','<span class="c">dismissed</span>')),
+  admin_notes  text,
+  created_at   timestamptz <span class="k">not null default</span> now()
+);
+
+<span class="k">create table</span> public.nps_responses (
+  id           uuid <span class="k">primary key default</span> gen_random_uuid(),
+  user_id      uuid <span class="k">not null references</span> auth.users(id) <span class="k">on delete cascade</span>,
+  milestone    text <span class="k">not null check</span> (milestone <span class="k">in</span> ('<span class="c">day_7</span>','<span class="c">day_15</span>')),
+  score        int  <span class="k">not null check</span> (score <span class="k">between</span> 0 <span class="k">and</span> 10),
+  comment      text,
+  created_at   timestamptz <span class="k">not null default</span> now(),
+  <span class="k">unique</span> (user_id, milestone) <span class="c">-- 1 NPS por hito</span>
+);
+
+<span class="k">create table</span> public.usage_events (
+  id           uuid <span class="k">primary key default</span> gen_random_uuid(),
+  user_id      uuid <span class="k">not null references</span> auth.users(id) <span class="k">on delete cascade</span>,
+  event        text <span class="k">not null</span> <span class="c">-- ej: page_view, created_tracklist</span>,
+  page         text,
+  metadata     jsonb <span class="k">not null default</span> '{}',
+  created_at   timestamptz <span class="k">not null default</span> now()
+);
+<span class="k">create index</span> idx_usage_events_user_event <span class="k">on</span> public.usage_events (user_id, event, created_at);
+
+<span class="k">alter table</span> public.dj_profile
+  <span class="k">add column</span> beta_status text <span class="k">not null default</span> '<span class="c">none</span>'
+    <span class="k">check</span> (beta_status <span class="k">in</span> ('<span class="c">none</span>','<span class="c">active</span>','<span class="c">expired</span>','<span class="c">paying</span>')),
+  <span class="k">add column</span> beta_approved_at timestamptz,
+  <span class="k">add column</span> beta_request_id  uuid <span class="k">references</span> public.beta_requests(id);</pre>
+
+  <!-- ─── 08 · Fases ─── -->
+  <header class="section-header">
+    <div class="num">08</div>
+    <h2>FASES · IMPLEMENTACIÓN</h2>
+    <div class="tag">orden sugerido</div>
+  </header>
+
+  <div class="phases">
+    <div class="phase">
+      <div class="num">A</div>
+      <div class="ttl">Migration 0020</div>
+      <div class="desc">4 tablas + 3 columnas en dj_profile + RLS policies + types TS.</div>
+      <div class="est">~30min · sin UI</div>
+    </div>
+    <div class="phase">
+      <div class="num">B</div>
+      <div class="ttl">/beta público + form</div>
+      <div class="desc">Landing pública con form + validación + honeypot + rate limit por IP + POST a server action.</div>
+      <div class="est">~1.5h · ruta nueva</div>
+    </div>
+    <div class="phase">
+      <div class="num">C</div>
+      <div class="ttl">/admin/beta-requests</div>
+      <div class="desc">Tabla con workflow aprobar/rechazar/waitlist. Generar invite token. Email de bienvenida via Gmail conectado.</div>
+      <div class="est">~2h</div>
+    </div>
+    <div class="phase">
+      <div class="num">D</div>
+      <div class="ttl">Widget feedback flotante</div>
+      <div class="desc">Componente global visible solo si beta_status=active. Modal con tipo + texto + screenshot opcional. /admin/feedback con workflow.</div>
+      <div class="est">~2h</div>
+    </div>
+    <div class="phase">
+      <div class="num">E</div>
+      <div class="ttl">NPS día 7 + 15</div>
+      <div class="desc">Cron 11:00 Santiago revisa beta users en sus hitos. Push notif + modal in-app. Soporte para "después" (re-prompt al día siguiente).</div>
+      <div class="est">~1.5h</div>
+    </div>
+    <div class="phase">
+      <div class="num">F</div>
+      <div class="ttl">Analytics tracker + admin</div>
+      <div class="desc">Hook useTrackEvent(event, metadata?). Tracking de page_view + features clave. Dashboard admin con KPIs + funnel + top features.</div>
+      <div class="est">~2.5h</div>
+    </div>
+    <div class="phase">
+      <div class="num">G</div>
+      <div class="ttl">Banner topbar + email bienvenida</div>
+      <div class="desc">Banner con días restantes + template HTML del email de invitación + recordatorio día 7.</div>
+      <div class="est">~1h</div>
+    </div>
+    <div class="phase">
+      <div class="num">H</div>
+      <div class="ttl">Test + commit + deploy</div>
+      <div class="desc">tsc + lint + build + smoke HTTP + sweep argentinismos + commit + push + aplicar migration en prod.</div>
+      <div class="est">~30min</div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <p class="muted" style="margin-top:60px; text-align:center;">
+    <span class="mono" style="text-transform:uppercase; letter-spacing:0.15em;">— FIN MOCKUP · Sprint 23.5 · Beta 15 días</span><br/>
+    Tras tu aprobación, arrancamos con la Fase A.
+  </p>
+
+</div>
+
+</body>
+</html>

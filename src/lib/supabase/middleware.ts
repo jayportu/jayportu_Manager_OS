@@ -13,6 +13,8 @@ const PUBLIC_PATHS = [
   "/favicon.ico",
   "/p/", // press kit públicos
   "/dj", // Sprint 20 — directorio público de DJs
+  "/beta", // Sprint 23.5 — formulario solicitud beta
+  "/api/beta", // Sprint 23.5 — submit del formulario beta
   "/sitemap.xml", // Sprint 20 — sitemap dinámico
   "/robots.txt", // Sprint 20 — robots
   "/api/track", // tracking endpoint
