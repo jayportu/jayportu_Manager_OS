@@ -30,27 +30,28 @@ interface Params {
 }
 
 export async function GET(_req: Request, { params }: Params) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return new Response("No autenticado", { status: 401 });
-  }
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return new Response("No autenticado", { status: 401 });
+    }
 
-  const tracklist = await getTracklist(id);
-  if (!tracklist) {
-    return new Response("Tracklist no encontrada", { status: 404 });
-  }
-  const profile = await getMyProfile();
-  if (!profile) {
-    return new Response("Perfil no encontrado", { status: 404 });
-  }
+    const tracklist = await getTracklist(id);
+    if (!tracklist) {
+      return new Response("Tracklist no encontrada", { status: 404 });
+    }
+    const profile = await getMyProfile();
+    if (!profile) {
+      return new Response("Perfil no encontrado", { status: 404 });
+    }
 
-  const allTracks = await listTracksForTracklist(id);
-  const highlights = selectHighlightTracks(allTracks);
+    const allTracks = await listTracksForTracklist(id);
+    const highlights = selectHighlightTracks(allTracks);
 
   // Datos del evento (si la tracklist está vinculada)
   let eventDate = "";
@@ -363,6 +364,15 @@ export async function GET(_req: Request, { params }: Params) {
       },
     }
   );
+  } catch (e) {
+    // Si algo falla en el render, devolver mensaje plain para debugging.
+    // En el cliente verás el texto en lugar de un PNG roto silenciosamente.
+    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+    return new Response(`Error generando imagen: ${msg}`, {
+      status: 500,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
 }
 
 function truncate(s: string, max: number): string {
