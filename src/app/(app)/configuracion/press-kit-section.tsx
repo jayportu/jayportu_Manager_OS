@@ -140,7 +140,7 @@ export function PressKitSection({
             desc={
               hasPdf
                 ? "Mostramos el PDF que subiste tal cual."
-                : "Subí un PDF primero (abajo)."
+                : "Sube un PDF primero (abajo)."
             }
           />
         </div>

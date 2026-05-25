@@ -301,7 +301,7 @@ function PlatformEmpty({
       <div className="text-[10px] text-fg-subtle mt-0.5">
         {platform === "instagram"
           ? "Sin auto-sync (manual)"
-          : "Cargá tu primer snapshot"}
+          : "Carga tu primer snapshot"}
       </div>
       <div className="mt-2">
         <SnapshotDialog

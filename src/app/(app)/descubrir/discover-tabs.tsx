@@ -136,7 +136,7 @@ export function DiscoverTabs({ presets }: Props) {
 
   function handleImportManual() {
     if (!manualText.trim()) {
-      setResult({ type: "err", text: "Pegá algo de texto." });
+      setResult({ type: "err", text: "Pega algo de texto." });
       return;
     }
     setResult(null);
@@ -211,7 +211,7 @@ export function DiscoverTabs({ presets }: Props) {
       {tab === "manual" && (
         <div className="space-y-3">
           <p className="text-xs text-fg-muted">
-            Pegá texto de búsquedas (Google, IG, listados) y la app extrae
+            Pega texto de búsquedas (Google, IG, listados) y la app extrae
             nombre, IG, email y web. Formato esperado: 1 lead por bloque
             separado por línea en blanco.
           </p>
@@ -251,7 +251,7 @@ booking@sonar.cl
             rows={10}
             value={manualText}
             onChange={(e) => setManualText(e.target.value)}
-            placeholder="Pegá los leads aquí…"
+            placeholder="Pega los leads aquí…"
             className="font-mono text-sm"
           />
           <Button

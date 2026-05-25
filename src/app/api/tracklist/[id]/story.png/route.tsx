@@ -20,7 +20,7 @@ import {
 } from "@/lib/queries/tracklists";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 interface Params {
   params: Promise<{ id: string }>;

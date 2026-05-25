@@ -94,6 +94,7 @@ export async function uploadPressKitPdfAction(
 
     revalidatePath("/configuracion");
     revalidatePath("/press-kit");
+    revalidatePath("/p/[slug]", "page");
     return { ok: true, data: { url: publicUrl } };
   } catch (e) {
     return err(e);
@@ -133,6 +134,7 @@ export async function deletePressKitPdfAction(): Promise<Result> {
 
     revalidatePath("/configuracion");
     revalidatePath("/press-kit");
+    revalidatePath("/p/[slug]", "page");
     return { ok: true, data: undefined };
   } catch (e) {
     return err(e);
@@ -163,7 +165,7 @@ export async function setPressKitModeAction(
       if (!profile?.press_kit_pdf_url) {
         return {
           ok: false,
-          error: "No tienes PDF subido. Subí uno antes de cambiar a modo PDF.",
+          error: "No tienes PDF subido. Sube uno antes de cambiar a modo PDF.",
         };
       }
     }
@@ -171,6 +173,7 @@ export async function setPressKitModeAction(
     await updateMyProfile({ press_kit_mode: mode });
     revalidatePath("/configuracion");
     revalidatePath("/press-kit");
+    revalidatePath("/p/[slug]", "page");
     return { ok: true, data: undefined };
   } catch (e) {
     return err(e);

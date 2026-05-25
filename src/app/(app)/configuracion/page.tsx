@@ -52,7 +52,7 @@ export default async function ConfiguracionPage() {
       <div className="mt-12 pt-8 border-t border-border">
         <h2 className="text-lg font-semibold mb-2">Press kit</h2>
         <p className="text-sm text-fg-muted mb-4">
-          Elegí si tu página pública se arma automáticamente con tus datos
+          Elige si tu página pública se arma automáticamente con tus datos
           o si quieres mostrar un PDF propio que ya tengas diseñado.
         </p>
         <PressKitSection

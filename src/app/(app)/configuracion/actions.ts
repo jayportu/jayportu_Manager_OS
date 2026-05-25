@@ -18,9 +18,12 @@ export async function saveProfileAction(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     await updateMyProfile(patch);
-    // Revalidar el dashboard y la configuración para que muestre datos frescos
+    // Revalidar el dashboard, la config Y el press kit público para que
+    // refleje cambios de bio, contacto, etc. instantáneamente.
     revalidatePath("/dashboard");
     revalidatePath("/configuracion");
+    revalidatePath("/p/[slug]", "page");
+    revalidatePath("/dj");
     return { ok: true };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Error desconocido";
@@ -42,6 +45,7 @@ export async function updateAvailabilityAction(patch: {
     await updateMyProfile(patch as DjProfileUpdate);
     revalidatePath("/configuracion");
     revalidatePath("/dj");
+    revalidatePath("/p/[slug]", "page");
     return { ok: true };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Error desconocido";

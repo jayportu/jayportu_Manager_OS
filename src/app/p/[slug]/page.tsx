@@ -1,6 +1,11 @@
 import { getProfileBySlug } from "@/lib/queries/presskit";
 import { listPublicRiderItems } from "@/lib/queries/tech-rider";
 import { notFound } from "next/navigation";
+
+// El press kit público debe reflejar cambios del owner sin esperar redeploy.
+// Cache 60s: balance entre performance y frescura. revalidatePath() en
+// server actions (tech rider, profile, availability) invalida instantáneamente.
+export const revalidate = 60;
 import { Logo } from "@/components/brand/logo";
 import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
