@@ -4,6 +4,7 @@ import {
   getGrowthDeltas,
   getLatestSnapshotsByPlatform,
 } from "@/lib/queries/growth";
+import { getMyProfile } from "@/lib/queries/dj-profile";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -25,15 +26,29 @@ import { SnapshotDialog } from "./snapshot-dialog";
 import { relativeTime, shortDate } from "@/lib/format";
 
 export default async function GrowthPage() {
-  const [campaigns, recentPosts, deltas, snapshots] = await Promise.all([
+  const [campaigns, recentPosts, deltas, snapshots, profile] = await Promise.all([
     listGrowthCampaigns({ status: "active", limit: 5 }),
     listContentPosts({ limit: 8 }),
     getGrowthDeltas(),
     getLatestSnapshotsByPlatform(),
+    getMyProfile(),
   ]);
 
   const platformsWithSnapshots = Object.keys(snapshots);
   const isFirstTime = platformsWithSnapshots.length === 0;
+
+  // Plataformas que tiene URL configurada en el perfil pero NO tienen snapshots todavía.
+  // Para esas mostramos un placeholder con CTA "Registrar primer snapshot".
+  // Esto resuelve el caso de Instagram (sin auto-sync hasta Sprint 22.5).
+  const profilePlatforms: { platform: SocialPlatform; url: string | null }[] = [
+    { platform: "instagram", url: profile?.instagram_url ?? null },
+    { platform: "youtube", url: profile?.youtube_url ?? null },
+    { platform: "soundcloud", url: profile?.soundcloud_url ?? null },
+  ];
+  const deltasPlatforms = new Set(deltas.map((d) => d.platform));
+  const missingPlatforms = profilePlatforms.filter(
+    (p) => p.url && p.url.trim().length > 0 && !deltasPlatforms.has(p.platform)
+  );
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
@@ -93,7 +108,7 @@ export default async function GrowthPage() {
       )}
 
       {/* KPIs por plataforma */}
-      {deltas.length > 0 && (
+      {(deltas.length > 0 || missingPlatforms.length > 0) && (
         <section className="mb-7">
           <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3">
             Plataformas
@@ -101,6 +116,13 @@ export default async function GrowthPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {deltas.map((d) => (
               <PlatformKpi key={d.platform} delta={d} />
+            ))}
+            {missingPlatforms.map((p) => (
+              <PlatformEmpty
+                key={p.platform}
+                platform={p.platform}
+                snapshots={snapshots}
+              />
             ))}
           </div>
         </section>
@@ -252,6 +274,43 @@ export default async function GrowthPage() {
         )}
       </section>
     </div>
+  );
+}
+
+function PlatformEmpty({
+  platform,
+  snapshots,
+}: {
+  platform: SocialPlatform;
+  snapshots: Record<string, import("@/types/database").PlatformSnapshot | null>;
+}) {
+  return (
+    <Card className="p-4 border-dashed border-orange/40 bg-orange/5">
+      <div className="flex items-center justify-between gap-1">
+        <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
+          {SOCIAL_PLATFORM_LABELS[platform]}
+        </div>
+        <span
+          className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange/20 border border-orange/40 text-orange"
+          title="Sin snapshots todavía"
+        >
+          sin datos
+        </span>
+      </div>
+      <div className="font-display text-3xl leading-none mt-1.5 text-fg-subtle">—</div>
+      <div className="text-[10px] text-fg-subtle mt-0.5">
+        {platform === "instagram"
+          ? "Sin auto-sync (manual)"
+          : "Cargá tu primer snapshot"}
+      </div>
+      <div className="mt-2">
+        <SnapshotDialog
+          existingSnapshots={snapshots}
+          buttonLabel="Registrar"
+          buttonVariant="outline"
+        />
+      </div>
+    </Card>
   );
 }
 
