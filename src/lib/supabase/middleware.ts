@@ -12,6 +12,9 @@ const PUBLIC_PATHS = [
   "/_next",
   "/favicon.ico",
   "/p/", // press kit públicos
+  "/dj", // Sprint 20 — directorio público de DJs
+  "/sitemap.xml", // Sprint 20 — sitemap dinámico
+  "/robots.txt", // Sprint 20 — robots
   "/api/track", // tracking endpoint
   "/api/booking", // formulario público
   "/api/gmail/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
