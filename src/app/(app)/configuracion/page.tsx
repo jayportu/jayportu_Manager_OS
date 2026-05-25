@@ -1,6 +1,7 @@
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
+import { listMyRiderItems } from "@/lib/queries/tech-rider";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "./profile-form";
 import { ExportButton } from "./export-button";
@@ -10,6 +11,8 @@ import { PlatformAccountsSection } from "./platform-accounts-section";
 import { PushSetup } from "./push-setup";
 import { PressKitSection } from "./press-kit-section";
 import { AvailabilitySection } from "./availability-section";
+import { TechRiderSection } from "./tech-rider-section";
+import { AutoPostSection } from "./auto-post-section";
 
 export default async function ConfiguracionPage() {
   const profile = await getMyProfile();
@@ -18,6 +21,7 @@ export default async function ConfiguracionPage() {
   const gmailConfigured =
     !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
   const platformAccounts = await listPlatformAccounts();
+  const riderItems = await listMyRiderItems();
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
@@ -35,6 +39,14 @@ export default async function ConfiguracionPage() {
 
       <div className="mt-12 pt-8 border-t border-border">
         <AvailabilitySection profile={profile} />
+      </div>
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <TechRiderSection initialItems={riderItems} />
+      </div>
+
+      <div id="auto-post" className="mt-12 pt-8 border-t border-border scroll-mt-24">
+        <AutoPostSection profile={profile} />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">

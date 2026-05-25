@@ -1,4 +1,5 @@
 import { getProfileBySlug } from "@/lib/queries/presskit";
+import { listPublicRiderItems } from "@/lib/queries/tech-rider";
 import { notFound } from "next/navigation";
 import { Logo } from "@/components/brand/logo";
 import { TrackBeacon } from "./track-beacon";
@@ -6,6 +7,8 @@ import { TrackedLink } from "./tracked-link";
 import { BookingForm } from "./booking-form";
 import { SoundcloudEmbed, YoutubeEmbed } from "./embeds";
 import { PdfPressKit } from "./pdf-press-kit";
+import { TechRiderRender } from "./tech-rider-render";
+import { StagePlot } from "./stage-plot";
 import { whatsappLink, normalizeUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
@@ -41,6 +44,10 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const { slug } = await params;
   const profile = await getProfileBySlug(slug);
   if (!profile) notFound();
+
+  // Sprint 21 — items del rider estructurado (sin RLS via service_role).
+  const riderItems = await listPublicRiderItems(profile.user_id);
+  const hasStructuredRider = riderItems.length > 0;
 
   // Modo PDF: el DJ subió un press kit propio. Mostramos el PDF tal cual
   // a pantalla completa, con botones flotantes mínimos para contacto.
@@ -214,47 +221,59 @@ export default async function PresskitPublicPage({ params }: PageProps) {
         )}
 
         {/* ── Tech rider ──────────────────────────────────── */}
-        {(profile.tech_rider_ideal || profile.tech_rider_alt) && (
+        {hasStructuredRider ? (
           <section className="mb-12 md:mb-16">
-            <details className="group">
-              <summary className="cursor-pointer flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-2 list-none">
-                <span>Tech rider</span>
-                <span className="text-fg-muted group-open:rotate-180 transition-transform">▾</span>
-              </summary>
-              <div className="grid md:grid-cols-2 gap-4 mt-4">
-                {profile.tech_rider_ideal && (
-                  <div className="p-4 rounded-lg bg-bg-panel border border-border">
-                    <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
-                      Ideal
-                    </div>
-                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {profile.tech_rider_ideal}
-                    </div>
-                  </div>
-                )}
-                {profile.tech_rider_alt && (
-                  <div className="p-4 rounded-lg bg-bg-panel border border-border">
-                    <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
-                      Alternativo
-                    </div>
-                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {profile.tech_rider_alt}
-                    </div>
-                  </div>
-                )}
-              </div>
-              {profile.hospitality && (
-                <div className="mt-4 p-4 rounded-lg bg-bg-panel border border-border">
-                  <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
-                    Hospitality
-                  </div>
-                  <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                    {profile.hospitality}
-                  </div>
-                </div>
-              )}
-            </details>
+            <StagePlot items={riderItems} artistName={profile.artist_name} />
+            <TechRiderRender
+              items={riderItems}
+              hospitalityNote={profile.hospitality}
+            />
           </section>
+        ) : (
+          (profile.tech_rider_ideal || profile.tech_rider_alt) && (
+            <section className="mb-12 md:mb-16">
+              <details className="group">
+                <summary className="cursor-pointer flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-2 list-none">
+                  <span>Tech rider</span>
+                  <span className="text-fg-muted group-open:rotate-180 transition-transform">
+                    ▾
+                  </span>
+                </summary>
+                <div className="grid md:grid-cols-2 gap-4 mt-4">
+                  {profile.tech_rider_ideal && (
+                    <div className="p-4 rounded-lg bg-bg-panel border border-border">
+                      <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
+                        Ideal
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {profile.tech_rider_ideal}
+                      </div>
+                    </div>
+                  )}
+                  {profile.tech_rider_alt && (
+                    <div className="p-4 rounded-lg bg-bg-panel border border-border">
+                      <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
+                        Alternativo
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {profile.tech_rider_alt}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {profile.hospitality && (
+                  <div className="mt-4 p-4 rounded-lg bg-bg-panel border border-border">
+                    <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
+                      Hospitality
+                    </div>
+                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {profile.hospitality}
+                    </div>
+                  </div>
+                )}
+              </details>
+            </section>
+          )
         )}
 
         {/* ── Booking ──────────────────────────────────────── */}

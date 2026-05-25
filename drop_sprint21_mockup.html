@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DROP. · Sprint 21 — Operación del show</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F4EFE7;
+    --ink: #0A0A0A;
+    --orange: #FF5C00;
+    --success: #1F8A5C;
+    --warning: #C77A00;
+    --danger: #C53030;
+    --info: #2B5BA8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--cream); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .anton { font-family: 'Anton'; line-height: 0.85; letter-spacing: 0.005em; }
+  .mono { font-family: 'Space Mono', monospace; }
+
+  .cover {
+    background: var(--ink); color: var(--cream);
+    padding: 60px 40px 70px; position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: '21'; position: absolute; bottom: -100px; right: -40px;
+    font-family: 'Anton'; font-size: 580px; line-height: 0.75;
+    color: rgba(255,92,0,0.08); pointer-events: none;
+  }
+  .cover .kicker {
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.18em; color: var(--orange);
+  }
+  .cover h1 {
+    font-family: 'Anton'; font-size: clamp(64px, 11vw, 150px);
+    line-height: 0.78; margin-top: 16px; letter-spacing: -0.01em;
+  }
+  .cover h1 .dot { color: var(--orange); }
+  .cover .sub {
+    font-family: 'Anton'; font-size: clamp(24px, 3.5vw, 40px);
+    line-height: 0.95; margin-top: 16px; color: var(--cream);
+    max-width: 800px;
+  }
+  .cover .sub em { color: var(--orange); font-style: normal; }
+  .cover .meta-row {
+    margin-top: 36px; display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; max-width: 920px; position: relative; z-index: 1;
+  }
+  .cover .meta-row .cell { border-top: 1px solid #2a2a2a; padding-top: 12px; }
+  .cover .meta-row .cell .lbl {
+    font-family: 'Space Mono'; font-size: 9px;
+    font-weight: 700; letter-spacing: 0.12em; color: var(--orange);
+  }
+  .cover .meta-row .cell .val {
+    font-family: 'Anton'; font-size: 24px; line-height: 0.95;
+    margin-top: 4px; color: var(--cream);
+  }
+  @media (max-width: 680px) { .cover .meta-row { grid-template-columns: 1fr 1fr; } }
+
+  .ticker {
+    background: var(--orange); color: var(--ink);
+    overflow: hidden; white-space: nowrap;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 9px 0;
+  }
+  .ticker .track {
+    display: inline-block; animation: scroll 30s linear infinite;
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em;
+  }
+  .ticker .track span { padding: 0 22px; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  section { padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 18px; margin-bottom: 40px;
+    border-bottom: 2px solid var(--ink); padding-bottom: 14px;
+    max-width: 1280px; margin-left: auto; margin-right: auto;
+  }
+  .sec-head .num {
+    font-family: 'Anton'; font-size: 48px; color: var(--orange); line-height: 0.85;
+  }
+  .sec-head .ttl {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+  }
+  .sec-head .sub {
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em; color: #555;
+    margin-left: auto; align-self: center;
+  }
+  .sec-body { max-width: 1280px; margin: 0 auto; }
+  .lead {
+    font-size: 16px; line-height: 1.55; max-width: 800px; margin-bottom: 28px;
+  }
+  .lead strong { color: var(--orange); }
+
+  .frame {
+    border: 2px solid var(--ink); background: #FFF;
+    box-shadow: 8px 8px 0 var(--orange);
+    margin-bottom: 24px;
+  }
+  .frame .chrome {
+    background: #2a2a2a; height: 32px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; border-bottom: 2px solid var(--ink);
+  }
+  .frame .chrome .dot { width: 11px; height: 11px; border-radius: 100%; }
+  .frame .chrome .url {
+    flex: 1; background: var(--ink); color: var(--orange);
+    font-size: 11px; padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .frame .label {
+    position: absolute; top: -14px; left: 24px;
+    background: var(--ink); color: var(--orange);
+    padding: 4px 10px; font-family: 'Space Mono';
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  }
+  .frame-wrap { position: relative; }
+
+  .btn {
+    background: var(--ink); color: var(--orange); border: 2px solid var(--ink);
+    padding: 10px 16px; font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 120ms; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--orange); color: var(--ink); }
+  .btn.orange { background: var(--orange); color: var(--ink); }
+  .btn.outline { background: transparent; color: var(--ink); }
+  .btn.sm { padding: 6px 12px; font-size: 10px; }
+
+  .tag {
+    display: inline-block; background: var(--ink); color: #FFF;
+    padding: 3px 9px; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .tag.orange { background: var(--orange); color: var(--ink); }
+  .tag.outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
+  .tag.success { background: var(--success); color: #FFF; }
+  .tag.warning { background: var(--warning); color: #FFF; }
+  .tag.danger { background: var(--danger); color: #FFF; }
+  .tag.info { background: var(--info); color: #FFF; }
+  .tag.cream { background: var(--cream); color: var(--ink); border: 1px solid var(--ink); }
+
+  /* Rider Item card */
+  .rider-item {
+    border: 2px solid var(--ink); background: #FFF;
+    padding: 12px 14px; display: flex; align-items: center;
+    gap: 12px; transition: all 100ms;
+  }
+  .rider-item:hover { background: var(--cream); }
+  .rider-item .ico {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border: 2px solid var(--ink); background: var(--ink);
+    color: var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Anton'; font-size: 20px;
+  }
+  .rider-item .info { flex: 1; min-width: 0; }
+  .rider-item .info .name {
+    font-family: 'Anton'; font-size: 18px;
+    text-transform: uppercase; line-height: 0.95;
+    letter-spacing: 0.01em;
+  }
+  .rider-item .info .meta {
+    font-family: 'Space Mono'; font-size: 10px;
+    color: #555; margin-top: 2px;
+    letter-spacing: 0.04em;
+  }
+  .rider-item .qty {
+    font-family: 'Anton'; font-size: 30px;
+    line-height: 0.85; color: var(--orange);
+    min-width: 50px; text-align: right;
+  }
+
+  /* Section header rider */
+  .rider-section-h {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .rider-section-h .lbl {
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; letter-spacing: 0.12em;
+    color: var(--orange); text-transform: uppercase;
+  }
+  .rider-section-h .line {
+    flex: 1; height: 2px; background: var(--ink);
+  }
+  .rider-section-h .count {
+    font-family: 'Anton'; font-size: 14px;
+    background: var(--ink); color: var(--orange);
+    padding: 2px 8px;
+  }
+
+  /* Rider visual stage layout */
+  .stage-diagram {
+    border: 2px solid var(--ink); background: var(--cream);
+    padding: 30px; position: relative;
+    min-height: 280px;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.06) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .stage-diagram .stage-label {
+    position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; letter-spacing: 0.14em;
+    background: var(--ink); color: var(--orange);
+    padding: 3px 10px;
+  }
+  .gear-box {
+    position: absolute; border: 2px solid var(--ink); background: #FFF;
+    padding: 6px 10px;
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-align: center;
+    line-height: 1.2;
+  }
+  .gear-box .l {
+    color: var(--orange); font-size: 8px; letter-spacing: 0.08em;
+  }
+  .gear-box .n {
+    font-family: 'Anton'; font-size: 14px;
+    line-height: 1;
+  }
+
+  /* Tracklist */
+  .tracklist {
+    border: 2px solid var(--ink); background: #FFF;
+  }
+  .track-row {
+    display: grid; grid-template-columns: 30px 1fr 80px 50px 24px;
+    gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid var(--ink);
+    align-items: center;
+  }
+  .track-row:last-child { border-bottom: 0; }
+  .track-row.intro { background: var(--cream); }
+  .track-row.peak { background: var(--orange); }
+  .track-row.closer { background: var(--ink); color: var(--cream); }
+  .track-row.closer .meta { color: rgba(244,239,231,0.7); }
+  .track-row .n {
+    font-family: 'Anton'; font-size: 18px;
+    line-height: 0.85; color: var(--orange);
+  }
+  .track-row.closer .n { color: var(--orange); }
+  .track-row .info { min-width: 0; }
+  .track-row .title {
+    font-family: 'Anton'; font-size: 14px;
+    line-height: 1; text-transform: uppercase;
+  }
+  .track-row .meta {
+    font-family: 'Space Mono'; font-size: 9px;
+    color: #666; margin-top: 2px;
+  }
+  .track-row .bpm {
+    font-family: 'Anton'; font-size: 16px; text-align: right;
+  }
+  .track-row .key {
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-align: center;
+    border: 1px solid currentColor; padding: 1px 4px;
+  }
+  .track-row .drag {
+    font-family: 'Space Mono'; color: #999;
+    cursor: grab;
+  }
+
+  /* CARDS */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  @media (max-width: 960px) { .card-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+  .card {
+    border: 2px solid var(--ink); background: #FFF; padding: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .card.dark { background: var(--ink); color: var(--cream); }
+  .card.orange { background: var(--orange); }
+  .card .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange);
+  }
+  .card .h {
+    font-family: 'Anton'; font-size: 26px; line-height: 0.95;
+  }
+
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 2px solid var(--ink);
+    background: #FFF; font-family: 'Inter'; font-size: 13px;
+    color: var(--ink);
+  }
+
+  /* IG story preview */
+  .ig-story {
+    width: 220px; aspect-ratio: 9/16;
+    background: var(--ink); color: var(--cream);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    padding: 30px 18px;
+    position: relative; overflow: hidden;
+    box-shadow: 8px 8px 0 var(--orange);
+  }
+  .ig-story::before {
+    content: 'D.'; position: absolute; bottom: -50px; right: -20px;
+    font-family: 'Anton'; font-size: 200px; line-height: 0.75;
+    color: rgba(255,92,0,0.08);
+  }
+  .ig-story .top {
+    font-family: 'Space Mono'; font-size: 9px;
+    color: var(--orange); letter-spacing: 0.12em;
+    font-weight: 700;
+    position: relative;
+  }
+  .ig-story .title {
+    font-family: 'Anton'; font-size: 32px;
+    line-height: 0.85; margin-top: 14px;
+    color: var(--cream); position: relative;
+  }
+  .ig-story .venue {
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; margin-top: 6px;
+    color: var(--orange); position: relative;
+  }
+  .ig-story .tracks {
+    font-family: 'Space Mono'; font-size: 9px;
+    margin-top: 14px; line-height: 1.5;
+    color: var(--cream); position: relative;
+  }
+  .ig-story .tracks .num {
+    color: var(--orange); margin-right: 4px;
+  }
+  .ig-story .bottom {
+    position: absolute; bottom: 20px; left: 18px;
+    font-family: 'Anton'; font-size: 14px;
+    color: var(--cream);
+  }
+  .ig-story .bottom .dot { color: var(--orange); }
+
+  /* SoundCloud description box */
+  .sc-box {
+    background: #FFF; border: 2px solid var(--ink);
+    padding: 14px; font-family: 'Space Mono', monospace;
+    font-size: 11px; line-height: 1.6;
+    white-space: pre-wrap;
+    max-height: 360px; overflow-y: auto;
+  }
+
+  /* Phone */
+  .phone-shell {
+    background: var(--ink); border-radius: 36px; padding: 6px;
+    width: 270px; box-shadow: 8px 8px 0 var(--orange);
+    border: 2px solid var(--ink); flex-shrink: 0;
+  }
+  .phone-shell .screen {
+    background: var(--cream); border-radius: 30px; overflow: hidden;
+    height: 540px; display: flex; flex-direction: column;
+  }
+  .phone-shell .screen .topb {
+    background: var(--cream); padding: 14px 14px 10px;
+    border-bottom: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .phone-shell .screen .topb .logo {
+    font-family: 'Anton'; font-size: 18px;
+  }
+  .phone-shell .screen .topb .logo .dot { color: var(--orange); }
+  .phone-shell .screen .content {
+    flex: 1; padding: 12px; overflow-y: auto;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .phone-shell .screen .bottomb {
+    background: var(--ink); padding: 8px; display: grid;
+    grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--orange);
+  }
+  .phone-shell .screen .bottomb .item {
+    text-align: center; font-family: 'Space Mono'; font-size: 7px;
+    color: #888; padding: 4px 2px;
+  }
+  .phone-shell .screen .bottomb .item.active { background: var(--orange); color: var(--ink); }
+
+  hr.dash {
+    border: 0; border-top: 2px dashed var(--ink); margin: 24px 0;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="kicker">— SPRINT 21 · PRÓXIMO EN ROADMAP</div>
+  <h1>OPERACIÓN<br/>DEL SHOW<span class="dot">.</span></h1>
+  <div class="sub">Tech rider <em>visual</em> editable + tracklists post-show con <em>export a IG/SoundCloud</em>.</div>
+
+  <div class="meta-row">
+    <div class="cell">
+      <div class="lbl">— TIEMPO ESTIMADO</div>
+      <div class="val">4 SESIONES</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— MIGRATIONS</div>
+      <div class="val">0019</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— BLOQUES</div>
+      <div class="val">02 (C1 · C2)</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— COSTO</div>
+      <div class="val">$0</div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="track">
+    <span>C1 · TECH RIDER ESTRUCTURADO · GEAR + STAGE PLOT · C2 · TRACKLISTS · EXPORT IG STORY · EXPORT SOUNDCLOUD</span>
+    <span>C1 · TECH RIDER ESTRUCTURADO · GEAR + STAGE PLOT · C2 · TRACKLISTS · EXPORT IG STORY · EXPORT SOUNDCLOUD</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- C1 · TECH RIDER VISUAL -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">C1</div>
+    <div class="ttl">TECH RIDER VISUAL</div>
+    <div class="sub">EDITOR ESTRUCTURADO · RENDER PÚBLICO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Hoy el tech rider de un DJ vive como <strong>texto plano</strong> en `dj_profile.tech_rider_ideal`.
+      Lo reemplazamos por un editor estructurado: <strong>secciones</strong> (CDJs / Mixer / Monitores /
+      Cables / Power / Hospitality), <strong>items con cantidad</strong>, y un render visual que se ve
+      profesional en el press kit público.
+    </p>
+
+    <!-- Editor en /configuracion -->
+    <div class="frame-wrap">
+      <div class="label">C1A / EDITOR DE RIDER · /configuracion</div>
+      <div class="frame" style="padding: 28px; background: #FFF;">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— CONFIG · TECH RIDER ESTRUCTURADO</div>
+        <h3 class="anton" style="font-size: 32px; margin-top: 6px;">RIDER IDEAL<span style="color: var(--orange);">.</span></h3>
+        <p style="font-size: 13px; color: #555; margin-top: 6px;">Setup que querrías en cada gig. Se incluye automáticamente en tu press kit, en el booking y en el render visual.</p>
+
+        <hr class="dash" />
+
+        <!-- CDJs -->
+        <div class="rider-section-h">
+          <span class="lbl">— REPRODUCCIÓN</span>
+          <span class="count">02</span>
+          <span class="line"></span>
+        </div>
+        <div style="display: grid; gap: 6px; margin-bottom: 18px;">
+          <div class="rider-item">
+            <div class="ico">▶</div>
+            <div class="info">
+              <div class="name">PIONEER CDJ-3000</div>
+              <div class="meta">EQUIPO IDEAL · ALTERNATIVA: CDJ-2000NXS2</div>
+            </div>
+            <div class="qty">×2</div>
+          </div>
+          <div class="rider-item">
+            <div class="ico">▶</div>
+            <div class="info">
+              <div class="name">FLIGHT CASE / MESA SÓLIDA</div>
+              <div class="meta">A LA ALTURA DE LA CINTURA</div>
+            </div>
+            <div class="qty">×1</div>
+          </div>
+          <button class="btn outline sm" style="align-self: flex-start; margin-top: 4px;">+ AGREGAR ITEM</button>
+        </div>
+
+        <!-- Mixer -->
+        <div class="rider-section-h">
+          <span class="lbl">— MIXER</span>
+          <span class="count">01</span>
+          <span class="line"></span>
+        </div>
+        <div style="display: grid; gap: 6px; margin-bottom: 18px;">
+          <div class="rider-item">
+            <div class="ico">≡</div>
+            <div class="info">
+              <div class="name">ALLEN &amp; HEATH XONE:96</div>
+              <div class="meta">ALT: PIONEER DJM-A9 / V10</div>
+            </div>
+            <div class="qty">×1</div>
+          </div>
+        </div>
+
+        <!-- Monitores -->
+        <div class="rider-section-h">
+          <span class="lbl">— MONITORES</span>
+          <span class="count">02</span>
+          <span class="line"></span>
+        </div>
+        <div style="display: grid; gap: 6px; margin-bottom: 18px;">
+          <div class="rider-item">
+            <div class="ico">◐</div>
+            <div class="info">
+              <div class="name">MONITOR CABINA × 2</div>
+              <div class="meta">L+R · MIN 1000W EACH · APUNTANDO AL DJ</div>
+            </div>
+            <div class="qty">×2</div>
+          </div>
+          <div class="rider-item">
+            <div class="ico">◐</div>
+            <div class="info">
+              <div class="name">SUBWOOFER CABINA</div>
+              <div class="meta">OPCIONAL PERO PREFERIDO</div>
+            </div>
+            <div class="qty">×1</div>
+          </div>
+        </div>
+
+        <!-- Power & cables -->
+        <div class="rider-section-h">
+          <span class="lbl">— POWER + CABLES</span>
+          <span class="count">04</span>
+          <span class="line"></span>
+        </div>
+        <div style="display: grid; gap: 6px; margin-bottom: 18px;">
+          <div class="rider-item">
+            <div class="ico">⚡</div>
+            <div class="info">
+              <div class="name">ENCHUFE 220V DEDICADO</div>
+              <div class="meta">NO COMPARTIDO CON OTROS APARATOS</div>
+            </div>
+            <div class="qty">×3</div>
+          </div>
+          <div class="rider-item">
+            <div class="ico">⚡</div>
+            <div class="info">
+              <div class="name">CABLES RCA EN LA CABINA</div>
+              <div class="meta">SOBRA SI HAY DJM EN MESA</div>
+            </div>
+            <div class="qty">×1</div>
+          </div>
+        </div>
+
+        <!-- Hospitality -->
+        <div class="rider-section-h">
+          <span class="lbl">— HOSPITALITY</span>
+          <span class="count">03</span>
+          <span class="line"></span>
+        </div>
+        <div style="display: grid; gap: 6px;">
+          <div class="rider-item">
+            <div class="ico">★</div>
+            <div class="info">
+              <div class="name">AGUA SIN GAS · BOTELLA</div>
+              <div class="meta">EN LA CABINA, ANTES DE EMPEZAR</div>
+            </div>
+            <div class="qty">×2</div>
+          </div>
+          <div class="rider-item">
+            <div class="ico">★</div>
+            <div class="info">
+              <div class="name">CERVEZA / DRINK CORTESÍA</div>
+              <div class="meta">SEGÚN PREFERENCIA · 4 MÁX</div>
+            </div>
+            <div class="qty">×4</div>
+          </div>
+          <div class="rider-item">
+            <div class="ico">★</div>
+            <div class="info">
+              <div class="name">CAMARÍN PRIVADO</div>
+              <div class="meta">SI VIAJO DESDE OTRA CIUDAD</div>
+            </div>
+            <div class="qty">×1</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 8px;">
+          <button class="btn outline">DUPLICAR PARA "RIDER ALTERNATIVO"</button>
+          <button class="btn orange">GUARDAR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Render visual público -->
+    <div class="grid-2" style="margin-top: 30px;">
+      <div class="frame-wrap">
+        <div class="label">C1B / RENDER PÚBLICO · /p/[slug]</div>
+        <div class="frame" style="padding: 28px; background: #FFF;">
+          <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— TECH RIDER</div>
+          <h3 class="anton" style="font-size: 28px; margin-top: 4px;">SETUP IDEAL<span style="color: var(--orange);">.</span></h3>
+
+          <div style="margin-top: 14px;">
+            <div class="rider-section-h" style="margin-bottom: 8px;">
+              <span class="lbl">— REPRODUCCIÓN</span>
+              <span class="line"></span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; font-size: 13px; line-height: 1.7;">
+              <li style="display: flex; gap: 8px;"><span class="anton" style="color: var(--orange); font-size: 16px;">2×</span> Pioneer CDJ-3000 <span style="color: #555; font-family: 'Space Mono'; font-size: 10px;">(alt: 2000NXS2)</span></li>
+              <li style="display: flex; gap: 8px;"><span class="anton" style="color: var(--orange); font-size: 16px;">1×</span> Mesa sólida altura cintura</li>
+            </ul>
+          </div>
+
+          <div style="margin-top: 14px;">
+            <div class="rider-section-h" style="margin-bottom: 8px;">
+              <span class="lbl">— MIXER</span>
+              <span class="line"></span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; font-size: 13px; line-height: 1.7;">
+              <li style="display: flex; gap: 8px;"><span class="anton" style="color: var(--orange); font-size: 16px;">1×</span> Allen &amp; Heath Xone:96 <span style="color: #555; font-family: 'Space Mono'; font-size: 10px;">(alt: DJM-A9/V10)</span></li>
+            </ul>
+          </div>
+
+          <div style="margin-top: 14px;">
+            <div class="rider-section-h" style="margin-bottom: 8px;">
+              <span class="lbl">— MONITORES</span>
+              <span class="line"></span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; font-size: 13px; line-height: 1.7;">
+              <li style="display: flex; gap: 8px;"><span class="anton" style="color: var(--orange); font-size: 16px;">2×</span> Monitor cabina L+R 1000W mín</li>
+              <li style="display: flex; gap: 8px;"><span class="anton" style="color: var(--orange); font-size: 16px;">1×</span> Subwoofer cabina <span style="color: #555; font-family: 'Space Mono'; font-size: 10px;">(opcional)</span></li>
+            </ul>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 8px;">
+            <button class="btn outline sm">↓ DESCARGAR PDF</button>
+            <button class="btn sm">COPIAR LINK</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage diagram (futuro feature, mostrar como nice-to-have) -->
+      <div class="frame-wrap">
+        <div class="label">C1C / STAGE PLOT VISUAL (NICE-TO-HAVE)</div>
+        <div class="frame" style="padding: 24px;">
+          <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— DIAGRAMA DE CABINA</div>
+          <p style="font-size: 12px; color: #555; margin-top: 4px; margin-bottom: 14px;">Auto-generado del rider estructurado.</p>
+          <div class="stage-diagram">
+            <div class="stage-label">ESCENARIO</div>
+            <div class="gear-box" style="top: 55%; left: 50%; transform: translate(-50%, -50%); background: var(--ink); color: var(--cream);">
+              <div class="l">CDJ × 2</div>
+              <div class="n">CDJ-3000</div>
+            </div>
+            <div class="gear-box" style="top: 55%; left: 22%; transform: translateY(-50%);">
+              <div class="l">CDJ L</div>
+              <div class="n">CDJ-3000</div>
+            </div>
+            <div class="gear-box" style="top: 55%; left: 78%; transform: translateY(-50%);">
+              <div class="l">CDJ R</div>
+              <div class="n">CDJ-3000</div>
+            </div>
+            <div class="gear-box" style="top: 30%; left: 50%; transform: translateX(-50%); background: var(--orange);">
+              <div class="l">MIXER</div>
+              <div class="n">XONE:96</div>
+            </div>
+            <div class="gear-box" style="top: 80%; left: 10%;">
+              <div class="l">MON L</div>
+              <div class="n">1000W</div>
+            </div>
+            <div class="gear-box" style="top: 80%; left: 75%;">
+              <div class="l">MON R</div>
+              <div class="n">1000W</div>
+            </div>
+            <div style="position: absolute; bottom: 8px; left: 8px; font-family: 'Space Mono'; font-size: 9px; color: #555;">⚡ POWER · 3 ENCHUFES 220V</div>
+          </div>
+          <p style="font-size: 11px; color: #555; margin-top: 10px;">
+            <strong style="color: var(--orange);">Iteración futura:</strong> el stage plot se genera automáticamente
+            del rider estructurado. Sprint 21 entrega la estructura de datos + render lineal;
+            el diagrama visual queda como upgrade del Sprint 22 o adelante.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- C2 · TRACKLISTS -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">C2</div>
+    <div class="ttl">TRACKLISTS POST-SHOW</div>
+    <div class="sub">VINCULADO A GIG · EXPORT IG + SOUNDCLOUD</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Después de cada gig, registras la tracklist asociada al evento del
+      calendario. Cada track con artista · título · BPM · key · label · tag
+      (intro/peak/closer). Generas en 1 click una <strong>imagen para IG story</strong>
+      y un <strong>texto formateado para SoundCloud</strong>.
+    </p>
+
+    <!-- Editor de tracklist -->
+    <div class="frame-wrap">
+      <div class="label">C2A / EDITOR DE TRACKLIST · /calendario/[id]/tracklist</div>
+      <div class="frame" style="padding: 28px; background: #FFF;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— GIG · CLUB SUBTERRÁNEO · 30-MAY · 4H SET</div>
+            <h3 class="anton" style="font-size: 32px; margin-top: 4px;">TRACKLIST<span style="color: var(--orange);">.</span></h3>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn outline">+ NUEVO TRACK</button>
+            <button class="btn">+ DESDE REKORDBOX (CSV)</button>
+            <button class="btn orange">EXPORTAR →</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border: 2px solid var(--ink);">
+          <div style="padding: 10px; background: #FFF; border-right: 2px solid var(--ink);">
+            <div class="mono" style="font-size: 9px; font-weight: 700;">— TOTAL TRACKS</div>
+            <div class="anton" style="font-size: 24px; margin-top: 2px;">12</div>
+          </div>
+          <div style="padding: 10px; background: var(--cream); border-right: 2px solid var(--ink);">
+            <div class="mono" style="font-size: 9px; font-weight: 700;">— DURACIÓN APROX</div>
+            <div class="anton" style="font-size: 24px; margin-top: 2px;">3:42 h</div>
+          </div>
+          <div style="padding: 10px; background: var(--orange); border-right: 2px solid var(--ink);">
+            <div class="mono" style="font-size: 9px; font-weight: 700;">— BPM PROMEDIO</div>
+            <div class="anton" style="font-size: 24px; margin-top: 2px;">128</div>
+          </div>
+          <div style="padding: 10px; background: var(--ink); color: var(--cream);">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange);">— KEYS COMPATIBLES</div>
+            <div class="anton" style="font-size: 24px; margin-top: 2px;">85%</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px;" class="tracklist">
+          <div class="track-row intro">
+            <div class="drag">⋮⋮</div>
+            <div class="n">01</div>
+            <div class="info">
+              <div class="title">DUSK ALARM — Ben Klock</div>
+              <div class="meta">Klockworks · INTRO · 23:00</div>
+            </div>
+            <div class="bpm">124</div>
+            <div class="key">7A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row">
+            <div class="drag">⋮⋮</div>
+            <div class="n">02</div>
+            <div class="info">
+              <div class="title">PRESSURE — Stephan Bodzin</div>
+              <div class="meta">Afterlife · 23:08</div>
+            </div>
+            <div class="bpm">125</div>
+            <div class="key">7A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row">
+            <div class="drag">⋮⋮</div>
+            <div class="n">03</div>
+            <div class="info">
+              <div class="title">DARK MATTER — Tale Of Us</div>
+              <div class="meta">Afterlife · 23:15</div>
+            </div>
+            <div class="bpm">126</div>
+            <div class="key">8A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row peak">
+            <div class="drag">⋮⋮</div>
+            <div class="n">04</div>
+            <div class="info">
+              <div class="title">VERTIGO — ANNA</div>
+              <div class="meta">Pursuit Of Happiness · PEAK · 00:12</div>
+            </div>
+            <div class="bpm">128</div>
+            <div class="key">8A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row peak">
+            <div class="drag">⋮⋮</div>
+            <div class="n">05</div>
+            <div class="info">
+              <div class="title">SOULFLY — Mind Against</div>
+              <div class="meta">Life And Death · 00:20</div>
+            </div>
+            <div class="bpm">128</div>
+            <div class="key">8A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row peak">
+            <div class="drag">⋮⋮</div>
+            <div class="n">06</div>
+            <div class="info">
+              <div class="title">QUANTUM FUNK — Adriatique</div>
+              <div class="meta">Siamese · 00:28</div>
+            </div>
+            <div class="bpm">128</div>
+            <div class="key">9A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row">
+            <div class="drag">⋮⋮</div>
+            <div class="n">07</div>
+            <div class="info">
+              <div class="title">BICEP — Glue</div>
+              <div class="meta">Ninja Tune · 01:00</div>
+            </div>
+            <div class="bpm">128</div>
+            <div class="key">9A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row">
+            <div class="drag">⋮⋮</div>
+            <div class="n">08</div>
+            <div class="info">
+              <div class="title">REINIER ZONNEVELD — Move Your Body</div>
+              <div class="meta">Filth On Acid · 01:14</div>
+            </div>
+            <div class="bpm">130</div>
+            <div class="key">10A</div>
+            <div class="drag">×</div>
+          </div>
+          <div class="track-row closer">
+            <div class="drag">⋮⋮</div>
+            <div class="n">12</div>
+            <div class="info">
+              <div class="title">STRINGS OF LIFE — Derrick May</div>
+              <div class="meta">Transmat · CLOSER · 02:40</div>
+            </div>
+            <div class="bpm">122</div>
+            <div class="key" style="border-color: var(--orange); color: var(--orange);">5A</div>
+            <div class="drag" style="color: var(--orange);">×</div>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: #555; margin-top: 14px;">
+          <strong style="color: var(--orange);">— TIP:</strong> arrastra tracks para reordenar.
+          Marca uno como <span class="tag cream" style="font-size: 9px;">INTRO</span> /
+          <span class="tag orange" style="font-size: 9px;">PEAK</span> /
+          <span class="tag" style="font-size: 9px; background: var(--ink); color: var(--orange);">CLOSER</span> y se usan
+          en el export. Import desde CSV de Rekordbox/Serato/Traktor o pega texto plano.
+        </p>
+      </div>
+    </div>
+
+    <!-- Export options -->
+    <div style="margin-top: 30px;">
+      <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em; margin-bottom: 16px;">— EXPORT EN 1 CLICK</div>
+
+      <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: flex-start;">
+        <!-- IG story preview -->
+        <div>
+          <div class="mono" style="font-size: 10px; font-weight: 700; margin-bottom: 8px;">▶ INSTAGRAM STORY (1080×1920 PNG)</div>
+          <div class="ig-story">
+            <div class="top">— TRACKLIST · 30-MAY-2026</div>
+            <div class="title">JAY PORTU<br/>@ SUBTERRÁNEO<span style="color: var(--orange);">.</span></div>
+            <div class="venue">3:42 h · 12 tracks · 128 BPM avg</div>
+            <div class="tracks">
+              <span class="num">01</span>BEN KLOCK · DUSK ALARM<br/>
+              <span class="num">04</span>ANNA · VERTIGO (PEAK)<br/>
+              <span class="num">07</span>BICEP · GLUE<br/>
+              <span class="num">08</span>REINIER · MOVE YOUR BODY<br/>
+              <span class="num">12</span>DERRICK MAY · STRINGS<br/>
+            </div>
+            <div class="bottom">DROP<span class="dot">.</span></div>
+          </div>
+          <p style="font-size: 11px; color: #555; max-width: 240px; margin-top: 10px;">Imagen PNG lista para subir como story. Highlights automáticos (intro + peak + closer + 2 random).</p>
+        </div>
+
+        <!-- SoundCloud description -->
+        <div style="flex: 1; min-width: 300px;">
+          <div class="mono" style="font-size: 10px; font-weight: 700; margin-bottom: 8px;">▶ SOUNDCLOUD DESCRIPTION (texto plano)</div>
+<div class="sc-box">// JAY PORTU @ Subterráneo · 30-may-2026
+// 3:42h · 12 tracks · 128 BPM avg
+
+01. Ben Klock — Dusk Alarm (Klockworks) [INTRO]
+02. Stephan Bodzin — Pressure (Afterlife)
+03. Tale Of Us — Dark Matter (Afterlife)
+04. ANNA — Vertigo (Pursuit Of Happiness) [PEAK]
+05. Mind Against — Soulfly (Life And Death)
+06. Adriatique — Quantum Funk (Siamese)
+07. Bicep — Glue (Ninja Tune)
+08. Reinier Zonneveld — Move Your Body (Filth On Acid)
+09. ...
+10. ...
+11. ...
+12. Derrick May — Strings Of Life (Transmat) [CLOSER]
+
+// recorded live · drop.dj/p/jayportu
+// next gig: 14-jun · Club Room · drop.dj</div>
+          <div style="margin-top: 10px; display: flex; gap: 8px;">
+            <button class="btn">COPIAR AL PORTAPAPELES</button>
+            <button class="btn outline">DESCARGAR .TXT</button>
+          </div>
+          <p style="font-size: 11px; color: #555; margin-top: 8px;">Pegar directo en la descripción del mix en SoundCloud. Formato estándar reconocido por bots de tracklist (1001Tracklists, etc).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MOBILE -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">03</div>
+    <div class="ttl">MOBILE</div>
+    <div class="sub">EDITOR RÁPIDO POST-GIG</div>
+  </div>
+  <div class="sec-body">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
+      <!-- Phone 1: editor rider -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— CONFIG · TECH RIDER</div>
+            <div class="anton" style="font-size: 22px; margin-top: 4px;">RIDER IDEAL<span style="color: var(--orange);">.</span></div>
+
+            <div style="margin-top: 10px;">
+              <div style="font-family: 'Space Mono'; font-size: 9px; font-weight: 700; color: var(--orange); margin-bottom: 4px;">— REPRODUCCIÓN ·02</div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 6px 8px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                <div style="width: 24px; height: 24px; background: var(--ink); color: var(--orange); display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 14px;">▶</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="anton" style="font-size: 11px;">CDJ-3000</div>
+                  <div class="mono" style="font-size: 7px; color: #555;">ALT: 2000NXS2</div>
+                </div>
+                <div class="anton" style="font-size: 18px; color: var(--orange);">×2</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 8px;">
+              <div style="font-family: 'Space Mono'; font-size: 9px; font-weight: 700; color: var(--orange); margin-bottom: 4px;">— MIXER ·01</div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 6px 8px; display: flex; align-items: center; gap: 6px;">
+                <div style="width: 24px; height: 24px; background: var(--ink); color: var(--orange); display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 14px;">≡</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="anton" style="font-size: 11px;">XONE:96</div>
+                  <div class="mono" style="font-size: 7px; color: #555;">ALT: DJM-A9</div>
+                </div>
+                <div class="anton" style="font-size: 18px; color: var(--orange);">×1</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 8px;">
+              <div style="font-family: 'Space Mono'; font-size: 9px; font-weight: 700; color: var(--orange); margin-bottom: 4px;">— MONITORES ·02</div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 6px 8px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                <div style="width: 24px; height: 24px; background: var(--ink); color: var(--orange); display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 14px;">◐</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="anton" style="font-size: 11px;">MON L+R</div>
+                  <div class="mono" style="font-size: 7px; color: #555;">1000W EACH</div>
+                </div>
+                <div class="anton" style="font-size: 18px; color: var(--orange);">×2</div>
+              </div>
+            </div>
+
+            <button class="btn outline" style="width: 100%; margin-top: 10px; font-size: 9px;">+ AGREGAR ITEM</button>
+            <button class="btn orange" style="width: 100%; margin-top: 6px; font-size: 9px;">GUARDAR</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item">CAL</div>
+            <div class="item">PK</div>
+            <div class="item active">+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2: tracklist editor post-gig -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— GIG · 30-MAY · SUBTERRÁNEO</div>
+            <div class="anton" style="font-size: 20px; margin-top: 4px; line-height: 1;">TRACKLIST<span style="color: var(--orange);">.</span></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px;">
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 6px;">
+                <div class="mono" style="font-size: 7px; font-weight: 700;">TRACKS</div>
+                <div class="anton" style="font-size: 18px;">12</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: var(--ink); color: var(--cream); padding: 6px;">
+                <div class="mono" style="font-size: 7px; font-weight: 700; color: var(--orange);">BPM AVG</div>
+                <div class="anton" style="font-size: 18px;">128</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <div style="border: 2px solid var(--ink); background: var(--cream); padding: 6px 8px; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <div class="anton" style="font-size: 11px;">01 · DUSK ALARM</div>
+                  <div class="mono" style="font-size: 8px;">124 · 7A</div>
+                </div>
+                <div class="mono" style="font-size: 7px; color: #555;">BEN KLOCK · INTRO</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 6px 8px; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <div class="anton" style="font-size: 11px;">04 · VERTIGO</div>
+                  <div class="mono" style="font-size: 8px;">128 · 8A</div>
+                </div>
+                <div class="mono" style="font-size: 7px;">ANNA · PEAK</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 6px 8px; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <div class="anton" style="font-size: 11px;">07 · GLUE</div>
+                  <div class="mono" style="font-size: 8px;">128 · 9A</div>
+                </div>
+                <div class="mono" style="font-size: 7px; color: #555;">BICEP</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: var(--ink); color: var(--cream); padding: 6px 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <div class="anton" style="font-size: 11px; color: var(--cream);">12 · STRINGS</div>
+                  <div class="mono" style="font-size: 8px; color: var(--orange);">122 · 5A</div>
+                </div>
+                <div class="mono" style="font-size: 7px; color: var(--orange);">DERRICK MAY · CLOSER</div>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px; font-size: 9px;">+ AGREGAR TRACK</button>
+            <button class="btn" style="width: 100%; margin-top: 4px; font-size: 9px;">EXPORTAR →</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item active">CAL</div>
+            <div class="item">PK</div>
+            <div class="item">+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 3: export options -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— EXPORTAR TRACKLIST</div>
+            <div class="anton" style="font-size: 20px; margin-top: 4px; line-height: 1;">2 FORMATOS<span style="color: var(--orange);">.</span></div>
+
+            <div style="border: 2px solid var(--ink); background: var(--ink); color: var(--cream); padding: 10px; margin-top: 12px; position: relative; overflow: hidden;">
+              <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--orange);">▶ IG STORY · 1080×1920</div>
+              <div class="anton" style="font-size: 16px; margin-top: 4px; color: var(--cream);">PNG GENERADO</div>
+              <div class="mono" style="font-size: 8px; margin-top: 4px; color: rgba(255,255,255,0.7);">IMAGEN LISTA PARA SUBIR</div>
+              <button class="btn orange" style="width: 100%; margin-top: 8px; font-size: 8px;">DESCARGAR PNG</button>
+            </div>
+
+            <div style="border: 2px solid var(--ink); background: var(--orange); padding: 10px; margin-top: 8px;">
+              <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--ink);">▶ SOUNDCLOUD · DESC</div>
+              <div class="anton" style="font-size: 16px; margin-top: 4px;">TEXTO LISTO</div>
+              <div class="mono" style="font-size: 8px; margin-top: 4px;">PARA PEGAR EN MIX</div>
+              <button class="btn" style="width: 100%; margin-top: 8px; font-size: 8px;">COPIAR AL CLIPBOARD</button>
+            </div>
+
+            <div style="margin-top: 14px; padding: 8px; border: 2px dashed var(--ink); background: var(--cream);">
+              <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--orange);">— FUTURO (NO EN SPRINT 21):</div>
+              <ul style="font-size: 10px; line-height: 1.6; padding-left: 14px; margin-top: 4px;">
+                <li>Export a 1001Tracklists</li>
+                <li>Compartir tracklist pública en /p/[slug]</li>
+                <li>Posting auto a IG (Sprint 22.5)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item active">CAL</div>
+            <div class="item">PK</div>
+            <div class="item">+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FASES TÉCNICAS -->
+<!-- ============================================================ -->
+<section style="background: var(--ink); color: var(--cream); padding: 60px 24px;">
+  <div class="sec-head" style="border-bottom-color: var(--orange);">
+    <div class="num">04</div>
+    <div class="ttl" style="color: var(--cream);">FASES TÉCNICAS</div>
+    <div class="sub" style="color: var(--orange);">CÓMO SE IMPLEMENTA</div>
+  </div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE A · DB</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">MIGRATION 0019</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>Nueva tabla tech_rider_items (id, user_id, category, name, quantity, alt_text, note, sort_order, is_alternative)</li>
+          <li>Categorías: reproduccion, mixer, monitores, power_cables, hospitality, otros</li>
+          <li>Nueva tabla tracklists (id, user_id, calendar_event_id, title, started_at, ended_at, notes, created_at)</li>
+          <li>Nueva tabla tracklist_tracks (id, tracklist_id, sort_order, artist, title, label, bpm, key, tag (intro/peak/closer/null), played_at, notes)</li>
+          <li>Índices: user_id+category, tracklist_id+sort_order</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE B · UI</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">EDITORES</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>/configuracion · TechRiderEditor sección con categorías + items drag&amp;drop</li>
+          <li>/p/[slug] · render lineal del rider con secciones</li>
+          <li>/calendario/[id]/tracklist · editor de tracks con drag&amp;drop</li>
+          <li>Import CSV (Rekordbox/Serato/Traktor) + paste texto plano</li>
+          <li>KPIs auto: total, duración, BPM avg, keys compatibles</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE C · EXPORT</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">IG + SC</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>API endpoint /api/tracklist/[id]/story.png que genera PNG 1080×1920 server-side (canvas / sharp)</li>
+          <li>Formato SoundCloud (texto plano estandar 1001Tracklists)</li>
+          <li>Copiar al clipboard + descargar .txt</li>
+          <li>Selección auto de tracks highlight (intro + peak + closer + 2 random) para IG</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 2px dashed var(--orange); margin: 32px 0;" />
+
+    <div class="grid-2">
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— LO QUE SÍ HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Tech rider estructurado con categorías + cantidades + alternativas</li>
+          <li>Render lineal del rider en /p/[slug] público</li>
+          <li>Tracklists asociadas a eventos del calendario</li>
+          <li>Drag&amp;drop reordenar tracks + tags (intro/peak/closer)</li>
+          <li>Import CSV de software DJ (Rekordbox/Serato/Traktor)</li>
+          <li>KPIs auto: duración, BPM avg, compatibilidad keys</li>
+          <li>Export PNG IG story 1080×1920 con highlights</li>
+          <li>Export texto SoundCloud (formato estándar)</li>
+        </ul>
+      </div>
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: #C53030; letter-spacing: 0.12em;">— LO QUE NO HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Stage plot visual auto-generado (gear placement on canvas) — futuro upgrade</li>
+          <li>Detect automático del setlist desde grabación audio (out of scope)</li>
+          <li>Post automático a IG (requiere Sprint 22.5 + Meta API)</li>
+          <li>Integración con Beatport / Mixed In Key APIs (out of scope)</li>
+          <li>Comparar tracklists entre gigs / analytics de qué track funcionó mejor</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="background: var(--cream); padding: 50px 24px; border-top: 4px solid var(--orange);">
+  <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FIN DEL MOCKUP · SPRINT 21</div>
+      <h2 class="anton" style="font-size: 60px; margin-top: 8px;">OPERACIÓN<span style="color: var(--orange);">.</span></h2>
+    </div>
+    <div style="text-align: right;">
+      <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em;">DROP. · THE DJ OS · v0.16 (next)</div>
+      <div class="mono" style="font-size: 9px; color: #555; margin-top: 4px;">propuesto · pendiente de aprobación</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

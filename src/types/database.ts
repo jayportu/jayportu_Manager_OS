@@ -41,6 +41,9 @@ export interface DjProfile {
   available_from: string | null;
   available_until: string | null;
   available_note: string;
+  /** Sprint 21 — Webhook genérico (Zapier/Make/n8n) para auto-post */
+  auto_post_webhook_url: string | null;
+  auto_post_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -326,6 +329,110 @@ export const PRESSKIT_EVENT_LABELS: Record<PresskitEventType, string> = {
   click_tech_rider: "Click Tech Rider",
   form_open: "Abrió formulario",
   form_submit: "Envió formulario",
+};
+
+// ════════════════════════════════════════════════════════════════════
+// Sprint 21 — tech_rider_items
+// ════════════════════════════════════════════════════════════════════
+
+export const RIDER_CATEGORIES = [
+  "reproduccion",
+  "mixer",
+  "monitores",
+  "power_cables",
+  "hospitality",
+  "otros",
+] as const;
+export type RiderCategory = (typeof RIDER_CATEGORIES)[number];
+
+export const RIDER_CATEGORY_LABELS: Record<RiderCategory, string> = {
+  reproduccion: "Reproducción",
+  mixer: "Mixer",
+  monitores: "Monitores",
+  power_cables: "Power + Cables",
+  hospitality: "Hospitality",
+  otros: "Otros",
+};
+
+export interface TechRiderItem {
+  id: string;
+  user_id: string;
+  category: RiderCategory;
+  name: string;
+  quantity: number;
+  alt_text: string;
+  note: string;
+  sort_order: number;
+  is_alternative: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TechRiderItemInsert = {
+  category: RiderCategory;
+  name: string;
+  quantity?: number;
+  alt_text?: string;
+  note?: string;
+  sort_order?: number;
+  is_alternative?: boolean;
+};
+
+// ════════════════════════════════════════════════════════════════════
+// Sprint 21 — tracklists + tracklist_tracks
+// ════════════════════════════════════════════════════════════════════
+
+export const TRACK_TAGS = ["intro", "peak", "closer"] as const;
+export type TrackTag = (typeof TRACK_TAGS)[number];
+
+export const TRACK_TAG_LABELS: Record<TrackTag, string> = {
+  intro: "Intro",
+  peak: "Peak",
+  closer: "Closer",
+};
+
+export interface Tracklist {
+  id: string;
+  user_id: string;
+  calendar_event_id: string | null;
+  title: string;
+  started_at: string | null;
+  ended_at: string | null;
+  notes: string;
+  total_tracks: number;
+  duration_minutes: number | null;
+  bpm_avg: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TracklistTrack {
+  id: string;
+  tracklist_id: string;
+  user_id: string;
+  sort_order: number;
+  artist: string;
+  title: string;
+  label: string;
+  bpm: number | null;
+  music_key: string;
+  tag: TrackTag | null;
+  played_at: string | null;
+  notes: string;
+  created_at: string;
+}
+
+export type TracklistTrackInsert = {
+  tracklist_id: string;
+  sort_order?: number;
+  artist?: string;
+  title?: string;
+  label?: string;
+  bpm?: number | null;
+  music_key?: string;
+  tag?: TrackTag | null;
+  played_at?: string | null;
+  notes?: string;
 };
 
 // ════════════════════════════════════════════════════════════════════

@@ -7,7 +7,7 @@ import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Download } from "lucide-react";
+import { Calendar, AlertCircle, Download, ListMusic } from "lucide-react";
 import Link from "next/link";
 import { SyncButton } from "./sync-button";
 import { NewEventButton } from "./new-event-button";
@@ -323,7 +323,7 @@ function EventRow({
           {privateNote && (
             <div className="mt-3 p-2.5 bg-ink text-cream border-2 border-ink relative">
               <div className="absolute -top-2 left-3 bg-orange text-ink px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider">
-                🔒 RECORDÁ
+                🔒 RECUERDA
               </div>
               <p className="text-xs leading-relaxed whitespace-pre-wrap mt-1">
                 {privateNote}
@@ -334,15 +334,26 @@ function EventRow({
 
         {/* Sprint 19 — Botón edit finance para shows */}
         {isShow && (
-          <FinanceEditDialog
-            eventId={ev.id}
-            title={ev.title}
-            current={{
-              amount_clp: ev.amount_clp,
-              payment_status: ev.payment_status,
-              document_type: ev.document_type,
-            }}
-          />
+          <div className="flex flex-col gap-1 shrink-0">
+            <FinanceEditDialog
+              eventId={ev.id}
+              title={ev.title}
+              current={{
+                amount_clp: ev.amount_clp,
+                payment_status: ev.payment_status,
+                document_type: ev.document_type,
+              }}
+            />
+            {/* Sprint 21 — Botón tracklist para shows */}
+            <Link
+              href={`/calendario/${ev.id}/tracklist`}
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              title="Editar tracklist del set"
+            >
+              <ListMusic className="w-3 h-3" />
+              Tracklist
+            </Link>
+          </div>
         )}
       </div>
     </li>
