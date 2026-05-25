@@ -1,0 +1,1727 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DROP. · Sprint 18 — Campañas crecimiento + integración pagadas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F4EFE7;
+    --ink: #0A0A0A;
+    --orange: #FF5C00;
+    --success: #1F8A5C;
+    --warning: #C77A00;
+    --danger: #C53030;
+    --info: #2B5BA8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--cream); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .anton { font-family: 'Anton'; line-height: 0.85; letter-spacing: 0.005em; }
+  .mono { font-family: 'Space Mono', monospace; }
+
+  /* COVER */
+  .cover {
+    background: var(--ink); color: var(--cream);
+    padding: 60px 40px 70px; position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: '18'; position: absolute; bottom: -100px; right: -40px;
+    font-family: 'Anton'; font-size: 580px; line-height: 0.75;
+    color: rgba(255,92,0,0.08); pointer-events: none;
+  }
+  .cover .kicker {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.18em; color: var(--orange);
+  }
+  .cover h1 {
+    font-family: 'Anton'; font-size: clamp(72px, 12vw, 168px);
+    line-height: 0.78; margin-top: 16px; letter-spacing: -0.01em;
+  }
+  .cover h1 .dot { color: var(--orange); }
+  .cover .sub {
+    font-family: 'Anton'; font-size: clamp(24px, 3.5vw, 40px);
+    line-height: 0.95; margin-top: 16px; color: var(--cream);
+    max-width: 800px;
+  }
+  .cover .sub em { color: var(--orange); font-style: normal; }
+  .cover .meta-row {
+    margin-top: 36px; display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; max-width: 920px; position: relative; z-index: 1;
+  }
+  .cover .meta-row .cell { border-top: 1px solid #2a2a2a; padding-top: 12px; }
+  .cover .meta-row .cell .lbl {
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    font-weight: 700; letter-spacing: 0.12em; color: var(--orange);
+  }
+  .cover .meta-row .cell .val {
+    font-family: 'Anton'; font-size: 24px; line-height: 0.95;
+    margin-top: 4px; color: var(--cream);
+  }
+  @media (max-width: 680px) {
+    .cover .meta-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--orange); color: var(--ink);
+    overflow: hidden; white-space: nowrap;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 9px 0;
+  }
+  .ticker .track {
+    display: inline-block; animation: scroll 30s linear infinite;
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em;
+  }
+  .ticker .track span { padding: 0 22px; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* SECTION */
+  section { padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 18px; margin-bottom: 40px;
+    border-bottom: 2px solid var(--ink); padding-bottom: 14px;
+    max-width: 1280px; margin-left: auto; margin-right: auto;
+  }
+  .sec-head .num {
+    font-family: 'Anton'; font-size: 48px; color: var(--orange); line-height: 0.85;
+  }
+  .sec-head .ttl {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+  }
+  .sec-head .sub {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em; color: #555;
+    margin-left: auto; align-self: center;
+  }
+  .sec-body { max-width: 1280px; margin: 0 auto; }
+
+  .lead {
+    font-size: 16px; line-height: 1.55; max-width: 800px; margin-bottom: 28px;
+  }
+  .lead strong { color: var(--orange); }
+
+  /* APP FRAME (simula la app DROP) */
+  .frame {
+    border: 2px solid var(--ink); background: #FFF;
+    box-shadow: 8px 8px 0 var(--orange);
+    margin-bottom: 24px;
+  }
+  .frame .chrome {
+    background: #2a2a2a; height: 32px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; border-bottom: 2px solid var(--ink);
+  }
+  .frame .chrome .dot { width: 11px; height: 11px; border-radius: 100%; }
+  .frame .chrome .url {
+    flex: 1; background: var(--ink); color: var(--orange);
+    font-size: 11px; padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .frame .label {
+    position: absolute; top: -14px; left: 24px;
+    background: var(--ink); color: var(--orange);
+    padding: 4px 10px; font-family: 'Space Mono';
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  }
+  .frame-wrap { position: relative; }
+
+  /* SIDEBAR + main inside frame */
+  .app-layout { display: flex; min-height: 720px; }
+  .app-sidebar {
+    width: 220px; background: var(--ink); color: var(--cream);
+    padding: 18px 0; flex-shrink: 0; position: relative; overflow: hidden;
+    border-right: 2px solid var(--orange);
+  }
+  .app-sidebar::before {
+    content: 'D.'; position: absolute; bottom: -60px; right: -40px;
+    font-family: 'Anton'; font-size: 280px; line-height: 0.75;
+    color: rgba(255,92,0,0.05);
+  }
+  .app-sidebar .logo {
+    padding: 0 22px 18px; border-bottom: 2px solid var(--orange);
+    font-family: 'Anton'; font-size: 36px; color: var(--cream);
+  }
+  .app-sidebar .logo .dot { color: var(--orange); }
+  .app-sidebar .nav-item {
+    padding: 9px 22px; font-family: 'Space Mono', monospace;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #888;
+    border-left: 3px solid transparent;
+  }
+  .app-sidebar .nav-item.active {
+    background: var(--orange); color: var(--ink);
+    border-left-color: var(--ink);
+  }
+  .app-main {
+    flex: 1; background: var(--cream); padding: 28px;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* HERO de página interna */
+  .page-hero {
+    border: 2px solid var(--ink); background: #FFF; padding: 24px 28px;
+    margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+  .page-hero .kicker {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .page-hero h2 {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+    margin-top: 6px; text-transform: uppercase;
+  }
+  .page-hero h2 .dot { color: var(--orange); }
+  .page-hero p { margin-top: 10px; font-size: 14px; max-width: 600px; }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--ink); color: var(--orange); border: 2px solid var(--ink);
+    padding: 10px 16px; font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 120ms; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--orange); color: var(--ink); }
+  .btn.orange { background: var(--orange); color: var(--ink); }
+  .btn.orange:hover { background: var(--ink); color: var(--orange); }
+  .btn.outline { background: transparent; color: var(--ink); }
+  .btn.outline:hover { background: var(--ink); color: var(--orange); }
+  .btn.sm { padding: 6px 12px; font-size: 10px; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; background: var(--ink); color: #FFF;
+    padding: 3px 9px; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .tag.orange { background: var(--orange); color: var(--ink); }
+  .tag.outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
+  .tag.success { background: var(--success); color: #FFF; }
+  .tag.warning { background: var(--warning); color: #FFF; }
+  .tag.danger { background: var(--danger); color: #FFF; }
+  .tag.info { background: var(--info); color: #FFF; }
+
+  /* KPI grid */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    border: 2px solid var(--ink); background: var(--ink); margin-bottom: 20px;
+  }
+  .kpi {
+    padding: 18px; background: #FFF; border-right: 2px solid var(--ink);
+  }
+  .kpi:last-child { border-right: 0; }
+  .kpi.orange { background: var(--orange); }
+  .kpi.ink { background: var(--ink); color: var(--cream); }
+  .kpi .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .kpi.ink .lbl { color: var(--orange); }
+  .kpi .num {
+    font-family: 'Anton'; font-size: 56px; line-height: 0.85;
+    margin: 8px 0 6px;
+  }
+  .kpi .delta {
+    font-family: 'Space Mono'; font-size: 11px; font-weight: 700;
+  }
+  .kpi .delta.up { color: var(--success); }
+  .kpi.ink .delta.up { color: #4ADE80; }
+
+  /* TABLE */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    border: 2px solid var(--ink); background: #FFF;
+  }
+  .data-table th {
+    background: var(--ink); color: var(--orange);
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--ink);
+  }
+  .data-table td {
+    padding: 14px; border-bottom: 1px solid #ddd; font-size: 13px;
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table tr:hover { background: #FAF6EE; }
+  .data-table .num {
+    font-family: 'Anton'; font-size: 24px; line-height: 0.85;
+  }
+  .data-table .mono-num {
+    font-family: 'Space Mono'; font-weight: 700; font-size: 13px;
+  }
+
+  /* CARDS */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  @media (max-width: 960px) { .card-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+  .card {
+    border: 2px solid var(--ink); background: #FFF; padding: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .card.dark { background: var(--ink); color: var(--cream); }
+  .card.orange { background: var(--orange); }
+  .card .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange);
+  }
+  .card .h {
+    font-family: 'Anton'; font-size: 26px; line-height: 0.95;
+  }
+
+  /* TRELLO BOARD */
+  .board {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    overflow-x: auto;
+  }
+  @media (max-width: 960px) { .board { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .board { grid-template-columns: 1fr; } }
+  .col {
+    border: 2px solid var(--ink); background: #FFF; padding: 12px;
+    min-height: 280px;
+  }
+  .col .col-h {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 10px; border-bottom: 2px solid var(--ink); margin-bottom: 10px;
+  }
+  .col .col-h .lbl {
+    font-family: 'Space Mono'; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .col .col-h .count {
+    font-family: 'Anton'; font-size: 20px; line-height: 1;
+    background: var(--ink); color: var(--orange); padding: 2px 8px;
+  }
+  .post-card {
+    border: 1px solid var(--ink); background: var(--cream); padding: 10px;
+    margin-bottom: 8px; cursor: pointer; transition: all 100ms;
+  }
+  .post-card:hover { box-shadow: 4px 4px 0 var(--orange); transform: translate(-2px, -2px); }
+  .post-card .plat {
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .post-card .ttl {
+    font-family: 'Anton'; font-size: 14px; line-height: 1.1; margin-top: 4px;
+  }
+  .post-card .meta {
+    font-family: 'Space Mono'; font-size: 9px; color: #666; margin-top: 4px;
+  }
+  .post-card.scheduled { background: #FFF; border-color: var(--info); border-width: 2px; }
+  .post-card.draft { background: var(--cream); }
+  .post-card.live { background: var(--orange); border-width: 2px; }
+  .post-card.done { background: #F0F0F0; opacity: 0.7; }
+
+  /* CALENDAR MONTH VIEW */
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border: 2px solid var(--ink); background: var(--ink);
+  }
+  .cal-grid .day-head {
+    background: var(--ink); color: var(--orange); padding: 6px;
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em; text-align: center;
+  }
+  .cal-grid .day {
+    background: #FFF; min-height: 80px; padding: 6px;
+    border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+    font-family: 'Inter'; font-size: 11px;
+  }
+  .cal-grid .day .dn {
+    font-family: 'Anton'; font-size: 18px; line-height: 1;
+  }
+  .cal-grid .day.empty { background: #F5F0E5; opacity: 0.5; }
+  .cal-grid .day.today {
+    background: var(--orange);
+  }
+  .cal-grid .day .dot-orange {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--orange); margin-right: 3px;
+  }
+  .cal-grid .day .dot-info {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--info); margin-right: 3px;
+  }
+  .cal-grid .day .dot-success {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--success); margin-right: 3px;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 2px solid var(--ink);
+    background: #FFF; font-family: 'Inter'; font-size: 13px;
+    color: var(--ink);
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none; border-color: var(--orange);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+
+  /* CHECKBOX GRID */
+  .platform-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  @media (max-width: 640px) { .platform-grid { grid-template-columns: 1fr 1fr; } }
+  .platform-opt {
+    border: 2px solid var(--ink); padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; background: #FFF; transition: all 100ms;
+  }
+  .platform-opt.selected { background: var(--orange); }
+  .platform-opt .chk {
+    width: 14px; height: 14px; border: 2px solid var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .platform-opt.selected .chk { background: var(--ink); color: var(--orange); }
+  .platform-opt .lbl {
+    font-family: 'Space Mono'; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* PUSH NOTIFICATION */
+  .push-mockup {
+    background: linear-gradient(180deg, #1e1e1e 0%, #2a2a2a 100%);
+    border-radius: 18px; padding: 14px 16px; max-width: 380px;
+    color: #FFF; display: flex; gap: 12px; align-items: flex-start;
+    box-shadow: 8px 8px 0 var(--orange);
+    border: 2px solid var(--ink);
+  }
+  .push-mockup .ico {
+    width: 36px; height: 36px; background: var(--ink);
+    border: 2px solid var(--orange); display: flex; align-items: center;
+    justify-content: center; font-family: 'Anton'; font-size: 22px;
+    color: var(--cream); flex-shrink: 0;
+  }
+  .push-mockup .ico .dot { color: var(--orange); }
+  .push-mockup .body { flex: 1; min-width: 0; }
+  .push-mockup .title {
+    font-family: 'Space Mono'; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; color: #ccc;
+  }
+  .push-mockup .msg {
+    font-family: 'Inter'; font-size: 14px; line-height: 1.35; margin-top: 4px;
+  }
+  .push-mockup .stamp {
+    font-family: 'Space Mono'; font-size: 10px; color: #888;
+    flex-shrink: 0;
+  }
+
+  /* IA SUGGEST PANEL */
+  .ia-panel {
+    border: 2px solid var(--ink); background: var(--ink); color: var(--cream);
+    padding: 20px; position: relative; overflow: hidden;
+  }
+  .ia-panel::before {
+    content: 'AI'; position: absolute; bottom: -50px; right: -30px;
+    font-family: 'Anton'; font-size: 240px; line-height: 0.75;
+    color: rgba(255,92,0,0.08);
+  }
+  .ia-panel .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase;
+  }
+  .ia-panel .h {
+    font-family: 'Anton'; font-size: 28px; line-height: 0.95;
+    color: var(--cream); margin-top: 6px;
+  }
+  .ia-panel .suggestion-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .ia-panel .hashtag {
+    background: rgba(255,92,0,0.15); color: var(--orange);
+    border: 1px solid rgba(255,92,0,0.4);
+    padding: 4px 10px; font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700;
+  }
+  .ia-panel .schedule-block {
+    background: var(--orange); color: var(--ink);
+    padding: 8px 12px; display: flex; flex-direction: column; gap: 2px;
+    margin-top: 4px;
+  }
+  .ia-panel .schedule-block .day {
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .ia-panel .schedule-block .time {
+    font-family: 'Anton'; font-size: 22px; line-height: 1;
+  }
+
+  /* ROI METER */
+  .roi-meter {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border: 2px solid var(--ink);
+  }
+  .roi-meter .col-roi {
+    padding: 16px; border-right: 2px solid var(--ink);
+  }
+  .roi-meter .col-roi:last-child { border-right: 0; }
+  .roi-meter .col-roi.before { background: #F0F0F0; }
+  .roi-meter .col-roi.after { background: var(--orange); }
+  .roi-meter .lbl {
+    font-family: 'Space Mono'; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .roi-meter .num {
+    font-family: 'Anton'; font-size: 44px; line-height: 0.85;
+    margin: 6px 0 4px;
+  }
+  .roi-meter .meta {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+  }
+
+  /* COST PER FOLLOWER */
+  .cpf-card {
+    background: var(--ink); color: var(--cream); padding: 20px;
+    border: 2px solid var(--ink); position: relative; overflow: hidden;
+  }
+  .cpf-card .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase;
+  }
+  .cpf-card .big {
+    font-family: 'Anton'; font-size: 72px; line-height: 0.85;
+    color: var(--cream); margin: 8px 0 4px;
+  }
+  .cpf-card .big .unit {
+    font-family: 'Space Mono'; font-size: 14px; color: var(--orange);
+    margin-left: 4px;
+  }
+  .cpf-card .sub {
+    font-family: 'Space Mono'; font-size: 11px; font-weight: 700;
+    color: #aaa;
+  }
+
+  /* PHONE */
+  .phone-shell {
+    background: var(--ink); border-radius: 36px; padding: 6px;
+    width: 260px; box-shadow: 8px 8px 0 var(--orange);
+    border: 2px solid var(--ink); flex-shrink: 0;
+  }
+  .phone-shell .screen {
+    background: var(--cream); border-radius: 30px; overflow: hidden;
+    height: 520px; display: flex; flex-direction: column;
+  }
+  .phone-shell .screen .topb {
+    background: var(--cream); padding: 14px 14px 10px;
+    border-bottom: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .phone-shell .screen .topb .logo {
+    font-family: 'Anton'; font-size: 18px;
+  }
+  .phone-shell .screen .topb .logo .dot { color: var(--orange); }
+  .phone-shell .screen .content {
+    flex: 1; padding: 14px; overflow-y: auto;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .phone-shell .screen .bottomb {
+    background: var(--ink); padding: 8px; display: grid;
+    grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--orange);
+  }
+  .phone-shell .screen .bottomb .item {
+    text-align: center; font-family: 'Space Mono'; font-size: 7px;
+    color: #888; padding: 4px 2px;
+  }
+  .phone-shell .screen .bottomb .item.active { background: var(--orange); color: var(--ink); }
+
+  /* MISC */
+  hr.dash {
+    border: 0; border-top: 2px dashed var(--ink); margin: 28px 0;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="kicker">— SPRINT 18 · PRÓXIMO EN ROADMAP</div>
+  <h1>CAMPA<span style="margin: 0 -0.05em;">Ñ</span>AS<span class="dot">.</span></h1>
+  <div class="sub">Crecimiento orgánico + integración con <em>pauta pagada</em>. ROI calculado por campaña.</div>
+
+  <div class="meta-row">
+    <div class="cell">
+      <div class="lbl">— TIEMPO ESTIMADO</div>
+      <div class="val">4-5 SESIONES</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— MIGRATIONS</div>
+      <div class="val">0017 · 0018</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— FUNCIONALIDADES</div>
+      <div class="val">06 BLOQUES</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— COSTO</div>
+      <div class="val">$0</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="track">
+    <span>CALENDARIO DE CONTENIDO TRELLO · IA HASHTAGS · ROI CAMPAÑAS PAGADAS · MOMENTOS CLAVE · OLLAMA · COSTO POR FOLLOWER</span>
+    <span>CALENDARIO DE CONTENIDO TRELLO · IA HASHTAGS · ROI CAMPAÑAS PAGADAS · MOMENTOS CLAVE · OLLAMA · COSTO POR FOLLOWER</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 01 · VISTA PRINCIPAL — LISTA DE CAMPAÑAS CON ROI -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">01</div>
+    <div class="ttl">VISTA PRINCIPAL</div>
+    <div class="sub">/GROWTH/CAMPAÑAS · TABLA COMPARATIVA + KPIS</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Pantalla principal de campañas. Muestra <strong>todas tus campañas</strong> (orgánicas y pagadas) en una tabla
+      con comparación de costo por follower y ROI. Filtros por plataforma, fecha, status.
+    </p>
+
+    <div class="frame-wrap">
+      <div class="label">01 / /GROWTH/CAMPAÑAS</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/growth/campanas</div>
+        </div>
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div class="nav-item">— DASHBOARD</div>
+            <div class="nav-item">— CRM</div>
+            <div class="nav-item">— CALENDARIO</div>
+            <div class="nav-item active">— GROWTH</div>
+            <div class="nav-item">— CAMPAÑAS</div>
+            <div class="nav-item">— PRESS KIT</div>
+            <div class="nav-item">— IA</div>
+            <div class="nav-item">— CONFIG</div>
+          </aside>
+          <main class="app-main">
+            <div class="page-hero">
+              <div class="kicker">— GROWTH · CAMPAÑAS · 2026</div>
+              <h2>CAMPAÑAS<span class="dot">.</span></h2>
+              <p>12 campañas activas y pasadas · 5 pagadas · costo promedio $850/follower · 2 corriendo ahora.</p>
+              <div style="position: absolute; right: 24px; top: 24px; display: flex; gap: 8px;">
+                <button class="btn outline">+ ORGÁNICA</button>
+                <button class="btn orange">+ PAGADA</button>
+              </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+              <div class="kpi">
+                <div class="lbl">— CAMPAÑAS ACTIVAS</div>
+                <div class="num">02</div>
+                <div class="delta up">↗ 2 corriendo ahora</div>
+              </div>
+              <div class="kpi orange">
+                <div class="lbl">— BUDGET TOTAL · MES</div>
+                <div class="num">$420K</div>
+                <div class="delta">CLP · MAY 2026</div>
+              </div>
+              <div class="kpi">
+                <div class="lbl">— FOLLOWERS GANADOS</div>
+                <div class="num">+512</div>
+                <div class="delta up">↗ ÚLTIMOS 30D</div>
+              </div>
+              <div class="kpi ink">
+                <div class="lbl">— $/FOLLOWER</div>
+                <div class="num">$821</div>
+                <div class="delta up">↘ -12% vs ABR</div>
+              </div>
+            </div>
+
+            <!-- TABLA -->
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>CAMPAÑA</th>
+                  <th>PLATAFORMAS</th>
+                  <th>FECHAS</th>
+                  <th>BUDGET</th>
+                  <th>Δ FOLLOWERS</th>
+                  <th>$/FOLLOWER</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="anton" style="font-size: 17px;">SUBTERRÁNEO RESIDENCY</div>
+                    <div style="font-size: 11px; color: #555;">Pre-promo gigs vie/sáb mayo</div>
+                  </td>
+                  <td>
+                    <span class="tag info" style="font-size: 9px;">META ADS</span>
+                    <span class="tag info" style="font-size: 9px;">IG</span>
+                  </td>
+                  <td class="mono-num">15-MAY → 30-MAY</td>
+                  <td class="mono-num">$180.000</td>
+                  <td class="num" style="color: var(--success);">+247</td>
+                  <td class="mono-num">$728</td>
+                  <td><span class="tag orange">CORRIENDO</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="anton" style="font-size: 17px;">EP RELEASE · "VOLTAJE"</div>
+                    <div style="font-size: 11px; color: #555;">Lanzamiento SoundCloud + Spotify</div>
+                  </td>
+                  <td>
+                    <span class="tag info" style="font-size: 9px;">META ADS</span>
+                    <span class="tag info" style="font-size: 9px;">G-ADS</span>
+                  </td>
+                  <td class="mono-num">20-MAY → 24-MAY</td>
+                  <td class="mono-num">$240.000</td>
+                  <td class="num" style="color: var(--success);">+183</td>
+                  <td class="mono-num">$1.311</td>
+                  <td><span class="tag orange">CORRIENDO</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="anton" style="font-size: 17px;">PUSH IG REELS · ABRIL</div>
+                    <div style="font-size: 11px; color: #555;">3 reels boosteados</div>
+                  </td>
+                  <td>
+                    <span class="tag info" style="font-size: 9px;">META ADS</span>
+                  </td>
+                  <td class="mono-num">12-ABR → 25-ABR</td>
+                  <td class="mono-num">$150.000</td>
+                  <td class="num" style="color: var(--success);">+312</td>
+                  <td class="mono-num" style="color: var(--success); font-weight: bold;">$481</td>
+                  <td><span class="tag success">FINALIZADA · OK</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="anton" style="font-size: 17px;">DEMO CIRCUITO STGO</div>
+                    <div style="font-size: 11px; color: #555;">Outreach orgánico a bookers</div>
+                  </td>
+                  <td>
+                    <span class="tag outline" style="font-size: 9px;">ORGÁNICO</span>
+                  </td>
+                  <td class="mono-num">01-ABR → 30-ABR</td>
+                  <td class="mono-num">$0</td>
+                  <td class="num" style="color: var(--success);">+42</td>
+                  <td class="mono-num">—</td>
+                  <td><span class="tag success">FINALIZADA</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="anton" style="font-size: 17px;">G-ADS · CANAL YT</div>
+                    <div style="font-size: 11px; color: #555;">Promo mix series enero</div>
+                  </td>
+                  <td>
+                    <span class="tag info" style="font-size: 9px;">G-ADS</span>
+                  </td>
+                  <td class="mono-num">10-ENE → 24-ENE</td>
+                  <td class="mono-num">$100.000</td>
+                  <td class="num" style="color: var(--danger);">+38</td>
+                  <td class="mono-num" style="color: var(--danger); font-weight: bold;">$2.631</td>
+                  <td><span class="tag danger">FINALIZADA · MAL ROI</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p style="font-size: 12px; color: #555; margin-top: 14px;">
+              <strong style="color: var(--orange);">— TIP:</strong> Las campañas con $/follower &lt; $700 son tu sweet spot.
+              Replica el formato y plataforma que funcionó.
+            </p>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 02 · CREAR NUEVA CAMPAÑA PAGADA -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">02</div>
+    <div class="ttl">CREAR CAMPAÑA PAGADA</div>
+    <div class="sub">FORMULARIO MULTI-PLATAFORMA + LINK EXTERNO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      DROP <strong>no crea pauta dentro de la app</strong> (eso requeriría Meta Marketing API + business account
+      + revisión de Meta). En vez de eso, DROP <strong>trackea</strong> lo que pautas en Meta Ads Manager / Google Ads /
+      TikTok y calcula tu ROI cruzando con tus snapshots de followers.
+    </p>
+
+    <div class="grid-2">
+      <!-- Form -->
+      <div class="frame-wrap">
+        <div class="label">02 / /GROWTH/CAMPAÑAS/NUEVA</div>
+        <div class="frame" style="background: #FFF; padding: 28px;">
+          <div class="kicker mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase;">— NUEVA CAMPAÑA · PAGADA</div>
+          <h2 class="anton" style="font-size: 36px; margin-top: 6px;">REGISTRAR PAUTA<span style="color: var(--orange);">.</span></h2>
+
+          <hr class="dash" style="margin: 18px 0;" />
+
+          <div class="form-group">
+            <label>Nombre de la campaña</label>
+            <input value="Subterráneo Residency · Pre-promo Mayo" />
+          </div>
+
+          <div class="form-group">
+            <label>Plataformas (multi-select)</label>
+            <div class="platform-grid">
+              <div class="platform-opt selected">
+                <span class="chk">✓</span>
+                <span class="lbl">Meta Ads</span>
+              </div>
+              <div class="platform-opt">
+                <span class="chk"></span>
+                <span class="lbl">Google Ads</span>
+              </div>
+              <div class="platform-opt">
+                <span class="chk"></span>
+                <span class="lbl">TikTok Ads</span>
+              </div>
+              <div class="platform-opt selected">
+                <span class="chk">✓</span>
+                <span class="lbl">Instagram</span>
+              </div>
+              <div class="platform-opt">
+                <span class="chk"></span>
+                <span class="lbl">YouTube</span>
+              </div>
+              <div class="platform-opt">
+                <span class="chk"></span>
+                <span class="lbl">SoundCloud</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha inicio</label>
+              <input value="15-may-2026" />
+            </div>
+            <div class="form-group">
+              <label>Fecha fin</label>
+              <input value="30-may-2026" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Budget total (CLP)</label>
+              <input value="$180.000" />
+            </div>
+            <div class="form-group">
+              <label>Objetivo (followers)</label>
+              <input value="+250" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Link al Ads Manager (opcional)</label>
+            <input value="https://adsmanager.facebook.com/adsmanager/manage/campaigns/..." />
+          </div>
+
+          <div class="form-group">
+            <label>Notas iniciales</label>
+            <textarea rows="2">Targeting: 18-35, Santiago + Valpo, intereses techno/house, mix de carousel + reels boosteados.</textarea>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn outline">CANCELAR</button>
+            <button class="btn orange" style="flex: 1;">CREAR + SNAPSHOT INICIAL →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar info -->
+      <div>
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="lbl">— CÓMO FUNCIONA</div>
+          <h3 class="anton" style="font-size: 24px;">1. CREAS · 2. PAUTAS · 3. TRACKEAS</h3>
+          <ol style="font-size: 13px; line-height: 1.6; padding-left: 18px; margin-top: 8px;">
+            <li><strong>Creas la campaña</strong> en DROP con budget, fechas, plataformas. DROP toma un <strong>snapshot inicial</strong> de tus followers en cada plataforma.</li>
+            <li><strong>Pautas en Meta/Google/TikTok</strong> normalmente. DROP no toca esos sistemas — solo registra.</li>
+            <li>Al cerrar la campaña, DROP toma <strong>snapshot final</strong> y calcula automáticamente: Δ followers · $/follower · ROI vs objetivo.</li>
+          </ol>
+        </div>
+
+        <div class="card dark" style="margin-bottom: 16px;">
+          <div class="lbl">— POR QUÉ NO CREAMOS PAUTA AUTOMÁTICA</div>
+          <h3 class="anton" style="font-size: 22px; color: var(--cream);">DEPENDENCIA + COSTO + REVIEW</h3>
+          <p style="font-size: 13px; line-height: 1.55; color: #ccc;">
+            Meta Marketing API y Google Ads API requieren cuenta business verificada, app review, refresh tokens
+            cada X días. Costo: tiempo de setup + fragilidad. Trade-off: <strong style="color: var(--orange);">DROP queda
+            invariante a cambios de Meta/Google</strong>. Si Meta cambia su API mañana, no rompemos nada.
+          </p>
+        </div>
+
+        <div class="card orange">
+          <div class="lbl" style="color: var(--ink);">— TARGETING PROMPT (OPCIONAL)</div>
+          <h3 class="anton" style="font-size: 22px;">IA SUGIERE TARGETING</h3>
+          <p style="font-size: 13px;">
+            Si activas el toggle, Ollama analiza tu CRM (qué bookers/clubs has tenido) y te sugiere
+            audiencias de Meta Ads en formato copy-paste para pegar en Ads Manager.
+          </p>
+          <button class="btn" style="margin-top: 8px; align-self: flex-start;">+ SUGERIR TARGETING →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 03 · DETALLE DE CAMPAÑA · ROI -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">03</div>
+    <div class="ttl">DETALLE DE CAMPAÑA</div>
+    <div class="sub">SNAPSHOT PRE/POST · ROI CALCULADO · COMPARATIVA</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Al abrir cualquier campaña, ves la <strong>comparativa pre/post</strong> de followers por plataforma,
+      el <strong>costo por follower</strong> calculado, y la <strong>comparativa contra tus otras campañas</strong>.
+      Botón directo para abrir esa campaña en Meta Ads Manager / Google Ads.
+    </p>
+
+    <div class="frame-wrap">
+      <div class="label">03 / /GROWTH/CAMPAÑAS/[ID]</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/growth/campanas/subterraneo-residency</div>
+        </div>
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div class="nav-item">— DASHBOARD</div>
+            <div class="nav-item">— CRM</div>
+            <div class="nav-item">— CALENDARIO</div>
+            <div class="nav-item active">— GROWTH</div>
+            <div class="nav-item">— PRESS KIT</div>
+            <div class="nav-item">— IA</div>
+            <div class="nav-item">— CONFIG</div>
+          </aside>
+          <main class="app-main">
+            <div class="page-hero" style="background: var(--ink); color: var(--cream);">
+              <div class="kicker">— CAMPAÑA #042 · CORRIENDO · 5 DÍAS RESTANTES</div>
+              <h2 style="color: var(--cream);">SUBTERRÁNEO RESIDENCY<span class="dot">.</span></h2>
+              <p style="color: #ccc;">Pre-promo gigs vie/sáb mayo · Meta Ads + IG · $180.000 CLP · Objetivo: +250 followers</p>
+              <div style="position: absolute; right: 24px; top: 24px; display: flex; gap: 8px;">
+                <button class="btn outline" style="border-color: var(--cream); color: var(--cream);">EDITAR</button>
+                <button class="btn orange">ABRIR EN META ADS →</button>
+              </div>
+            </div>
+
+            <!-- Cost per follower hero -->
+            <div class="grid-2" style="margin-bottom: 20px;">
+              <div class="cpf-card">
+                <div class="lbl">— COSTO POR FOLLOWER</div>
+                <div class="big">$728<span class="unit">CLP</span></div>
+                <div class="sub">↘ -12% vs promedio de tus campañas</div>
+              </div>
+              <div class="cpf-card" style="background: var(--orange); color: var(--ink); border-color: var(--ink);">
+                <div class="lbl" style="color: var(--ink);">— PROGRESO HACIA OBJETIVO</div>
+                <div class="big" style="color: var(--ink);">247<span class="unit" style="color: var(--ink);">/250</span></div>
+                <div class="sub" style="color: var(--ink);">98% del objetivo · faltan 3 followers</div>
+              </div>
+            </div>
+
+            <!-- Snapshot pre/post por plataforma -->
+            <div style="margin-bottom: 20px;">
+              <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase; margin-bottom: 10px;">— SNAPSHOT PRE/POST POR PLATAFORMA</div>
+
+              <div class="grid-2" style="gap: 14px;">
+                <div>
+                  <div class="mono" style="font-size: 11px; font-weight: 700;">INSTAGRAM</div>
+                  <div class="roi-meter" style="margin-top: 6px;">
+                    <div class="col-roi before">
+                      <div class="lbl">— PRE (15-MAY)</div>
+                      <div class="num">2.184</div>
+                      <div class="meta">followers</div>
+                    </div>
+                    <div class="col-roi after">
+                      <div class="lbl">— HOY (24-MAY)</div>
+                      <div class="num">2.366</div>
+                      <div class="meta" style="color: var(--ink); font-weight: bold;">+182 ↗</div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="mono" style="font-size: 11px; font-weight: 700;">SOUNDCLOUD</div>
+                  <div class="roi-meter" style="margin-top: 6px;">
+                    <div class="col-roi before">
+                      <div class="lbl">— PRE (15-MAY)</div>
+                      <div class="num">1.521</div>
+                      <div class="meta">followers</div>
+                    </div>
+                    <div class="col-roi after">
+                      <div class="lbl">— HOY (24-MAY)</div>
+                      <div class="num">1.586</div>
+                      <div class="meta" style="color: var(--ink); font-weight: bold;">+65 ↗</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparativa vs otras campañas -->
+            <div style="margin-bottom: 20px;">
+              <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase; margin-bottom: 10px;">— COMPARATIVA $/FOLLOWER · ÚLTIMAS 5 CAMPAÑAS</div>
+
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 14px;">
+                <!-- Bar chart visual -->
+                <div style="display: flex; align-items: flex-end; gap: 14px; height: 140px; padding-bottom: 8px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                    <div class="anton" style="font-size: 14px; margin-bottom: 4px;">$481</div>
+                    <div style="background: var(--success); width: 100%; height: 30%; border: 2px solid var(--ink);"></div>
+                    <div class="mono" style="font-size: 9px; margin-top: 4px; font-weight: 700;">PUSH IG ABR</div>
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                    <div class="anton" style="font-size: 14px; margin-bottom: 4px;">$728</div>
+                    <div style="background: var(--orange); width: 100%; height: 45%; border: 2px solid var(--ink);"></div>
+                    <div class="mono" style="font-size: 9px; margin-top: 4px; font-weight: 700;">ESTA · MAY</div>
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                    <div class="anton" style="font-size: 14px; margin-bottom: 4px;">$890</div>
+                    <div style="background: var(--ink); width: 100%; height: 55%;"></div>
+                    <div class="mono" style="font-size: 9px; margin-top: 4px; font-weight: 700;">PROMO FEB</div>
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                    <div class="anton" style="font-size: 14px; margin-bottom: 4px;">$1.311</div>
+                    <div style="background: var(--warning); width: 100%; height: 82%; border: 2px solid var(--ink);"></div>
+                    <div class="mono" style="font-size: 9px; margin-top: 4px; font-weight: 700;">EP VOLTAJE</div>
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                    <div class="anton" style="font-size: 14px; margin-bottom: 4px;">$2.631</div>
+                    <div style="background: var(--danger); width: 100%; height: 100%; border: 2px solid var(--ink);"></div>
+                    <div class="mono" style="font-size: 9px; margin-top: 4px; font-weight: 700;">G-ADS ENE</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notas + acciones -->
+            <div class="grid-2">
+              <div class="card">
+                <div class="lbl">— NOTAS DE LA CAMPAÑA</div>
+                <p style="font-size: 13px; line-height: 1.5;">
+                  Targeting: 18-35 Santiago + Valpo, intereses techno/house.<br/>
+                  4 creativos: 2 carousels + 2 reels boosteados.<br/>
+                  <strong>Mejor performer:</strong> Reel "Closing set Subterráneo 15-MAY" — 3.2x más conversiones.
+                </p>
+                <button class="btn outline sm" style="align-self: flex-start; margin-top: 6px;">+ EDITAR NOTAS</button>
+              </div>
+              <div class="card dark">
+                <div class="lbl">— ACCIONES POST-CAMPAÑA</div>
+                <ul style="font-size: 13px; line-height: 1.6; color: #ccc; padding-left: 16px;">
+                  <li>Cerrar campaña → snapshot final automático</li>
+                  <li>Marcar como "exitosa" / "fallida"</li>
+                  <li>Duplicar para crear similar</li>
+                  <li>Exportar reporte PDF</li>
+                </ul>
+                <button class="btn orange sm" style="align-self: flex-start; margin-top: 6px;">CERRAR CAMPAÑA</button>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 04 · CALENDARIO DE CONTENIDO TIPO TRELLO -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">04</div>
+    <div class="ttl">CALENDARIO DE CONTENIDO</div>
+    <div class="sub">VISTA TRELLO + VISTA MENSUAL</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      <strong>Planeas qué postear y cuándo</strong> sin tener que vivir en spreadsheets. Trello view por estado
+      (idea → borrador → programado → publicado) + month view para ver distribución.
+    </p>
+
+    <!-- Trello View -->
+    <div class="frame-wrap" style="margin-bottom: 28px;">
+      <div class="label">04A / VISTA TRELLO · POR ESTADO</div>
+      <div class="frame" style="padding: 24px; background: #FFF;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
+          <div>
+            <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase;">— GROWTH · POSTS · MAYO 2026</div>
+            <h2 class="anton" style="font-size: 36px; margin-top: 4px;">CALENDARIO DE CONTENIDO<span style="color: var(--orange);">.</span></h2>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn outline sm">VISTA MES</button>
+            <button class="btn orange sm">+ NUEVO POST</button>
+          </div>
+        </div>
+
+        <div class="board">
+          <!-- IDEAS -->
+          <div class="col">
+            <div class="col-h">
+              <span class="lbl">— IDEAS</span>
+              <span class="count">04</span>
+            </div>
+            <div class="post-card draft">
+              <div class="plat">★ IDEA</div>
+              <div class="ttl">Carrusel: "5 venues nuevos Santiago"</div>
+              <div class="meta">Sin fecha · Sin plataforma</div>
+            </div>
+            <div class="post-card draft">
+              <div class="plat">★ IDEA</div>
+              <div class="ttl">Reel: backstage Subterráneo</div>
+              <div class="meta">Sin fecha</div>
+            </div>
+            <div class="post-card draft">
+              <div class="plat">★ IDEA</div>
+              <div class="ttl">Mix tape · "JAY PORTU · MAY MIX"</div>
+              <div class="meta">SoundCloud + IG promo</div>
+            </div>
+            <div class="post-card draft">
+              <div class="plat">★ IDEA</div>
+              <div class="ttl">Story Q&amp;A "primer gig"</div>
+              <div class="meta">Spontaneous</div>
+            </div>
+          </div>
+
+          <!-- BORRADOR -->
+          <div class="col">
+            <div class="col-h">
+              <span class="lbl">— BORRADOR</span>
+              <span class="count">02</span>
+            </div>
+            <div class="post-card">
+              <div class="plat" style="color: var(--info);">▶ INSTAGRAM</div>
+              <div class="ttl">Reel: closing set 23-MAY</div>
+              <div class="meta">3 hashtags · sin caption</div>
+            </div>
+            <div class="post-card">
+              <div class="plat" style="color: var(--info);">▶ SOUNDCLOUD</div>
+              <div class="ttl">Track preview: "Voltaje · Cut 1"</div>
+              <div class="meta">Audio listo · cover pendiente</div>
+            </div>
+          </div>
+
+          <!-- PROGRAMADO -->
+          <div class="col">
+            <div class="col-h">
+              <span class="lbl">— PROGRAMADO</span>
+              <span class="count">03</span>
+            </div>
+            <div class="post-card scheduled">
+              <div class="plat" style="color: var(--info);">▶ INSTAGRAM</div>
+              <div class="ttl">Story: announce gig 30-MAY</div>
+              <div class="meta">SÁB 25-MAY · 19:00</div>
+            </div>
+            <div class="post-card scheduled">
+              <div class="plat" style="color: var(--info);">▶ IG + YT</div>
+              <div class="ttl">Carrusel: behind the scenes EP</div>
+              <div class="meta">DOM 26-MAY · 21:00</div>
+            </div>
+            <div class="post-card scheduled">
+              <div class="plat" style="color: var(--info);">▶ SOUNDCLOUD</div>
+              <div class="ttl">Drop oficial "VOLTAJE"</div>
+              <div class="meta">VIE 30-MAY · 00:00</div>
+            </div>
+          </div>
+
+          <!-- PUBLICADO -->
+          <div class="col">
+            <div class="col-h">
+              <span class="lbl">— PUBLICADO</span>
+              <span class="count">06</span>
+            </div>
+            <div class="post-card live">
+              <div class="plat">★ LIVE · IG</div>
+              <div class="ttl">Reel: closing set 15-MAY</div>
+              <div class="meta">+47 likes · 3 saves</div>
+            </div>
+            <div class="post-card done">
+              <div class="plat">✓ DONE · SC</div>
+              <div class="ttl">Mix abril completo</div>
+              <div class="meta">+12 plays</div>
+            </div>
+            <div class="post-card done">
+              <div class="plat">✓ DONE · IG</div>
+              <div class="ttl">Story Subterráneo arrival</div>
+              <div class="meta">200 views</div>
+            </div>
+            <div class="post-card done">
+              <div class="plat">✓ DONE · IG</div>
+              <div class="ttl">Carrusel "mejores tracks mayo"</div>
+              <div class="meta">+89 reach</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: #555; margin-top: 16px;">
+          <strong style="color: var(--orange);">— DRAG &amp; DROP:</strong> arrastra cards entre columnas para cambiar estado.
+          Programados se publican manualmente — DROP solo te recuerda con push notification.
+        </p>
+      </div>
+    </div>
+
+    <!-- Month View -->
+    <div class="frame-wrap">
+      <div class="label">04B / VISTA MES · MAYO 2026</div>
+      <div class="frame" style="padding: 24px; background: #FFF;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h3 class="anton" style="font-size: 28px;">MAYO 2026</h3>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="mono" style="font-size: 10px; font-weight: 700;">
+              <span style="display:inline-block; width:8px; height:8px; background: var(--orange); margin-right: 4px;"></span> PROGRAMADO
+              <span style="display:inline-block; width:8px; height:8px; background: var(--info); margin-left: 12px; margin-right: 4px;"></span> PUBLICADO
+              <span style="display:inline-block; width:8px; height:8px; background: var(--success); margin-left: 12px; margin-right: 4px;"></span> CAMPAÑA
+            </span>
+            <button class="btn outline sm">← ABR</button>
+            <button class="btn outline sm">JUN →</button>
+          </div>
+        </div>
+
+        <div class="cal-grid">
+          <div class="day-head">LUN</div>
+          <div class="day-head">MAR</div>
+          <div class="day-head">MIÉ</div>
+          <div class="day-head">JUE</div>
+          <div class="day-head">VIE</div>
+          <div class="day-head">SÁB</div>
+          <div class="day-head">DOM</div>
+
+          <div class="day empty"></div>
+          <div class="day empty"></div>
+          <div class="day empty"></div>
+          <div class="day"><div class="dn">01</div></div>
+          <div class="day"><div class="dn">02</div></div>
+          <div class="day"><div class="dn">03</div><div><span class="dot-info"></span>IG</div></div>
+          <div class="day"><div class="dn">04</div></div>
+
+          <div class="day"><div class="dn">05</div></div>
+          <div class="day"><div class="dn">06</div></div>
+          <div class="day"><div class="dn">07</div><div><span class="dot-info"></span>SC mix</div></div>
+          <div class="day"><div class="dn">08</div></div>
+          <div class="day"><div class="dn">09</div><div><span class="dot-info"></span>IG reel</div></div>
+          <div class="day"><div class="dn">10</div></div>
+          <div class="day"><div class="dn">11</div></div>
+
+          <div class="day"><div class="dn">12</div></div>
+          <div class="day"><div class="dn">13</div></div>
+          <div class="day"><div class="dn">14</div></div>
+          <div class="day"><div class="dn">15</div><div><span class="dot-success"></span>Camp.</div><div><span class="dot-info"></span>IG</div></div>
+          <div class="day"><div class="dn">16</div></div>
+          <div class="day"><div class="dn">17</div><div><span class="dot-info"></span>IG story</div></div>
+          <div class="day"><div class="dn">18</div></div>
+
+          <div class="day"><div class="dn">19</div></div>
+          <div class="day"><div class="dn">20</div><div><span class="dot-success"></span>EP</div></div>
+          <div class="day"><div class="dn">21</div></div>
+          <div class="day"><div class="dn">22</div></div>
+          <div class="day"><div class="dn">23</div><div><span class="dot-info"></span>Reel</div></div>
+          <div class="day today"><div class="dn" style="color: var(--ink);">24</div><div class="mono" style="font-size: 9px; color: var(--ink); font-weight: 700;">HOY</div></div>
+          <div class="day"><div class="dn">25</div><div><span class="dot-orange"></span>Story</div></div>
+
+          <div class="day"><div class="dn">26</div><div><span class="dot-orange"></span>Carrusel</div></div>
+          <div class="day"><div class="dn">27</div></div>
+          <div class="day"><div class="dn">28</div></div>
+          <div class="day"><div class="dn">29</div></div>
+          <div class="day"><div class="dn">30</div><div><span class="dot-orange"></span>EP drop</div></div>
+          <div class="day"><div class="dn">31</div></div>
+          <div class="day empty"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 05 · IA · HASHTAGS + HORARIOS -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">05</div>
+    <div class="ttl">SUGERENCIAS IA</div>
+    <div class="sub">HASHTAGS + HORARIOS POR PLATAFORMA · OLLAMA LOCAL</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Al crear un post, <strong>Ollama analiza tu historial</strong> (qué hashtags usaste antes, qué horarios funcionaron en
+      tus snapshots de growth) y sugiere combinaciones específicas para tu plataforma + género.
+    </p>
+
+    <div class="grid-2">
+      <!-- Panel IA hashtags -->
+      <div class="ia-panel">
+        <div class="lbl">— SUGERENCIA · HASHTAGS</div>
+        <div class="h">PARA "REEL: CLOSING SET 23-MAY"<br/>→ INSTAGRAM</div>
+
+        <hr style="border: 0; border-top: 1px dashed #555; margin: 16px 0;" />
+
+        <div style="font-family: 'Space Mono'; font-size: 10px; color: #aaa; letter-spacing: 0.08em;">
+          BASADO EN: TUS 12 ÚLTIMOS POSTS · GÉNERO TECHNO/HOUSE · CRECIMIENTO ABRIL
+        </div>
+
+        <div class="suggestion-row">
+          <span class="hashtag">#technochile</span>
+          <span class="hashtag">#santiagotechno</span>
+          <span class="hashtag">#undergroundsa</span>
+          <span class="hashtag">#djset</span>
+          <span class="hashtag">#latamtechno</span>
+          <span class="hashtag">#housemusicchile</span>
+          <span class="hashtag">#subterraneo</span>
+          <span class="hashtag">#warehouserave</span>
+          <span class="hashtag">#vinylonly</span>
+          <span class="hashtag">#dropdj</span>
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed #555; margin: 16px 0;" />
+
+        <div style="font-family: 'Space Mono'; font-size: 10px; color: var(--orange); letter-spacing: 0.08em; font-weight: 700;">
+          + 5 SUGERIDOS NUEVOS (no usaste antes):
+        </div>
+
+        <div class="suggestion-row" style="margin-top: 8px;">
+          <span class="hashtag" style="background: var(--orange); color: var(--ink); border: none;">#dancefloorchile</span>
+          <span class="hashtag" style="background: var(--orange); color: var(--ink); border: none;">#raveculture</span>
+          <span class="hashtag" style="background: var(--orange); color: var(--ink); border: none;">#analogtechno</span>
+        </div>
+
+        <div style="margin-top: 18px; display: flex; gap: 8px; position: relative; z-index: 1;">
+          <button class="btn">COPIAR TODO</button>
+          <button class="btn orange">USAR EN POST →</button>
+        </div>
+      </div>
+
+      <!-- Panel IA horarios -->
+      <div class="ia-panel">
+        <div class="lbl">— SUGERENCIA · HORARIOS</div>
+        <div class="h">MEJOR MOMENTO PARA POSTEAR<br/>→ ESTA SEMANA</div>
+
+        <hr style="border: 0; border-top: 1px dashed #555; margin: 16px 0;" />
+
+        <div style="font-family: 'Space Mono'; font-size: 10px; color: #aaa; letter-spacing: 0.08em;">
+          BASADO EN: 14 SEMANAS DE SNAPSHOTS · MAYOR ENGAGEMENT
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px;">
+          <div class="schedule-block">
+            <div class="day">MIÉ</div>
+            <div class="time">22:00</div>
+          </div>
+          <div class="schedule-block">
+            <div class="day">VIE</div>
+            <div class="time">19:00</div>
+          </div>
+          <div class="schedule-block">
+            <div class="day">DOM</div>
+            <div class="time">21:30</div>
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed #555; margin: 16px 0;" />
+
+        <div style="font-size: 13px; line-height: 1.55; color: #ccc;">
+          <strong style="color: var(--orange);">Por qué:</strong> tu audiencia chilena tiene más actividad
+          jueves-domingo entre 20:00 y 23:00. Reels publicados en esos horarios tuvieron <strong style="color: var(--cream);">3.4× más reach</strong>
+          que en otros momentos.
+        </div>
+
+        <div style="margin-top: 18px; position: relative; z-index: 1;">
+          <button class="btn orange">PROGRAMAR EN ESOS HORARIOS →</button>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size: 12px; color: #555; margin-top: 24px; text-align: center;">
+      <strong style="color: var(--orange);">— IA 100% LOCAL:</strong> Ollama corre en tu propia máquina (Sprint 4).
+      Tus datos nunca salen a ChatGPT/Anthropic/Google. Costo: $0.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 06 · DETECTOR DE MOMENTOS CLAVE -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">06</div>
+    <div class="ttl">DETECTOR DE MOMENTOS CLAVE</div>
+    <div class="sub">PUSH NOTIFICATION CUANDO HAY UN PICO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Cuando el cron diario detecta un <strong>delta &ge; 5 followers</strong> en alguna plataforma o un spike de engagement,
+      te manda push notification para que aproveches el momentum y publiques algo.
+    </p>
+
+    <div class="grid-2">
+      <!-- Push examples -->
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase; margin-bottom: 14px;">— EJEMPLOS DE PUSH</div>
+
+        <div style="display: flex; flex-direction: column; gap: 22px;">
+          <div class="push-mockup">
+            <div class="ico">D<span class="dot">.</span></div>
+            <div class="body">
+              <div class="title">— DROP · momentum detectado</div>
+              <div class="msg">+12 followers en SoundCloud anoche.<br/>Buen momento para postear algo en IG con link a SC. ▶</div>
+            </div>
+            <div class="stamp">9:14</div>
+          </div>
+
+          <div class="push-mockup">
+            <div class="ico">D<span class="dot">.</span></div>
+            <div class="body">
+              <div class="title">— DROP · spike instagram</div>
+              <div class="msg">Tu reel de ayer ya tiene +200 reach.<br/>Considera boostearlo $5K-15K para amplificar. ▶</div>
+            </div>
+            <div class="stamp">11:42</div>
+          </div>
+
+          <div class="push-mockup">
+            <div class="ico">D<span class="dot">.</span></div>
+            <div class="body">
+              <div class="title">— DROP · campaña pagada</div>
+              <div class="msg">"Subterráneo Residency" llegó al 98% del objetivo.<br/>Considera cerrarla y armar la próxima. ▶</div>
+            </div>
+            <div class="stamp">16:08</div>
+          </div>
+
+          <div class="push-mockup">
+            <div class="ico">D<span class="dot">.</span></div>
+            <div class="body">
+              <div class="title">— DROP · alerta baja</div>
+              <div class="msg">7 días sin postear en SoundCloud.<br/>Tu última subida tuvo +12 plays. Sube algo. ▶</div>
+            </div>
+            <div class="stamp">8:00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detection rules -->
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--orange); text-transform: uppercase; margin-bottom: 14px;">— REGLAS DE DETECCIÓN</div>
+
+        <div class="card" style="margin-bottom: 14px;">
+          <div class="lbl">— TRIGGER 01</div>
+          <div class="h">DELTA SC ≥ 5 EN 24H</div>
+          <p style="font-size: 13px;">Crecimiento orgánico inusual. Push: <em>"+X seguidores SoundCloud anoche. Buen momento para publicar."</em></p>
+        </div>
+
+        <div class="card" style="margin-bottom: 14px;">
+          <div class="lbl">— TRIGGER 02</div>
+          <div class="h">REACH IG &gt; 2× PROMEDIO</div>
+          <p style="font-size: 13px;">Un post está performando arriba del promedio. Push sugiere boostearlo con presupuesto chico.</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 14px;">
+          <div class="lbl">— TRIGGER 03</div>
+          <div class="h">CAMPAÑA AL 90% OBJETIVO</div>
+          <p style="font-size: 13px;">La pauta pagada está alcanzando el objetivo de followers que pusiste. Push para evaluar.</p>
+        </div>
+
+        <div class="card">
+          <div class="lbl">— TRIGGER 04</div>
+          <div class="h">SILENCIO 7+ DÍAS</div>
+          <p style="font-size: 13px;">No has publicado en una plataforma en 7+ días. Push de recordatorio amable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 07 · MOBILE -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">07</div>
+    <div class="ttl">MOBILE</div>
+    <div class="sub">PRINCIPALES VISTAS EN IPHONE</div>
+  </div>
+  <div class="sec-body">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
+      <!-- Phone 1: Campañas list -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— GROWTH · MAY 2026</div>
+            <div class="anton" style="font-size: 24px; margin-top: 4px;">CAMPAÑAS<span style="color: var(--orange);">.</span></div>
+
+            <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 8px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">ACTIVAS</div>
+                <div class="anton" style="font-size: 24px; line-height: 1;">02</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 8px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">$/FOLL</div>
+                <div class="anton" style="font-size: 22px; line-height: 1;">$821</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px; margin-bottom: 6px;">
+                <div class="anton" style="font-size: 14px;">SUBTERRÁNEO RESIDENCY</div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                  <span class="tag orange" style="font-size: 8px;">CORRIENDO</span>
+                  <span class="mono" style="font-size: 10px; font-weight: 700;">+247 · $728</span>
+                </div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px; margin-bottom: 6px;">
+                <div class="anton" style="font-size: 14px;">EP "VOLTAJE"</div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                  <span class="tag orange" style="font-size: 8px;">CORRIENDO</span>
+                  <span class="mono" style="font-size: 10px; font-weight: 700;">+183 · $1.311</span>
+                </div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px; opacity: 0.7;">
+                <div class="anton" style="font-size: 14px;">PUSH IG · ABRIL</div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                  <span class="tag success" style="font-size: 8px;">OK</span>
+                  <span class="mono" style="font-size: 10px; font-weight: 700;">+312 · $481</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 12px;">+ NUEVA CAMPAÑA</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item active">GROWTH</div>
+            <div class="item">PLANTILLAS</div>
+            <div class="item">MÁS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2: Trello calendario -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— GROWTH · POSTS</div>
+            <div class="anton" style="font-size: 22px; margin-top: 4px;">CALENDARIO<span style="color: var(--orange);">.</span></div>
+
+            <!-- Tabs filtros mobile -->
+            <div style="display: flex; gap: 4px; margin-top: 12px; overflow-x: auto;">
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 4px 8px; font-family: 'Space Mono'; font-size: 9px; font-weight: 700;">PROGRAMADO·3</div>
+              <div style="border: 2px solid var(--ink); padding: 4px 8px; font-family: 'Space Mono'; font-size: 9px; font-weight: 700;">IDEAS·4</div>
+              <div style="border: 2px solid var(--ink); padding: 4px 8px; font-family: 'Space Mono'; font-size: 9px; font-weight: 700;">DONE·6</div>
+            </div>
+
+            <div style="margin-top: 12px;">
+              <div style="border: 2px solid var(--info); background: #FFF; padding: 8px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--info);">▶ IG · STORY</div>
+                <div class="anton" style="font-size: 13px; margin-top: 3px;">Announce gig 30-may</div>
+                <div class="mono" style="font-size: 8px; color: #666; margin-top: 3px;">SÁB · 19:00</div>
+              </div>
+              <div style="border: 2px solid var(--info); background: #FFF; padding: 8px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--info);">▶ IG + YT</div>
+                <div class="anton" style="font-size: 13px; margin-top: 3px;">Carrusel: behind EP</div>
+                <div class="mono" style="font-size: 8px; color: #666; margin-top: 3px;">DOM · 21:00</div>
+              </div>
+              <div style="border: 2px solid var(--info); background: #FFF; padding: 8px; margin-bottom: 6px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--info);">▶ SOUNDCLOUD</div>
+                <div class="anton" style="font-size: 13px; margin-top: 3px;">Drop oficial VOLTAJE</div>
+                <div class="mono" style="font-size: 8px; color: #666; margin-top: 3px;">VIE · 00:00</div>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px;">+ NUEVO POST</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item active">GROWTH</div>
+            <div class="item">PLANTILLAS</div>
+            <div class="item">MÁS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 3: Push notification ROI alert -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <!-- Hero with alert -->
+            <div style="border: 2px solid var(--ink); background: var(--orange); padding: 12px; margin-bottom: 10px;">
+              <div class="mono" style="font-size: 9px; font-weight: 700; letter-spacing: 0.1em;">— ALERTA · MOMENTO CLAVE</div>
+              <div class="anton" style="font-size: 18px; margin-top: 4px; line-height: 0.95;">+12 SC ANOCHE.<br/>POSTEA AHORA.</div>
+            </div>
+
+            <div style="border: 2px solid var(--ink); background: var(--ink); color: var(--cream); padding: 12px; margin-bottom: 10px;">
+              <div class="mono" style="font-size: 8px; color: var(--orange); font-weight: 700;">— SUGERENCIA IA</div>
+              <div class="anton" style="font-size: 14px; margin-top: 3px;">PUBLICA REEL EN IG<br/>CON LINK A SOUNDCLOUD</div>
+            </div>
+
+            <div style="border: 2px solid var(--ink); background: #FFF; padding: 10px;">
+              <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange);">— HASHTAGS SUGERIDOS</div>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px;">
+                <span style="background: var(--orange); color: var(--ink); padding: 2px 6px; font-family: 'Space Mono'; font-size: 8px; font-weight: 700;">#technochile</span>
+                <span style="background: var(--orange); color: var(--ink); padding: 2px 6px; font-family: 'Space Mono'; font-size: 8px; font-weight: 700;">#santiagotechno</span>
+                <span style="background: var(--orange); color: var(--ink); padding: 2px 6px; font-family: 'Space Mono'; font-size: 8px; font-weight: 700;">#dropdj</span>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px;">CREAR POST AHORA →</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item active">GROWTH</div>
+            <div class="item">PLANTILLAS</div>
+            <div class="item">MÁS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TECH BLOCK -->
+<!-- ============================================================ -->
+<section style="background: var(--ink); color: var(--cream); padding: 60px 24px;">
+  <div class="sec-head" style="border-bottom-color: var(--orange);">
+    <div class="num">08</div>
+    <div class="ttl" style="color: var(--cream);">FASES TÉCNICAS</div>
+    <div class="sub" style="color: var(--orange);">CÓMO SE IMPLEMENTA · NO TOCA NADA EXISTENTE</div>
+  </div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE A · DB</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">MIGRATIONS</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li><strong>0017</strong>: extender growth_campaigns con platform_ads[], budget_clp, external_url, result_notes</li>
+          <li><strong>0018</strong>: nueva tabla growth_posts (status, plataforma, fecha programada)</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE B · UI</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">PANTALLAS</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>/growth/campañas (lista + KPIs)</li>
+          <li>/growth/campañas/nueva (form pagada)</li>
+          <li>/growth/campañas/[id] (ROI + snapshot)</li>
+          <li>/growth/posts (Trello + month view)</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE C · IA + CRON</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">OLLAMA + PUSH</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>Endpoints Ollama: hashtags + horarios</li>
+          <li>Cron diario: detectar momentos clave</li>
+          <li>Push notification via web push (Sprint 13)</li>
+          <li>Snapshot pre/post automático en campañas</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 2px dashed var(--orange); margin: 32px 0;" />
+
+    <div class="grid-2">
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— LO QUE SÍ HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Tracking de campañas pagadas (budget, fechas, plataformas, link)</li>
+          <li>Cálculo automático de costo por follower y ROI</li>
+          <li>Comparativa visual de campañas (bar chart)</li>
+          <li>Calendario contenido Trello + month view</li>
+          <li>Sugerencias IA hashtags + horarios via Ollama local</li>
+          <li>Push notifications de momentos clave</li>
+          <li>Botón directo a Meta Ads Manager / Google Ads</li>
+        </ul>
+      </div>
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: #C53030; letter-spacing: 0.12em;">— LO QUE NO HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Crear pauta dentro de DROP (Meta Marketing API requiere review)</li>
+          <li>Edit de pauta dentro de DROP (mismo motivo)</li>
+          <li>Auto-publish a IG/SoundCloud (TOS + costo + fragilidad)</li>
+          <li>Lectura de métricas Meta automática (los datos los pones tú o vienen de snapshots SC/YT existentes)</li>
+          <li>Generación automática de creativos (out of scope)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background: var(--cream); padding: 50px 24px; border-top: 4px solid var(--orange);">
+  <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FIN DEL MOCKUP · SPRINT 18</div>
+      <h2 class="anton" style="font-size: 60px; margin-top: 8px;">CAMPAÑAS<span style="color: var(--orange);">.</span></h2>
+    </div>
+    <div style="text-align: right;">
+      <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em;">DROP. · THE DJ OS · v0.14 (next)</div>
+      <div class="mono" style="font-size: 9px; color: #555; margin-top: 4px;">propuesto · pendiente de aprobación</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

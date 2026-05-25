@@ -2,11 +2,13 @@
  * POST /api/push/send-cron
  *
  * Endpoint protegido por CRON_SECRET. Llamado por GitHub Actions diariamente.
- * Evalúa los 3 triggers para cada user con push_subscriptions activas:
+ * Evalúa los triggers para cada user con push_subscriptions activas:
  *
  *  1. Follow-ups vencidos hoy o antes (CRM)
  *  2. Delta de seguidores SoundCloud > 5 desde último snapshot anterior
  *  3. Recordatorio semanal (solo lunes): "revisa tus stats de la semana"
+ *  4. Sprint 18 — Campaña pagada activa al 90%+ del objetivo (sugerir cerrar)
+ *  5. Sprint 18 — Silencio 7+ días sin postear (recordatorio amable)
  *
  * Cada trigger se envía con tag distinto para que el navegador agrupe
  * en lugar de apilar. No envía si no hay nada relevante.
@@ -80,6 +82,85 @@ async function buildTriggers(userId: string): Promise<PushPayload[]> {
       url: "/growth",
       tag: "weekly-monday",
     });
+  }
+
+  // ─── Trigger 4: campaña pagada al 90%+ del objetivo (Sprint 18) ─────
+  // Detecta campañas con is_paid=true, status=active, que ya alcanzaron 90%
+  // del target_followers. Sugiere cerrarla y armar la próxima.
+  const { data: paidCampaigns } = await admin
+    .from("growth_campaigns")
+    .select(
+      "id, name, platforms, baseline_followers, target_followers, budget_clp"
+    )
+    .eq("user_id", userId)
+    .eq("is_paid", true)
+    .eq("status", "active");
+
+  if (paidCampaigns && paidCampaigns.length > 0) {
+    // Para cada campaña, calcular cuánto avanzó vs objetivo
+    for (const c of paidCampaigns as Array<{
+      id: string;
+      name: string;
+      platforms: string[];
+      baseline_followers: Record<string, number>;
+      target_followers: Record<string, number>;
+      budget_clp: number | null;
+    }>) {
+      // Obtener snapshot actual por plataforma
+      let baselineTotal = 0;
+      let currentTotal = 0;
+      let targetTotal = 0;
+      for (const p of c.platforms) {
+        const baseline = c.baseline_followers?.[p] ?? 0;
+        const target = c.target_followers?.[p] ?? 0;
+        baselineTotal += baseline;
+        targetTotal += target;
+        const { data: latest } = await admin
+          .from("platform_snapshots")
+          .select("followers")
+          .eq("user_id", userId)
+          .eq("platform", p)
+          .order("snapshot_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        currentTotal += (latest as { followers: number | null } | null)?.followers ?? baseline;
+      }
+      const objective = targetTotal - baselineTotal;
+      const delta = currentTotal - baselineTotal;
+      const pct = objective > 0 ? (delta / objective) * 100 : 0;
+      if (pct >= 90 && pct < 110) {
+        // Solo notificar una vez por campaña (tag específico)
+        out.push({
+          title: "🎯 Campaña al 90% del objetivo",
+          body: `"${c.name}" ya alcanzó ${Math.round(pct)}% del objetivo. Considera cerrarla.`,
+          url: `/growth/campanas/${c.id}`,
+          tag: `campaign-near-goal-${c.id}`,
+        });
+      }
+    }
+  }
+
+  // ─── Trigger 5: silencio 7+ días sin postear (Sprint 18) ────────────
+  // Detecta si el user no ha publicado en ninguna plataforma en 7+ días.
+  // No spamea: solo se ejecuta en miércoles (UTCDay === 3) para no ser molesto.
+  if (today.getUTCDay() === 3) {
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString();
+    const { count: recentPosts } = await admin
+      .from("content_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("status", "publicado")
+      .gte("published_at", sevenDaysAgo);
+
+    if (recentPosts === 0 || recentPosts === null) {
+      out.push({
+        title: "📡 Silencio en redes",
+        body: "7+ días sin publicar. Sube algo aunque sea una story.",
+        url: "/growth/posts",
+        tag: "growth-silence-7d",
+      });
+    }
   }
 
   return out;

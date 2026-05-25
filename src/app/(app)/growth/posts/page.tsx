@@ -17,24 +17,28 @@ import {
   type PostStatus,
 } from "@/types/database";
 import { shortDate, relativeTime } from "@/lib/format";
+import { PostsBoard } from "./posts-board";
 
 interface PageProps {
   searchParams: Promise<{
     platform?: SocialPlatform;
     status?: PostStatus;
+    view?: "board" | "list";
   }>;
 }
 
 export default async function GrowthPostsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+  const view = sp.view === "list" ? "list" : "board";
+
   const [posts, campaigns] = await Promise.all([
-    listContentPosts({ platform: sp.platform, status: sp.status, limit: 200 }),
+    listContentPosts({ platform: sp.platform, status: sp.status, limit: 500 }),
     listGrowthCampaigns({ limit: 100 }),
   ]);
   const campaignMap = new Map(campaigns.map((c) => [c.id, c.name]));
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto">
+    <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <Link
         href="/growth"
         className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
@@ -43,43 +47,95 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
         Volver a Growth
       </Link>
 
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-7">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Posts
-          </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            Track de qué publicaste, métricas, y qué tienes planeado.
-          </p>
+      {/* Hero brutalist */}
+      <div className="border-2 border-ink bg-white p-6 mb-5 relative overflow-hidden">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — GROWTH · CALENDARIO DE CONTENIDO
         </div>
-        <Button asChild>
-          <Link href="/growth/posts/nuevo">
-            <Plus className="w-4 h-4" />
-            Nuevo post
-          </Link>
-        </Button>
+        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
+          POSTS<span className="text-orange">.</span>
+        </h1>
+        <p className="text-sm text-fg-muted mt-2 max-w-2xl">
+          Planeá qué postear y cuándo. Drag &amp; drop entre columnas para cambiar
+          estado: idea → borrador → programado → publicado.
+        </p>
+        <div className="mt-4 flex gap-2 flex-wrap items-center">
+          <Button asChild variant="orange">
+            <Link href="/growth/posts/nuevo">
+              <Plus className="w-4 h-4" />
+              Nuevo post
+            </Link>
+          </Button>
+          <div className="ml-auto flex items-center gap-1">
+            <Link
+              href="/growth/posts?view=board"
+              className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
+                view === "board"
+                  ? "bg-ink text-orange border-ink"
+                  : "border-ink text-ink hover:bg-ink hover:text-orange"
+              }`}
+            >
+              Trello
+            </Link>
+            <Link
+              href="/growth/posts?view=list"
+              className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
+                view === "list"
+                  ? "bg-ink text-orange border-ink"
+                  : "border-ink text-ink hover:bg-ink hover:text-orange"
+              }`}
+            >
+              Lista
+            </Link>
+          </div>
+        </div>
       </div>
 
+      {view === "board" ? (
+        <PostsBoard
+          posts={posts}
+          campaignMap={Array.from(campaignMap.entries())}
+        />
+      ) : (
+        <ListView posts={posts} campaignMap={campaignMap} sp={sp} />
+      )}
+    </div>
+  );
+}
+
+function ListView({
+  posts,
+  campaignMap,
+  sp,
+}: {
+  posts: Awaited<ReturnType<typeof listContentPosts>>;
+  campaignMap: Map<string, string>;
+  sp: { platform?: SocialPlatform; status?: PostStatus };
+}) {
+  return (
+    <>
       {/* Filtros simples */}
       <div className="flex items-center gap-1.5 flex-wrap mb-5">
         <Link
-          href="/growth/posts"
-          className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+          href="/growth/posts?view=list"
+          className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
             !sp.status
-              ? "bg-accent-soft border-accent/30 text-accent"
-              : "border-border text-fg-muted hover:text-fg"
+              ? "bg-ink text-orange border-ink"
+              : "border-ink text-ink hover:bg-ink hover:text-orange"
           }`}
         >
           Todos
         </Link>
-        {(["planeado", "publicado", "cancelado"] as PostStatus[]).map((s) => (
+        {(
+          ["idea", "borrador", "planeado", "publicado", "cancelado"] as PostStatus[]
+        ).map((s) => (
           <Link
             key={s}
-            href={`/growth/posts?status=${s}`}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+            href={`/growth/posts?view=list&status=${s}`}
+            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
               sp.status === s
-                ? "bg-accent-soft border-accent/30 text-accent"
-                : "border-border text-fg-muted hover:text-fg"
+                ? "bg-ink text-orange border-ink"
+                : "border-ink text-ink hover:bg-ink hover:text-orange"
             }`}
           >
             {POST_STATUS_LABELS[s]}
@@ -95,7 +151,7 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
             Cuando publiques un reel, post, set o video, regístralo acá para
             llevar tracking de métricas.
           </p>
-          <Button asChild>
+          <Button asChild variant="orange">
             <Link href="/growth/posts/nuevo">+ Registrar primer post</Link>
           </Button>
         </Card>
@@ -106,7 +162,7 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
               <li
                 key={p.id}
                 className={`px-4 py-3 ${
-                  i > 0 ? "border-t border-border" : ""
+                  i > 0 ? "border-t border-ink" : ""
                 } hover:bg-bg-subtle transition-colors`}
               >
                 <Link
@@ -118,31 +174,23 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
                       <span className="text-sm font-semibold truncate">
                         {p.title || "(sin título)"}
                       </span>
-                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary border border-border text-fg-muted">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink">
                         {SOCIAL_PLATFORM_LABELS[p.platform]}
                       </span>
-                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-ink">
                         {POST_FORMAT_LABELS[p.format]}
                       </span>
-                      <span
-                        className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                          p.status === "publicado"
-                            ? "bg-success/15 border border-success/30 text-success"
-                            : p.status === "planeado"
-                            ? "bg-warning/15 border border-warning/30 text-warning"
-                            : "bg-secondary border border-border text-fg-muted"
-                        }`}
-                      >
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-ink bg-cream">
                         {POST_STATUS_LABELS[p.status]}
                       </span>
                       {p.growth_campaign_id &&
                         campaignMap.has(p.growth_campaign_id) && (
-                          <span className="text-[10px] uppercase tracking-wider text-fg-muted">
-                            🎯 {campaignMap.get(p.growth_campaign_id)}
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+                            ▶ {campaignMap.get(p.growth_campaign_id)}
                           </span>
                         )}
                     </div>
-                    <div className="text-[11px] text-fg-muted mt-1 flex gap-3 flex-wrap">
+                    <div className="font-mono text-[10px] text-fg-muted mt-1 flex gap-3 flex-wrap">
                       {p.published_at && (
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" /> Publicado{" "}
@@ -151,18 +199,15 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
                       )}
                       {!p.published_at && p.planned_at && (
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> Planeado{" "}
+                          <Calendar className="w-3 h-3" /> Programado{" "}
                           {shortDate(p.planned_at)}
                         </span>
                       )}
                       {p.views !== null && p.views > 0 && (
-                        <span>👁 {p.views.toLocaleString("es-CL")}</span>
+                        <span>{p.views.toLocaleString("es-CL")} views</span>
                       )}
                       {p.likes !== null && p.likes > 0 && (
-                        <span>❤ {p.likes.toLocaleString("es-CL")}</span>
-                      )}
-                      {p.comments !== null && p.comments > 0 && (
-                        <span>💬 {p.comments.toLocaleString("es-CL")}</span>
+                        <span>{p.likes.toLocaleString("es-CL")} likes</span>
                       )}
                     </div>
                   </div>
@@ -173,6 +218,6 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
           </ul>
         </Card>
       )}
-    </div>
+    </>
   );
 }

@@ -2,6 +2,9 @@ import {
   getGrowthCampaign,
   listContentPosts,
   getLatestSnapshotsByPlatform,
+  listGrowthCampaigns,
+  getCampaignROIs,
+  getCampaignROI,
 } from "@/lib/queries/growth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -17,6 +20,7 @@ import {
 import {
   GROWTH_CAMPAIGN_STATUS_LABELS,
   SOCIAL_PLATFORM_LABELS,
+  AD_PLATFORM_LABELS,
   POST_FORMAT_LABELS,
   POST_STATUS_LABELS,
   type SocialPlatform,
@@ -28,18 +32,44 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+function formatClp(n: number | null): string {
+  if (n === null || n === undefined) return "—";
+  return `$${n.toLocaleString("es-CL")}`;
+}
+
 export default async function GrowthCampaignDetailPage({ params }: PageProps) {
   const { id } = await params;
   const campaign = await getGrowthCampaign(id);
   if (!campaign) notFound();
 
-  const [posts, currentSnapshots] = await Promise.all([
+  const [posts, currentSnapshots, roi, allCampaigns] = await Promise.all([
     listContentPosts({ growthCampaignId: id, limit: 100 }),
     getLatestSnapshotsByPlatform(),
+    getCampaignROI(campaign),
+    listGrowthCampaigns({ limit: 100 }),
   ]);
 
   const published = posts.filter((p) => p.status === "publicado");
-  const planned = posts.filter((p) => p.status === "planeado");
+  const planned = posts.filter(
+    (p) => p.status === "planeado" || p.status === "idea" || p.status === "borrador"
+  );
+
+  // Comparativa: las últimas 5 campañas (pagadas + orgánicas) para bar chart
+  const comparativeCampaigns = allCampaigns
+    .filter((c) => c.id !== campaign.id)
+    .slice(0, 4);
+  const comparativeROIs = await getCampaignROIs(comparativeCampaigns);
+  const allROIsForChart = [
+    { c: campaign, roi },
+    ...comparativeCampaigns.map((c, i) => ({ c, roi: comparativeROIs[i] })),
+  ].filter((x) => x.roi.costPerFollower !== null || x.c.id === campaign.id);
+
+  const maxCpf =
+    Math.max(
+      ...allROIsForChart
+        .map((x) => x.roi.costPerFollower ?? 0)
+        .concat(1)
+    ) || 1;
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
@@ -51,89 +81,206 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
         Volver a Campañas
       </Link>
 
-      <Card className="p-6 mb-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+      {/* Hero brutalist */}
+      <div
+        className={`border-2 border-ink p-6 mb-5 relative overflow-hidden ${
+          campaign.is_paid ? "bg-ink text-cream" : "bg-white"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-4 flex-wrap relative z-10">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <TrendingUp className="w-5 h-5 text-accent shrink-0" />
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight">
-                {campaign.name}
-              </h1>
-              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-secondary border border-border text-fg-muted">
-                {GROWTH_CAMPAIGN_STATUS_LABELS[campaign.status]}
-              </span>
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange flex items-center gap-2">
+              <span>— CAMPAÑA · {GROWTH_CAMPAIGN_STATUS_LABELS[campaign.status].toUpperCase()}</span>
+              {campaign.is_paid && (
+                <span className="bg-orange text-ink px-2 py-0.5 border-2 border-cream">
+                  PAGADA
+                </span>
+              )}
             </div>
+            <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
+              {campaign.name}<span className="text-orange">.</span>
+            </h1>
             {campaign.goal && (
-              <p className="text-sm text-fg-muted mt-2">{campaign.goal}</p>
+              <p className="text-sm mt-2 opacity-80">{campaign.goal}</p>
             )}
-            <div className="text-xs text-fg-subtle mt-2">
-              {campaign.platforms
-                .map((p) => SOCIAL_PLATFORM_LABELS[p])
-                .join(" · ")}
-              {campaign.end_date && ` · Termina ${shortDate(campaign.end_date)}`}
+            <div className="font-mono text-[10px] mt-3 flex flex-wrap gap-2">
+              {campaign.platforms.map((p) => (
+                <span key={p} className="px-2 py-0.5 border border-orange">
+                  {SOCIAL_PLATFORM_LABELS[p]}
+                </span>
+              ))}
+              {campaign.platform_ads?.map((p) => (
+                <span key={p} className="px-2 py-0.5 bg-orange text-ink">
+                  {AD_PLATFORM_LABELS[p]}
+                </span>
+              ))}
+              {campaign.end_date && (
+                <span className="px-2 py-0.5 border border-orange/50 opacity-80">
+                  Termina {shortDate(campaign.end_date)}
+                </span>
+              )}
             </div>
           </div>
-          <GrowthCampaignActions
-            campaignId={campaign.id}
-            status={campaign.status}
-          />
+          <div className="flex flex-col items-end gap-2">
+            <GrowthCampaignActions
+              campaignId={campaign.id}
+              status={campaign.status}
+            />
+            {campaign.is_paid && campaign.external_url && (
+              <Button asChild variant="orange" size="sm">
+                <a
+                  href={campaign.external_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Abrir en Ads Manager
+                </a>
+              </Button>
+            )}
+          </div>
         </div>
+      </div>
 
-        {/* Progreso por plataforma */}
-        <div className="mt-5 pt-5 border-t border-border">
-          <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3">
-            Progreso de seguidores
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {campaign.platforms.map((p) => {
-              const baseline = campaign.baseline_followers[p] || 0;
-              const target = campaign.target_followers[p] || 0;
-              const current = currentSnapshots[p]?.followers ?? baseline;
-              const delta = current - baseline;
-              const progressTotal = target > 0 ? target - baseline : 1;
-              const progressDone = delta;
-              const progressPct =
-                progressTotal > 0
-                  ? Math.min(
-                      100,
-                      Math.max(0, Math.round((progressDone / progressTotal) * 100))
-                    )
-                  : 0;
-              return (
-                <PlatformProgress
-                  key={p}
-                  platform={p}
-                  baseline={baseline}
-                  current={current}
-                  target={target}
-                  delta={delta}
-                  progressPct={progressPct}
+      {/* Bloque ROI cuando es pagada */}
+      {campaign.is_paid && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          <div className="bg-ink text-cream p-5 border-2 border-ink">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+              — COSTO POR FOLLOWER
+            </div>
+            <div className="font-display text-6xl leading-none mt-3">
+              {roi.costPerFollower !== null ? (
+                <>
+                  {formatClp(roi.costPerFollower)}
+                  <span className="font-mono text-sm text-orange ml-2">CLP</span>
+                </>
+              ) : (
+                <span className="text-fg-subtle">—</span>
+              )}
+            </div>
+            <div className="font-mono text-[10px] mt-3 text-orange">
+              BUDGET {formatClp(campaign.budget_clp)} · Δ {roi.deltaFollowers > 0 ? "+" : ""}
+              {roi.deltaFollowers} followers
+            </div>
+          </div>
+          <div className="bg-orange p-5 border-2 border-ink">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+              — PROGRESO HACIA OBJETIVO
+            </div>
+            <div className="font-display text-6xl leading-none mt-3 text-ink">
+              {roi.targetTotal > 0 ? `${roi.progressPct}%` : "—"}
+            </div>
+            <div className="font-mono text-[10px] mt-3 text-ink">
+              {roi.targetTotal > 0
+                ? `${roi.deltaFollowers}/${roi.targetTotal - roi.baselineTotal} followers ganados`
+                : "Sin objetivo definido"}
+            </div>
+            {roi.targetTotal > 0 && (
+              <div className="mt-3 h-2 bg-ink/20 border border-ink">
+                <div
+                  className="h-full bg-ink"
+                  style={{ width: `${roi.progressPct}%` }}
                 />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Snapshot pre/post por plataforma */}
+      <Card className="p-5 mb-5">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-4">
+          — SNAPSHOT PRE/POST POR PLATAFORMA
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {campaign.platforms.map((p) => {
+            const baseline = campaign.baseline_followers[p] || 0;
+            const target = campaign.target_followers[p] || 0;
+            const current = currentSnapshots[p]?.followers ?? baseline;
+            const delta = current - baseline;
+            return (
+              <PlatformProgress
+                key={p}
+                platform={p}
+                baseline={baseline}
+                current={current}
+                target={target}
+                delta={delta}
+              />
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* Comparativa bar chart con otras campañas */}
+      {allROIsForChart.length > 1 && (
+        <Card className="p-5 mb-5">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-4">
+            — COMPARATIVA $/FOLLOWER · TUS CAMPAÑAS
+          </div>
+          <div className="flex items-end gap-3 h-40 pb-2">
+            {allROIsForChart.map(({ c, roi: r }) => {
+              const cpf = r.costPerFollower;
+              const height = cpf !== null ? Math.round((cpf / maxCpf) * 100) : 5;
+              const isCurrent = c.id === campaign.id;
+              return (
+                <div
+                  key={c.id}
+                  className="flex-1 flex flex-col items-center gap-1 min-w-0"
+                >
+                  <div className="font-display text-xs leading-none">
+                    {cpf !== null ? formatClp(cpf) : "—"}
+                  </div>
+                  <div
+                    className={`w-full border-2 border-ink ${
+                      isCurrent
+                        ? "bg-orange"
+                        : cpf !== null && cpf < 700
+                        ? "bg-success"
+                        : cpf !== null && cpf < 1500
+                        ? "bg-cream"
+                        : "bg-danger"
+                    }`}
+                    style={{ height: `${Math.max(5, height)}%` }}
+                  />
+                  <div className="font-mono text-[9px] font-bold text-center truncate w-full">
+                    {c.name.slice(0, 18).toUpperCase()}
+                  </div>
+                </div>
               );
             })}
           </div>
-        </div>
+          <div className="font-mono text-[10px] text-fg-muted mt-3">
+            * Verde = ROI bueno (&lt;$700) · Naranja = esta campaña · Rojo = ROI alto (&gt;$1500)
+          </div>
+        </Card>
+      )}
 
-        {/* Otras métricas objetivo */}
-        {(campaign.target_engagement_rate || campaign.target_posts_count) && (
-          <div className="mt-5 pt-5 border-t border-border grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Otras métricas objetivo */}
+      {(campaign.target_engagement_rate || campaign.target_posts_count) && (
+        <Card className="p-5 mb-5">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
+            — OTRAS MÉTRICAS OBJETIVO
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {campaign.target_posts_count && (
-              <div className="p-3 rounded bg-bg border border-border">
-                <div className="text-[10px] uppercase tracking-wider text-fg-muted">
+              <div className="p-3 border-2 border-ink bg-cream">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
                   Posts objetivo
                 </div>
                 <div className="font-display text-2xl leading-none mt-1">
                   {published.length + planned.length} / {campaign.target_posts_count}
                 </div>
-                <div className="text-[10px] text-fg-subtle mt-1">
+                <div className="font-mono text-[10px] text-fg-subtle mt-1">
                   {published.length} publicados
                 </div>
               </div>
             )}
             {campaign.target_engagement_rate && (
-              <div className="p-3 rounded bg-bg border border-border">
-                <div className="text-[10px] uppercase tracking-wider text-fg-muted">
-                  Engagement objetivo
+              <div className="p-3 border-2 border-ink bg-cream">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+                  Engagement target
                 </div>
                 <div className="font-display text-2xl leading-none mt-1">
                   {campaign.target_engagement_rate}%
@@ -141,15 +288,25 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
               </div>
             )}
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
+
+      {/* Notas + resultado */}
+      {campaign.result_notes && (
+        <Card className="p-5 mb-5">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
+            — NOTAS DE RESULTADO
+          </div>
+          <p className="text-sm whitespace-pre-wrap">{campaign.result_notes}</p>
+        </Card>
+      )}
 
       {/* Posts */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">
-          Posts ({posts.length})
-        </h2>
-        <Button asChild size="sm">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — POSTS DE LA CAMPAÑA ({posts.length})
+        </div>
+        <Button asChild size="sm" variant="orange">
           <Link href={`/growth/posts/nuevo?campaign=${campaign.id}`}>
             <Plus className="w-4 h-4" />
             Agregar post
@@ -162,7 +319,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
           <p className="text-sm text-fg-muted mb-3">
             Aún no hay posts en esta campaña.
           </p>
-          <Button asChild>
+          <Button asChild variant="orange">
             <Link href={`/growth/posts/nuevo?campaign=${campaign.id}`}>
               + Crear primer post
             </Link>
@@ -175,7 +332,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
               <li
                 key={p.id}
                 className={`px-4 py-3 ${
-                  i > 0 ? "border-t border-border" : ""
+                  i > 0 ? "border-t border-ink" : ""
                 } hover:bg-bg-subtle transition-colors`}
               >
                 <Link
@@ -187,36 +344,28 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
                       <span className="text-sm font-semibold truncate">
                         {p.title || "(sin título)"}
                       </span>
-                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary border border-border text-fg-muted">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink">
                         {SOCIAL_PLATFORM_LABELS[p.platform]}
                       </span>
-                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-ink">
                         {POST_FORMAT_LABELS[p.format]}
                       </span>
-                      <span
-                        className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                          p.status === "publicado"
-                            ? "bg-success/15 border border-success/30 text-success"
-                            : p.status === "planeado"
-                            ? "bg-warning/15 border border-warning/30 text-warning"
-                            : "bg-secondary border border-border text-fg-muted"
-                        }`}
-                      >
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-ink bg-cream">
                         {POST_STATUS_LABELS[p.status]}
                       </span>
                     </div>
-                    <div className="text-[11px] text-fg-muted mt-1 flex gap-3 flex-wrap">
+                    <div className="font-mono text-[10px] text-fg-muted mt-1 flex gap-3 flex-wrap">
                       {p.published_at && (
                         <span>Publicado {relativeTime(p.published_at)}</span>
                       )}
                       {!p.published_at && p.planned_at && (
-                        <span>Planeado {shortDate(p.planned_at)}</span>
+                        <span>Programado {shortDate(p.planned_at)}</span>
                       )}
                       {p.views !== null && p.views > 0 && (
-                        <span>👁 {p.views.toLocaleString("es-CL")}</span>
+                        <span>{p.views.toLocaleString("es-CL")} views</span>
                       )}
                       {p.likes !== null && p.likes > 0 && (
-                        <span>❤ {p.likes.toLocaleString("es-CL")}</span>
+                        <span>{p.likes.toLocaleString("es-CL")} likes</span>
                       )}
                     </div>
                   </div>
@@ -237,61 +386,71 @@ function PlatformProgress({
   current,
   target,
   delta,
-  progressPct,
 }: {
   platform: SocialPlatform;
   baseline: number;
   current: number;
   target: number;
   delta: number;
-  progressPct: number;
 }) {
   const hasTarget = target > 0;
+  const objective = target - baseline;
+  const pct =
+    objective > 0
+      ? Math.min(100, Math.max(0, Math.round(((current - baseline) / objective) * 100)))
+      : 0;
   return (
-    <div className="p-3 rounded-lg bg-bg border border-border">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-xs font-semibold uppercase tracking-wider">
-          {SOCIAL_PLATFORM_LABELS[platform]}
+    <div className="border-2 border-ink">
+      <div className="grid grid-cols-2">
+        <div className="bg-cream p-3 border-r-2 border-ink">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+            — PRE
+          </div>
+          <div className="font-display text-2xl leading-none mt-1">
+            {baseline.toLocaleString("es-CL")}
+          </div>
+          <div className="font-mono text-[10px] text-fg-muted mt-1">
+            {SOCIAL_PLATFORM_LABELS[platform]}
+          </div>
         </div>
-        {delta !== 0 && (
-          <span
-            className={`text-[11px] flex items-center gap-1 ${
-              delta > 0 ? "text-success" : "text-danger"
-            }`}
-          >
-            {delta > 0 ? (
-              <TrendingUp className="w-3 h-3" />
-            ) : (
-              <TrendingDown className="w-3 h-3" />
-            )}
-            {delta > 0 ? "+" : ""}
-            {delta}
-          </span>
-        )}
-      </div>
-      <div className="flex items-baseline gap-2">
-        <span className="font-display text-2xl leading-none">
-          {current.toLocaleString("es-CL")}
-        </span>
-        {hasTarget && (
-          <span className="text-xs text-fg-muted">
-            / {target.toLocaleString("es-CL")}
-          </span>
-        )}
-      </div>
-      <div className="text-[10px] text-fg-subtle mt-1">
-        Empezó en {baseline.toLocaleString("es-CL")}
+        <div
+          className={`p-3 ${
+            delta > 0 ? "bg-orange" : "bg-white"
+          }`}
+        >
+          <div className="font-mono text-[10px] uppercase tracking-wider">
+            — HOY
+          </div>
+          <div className="font-display text-2xl leading-none mt-1">
+            {current.toLocaleString("es-CL")}
+          </div>
+          {delta !== 0 && (
+            <div
+              className={`font-mono text-[10px] mt-1 flex items-center gap-1 font-bold ${
+                delta > 0 ? "text-ink" : "text-danger"
+              }`}
+            >
+              {delta > 0 ? (
+                <TrendingUp className="w-3 h-3" />
+              ) : (
+                <TrendingDown className="w-3 h-3" />
+              )}
+              {delta > 0 ? "+" : ""}
+              {delta}
+            </div>
+          )}
+        </div>
       </div>
       {hasTarget && (
-        <div className="mt-2">
-          <div className="h-1.5 bg-bg-subtle rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent rounded-full transition-all"
-              style={{ width: `${progressPct}%` }}
-            />
+        <div className="p-2 border-t-2 border-ink bg-white">
+          <div className="font-mono text-[9px] uppercase text-fg-muted">
+            objetivo {target.toLocaleString("es-CL")} · {pct}%
           </div>
-          <div className="text-[10px] text-fg-muted mt-1">
-            {progressPct}% del objetivo
+          <div className="h-1.5 bg-cream border border-ink mt-1">
+            <div
+              className="h-full bg-orange"
+              style={{ width: `${pct}%` }}
+            />
           </div>
         </div>
       )}

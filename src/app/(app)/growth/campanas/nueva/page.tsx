@@ -3,7 +3,13 @@ import { ArrowLeft } from "lucide-react";
 import { getLatestSnapshotsByPlatform } from "@/lib/queries/growth";
 import { NewGrowthCampaignForm } from "./new-growth-form";
 
-export default async function NuevaGrowthCampaignPage() {
+interface PageProps {
+  searchParams: Promise<{ paid?: string }>;
+}
+
+export default async function NuevaGrowthCampaignPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const defaultPaid = sp.paid === "1";
   const snapshots = await getLatestSnapshotsByPlatform();
   const baselines: Record<string, number> = {};
   for (const [platform, snap] of Object.entries(snapshots)) {
@@ -19,14 +25,21 @@ export default async function NuevaGrowthCampaignPage() {
         <ArrowLeft className="w-4 h-4" />
         Volver a Campañas
       </Link>
-      <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
-        Nueva campaña de Growth
-      </h1>
-      <p className="text-sm text-fg-muted mb-7">
-        Define objetivo, plataformas y plazo. Después vas registrando los
-        posts que publicas para hacer tracking.
-      </p>
-      <NewGrowthCampaignForm baselines={baselines} />
+
+      <div className="border-2 border-ink bg-white p-6 mb-6">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — NUEVA CAMPAÑA · {defaultPaid ? "PAGADA" : "ORGÁNICA"}
+        </div>
+        <h1 className="font-display text-4xl leading-none mt-2">
+          REGISTRAR CAMPAÑA<span className="text-orange">.</span>
+        </h1>
+        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+          Define objetivo, plataformas y plazo. DROP toma snapshot inicial automático
+          para calcular crecimiento.
+        </p>
+      </div>
+
+      <NewGrowthCampaignForm baselines={baselines} defaultPaid={defaultPaid} />
     </div>
   );
 }

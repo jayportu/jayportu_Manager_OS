@@ -98,11 +98,91 @@ export async function createGrowthCampaign(
       baseline_at:
         Object.keys(baseline).length > 0 ? new Date().toISOString() : null,
       end_date: input.end_date || null,
+      // Sprint 18 — Campaña pagada
+      is_paid: input.is_paid ?? false,
+      platform_ads: input.platform_ads ?? [],
+      budget_clp: input.budget_clp ?? null,
+      external_url: input.external_url ?? null,
+      result_notes: input.result_notes ?? "",
     })
     .select("*")
     .single();
   if (error) throw new Error(error.message);
   return data as GrowthCampaign;
+}
+
+// ─── Sprint 18 · ROI helpers ─────────────────────────────────────────
+
+export interface CampaignROI {
+  campaignId: string;
+  isPaid: boolean;
+  budgetClp: number | null;
+  baselineTotal: number;       // suma de baseline_followers de todas las plataformas
+  currentTotal: number;        // followers actuales en las mismas plataformas
+  deltaFollowers: number;      // currentTotal - baselineTotal
+  costPerFollower: number | null;  // budgetClp / deltaFollowers (null si no aplica o delta<=0)
+  targetTotal: number;          // suma de target_followers
+  progressPct: number;          // % del objetivo alcanzado
+}
+
+/**
+ * Calcula el ROI de una campaña: cuántos followers ganó (current - baseline)
+ * y el costo por follower (budget / delta) cuando es campaña pagada.
+ */
+export async function getCampaignROI(
+  campaign: GrowthCampaign
+): Promise<CampaignROI> {
+  const latest = await getLatestSnapshotsByPlatform();
+
+  let baselineTotal = 0;
+  let currentTotal = 0;
+  let targetTotal = 0;
+
+  for (const p of campaign.platforms) {
+    const baseline = campaign.baseline_followers?.[p] ?? 0;
+    const current = latest[p]?.followers ?? baseline;
+    const target = campaign.target_followers?.[p] ?? 0;
+    baselineTotal += baseline;
+    currentTotal += current;
+    targetTotal += target;
+  }
+
+  const deltaFollowers = currentTotal - baselineTotal;
+  const costPerFollower =
+    campaign.is_paid &&
+    campaign.budget_clp !== null &&
+    campaign.budget_clp > 0 &&
+    deltaFollowers > 0
+      ? Math.round(campaign.budget_clp / deltaFollowers)
+      : null;
+
+  const objective = targetTotal - baselineTotal;
+  const progressPct =
+    objective > 0
+      ? Math.min(100, Math.max(0, Math.round((deltaFollowers / objective) * 100)))
+      : 0;
+
+  return {
+    campaignId: campaign.id,
+    isPaid: campaign.is_paid,
+    budgetClp: campaign.budget_clp,
+    baselineTotal,
+    currentTotal,
+    deltaFollowers,
+    costPerFollower,
+    targetTotal,
+    progressPct,
+  };
+}
+
+/**
+ * Calcula ROIs de múltiples campañas para comparativa
+ * (bar chart en /growth/campanas).
+ */
+export async function getCampaignROIs(
+  campaigns: GrowthCampaign[]
+): Promise<CampaignROI[]> {
+  return Promise.all(campaigns.map(getCampaignROI));
 }
 
 export async function updateGrowthCampaign(
@@ -193,6 +273,7 @@ export async function createContentPost(
       plays: input.plays ?? null,
       reach: input.reach ?? null,
       notes: input.notes || "",
+      hashtags: input.hashtags ?? [],
       growth_campaign_id: input.growth_campaign_id || null,
     })
     .select("*")

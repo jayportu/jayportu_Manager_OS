@@ -665,13 +665,39 @@ export const POST_FORMAT_LABELS: Record<PostFormat, string> = {
   otro: "Otro",
 };
 
-export const POST_STATUS = ["planeado", "publicado", "cancelado"] as const;
+export const POST_STATUS = [
+  "idea",
+  "borrador",
+  "planeado",
+  "publicado",
+  "cancelado",
+] as const;
 export type PostStatus = (typeof POST_STATUS)[number];
 
 export const POST_STATUS_LABELS: Record<PostStatus, string> = {
-  planeado: "Planeado",
+  idea: "Idea",
+  borrador: "Borrador",
+  planeado: "Programado",
   publicado: "Publicado",
   cancelado: "Cancelado",
+};
+
+/** Plataformas de pauta pagada para growth_campaigns.platform_ads */
+export const AD_PLATFORMS = [
+  "meta_ads",
+  "google_ads",
+  "tiktok_ads",
+  "spotify_ads",
+  "youtube_ads",
+] as const;
+export type AdPlatform = (typeof AD_PLATFORMS)[number];
+
+export const AD_PLATFORM_LABELS: Record<AdPlatform, string> = {
+  meta_ads: "Meta Ads",
+  google_ads: "Google Ads",
+  tiktok_ads: "TikTok Ads",
+  spotify_ads: "Spotify Ads",
+  youtube_ads: "YouTube Ads",
 };
 
 export const GROWTH_CAMPAIGN_STATUS = [
@@ -710,6 +736,12 @@ export interface GrowthCampaign {
   started_at: string | null;
   end_date: string | null;
   ended_at: string | null;
+  /** Sprint 18 — Campaña pagada */
+  is_paid: boolean;
+  platform_ads: AdPlatform[];
+  budget_clp: number | null;
+  external_url: string | null;
+  result_notes: string;
   created_at: string;
   updated_at: string;
 }
@@ -725,6 +757,11 @@ export type GrowthCampaignInsert = {
   target_reach?: number | null;
   baseline_followers?: Record<string, number>;
   end_date?: string | null;
+  is_paid?: boolean;
+  platform_ads?: AdPlatform[];
+  budget_clp?: number | null;
+  external_url?: string | null;
+  result_notes?: string;
 };
 
 export interface ContentPost {
@@ -747,6 +784,8 @@ export interface ContentPost {
   plays: number | null;
   reach: number | null;
   notes: string;
+  /** Sprint 18 — hashtags asociados al post */
+  hashtags: string[];
   ai_analysis: string;
   performance_score: number | null;
   created_at: string;
@@ -770,6 +809,7 @@ export type ContentPostInsert = {
   plays?: number | null;
   reach?: number | null;
   notes?: string;
+  hashtags?: string[];
   growth_campaign_id?: string | null;
 };
 
