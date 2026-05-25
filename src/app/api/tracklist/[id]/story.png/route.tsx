@@ -20,10 +20,12 @@ import {
 } from "@/lib/queries/tracklists";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 
-// Edge runtime con tamaño reducido (720×1280, ratio 9:16 de IG story):
-// 1080×1920 causaba OOM/body-vacío en Vercel Hobby. 720×1280 cabe en
-// los límites y mantiene resolución legible para mobile.
-export const runtime = "edge";
+// Edge runtime devolvía content-length=0 con queries Supabase + auth
+// (problema conocido de @vercel/og + edge en Vercel cuando hay awaits
+// largos antes del return). Volvemos a nodejs runtime + force-dynamic
+// + tamaño 540×960 (ratio 9:16 idéntico, 4× menos memoria que 1080×1920).
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -354,10 +356,10 @@ export async function GET(_req: Request, { params }: Params) {
       </div>
     ),
     {
-      // 720×1280 (ratio 9:16) — IG story rescalea sin problema y cabe en
-      // límite de memoria de edge runtime Vercel Hobby.
-      width: 720,
-      height: 1280,
+      // 540×960 (ratio 9:16) — IG story rescalea OK desde acá. Tamaño
+      // pequeño para evitar OOM en nodejs serverless Vercel Hobby.
+      width: 540,
+      height: 960,
       headers: {
         "Content-Disposition": `inline; filename="tracklist-${id.slice(0, 8)}-story.png"`,
         "Cache-Control": "private, no-store",

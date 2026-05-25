@@ -8,7 +8,11 @@
 import type { MetadataRoute } from "next";
 import { listPublicDjs } from "@/lib/queries/directory";
 
-const SITE = "https://drop.dj";
+// Dominio canónico. Usa NEXT_PUBLIC_SITE_URL en producción y fallback al
+// dominio Vercel actual. Si en el futuro tienes drop.dj configurado, basta
+// con setear la env var — no requiere recompilar nada más.
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
 
 /**
  * Sitemap dinámico: se regenera con cada request (cache 1h).
