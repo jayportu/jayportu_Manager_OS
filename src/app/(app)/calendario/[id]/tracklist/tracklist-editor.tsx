@@ -26,7 +26,6 @@ import {
   Trash2,
   Upload,
   GripVertical,
-  Download,
   Copy,
   Check,
   Zap,
@@ -427,15 +426,11 @@ export function TracklistEditor({
             </>
           )}
         </Button>
-        <a
-          href={`/api/tracklist/${tracklistId}/story.png`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 h-10 px-4 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Bajar PNG · IG Story
-        </a>
+        {/* TODO Sprint futuro: Restaurar botón "Bajar PNG · IG Story"
+            cuando se resuelva BUG-02 (next/og ImageResponse con edge runtime
+            + cookies() previas devuelve content-length=0 en producción).
+            El endpoint /api/tracklist/[id]/story.png queda en el codebase
+            por si el fix arquitectural se aborda más adelante. */}
         {autoPost.enabled && autoPost.hasUrl ? (
           <Button
             type="button"
