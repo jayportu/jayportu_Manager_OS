@@ -20,6 +20,9 @@ import {
 } from "@/lib/queries/tracklists";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 
+// Edge runtime con tamaño reducido (720×1280, ratio 9:16 de IG story):
+// 1080×1920 causaba OOM/body-vacío en Vercel Hobby. 720×1280 cabe en
+// los límites y mantiene resolución legible para mobile.
 export const runtime = "edge";
 
 interface Params {
@@ -350,8 +353,10 @@ export async function GET(_req: Request, { params }: Params) {
       </div>
     ),
     {
-      width: 1080,
-      height: 1920,
+      // 720×1280 (ratio 9:16) — IG story rescalea sin problema y cabe en
+      // límite de memoria de edge runtime Vercel Hobby.
+      width: 720,
+      height: 1280,
       headers: {
         "Content-Disposition": `inline; filename="tracklist-${id.slice(0, 8)}-story.png"`,
         "Cache-Control": "private, no-store",
