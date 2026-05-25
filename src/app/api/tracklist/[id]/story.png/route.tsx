@@ -20,12 +20,10 @@ import {
 } from "@/lib/queries/tracklists";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 
-// Edge runtime devolvía content-length=0 con queries Supabase + auth
-// (problema conocido de @vercel/og + edge en Vercel cuando hay awaits
-// largos antes del return). Volvemos a nodejs runtime + force-dynamic
-// + tamaño 540×960 (ratio 9:16 idéntico, 4× menos memoria que 1080×1920).
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+// next/og funciona oficialmente solo en edge runtime con Next 14 — nodejs
+// runtime falla porque no incluye satori/resvg en serverless functions
+// estándar. Edge + tamaño 540×960 (ratio 9:16) es la combinación estable.
+export const runtime = "edge";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -103,7 +101,9 @@ export async function GET(_req: Request, { params }: Params) {
           backgroundColor: CREAM,
           color: INK,
           padding: 64,
-          fontFamily: "Inter, system-ui, sans-serif",
+          // Sin fontFamily custom: satori en edge no tiene Inter por default,
+          // mejor que use el sans-serif genérico que sí está disponible.
+          fontFamily: "sans-serif",
         }}
       >
         {/* Top bar */}
