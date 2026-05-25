@@ -41,7 +41,7 @@ export default async function RecurrentesPage() {
         </h1>
         <p className="text-sm text-fg-muted mt-2 max-w-2xl">
           {series.length === 0
-            ? "Aún no tenes follow-ups recurrentes. Crea uno desde la ficha de cualquier contacto activando el toggle 'Hacer recurrente'."
+            ? "Aún no tienes follow-ups recurrentes. Crea uno desde la ficha de cualquier contacto activando el toggle 'Hacer recurrente'."
             : `${series.length} ${series.length === 1 ? "serie activa" : "series activas"}. Cada vez que cierres uno, DROP crea automáticamente el siguiente.`}
         </p>
       </div>

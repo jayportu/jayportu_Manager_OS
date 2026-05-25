@@ -430,12 +430,12 @@ export function ContactForm({ initial }: Props) {
             🔒 Notas privadas
           </h2>
           <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-ink text-orange">
-            solo vos
+            solo tú
           </span>
         </div>
         <p className="text-xs text-fg-muted -mt-1">
           Nunca aparecen en press kit, export CSV ni plantillas de mail. Para
-          cosas que NO querés olvidar: cómo paga, qué le molesta, conexiones
+          cosas que NO quieres olvidar: cómo paga, qué le molesta, conexiones
           personales, etc.
         </p>
         <Textarea

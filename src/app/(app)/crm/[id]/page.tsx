@@ -219,7 +219,7 @@ export default async function ContactDetailPage({ params }: PageProps) {
               🔒 NOTAS PRIVADAS
             </div>
             <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink">
-              solo vos
+              solo tú
             </span>
           </div>
           <p className="text-sm whitespace-pre-wrap leading-relaxed">
