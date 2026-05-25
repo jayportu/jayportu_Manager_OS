@@ -152,6 +152,165 @@ export async function updateBookingStatus(
   if (error) throw new Error(error.message);
 }
 
+/**
+ * Sprint 20 — Cambiar status con auto-actions según workflow.
+ *
+ *  - status='cotizado': graba quoted_amount_clp + crea follow_up auto
+ *    para +3 días con nota "Recontactar [name] - cotizado $X sin respuesta".
+ *  - status='agendado': crea calendar_event con monto y payment_status='pending'.
+ *
+ * Devuelve los ids generados (si los hay).
+ */
+export async function updateBookingWorkflow(
+  id: string,
+  patch: {
+    status: BookingStatus;
+    quoted_amount_clp?: number | null;
+    notes_internal?: string;
+    event_date?: string | null;
+  }
+): Promise<{ followUpId?: string; calendarEventId?: string }> {
+  const { supabase, user } = await getUserOrThrow();
+
+  // 1. Leer booking actual
+  const { data: booking, error: readErr } = await supabase
+    .from("booking_form_submissions")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("id", id)
+    .single();
+  if (readErr) throw new Error(readErr.message);
+  const b = booking as BookingSubmission;
+
+  const updateObj: Record<string, unknown> = { status: patch.status };
+  if (patch.quoted_amount_clp !== undefined) {
+    updateObj.quoted_amount_clp = patch.quoted_amount_clp;
+  }
+  if (patch.notes_internal !== undefined) {
+    updateObj.notes_internal = patch.notes_internal;
+  }
+
+  const result: { followUpId?: string; calendarEventId?: string } = {};
+
+  // Auto-action: cotizado → crear follow_up para +3 días
+  if (
+    patch.status === "cotizado" &&
+    b.status !== "cotizado" &&
+    !b.follow_up_id
+  ) {
+    // Necesita un contact_id para crear follow_up. Si no hay, intentar
+    // primero promover el booking a contacto (created_contact_id).
+    let contactId = b.created_contact_id;
+    if (!contactId && b.name) {
+      const { data: contact } = await supabase
+        .from("contacts")
+        .insert({
+          user_id: user.id,
+          name: b.name,
+          email: b.email || "",
+          whatsapp: b.phone || "",
+          source: "booking_form",
+          status: "negociando",
+          notes: b.message || "",
+        })
+        .select("id")
+        .single();
+      if (contact) {
+        contactId = (contact as { id: string }).id;
+        updateObj.created_contact_id = contactId;
+      }
+    }
+
+    if (contactId) {
+      const dueAt = new Date();
+      dueAt.setDate(dueAt.getDate() + 3);
+      const amount = patch.quoted_amount_clp ?? b.quoted_amount_clp;
+      const amountLabel = amount
+        ? `$${amount.toLocaleString("es-CL")}`
+        : "monto cotizado";
+      const { data: fu } = await supabase
+        .from("follow_ups")
+        .insert({
+          user_id: user.id,
+          contact_id: contactId,
+          due_at: dueAt.toISOString(),
+          note: `Recontactar ${b.name} — ${amountLabel} sin respuesta`,
+          priority: "alta",
+        })
+        .select("id")
+        .single();
+      if (fu) {
+        result.followUpId = (fu as { id: string }).id;
+        updateObj.follow_up_id = result.followUpId;
+      }
+    }
+    updateObj.quoted_at = new Date().toISOString();
+  }
+
+  // Auto-action: agendado → crear calendar_event
+  if (
+    patch.status === "agendado" &&
+    b.status !== "agendado" &&
+    !b.calendar_event_id
+  ) {
+    // Necesita una fecha. Usar event_date del form (puede ser null).
+    const eventDate = patch.event_date ?? b.event_date;
+    if (eventDate) {
+      const startAt = new Date(`${eventDate}T22:00:00`);
+      const endAt = new Date(`${eventDate}T26:00:00`); // 4h gig default
+      endAt.setHours(endAt.getHours());
+      const amount = patch.quoted_amount_clp ?? b.quoted_amount_clp;
+      const { data: ev } = await supabase
+        .from("calendar_events")
+        .insert({
+          user_id: user.id,
+          type: "show",
+          title: `${b.name}${b.venue ? ` · ${b.venue}` : ""}`,
+          description: b.message || "",
+          location: b.venue || "",
+          start_at: startAt.toISOString(),
+          end_at: endAt.toISOString(),
+          contact_id: b.created_contact_id,
+          sync_state: "local_only",
+          amount_clp: amount,
+          payment_status: amount && amount > 0 ? "pending" : "none",
+          document_type: "none",
+        })
+        .select("id")
+        .single();
+      if (ev) {
+        result.calendarEventId = (ev as { id: string }).id;
+        updateObj.calendar_event_id = result.calendarEventId;
+      }
+    }
+    updateObj.agendado_at = new Date().toISOString();
+  }
+
+  // Auto-action: si hay follow_up activo de la serie y el booking pasa a
+  // 'agendado' o 'rechazado', cerrar el follow_up.
+  if (
+    (patch.status === "agendado" || patch.status === "rechazado") &&
+    b.follow_up_id
+  ) {
+    await supabase
+      .from("follow_ups")
+      .update({ done: true, done_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .eq("id", b.follow_up_id)
+      .eq("done", false);
+  }
+
+  // Persistir cambios
+  const { error: updateErr } = await supabase
+    .from("booking_form_submissions")
+    .update(updateObj)
+    .eq("user_id", user.id)
+    .eq("id", id);
+  if (updateErr) throw new Error(updateErr.message);
+
+  return result;
+}
+
 export async function updateProfileSlug(slug: string): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
   // Sanitizar slug

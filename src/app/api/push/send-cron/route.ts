@@ -10,6 +10,7 @@
  *  4. Sprint 18 — Campaña pagada activa al 90%+ del objetivo (sugerir cerrar)
  *  5. Sprint 18 — Silencio 7+ días sin postear (recordatorio amable)
  *  6. Sprint 19 — Pago atrasado +30 días (gig con payment_status=pending)
+ *  7. Sprint 20 — Booking sin leer +24h (status='nuevo' viejo)
  *
  * Cada trigger se envía con tag distinto para que el navegador agrupe
  * en lugar de apilar. No envía si no hay nada relevante.
@@ -206,6 +207,28 @@ async function buildTriggers(userId: string): Promise<PushPayload[]> {
           : `${lateGigs.length} gigs con 30+ días sin cobrar (${totalLabel} total).`,
       url: "/calendario",
       tag: "calendar-payment-late",
+    });
+  }
+
+  // ─── Trigger 7: booking nuevo sin leer +24h (Sprint 20) ─────────────
+  const oneDayAgo = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+    .toISOString();
+  const { count: unreadBookings } = await admin
+    .from("booking_form_submissions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("status", "nuevo")
+    .lte("created_at", oneDayAgo);
+
+  if (unreadBookings && unreadBookings > 0) {
+    out.push({
+      title: "📩 Bookings sin leer",
+      body:
+        unreadBookings === 1
+          ? "Tienes 1 booking en tu inbox de press kit sin leer hace 24+ horas."
+          : `Tienes ${unreadBookings} bookings sin leer hace 24+ horas.`,
+      url: "/press-kit",
+      tag: "bookings-unread-24h",
     });
   }
 

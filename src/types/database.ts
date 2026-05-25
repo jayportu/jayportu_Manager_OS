@@ -36,6 +36,11 @@ export interface DjProfile {
   press_kit_pdf_url: string;
   press_kit_pdf_filename: string;
   press_kit_pdf_size_bytes: number;
+  /** Sprint 20 — Marketplace */
+  hidden_from_directory: boolean;
+  available_from: string | null;
+  available_until: string | null;
+  available_note: string;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +69,20 @@ export const CONTACT_TYPES = [
   "otro",
 ] as const;
 export type ContactType = (typeof CONTACT_TYPES)[number];
+
+/** Sprint 20 — Tipos de contacto que son "venues" (lugares físicos donde
+ *  el DJ toca). Solo estos muestran capacity_estimate y accepted_genres. */
+export const VENUE_TYPES: ContactType[] = [
+  "club",
+  "bar",
+  "rooftop",
+  "festival",
+  "productora",
+];
+
+export function isVenueType(t: ContactType): boolean {
+  return VENUE_TYPES.includes(t);
+}
 
 export const CONTACT_STATUS = [
   "nuevo",
@@ -115,6 +134,10 @@ export interface Contact {
   tags: string[];
   /** Sprint 19 — Notas privadas (RLS estricto, solo owner, nunca exportadas) */
   private_notes: string;
+  /** Sprint 20 — Para venues: capacidad estimada (personas) */
+  capacity_estimate: number | null;
+  /** Sprint 20 — Para venues: géneros que aceptan (filtro en /descubrir) */
+  accepted_genres: string[];
   created_at: string;
   updated_at: string;
 }
@@ -308,12 +331,14 @@ export const PRESSKIT_EVENT_LABELS: Record<PresskitEventType, string> = {
 // ════════════════════════════════════════════════════════════════════
 // booking_form_submissions
 // ════════════════════════════════════════════════════════════════════
+// Sprint 20 — Workflow extendido para inbox de bookings
 export const BOOKING_STATUS = [
-  "pendiente",
+  "nuevo",
   "leido",
   "respondido",
-  "convertido",
-  "descartado",
+  "cotizado",
+  "agendado",
+  "rechazado",
 ] as const;
 export type BookingStatus = (typeof BOOKING_STATUS)[number];
 
@@ -331,16 +356,24 @@ export interface BookingSubmission {
   created_contact_id: string | null;
   referrer: string;
   user_agent: string;
+  /** Sprint 20 — Workflow */
+  quoted_amount_clp: number | null;
+  notes_internal: string;
+  follow_up_id: string | null;
+  calendar_event_id: string | null;
+  quoted_at: string | null;
+  agendado_at: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
-  pendiente: "Pendiente",
+  nuevo: "Nuevo",
   leido: "Leído",
   respondido: "Respondido",
-  convertido: "Convertido en contacto",
-  descartado: "Descartado",
+  cotizado: "Cotizado",
+  agendado: "Agendado",
+  rechazado: "Rechazado",
 };
 
 // ════════════════════════════════════════════════════════════════════

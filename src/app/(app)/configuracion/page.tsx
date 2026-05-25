@@ -9,6 +9,7 @@ import { GmailSetup } from "./gmail-setup";
 import { PlatformAccountsSection } from "./platform-accounts-section";
 import { PushSetup } from "./push-setup";
 import { PressKitSection } from "./press-kit-section";
+import { AvailabilitySection } from "./availability-section";
 
 export default async function ConfiguracionPage() {
   const profile = await getMyProfile();
@@ -31,6 +32,10 @@ export default async function ConfiguracionPage() {
       </div>
 
       <ProfileForm initialProfile={profile} />
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <AvailabilitySection profile={profile} />
+      </div>
 
       <div className="mt-12 pt-8 border-t border-border">
         <h2 className="text-lg font-semibold mb-2">Press kit</h2>

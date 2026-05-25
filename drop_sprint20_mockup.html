@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DROP. · Sprint 20 — Marketplace inicial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F4EFE7;
+    --ink: #0A0A0A;
+    --orange: #FF5C00;
+    --success: #1F8A5C;
+    --warning: #C77A00;
+    --danger: #C53030;
+    --info: #2B5BA8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--cream); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .anton { font-family: 'Anton'; line-height: 0.85; letter-spacing: 0.005em; }
+  .mono { font-family: 'Space Mono', monospace; }
+
+  /* COVER */
+  .cover {
+    background: var(--ink); color: var(--cream);
+    padding: 60px 40px 70px; position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: '20'; position: absolute; bottom: -100px; right: -40px;
+    font-family: 'Anton'; font-size: 580px; line-height: 0.75;
+    color: rgba(255,92,0,0.08); pointer-events: none;
+  }
+  .cover .kicker {
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.18em; color: var(--orange);
+  }
+  .cover h1 {
+    font-family: 'Anton'; font-size: clamp(72px, 12vw, 168px);
+    line-height: 0.78; margin-top: 16px; letter-spacing: -0.01em;
+  }
+  .cover h1 .dot { color: var(--orange); }
+  .cover .sub {
+    font-family: 'Anton'; font-size: clamp(24px, 3.5vw, 40px);
+    line-height: 0.95; margin-top: 16px; color: var(--cream);
+    max-width: 800px;
+  }
+  .cover .sub em { color: var(--orange); font-style: normal; }
+  .cover .meta-row {
+    margin-top: 36px; display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; max-width: 920px; position: relative; z-index: 1;
+  }
+  .cover .meta-row .cell { border-top: 1px solid #2a2a2a; padding-top: 12px; }
+  .cover .meta-row .cell .lbl {
+    font-family: 'Space Mono'; font-size: 9px;
+    font-weight: 700; letter-spacing: 0.12em; color: var(--orange);
+  }
+  .cover .meta-row .cell .val {
+    font-family: 'Anton'; font-size: 24px; line-height: 0.95;
+    margin-top: 4px; color: var(--cream);
+  }
+  @media (max-width: 680px) { .cover .meta-row { grid-template-columns: 1fr 1fr; } }
+
+  .ticker {
+    background: var(--orange); color: var(--ink);
+    overflow: hidden; white-space: nowrap;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 9px 0;
+  }
+  .ticker .track {
+    display: inline-block; animation: scroll 30s linear infinite;
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em;
+  }
+  .ticker .track span { padding: 0 22px; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  section { padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 18px; margin-bottom: 40px;
+    border-bottom: 2px solid var(--ink); padding-bottom: 14px;
+    max-width: 1280px; margin-left: auto; margin-right: auto;
+  }
+  .sec-head .num {
+    font-family: 'Anton'; font-size: 48px; color: var(--orange); line-height: 0.85;
+  }
+  .sec-head .ttl {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+  }
+  .sec-head .sub {
+    font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em; color: #555;
+    margin-left: auto; align-self: center;
+  }
+  .sec-body { max-width: 1280px; margin: 0 auto; }
+
+  .lead {
+    font-size: 16px; line-height: 1.55; max-width: 800px; margin-bottom: 28px;
+  }
+  .lead strong { color: var(--orange); }
+
+  /* FRAME */
+  .frame {
+    border: 2px solid var(--ink); background: #FFF;
+    box-shadow: 8px 8px 0 var(--orange);
+    margin-bottom: 24px;
+  }
+  .frame .chrome {
+    background: #2a2a2a; height: 32px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; border-bottom: 2px solid var(--ink);
+  }
+  .frame .chrome .dot { width: 11px; height: 11px; border-radius: 100%; }
+  .frame .chrome .url {
+    flex: 1; background: var(--ink); color: var(--orange);
+    font-size: 11px; padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .frame .label {
+    position: absolute; top: -14px; left: 24px;
+    background: var(--ink); color: var(--orange);
+    padding: 4px 10px; font-family: 'Space Mono';
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  }
+  .frame-wrap { position: relative; }
+
+  /* Layout app interno */
+  .app-layout { display: flex; min-height: 720px; }
+  .app-sidebar {
+    width: 220px; background: var(--ink); color: var(--cream);
+    padding: 18px 0; flex-shrink: 0; position: relative; overflow: hidden;
+    border-right: 2px solid var(--orange);
+  }
+  .app-sidebar::before {
+    content: 'D.'; position: absolute; bottom: -60px; right: -40px;
+    font-family: 'Anton'; font-size: 280px; line-height: 0.75;
+    color: rgba(255,92,0,0.05);
+  }
+  .app-sidebar .logo {
+    padding: 0 22px 18px; border-bottom: 2px solid var(--orange);
+    font-family: 'Anton'; font-size: 36px; color: var(--cream);
+  }
+  .app-sidebar .logo .dot { color: var(--orange); }
+  .app-sidebar .nav-item {
+    padding: 9px 22px; font-family: 'Space Mono', monospace;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #888;
+    border-left: 3px solid transparent;
+  }
+  .app-sidebar .nav-item.active {
+    background: var(--orange); color: var(--ink);
+    border-left-color: var(--ink);
+  }
+  .app-main {
+    flex: 1; background: var(--cream); padding: 28px;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .page-hero {
+    border: 2px solid var(--ink); background: #FFF; padding: 24px 28px;
+    margin-bottom: 20px; position: relative;
+  }
+  .page-hero .kicker {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .page-hero h2 {
+    font-family: 'Anton'; font-size: 48px; line-height: 0.85;
+    margin-top: 6px; text-transform: uppercase;
+  }
+  .page-hero h2 .dot { color: var(--orange); }
+  .page-hero p { margin-top: 10px; font-size: 14px; max-width: 600px; }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--ink); color: var(--orange); border: 2px solid var(--ink);
+    padding: 10px 16px; font-family: 'Space Mono'; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 120ms; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--orange); color: var(--ink); }
+  .btn.orange { background: var(--orange); color: var(--ink); }
+  .btn.outline { background: transparent; color: var(--ink); }
+  .btn.sm { padding: 6px 12px; font-size: 10px; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; background: var(--ink); color: #FFF;
+    padding: 3px 9px; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .tag.orange { background: var(--orange); color: var(--ink); }
+  .tag.outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
+  .tag.success { background: var(--success); color: #FFF; }
+  .tag.warning { background: var(--warning); color: #FFF; }
+  .tag.danger { background: var(--danger); color: #FFF; }
+  .tag.info { background: var(--info); color: #FFF; }
+  .tag.cream { background: var(--cream); color: var(--ink); border: 1px solid var(--ink); }
+
+  /* DJ Card */
+  .dj-card {
+    border: 2px solid var(--ink); background: #FFF;
+    display: flex; flex-direction: column;
+    transition: all 150ms;
+    cursor: pointer;
+  }
+  .dj-card:hover {
+    box-shadow: 8px 8px 0 var(--orange);
+    transform: translate(-4px, -4px);
+  }
+  .dj-card .photo {
+    background: var(--ink); aspect-ratio: 1/1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .dj-card .photo .ini {
+    font-family: 'Anton'; font-size: 96px;
+    color: var(--cream); line-height: 0.85;
+  }
+  .dj-card .photo .ini .dot { color: var(--orange); }
+  .dj-card .photo .avail-pill {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--orange); color: var(--ink);
+    padding: 3px 8px; font-family: 'Space Mono';
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+    border: 1px solid var(--ink);
+  }
+  .dj-card .body {
+    padding: 14px; border-top: 2px solid var(--ink);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .dj-card .body .name {
+    font-family: 'Anton'; font-size: 22px;
+    line-height: 0.95; letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .dj-card .body .meta {
+    font-family: 'Space Mono'; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: #555;
+  }
+  .dj-card .body .genres {
+    display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .dj-card .body .genres .tag { font-size: 9px; }
+
+  /* DJ Grid */
+  .dj-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  }
+  @media (max-width: 960px) { .dj-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 720px) { .dj-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .dj-grid { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  @media (max-width: 960px) { .card-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+  .card {
+    border: 2px solid var(--ink); background: #FFF; padding: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .card.dark { background: var(--ink); color: var(--cream); }
+  .card.orange { background: var(--orange); }
+  .card .lbl {
+    font-family: 'Space Mono'; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange);
+  }
+  .card .h {
+    font-family: 'Anton'; font-size: 26px; line-height: 0.95;
+  }
+
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block; font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 2px solid var(--ink);
+    background: #FFF; font-family: 'Inter'; font-size: 13px;
+    color: var(--ink);
+  }
+
+  /* Filter chips */
+  .filter-chips {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .filter-chips .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border: 2px solid var(--ink);
+    font-family: 'Space Mono'; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    cursor: pointer; transition: all 120ms;
+    background: var(--cream);
+  }
+  .filter-chips .chip.active { background: var(--orange); }
+  .filter-chips .chip:hover { background: var(--orange); }
+
+  /* TOGGLE */
+  .toggle-wrap {
+    display: flex; align-items: center; gap: 14px;
+    border: 2px solid var(--ink); padding: 16px; background: #FFF;
+  }
+  .toggle-wrap.active { background: var(--orange); }
+  .toggle-knob {
+    width: 52px; height: 28px; border: 2px solid var(--ink);
+    background: var(--cream); position: relative; cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle-knob .ball {
+    position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; background: var(--ink);
+    transition: all 200ms;
+  }
+  .toggle-wrap.active .toggle-knob { background: var(--ink); }
+  .toggle-wrap.active .toggle-knob .ball {
+    left: 26px; background: var(--cream);
+  }
+
+  /* Inbox row */
+  .inbox-row {
+    display: grid;
+    grid-template-columns: 6px 50px 1fr auto auto;
+    align-items: center; gap: 12px;
+    padding: 12px 16px;
+    border: 2px solid var(--ink); background: #FFF;
+    cursor: pointer; transition: all 100ms;
+  }
+  .inbox-row:hover { background: var(--cream); }
+  .inbox-row.unread { background: var(--orange); }
+  .inbox-row .status-bar { width: 6px; align-self: stretch; }
+  .inbox-row.unread .status-bar { background: var(--ink); }
+  .inbox-row.read .status-bar { background: var(--info); }
+  .inbox-row.cotizado .status-bar { background: var(--warning); }
+  .inbox-row.agendado .status-bar { background: var(--success); }
+  .inbox-row.rechazado .status-bar { background: var(--danger); opacity: 0.5; }
+  .inbox-row .av {
+    width: 42px; height: 42px; border: 2px solid var(--ink);
+    background: var(--ink); color: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Anton'; font-size: 22px;
+    border-radius: 50%;
+  }
+  .inbox-row .info {
+    min-width: 0; flex: 1;
+  }
+  .inbox-row .info .name {
+    font-family: 'Anton'; font-size: 18px; line-height: 1;
+    text-transform: uppercase;
+  }
+  .inbox-row .info .preview {
+    font-size: 12px; color: #555;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    margin-top: 2px;
+  }
+  .inbox-row .date {
+    font-family: 'Space Mono'; font-size: 10px;
+    color: #555; white-space: nowrap;
+  }
+
+  /* PHONE */
+  .phone-shell {
+    background: var(--ink); border-radius: 36px; padding: 6px;
+    width: 270px; box-shadow: 8px 8px 0 var(--orange);
+    border: 2px solid var(--ink); flex-shrink: 0;
+  }
+  .phone-shell .screen {
+    background: var(--cream); border-radius: 30px; overflow: hidden;
+    height: 540px; display: flex; flex-direction: column;
+  }
+  .phone-shell .screen .topb {
+    background: var(--cream); padding: 14px 14px 10px;
+    border-bottom: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .phone-shell .screen .topb .logo {
+    font-family: 'Anton'; font-size: 18px;
+  }
+  .phone-shell .screen .topb .logo .dot { color: var(--orange); }
+  .phone-shell .screen .content {
+    flex: 1; padding: 12px; overflow-y: auto;
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .phone-shell .screen .bottomb {
+    background: var(--ink); padding: 8px; display: grid;
+    grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--orange);
+  }
+  .phone-shell .screen .bottomb .item {
+    text-align: center; font-family: 'Space Mono'; font-size: 7px;
+    color: #888; padding: 4px 2px;
+  }
+  .phone-shell .screen .bottomb .item.active { background: var(--orange); color: var(--ink); }
+
+  /* MISC */
+  hr.dash {
+    border: 0; border-top: 2px dashed var(--ink); margin: 24px 0;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="kicker">— SPRINT 20 · PRÓXIMO EN ROADMAP</div>
+  <h1>MARKETPLACE<span class="dot">.</span></h1>
+  <div class="sub">Directorio público + inbox unificado + <em>bookers encuentran DJs</em> en lugar de al revés.</div>
+
+  <div class="meta-row">
+    <div class="cell">
+      <div class="lbl">— TIEMPO ESTIMADO</div>
+      <div class="val">5 SESIONES</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— MIGRATIONS</div>
+      <div class="val">0018</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— BLOQUES</div>
+      <div class="val">04 (B1·B2·B3·B4)</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">— COSTO</div>
+      <div class="val">$0</div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="track">
+    <span>B1 · DIRECTORIO /DJ INDEXABLE · B2 · DISPONIBLE PARA TOCAR · B3 · INBOX BOOKINGS CRM-LIKE · B4 · SEARCH VENUES</span>
+    <span>B1 · DIRECTORIO /DJ INDEXABLE · B2 · DISPONIBLE PARA TOCAR · B3 · INBOX BOOKINGS CRM-LIKE · B4 · SEARCH VENUES</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- B1 · DIRECTORIO PÚBLICO -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">B1</div>
+    <div class="ttl">DIRECTORIO PÚBLICO</div>
+    <div class="sub">/DJ · BUSCABLE POR GÉNERO/CIUDAD · SEO COMPLETO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      <strong>Vuelta de rol:</strong> hasta ahora cada DJ tenía su press kit en `/p/[slug]`.
+      Ahora hay una <strong>página índice pública</strong> donde bookers/venues pueden
+      <em>encontrar</em> DJs por género, ciudad y disponibilidad. Indexable por Google. Sin login.
+    </p>
+
+    <!-- /dj listado público -->
+    <div class="frame-wrap">
+      <div class="label">B1 / /DJ · DIRECTORIO PÚBLICO (SIN LOGIN)</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/dj</div>
+        </div>
+        <div style="padding: 28px 32px; background: var(--cream); background-image: linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px); background-size: 24px 24px;">
+          <!-- Header público -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="anton" style="font-size: 38px;">DROP<span style="color: var(--orange);">.</span></div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <span class="mono" style="font-size: 11px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: 0.12em;">— EL DJ OS</span>
+              <button class="btn outline sm">SOY DJ · CREAR PERFIL</button>
+            </div>
+          </div>
+
+          <!-- Hero -->
+          <div style="border: 2px solid var(--ink); background: #FFF; padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -40px; top: -50px; font-family: 'Anton'; font-size: 220px; line-height: 0.85; color: rgba(255,92,0,0.07);">DJ.</div>
+            <div style="position: relative;">
+              <div class="mono" style="font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— DIRECTORIO · 247 DJs ACTIVOS</div>
+              <h2 class="anton" style="font-size: 56px; margin-top: 8px; line-height: 0.85;">ENCONTRÁ TU<br/>DJ<span style="color: var(--orange);">.</span></h2>
+              <p style="font-size: 14px; max-width: 540px; margin-top: 12px;">Catálogo público de DJs verificados. Filtrá por género, ciudad y disponibilidad. Contactá directo · sin intermediarios · sin comisión.</p>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div style="background: #FFF; border: 2px solid var(--ink); padding: 16px; margin-bottom: 20px;">
+            <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em; margin-bottom: 10px;">— FILTROS</div>
+            <div style="display: grid; grid-template-columns: 1fr 180px 180px 140px; gap: 8px;">
+              <input placeholder="🔎  Buscar por nombre, ciudad, género..." style="padding: 9px 12px; border: 2px solid var(--ink); font-family: 'Space Mono'; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;" value="" />
+              <select style="padding: 9px 12px; border: 2px solid var(--ink); font-family: 'Space Mono'; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                <option>Ciudad: todas</option>
+                <option>Santiago</option>
+              </select>
+              <select style="padding: 9px 12px; border: 2px solid var(--ink); font-family: 'Space Mono'; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                <option>Disponibilidad: todos</option>
+                <option>Solo disponibles</option>
+              </select>
+              <button class="btn orange">FILTRAR</button>
+            </div>
+            <div style="margin-top: 10px;">
+              <div class="mono" style="font-size: 9px; font-weight: 700; color: #555; letter-spacing: 0.1em; margin-bottom: 6px;">— GÉNEROS:</div>
+              <div class="filter-chips">
+                <span class="chip active">TECHNO</span>
+                <span class="chip active">HOUSE</span>
+                <span class="chip">DEEP HOUSE</span>
+                <span class="chip">TECH HOUSE</span>
+                <span class="chip">PROGRESSIVE</span>
+                <span class="chip">MINIMAL</span>
+                <span class="chip">DRUM N BASS</span>
+                <span class="chip">REGGAETON</span>
+                <span class="chip">URBANO</span>
+                <span class="chip">COMERCIAL</span>
+                <span class="chip">RETRO/80S</span>
+                <span class="chip">+12</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DJ grid -->
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+            <div class="mono" style="font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— 14 RESULTADOS · ORDENADO POR DISPONIBILIDAD</div>
+            <div class="mono" style="font-size: 10px; color: #555;">VISTA: GRID | LISTA</div>
+          </div>
+
+          <div class="dj-grid">
+            <div class="dj-card">
+              <div class="photo">
+                <span class="ini">J<span class="dot">.</span></span>
+                <span class="avail-pill">★ DISPONIBLE</span>
+              </div>
+              <div class="body">
+                <div class="name">JAY PORTU</div>
+                <div class="meta">Santiago · CL</div>
+                <div class="genres">
+                  <span class="tag orange">TECHNO</span>
+                  <span class="tag cream">HOUSE</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo" style="background: var(--orange);">
+                <span class="ini" style="color: var(--ink);">M<span class="dot" style="color: var(--cream);">.</span></span>
+                <span class="avail-pill">★ DISPONIBLE</span>
+              </div>
+              <div class="body">
+                <div class="name">MAYRA / CL</div>
+                <div class="meta">Valparaíso · CL</div>
+                <div class="genres">
+                  <span class="tag orange">DEEP HOUSE</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo">
+                <span class="ini">DL<span class="dot">.</span></span>
+              </div>
+              <div class="body">
+                <div class="name">DRO LATAM</div>
+                <div class="meta">Bs As · AR</div>
+                <div class="genres">
+                  <span class="tag orange">TECH HOUSE</span>
+                  <span class="tag cream">MINIMAL</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo" style="background: var(--cream);">
+                <span class="ini" style="color: var(--ink);">FC<span class="dot">.</span></span>
+                <span class="avail-pill">★ DISPONIBLE</span>
+              </div>
+              <div class="body">
+                <div class="name">FERNANDA C.</div>
+                <div class="meta">Santiago · CL</div>
+                <div class="genres">
+                  <span class="tag orange">HOUSE</span>
+                  <span class="tag cream">PROGRESSIVE</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo">
+                <span class="ini">LR<span class="dot">.</span></span>
+              </div>
+              <div class="body">
+                <div class="name">LUKA R.</div>
+                <div class="meta">Mendoza · AR</div>
+                <div class="genres">
+                  <span class="tag orange">TECHNO</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo" style="background: var(--orange);">
+                <span class="ini" style="color: var(--ink);">RT<span class="dot" style="color: var(--cream);">.</span></span>
+                <span class="avail-pill">★ DISPONIBLE</span>
+              </div>
+              <div class="body">
+                <div class="name">RAY TONI</div>
+                <div class="meta">Concepción · CL</div>
+                <div class="genres">
+                  <span class="tag orange">DRUM N BASS</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo">
+                <span class="ini">VK<span class="dot">.</span></span>
+              </div>
+              <div class="body">
+                <div class="name">VEKA</div>
+                <div class="meta">Viña · CL</div>
+                <div class="genres">
+                  <span class="tag orange">TECH HOUSE</span>
+                </div>
+              </div>
+            </div>
+            <div class="dj-card">
+              <div class="photo" style="background: var(--cream);">
+                <span class="ini" style="color: var(--ink);">JP<span class="dot">.</span></span>
+                <span class="avail-pill">★ DISPONIBLE</span>
+              </div>
+              <div class="body">
+                <div class="name">JUAN P.</div>
+                <div class="meta">Stgo Norte · CL</div>
+                <div class="genres">
+                  <span class="tag orange">MINIMAL</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px;">
+            <button class="btn">CARGAR 14 MÁS →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista detalle DJ -->
+    <div class="grid-2" style="margin-top: 28px;">
+      <div class="card">
+        <div class="lbl">— SEO + INDEXABLE</div>
+        <h3 class="anton" style="font-size: 22px;">VISTA EN GOOGLE</h3>
+        <div style="border: 2px solid var(--ink); background: #FFF; padding: 12px; margin-top: 8px; font-family: 'Inter';">
+          <div style="font-size: 13px; color: var(--info); margin-bottom: 4px;">drop.dj/dj</div>
+          <div style="font-size: 18px; color: #1A0DAB; margin-bottom: 3px;">DROP. · Directorio de DJs en Latam</div>
+          <div style="font-size: 12px; color: #555;">247 DJs activos en Chile, Argentina, Perú. Filtrá por género (techno, house, drum n bass, deep), ciudad y disponibilidad. Contactá directo sin intermediarios.</div>
+        </div>
+        <p style="font-size: 12px; color: #555; margin-top: 8px;">
+          Cada DJ tiene su <code style="background: var(--cream); border: 1px solid #ccc; padding: 1px 6px;">/p/[slug]</code> indexable también. Sitemap XML auto-generado.
+        </p>
+      </div>
+      <div class="card dark">
+        <div class="lbl">— DECISIÓN: TODOS LOS DJs APARECEN POR DEFAULT</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream);">OPT-OUT NO OPT-IN</h3>
+        <p style="font-size: 13px; color: #ccc;">Para que el marketplace crezca, todos los DJs registrados aparecen automáticamente en /dj. Toggle "Ocultar mi perfil" disponible en /configuracion. Sin perfil visible = sin tráfico de bookers.</p>
+        <div style="margin-top: 10px;">
+          <span class="tag warning" style="font-size: 9px;">SE COMUNICA EN ONBOARDING</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- B2 · DISPONIBLE PARA TOCAR -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">B2</div>
+    <div class="ttl">DISPONIBLE PARA TOCAR</div>
+    <div class="sub">TOGGLE + RANGO DE FECHAS · SE MUESTRA AL TOPE DEL DIRECTORIO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Toggle en `/configuracion` con un rango de fechas. Cuando está activo, el DJ aparece
+      con el badge <strong>★ DISPONIBLE</strong> y rankeado primero en el directorio.
+      Los bookers pueden filtrar "solo disponibles".
+    </p>
+
+    <!-- Form en /configuracion -->
+    <div class="frame-wrap">
+      <div class="label">B2A / /CONFIGURACION · TOGGLE DISPONIBLE</div>
+      <div class="frame" style="padding: 28px; background: #FFF;">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— CONFIGURACIÓN · DISPONIBILIDAD</div>
+        <h3 class="anton" style="font-size: 28px; margin-top: 4px;">¿ESTÁS DISPONIBLE?<span style="color: var(--orange);">.</span></h3>
+        <p style="font-size: 13px; color: #555; margin-top: 6px; max-width: 600px;">Activá esta opción cuando estés agendando shows. Aparecerás primero en el directorio público con un badge "★ disponible".</p>
+
+        <hr class="dash" />
+
+        <div class="toggle-wrap active" style="max-width: 480px;">
+          <div class="toggle-knob"><div class="ball"></div></div>
+          <div style="flex: 1;">
+            <div class="anton" style="font-size: 18px;">DISPONIBLE PARA TOCAR</div>
+            <div class="mono" style="font-size: 10px; margin-top: 2px;">ACTIVO · TU PERFIL APARECE PRIMERO</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; max-width: 480px;">
+          <div class="form-group">
+            <label>Desde</label>
+            <input value="01-jun-2026" />
+          </div>
+          <div class="form-group">
+            <label>Hasta</label>
+            <input value="31-jul-2026" />
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width: 480px;">
+          <label>Nota opcional para bookers</label>
+          <textarea rows="2">Busco shows en Santiago y alrededores. Disponibilidad: vie-dom. Disponible para EP launches y residencias.</textarea>
+        </div>
+
+        <div style="background: var(--cream); border: 2px solid var(--ink); padding: 12px 16px; max-width: 480px; margin-top: 12px;">
+          <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— PREVIEW EN /dj</div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+            <div style="width: 40px; height: 40px; background: var(--ink); border: 2px solid var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 18px; color: var(--cream);">J<span style="color: var(--orange);">.</span></div>
+            <div>
+              <div class="anton" style="font-size: 16px;">JAY PORTU</div>
+              <div class="mono" style="font-size: 9px; color: #555;">Santiago · TECHNO · HOUSE</div>
+            </div>
+            <span class="tag orange" style="margin-left: auto; font-size: 9px;">★ DISPONIBLE · JUN-JUL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mock comparativo -->
+    <div class="grid-2" style="margin-top: 28px;">
+      <div class="card">
+        <div class="lbl">— PROS</div>
+        <h4 class="anton" style="font-size: 20px;">POR QUÉ ACTIVARLO</h4>
+        <ul style="font-size: 13px; line-height: 1.7; padding-left: 16px; margin-top: 6px;">
+          <li>Apareces primero en `/dj` (ordenado por disponibilidad)</li>
+          <li>Bookers pueden filtrar "solo disponibles" → tu perfil se muestra</li>
+          <li>Badge visible "★ disponible" + rango de fechas</li>
+          <li>Si tu disponibilidad cambia, puedes desactivar o cambiar fechas en 1 click</li>
+          <li>Nota a bookers donde explicas qué tipo de shows buscás</li>
+        </ul>
+      </div>
+      <div class="card dark">
+        <div class="lbl">— FALLBACK · SIN ACTIVAR</div>
+        <h4 class="anton" style="font-size: 20px; color: var(--cream);">SI NO LO ACTIVAS</h4>
+        <ul style="font-size: 13px; line-height: 1.7; padding-left: 16px; margin-top: 6px; color: #ccc;">
+          <li>Tu perfil sigue público en `/dj` pero al final del listado</li>
+          <li>No tienes badge "disponible"</li>
+          <li>Los filtros "solo disponibles" te ocultan</li>
+          <li>Igual recibís inquiries via `/p/[slug]` formulario contacto</li>
+          <li>Apto si estás de pausa o agendado a tope</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- B3 · INBOX UNIFICADO -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">B3</div>
+    <div class="ttl">INBOX BOOKINGS</div>
+    <div class="sub">UNIFICADO · ESTADOS CRM · FOLLOW-UPS AUTO</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Hoy tu `/press-kit/bookings` te muestra solicitudes de booking en una lista plana.
+      Lo convertimos en un <strong>inbox tipo Gmail</strong> con estados workflow
+      (nuevo → leído → cotizado → agendado/rechazado) y <strong>follow-up automático</strong>
+      cuando un booking queda en "cotizado" + 3 días sin respuesta.
+    </p>
+
+    <!-- Inbox principal -->
+    <div class="frame-wrap">
+      <div class="label">B3 / /BOOKINGS · INBOX CRM-LIKE</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/press-kit/bookings</div>
+        </div>
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div class="nav-item">— DASHBOARD</div>
+            <div class="nav-item">— CRM</div>
+            <div class="nav-item">— CALENDARIO</div>
+            <div class="nav-item active">— PRESS KIT</div>
+            <div class="nav-item">— GROWTH</div>
+            <div class="nav-item">— CONFIG</div>
+          </aside>
+          <main class="app-main">
+            <div class="page-hero">
+              <div class="kicker">— PRESS KIT · INBOX</div>
+              <h2>BOOKINGS<span class="dot">.</span></h2>
+              <p>12 inquiries · 3 nuevas · 2 cotizadas (sin respuesta de 5+ días) · 7 agendadas en mayo.</p>
+            </div>
+
+            <!-- Filtros estados -->
+            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px;">
+              <span class="tag" style="background: var(--orange); color: var(--ink); padding: 5px 10px; font-size: 11px;">TODOS · 12</span>
+              <span class="tag outline" style="padding: 5px 10px; font-size: 11px; border-width: 2px;">★ NUEVOS · 3</span>
+              <span class="tag outline" style="padding: 5px 10px; font-size: 11px; border-width: 2px;">LEÍDOS · 4</span>
+              <span class="tag outline" style="padding: 5px 10px; font-size: 11px; border-width: 2px;">⏱ COTIZADOS · 2</span>
+              <span class="tag outline" style="padding: 5px 10px; font-size: 11px; border-width: 2px;">✓ AGENDADOS · 2</span>
+              <span class="tag outline" style="padding: 5px 10px; font-size: 11px; border-width: 2px;">✗ RECHAZADOS · 1</span>
+            </div>
+
+            <!-- KPIs rápidos -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid var(--ink); margin-bottom: 16px;">
+              <div style="background: var(--orange); padding: 12px; border-right: 2px solid var(--ink);">
+                <div class="mono" style="font-size: 9px; font-weight: 700;">— TASA RESPUESTA</div>
+                <div class="anton" style="font-size: 28px; line-height: 1; margin-top: 4px;">75%</div>
+              </div>
+              <div style="background: #FFF; padding: 12px; border-right: 2px solid var(--ink);">
+                <div class="mono" style="font-size: 9px; font-weight: 700;">— TIEMPO RESPUESTA</div>
+                <div class="anton" style="font-size: 28px; line-height: 1; margin-top: 4px;">4h</div>
+              </div>
+              <div style="background: var(--success); color: #FFF; padding: 12px; border-right: 2px solid var(--ink);">
+                <div class="mono" style="font-size: 9px; font-weight: 700;">— CIERRE COTIZADO→AGENDADO</div>
+                <div class="anton" style="font-size: 28px; line-height: 1; margin-top: 4px;">40%</div>
+              </div>
+              <div style="background: var(--ink); color: var(--cream); padding: 12px;">
+                <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange);">— FU AUTO ACTIVOS</div>
+                <div class="anton" style="font-size: 28px; line-height: 1; margin-top: 4px;">02</div>
+              </div>
+            </div>
+
+            <!-- Inbox rows -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <div class="inbox-row unread">
+                <div class="status-bar"></div>
+                <div class="av">CR</div>
+                <div class="info">
+                  <div class="name">CLUB ROOM <span class="tag" style="background: var(--ink); color: var(--orange); font-size: 8px; margin-left: 6px;">★ NUEVO</span></div>
+                  <div class="preview">Hola Jay! Estamos armando un line-up para el 14-jun. Si te interesa avísame qué fee manejas...</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag info" style="font-size: 8px;">META FORMS</span>
+                  <span class="tag cream" style="font-size: 8px;">SANTIAGO</span>
+                </div>
+                <div class="date">hace 8 MIN</div>
+              </div>
+
+              <div class="inbox-row unread">
+                <div class="status-bar"></div>
+                <div class="av">SU</div>
+                <div class="info">
+                  <div class="name">SUBTERRÁNEO <span class="tag" style="background: var(--ink); color: var(--orange); font-size: 8px; margin-left: 6px;">★ NUEVO</span></div>
+                  <div class="preview">Marco te pasó el contacto. Buscamos residente para los miércoles. Side B (deep+tech). Pago $...</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag warning" style="font-size: 8px;">GMAIL</span>
+                  <span class="tag cream" style="font-size: 8px;">SANTIAGO</span>
+                </div>
+                <div class="date">hace 2h</div>
+              </div>
+
+              <div class="inbox-row cotizado">
+                <div class="status-bar"></div>
+                <div class="av">PT</div>
+                <div class="info">
+                  <div class="name">PHUKET / TARDEO <span class="tag warning" style="font-size: 8px; margin-left: 6px;">⏱ COTIZADO · 5 DÍAS</span></div>
+                  <div class="preview">Te pasé propuesta $480K + rider. Sin respuesta desde el lunes. Cron creó follow-up auto para hoy.</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag" style="background: var(--orange); color: var(--ink); font-size: 8px;">★ FU AUTO</span>
+                  <span class="tag cream" style="font-size: 8px;">SANTIAGO</span>
+                </div>
+                <div class="date">hace 5 DÍAS</div>
+              </div>
+
+              <div class="inbox-row cotizado">
+                <div class="status-bar"></div>
+                <div class="av">CF</div>
+                <div class="info">
+                  <div class="name">CANDELARIA <span class="tag warning" style="font-size: 8px; margin-left: 6px;">⏱ COTIZADO · 3 DÍAS</span></div>
+                  <div class="preview">Cotización enviada $550K para sábado 28. Pendiente confirmación de la productora.</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag info" style="font-size: 8px;">FORMULARIO</span>
+                  <span class="tag cream" style="font-size: 8px;">VALPARAÍSO</span>
+                </div>
+                <div class="date">hace 3 DÍAS</div>
+              </div>
+
+              <div class="inbox-row read">
+                <div class="status-bar"></div>
+                <div class="av">LF</div>
+                <div class="info">
+                  <div class="name">CLUB LA FERIA <span class="tag" style="background: var(--info); color: #FFF; font-size: 8px; margin-left: 6px;">LEÍDO</span></div>
+                  <div class="preview">Confirmado el line-up del 17-may. ¿Podrías mandar 3 tracks de muestra para review?</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag warning" style="font-size: 8px;">GMAIL</span>
+                  <span class="tag cream" style="font-size: 8px;">SANTIAGO</span>
+                </div>
+                <div class="date">hace 1 SEM</div>
+              </div>
+
+              <div class="inbox-row agendado">
+                <div class="status-bar"></div>
+                <div class="av">GB</div>
+                <div class="info">
+                  <div class="name">GLOBOX <span class="tag success" style="font-size: 8px; margin-left: 6px;">✓ AGENDADO · 30-MAY</span></div>
+                  <div class="preview">$420K · CDJ-3000 + Allen&Heath · 22:30 → 02:00 · Producer Tomás como contacto en sala</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag info" style="font-size: 8px;">FORMULARIO</span>
+                  <span class="tag cream" style="font-size: 8px;">SANTIAGO</span>
+                </div>
+                <div class="date">hace 12 DÍAS</div>
+              </div>
+
+              <div class="inbox-row rechazado">
+                <div class="status-bar"></div>
+                <div class="av" style="background: #555;">XX</div>
+                <div class="info">
+                  <div class="name" style="text-decoration: line-through; color: #777;">FIESTA CORPORATIVA · MENDOZA <span class="tag" style="background: #ccc; color: #555; font-size: 8px; margin-left: 6px;">✗ RECHAZADO</span></div>
+                  <div class="preview" style="text-decoration: line-through;">Pago bajo + sin rider + género que no manejo. Pasé contacto a Luka R.</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px; align-items: end;">
+                  <span class="tag" style="background: #ccc; color: #555; font-size: 8px;">FORMULARIO</span>
+                </div>
+                <div class="date">hace 2 SEM</div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalle de booking -->
+    <div class="grid-2" style="margin-top: 28px;">
+      <div class="card">
+        <div class="lbl">— DETALLE DE BOOKING · WORKFLOW</div>
+        <h4 class="anton" style="font-size: 22px;">ESTADOS</h4>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;">
+          <span class="tag" style="background: var(--orange); color: var(--ink); font-size: 9px;">★ NUEVO</span>
+          <span style="color: var(--orange); align-self: center;">→</span>
+          <span class="tag info" style="font-size: 9px;">LEÍDO</span>
+          <span style="color: var(--orange); align-self: center;">→</span>
+          <span class="tag warning" style="font-size: 9px;">⏱ COTIZADO</span>
+          <span style="color: var(--orange); align-self: center;">→</span>
+          <span class="tag success" style="font-size: 9px;">✓ AGENDADO</span>
+        </div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+          <span style="color: #777; align-self: center; font-size: 10px;">o desde cualquier paso:</span>
+          <span class="tag danger" style="font-size: 9px;">✗ RECHAZADO</span>
+        </div>
+        <p style="font-size: 13px; margin-top: 12px;">Cada cambio de estado se loguea en el contact_interactions (auditoría). El paso "agendado" auto-crea evento en /calendario con monto + estado pago=pendiente.</p>
+      </div>
+      <div class="card orange">
+        <div class="lbl" style="color: var(--ink);">— FOLLOW-UP AUTOMÁTICO</div>
+        <h4 class="anton" style="font-size: 22px;">RECORDATORIO INTELIGENTE</h4>
+        <p style="font-size: 13px;">Cuando un booking pasa a estado <strong>COTIZADO</strong>, el sistema crea automáticamente un follow-up para 3 días después con la nota:
+        <br/><br/>
+        <em>"Recontactar [Venue] - cotizado $X sin respuesta"</em>
+        <br/><br/>
+        El follow-up aparece en /dashboard + push notification. Si el booking pasa a AGENDADO o RECHAZADO antes, el follow-up se cierra automático.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- B4 · BÚSQUEDA DE VENUES -->
+<!-- ============================================================ -->
+<section style="background: #FAF6EE;">
+  <div class="sec-head">
+    <div class="num">B4</div>
+    <div class="ttl">SEARCH VENUES</div>
+    <div class="sub">/DESCUBRIR EXTENDIDO · FILTROS GÉNERO/CAPACIDAD/CIUDAD</div>
+  </div>
+  <div class="sec-body">
+    <p class="lead">
+      Sprint 8 ya trajo el descubridor de venues via OpenStreetMap. Sprint 20 lo extiende:
+      filtros por <strong>géneros que aceptan</strong>, <strong>capacidad</strong> aprox y filtros más finos
+      por ciudad/barrio. Cada venue tiene un "perfil" público para que el DJ pueda decidir si le interesa.
+    </p>
+
+    <div class="frame-wrap">
+      <div class="label">B4 / /DESCUBRIR · FILTROS NUEVOS</div>
+      <div class="frame">
+        <div class="chrome">
+          <div class="dot" style="background: #ff5f57"></div>
+          <div class="dot" style="background: #febc2e"></div>
+          <div class="dot" style="background: #28c840"></div>
+          <div class="url">drop.dj/descubrir?genres=techno&capacity=300+&barrio=lastarria</div>
+        </div>
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div class="nav-item">— DASHBOARD</div>
+            <div class="nav-item">— CRM</div>
+            <div class="nav-item active">— DESCUBRIR</div>
+            <div class="nav-item">— CALENDARIO</div>
+            <div class="nav-item">— CONFIG</div>
+          </aside>
+          <main class="app-main">
+            <div class="page-hero">
+              <div class="kicker">— DESCUBRIR · VENUES</div>
+              <h2>BUSCAR VENUES<span class="dot">.</span></h2>
+              <p>647 venues activos en Stgo (OpenStreetMap + 12 venues con perfil propio en DROP).</p>
+            </div>
+
+            <!-- Filtros expandidos -->
+            <div style="background: #FFF; border: 2px solid var(--ink); padding: 16px; margin-bottom: 16px;">
+              <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em; margin-bottom: 10px;">— FILTROS</div>
+
+              <div class="mono" style="font-size: 9px; font-weight: 700; color: #555; letter-spacing: 0.08em; margin-bottom: 6px;">CIUDAD / BARRIO:</div>
+              <div class="filter-chips" style="margin-bottom: 10px;">
+                <span class="chip active">SANTIAGO</span>
+                <span class="chip">STGO CENTRO</span>
+                <span class="chip active">LASTARRIA</span>
+                <span class="chip">BARRIO ITALIA</span>
+                <span class="chip">PROVIDENCIA</span>
+                <span class="chip">VITACURA</span>
+                <span class="chip">ÑUÑOA</span>
+              </div>
+
+              <div class="mono" style="font-size: 9px; font-weight: 700; color: #555; letter-spacing: 0.08em; margin-bottom: 6px;">CAPACIDAD APROX:</div>
+              <div class="filter-chips" style="margin-bottom: 10px;">
+                <span class="chip">&lt;100 PERSONAS</span>
+                <span class="chip">100-200</span>
+                <span class="chip active">300+</span>
+                <span class="chip">500+</span>
+                <span class="chip">1000+</span>
+              </div>
+
+              <div class="mono" style="font-size: 9px; font-weight: 700; color: #555; letter-spacing: 0.08em; margin-bottom: 6px;">GÉNEROS QUE ACEPTAN <span style="color: var(--orange);">(según historial · auto-poblado por IA)</span>:</div>
+              <div class="filter-chips" style="margin-bottom: 10px;">
+                <span class="chip active">TECHNO</span>
+                <span class="chip">HOUSE</span>
+                <span class="chip">DEEP HOUSE</span>
+                <span class="chip">TECH HOUSE</span>
+                <span class="chip">MINIMAL</span>
+                <span class="chip">DNB</span>
+                <span class="chip">REGGAETON</span>
+                <span class="chip">COMERCIAL</span>
+              </div>
+
+              <div class="mono" style="font-size: 9px; font-weight: 700; color: #555; letter-spacing: 0.08em; margin-bottom: 6px;">OTROS:</div>
+              <div class="filter-chips">
+                <span class="chip">EN MI CRM YA</span>
+                <span class="chip">SIN CONTACTO PREVIO</span>
+                <span class="chip">PAGA &gt;$300K</span>
+                <span class="chip">RIDER OK</span>
+              </div>
+            </div>
+
+            <!-- Resultado -->
+            <div class="mono" style="font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em; margin-bottom: 10px;">— 8 RESULTADOS</div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div class="anton" style="font-size: 22px;">CLUB CHANGO</div>
+                    <div class="mono" style="font-size: 10px; color: #555; margin-top: 2px;">LASTARRIA · ~400 PERSONAS · OPENSTREETMAP</div>
+                    <div style="display: flex; gap: 4px; margin-top: 8px;">
+                      <span class="tag orange" style="font-size: 9px;">TECHNO</span>
+                      <span class="tag cream" style="font-size: 9px;">HOUSE</span>
+                      <span class="tag cream" style="font-size: 9px;">MINIMAL</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn sm outline">VER MÁS</button>
+                    <button class="btn sm orange">+ AGREGAR AL CRM</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div class="anton" style="font-size: 22px;">SUBTERRÁNEO <span style="font-size: 12px; vertical-align: middle;" class="tag">YA EN TU CRM</span></div>
+                    <div class="mono" style="font-size: 10px; margin-top: 2px;">LASTARRIA · ~350 PERSONAS · PERFIL DROP COMPLETO</div>
+                    <div style="display: flex; gap: 4px; margin-top: 8px;">
+                      <span class="tag" style="background: var(--ink); color: var(--orange); font-size: 9px;">TECHNO</span>
+                      <span class="tag" style="background: var(--ink); color: var(--orange); font-size: 9px;">DEEP HOUSE</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn sm">VER FICHA →</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div class="anton" style="font-size: 22px;">SALA UM</div>
+                    <div class="mono" style="font-size: 10px; color: #555; margin-top: 2px;">LASTARRIA · ~600 PERSONAS · OPENSTREETMAP</div>
+                    <div style="display: flex; gap: 4px; margin-top: 8px;">
+                      <span class="tag orange" style="font-size: 9px;">TECHNO</span>
+                      <span class="tag cream" style="font-size: 9px;">DEEP HOUSE</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn sm outline">VER MÁS</button>
+                    <button class="btn sm orange">+ AGREGAR AL CRM</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border: 2px solid var(--ink); background: #FFF; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div class="anton" style="font-size: 22px;">FRUTILLA</div>
+                    <div class="mono" style="font-size: 10px; color: #555; margin-top: 2px;">LASTARRIA · ~300 PERSONAS · OPENSTREETMAP</div>
+                    <div style="display: flex; gap: 4px; margin-top: 8px;">
+                      <span class="tag orange" style="font-size: 9px;">TECHNO</span>
+                      <span class="tag cream" style="font-size: 9px;">HOUSE</span>
+                      <span class="tag cream" style="font-size: 9px;">REGGAETON</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn sm outline">VER MÁS</button>
+                    <button class="btn sm orange">+ AGREGAR AL CRM</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MOBILE -->
+<!-- ============================================================ -->
+<section>
+  <div class="sec-head">
+    <div class="num">05</div>
+    <div class="ttl">MOBILE</div>
+    <div class="sub">DIRECTORIO · INBOX · DISPONIBILIDAD</div>
+  </div>
+  <div class="sec-body">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
+      <!-- Phone 1: directorio público -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SOY DJ →</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— DIRECTORIO PÚBLICO</div>
+            <div class="anton" style="font-size: 22px; margin-top: 4px;">ENCONTRÁ TU DJ<span style="color: var(--orange);">.</span></div>
+
+            <input style="width: 100%; margin-top: 10px; padding: 6px 10px; border: 2px solid var(--ink); font-family: 'Space Mono'; font-size: 10px;" placeholder="🔎 Nombre, género, ciudad..." />
+
+            <div style="display: flex; gap: 4px; margin-top: 8px; overflow-x: auto;">
+              <span class="tag orange" style="font-size: 8px;">TECHNO</span>
+              <span class="tag cream" style="font-size: 8px;">HOUSE</span>
+              <span class="tag cream" style="font-size: 8px;">DEEP</span>
+              <span class="tag cream" style="font-size: 8px;">+9</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px;">
+              <div style="border: 2px solid var(--ink); background: #FFF;">
+                <div style="background: var(--ink); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative;">
+                  <span style="font-family: 'Anton'; font-size: 36px; color: var(--cream);">J<span style="color: var(--orange);">.</span></span>
+                  <span style="position: absolute; top: 4px; right: 4px; background: var(--orange); color: var(--ink); padding: 2px 4px; font-family: 'Space Mono'; font-size: 7px; font-weight: 700;">★</span>
+                </div>
+                <div style="padding: 6px; border-top: 2px solid var(--ink);">
+                  <div class="anton" style="font-size: 11px;">JAY PORTU</div>
+                  <div class="mono" style="font-size: 8px; color: #555;">SANTIAGO</div>
+                </div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF;">
+                <div style="background: var(--orange); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative;">
+                  <span style="font-family: 'Anton'; font-size: 36px; color: var(--ink);">M<span style="color: var(--cream);">.</span></span>
+                  <span style="position: absolute; top: 4px; right: 4px; background: var(--ink); color: var(--orange); padding: 2px 4px; font-family: 'Space Mono'; font-size: 7px; font-weight: 700;">★</span>
+                </div>
+                <div style="padding: 6px; border-top: 2px solid var(--ink);">
+                  <div class="anton" style="font-size: 11px;">MAYRA / CL</div>
+                  <div class="mono" style="font-size: 8px; color: #555;">VALPO</div>
+                </div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF;">
+                <div style="background: var(--ink); aspect-ratio: 1; display: flex; align-items: center; justify-content: center;">
+                  <span style="font-family: 'Anton'; font-size: 36px; color: var(--cream);">DL<span style="color: var(--orange);">.</span></span>
+                </div>
+                <div style="padding: 6px; border-top: 2px solid var(--ink);">
+                  <div class="anton" style="font-size: 11px;">DRO LATAM</div>
+                  <div class="mono" style="font-size: 8px; color: #555;">BS AS · AR</div>
+                </div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: #FFF;">
+                <div style="background: var(--cream); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative;">
+                  <span style="font-family: 'Anton'; font-size: 36px; color: var(--ink);">FC<span style="color: var(--orange);">.</span></span>
+                  <span style="position: absolute; top: 4px; right: 4px; background: var(--orange); color: var(--ink); padding: 2px 4px; font-family: 'Space Mono'; font-size: 7px; font-weight: 700;">★</span>
+                </div>
+                <div style="padding: 6px; border-top: 2px solid var(--ink);">
+                  <div class="anton" style="font-size: 11px;">FERN. C</div>
+                  <div class="mono" style="font-size: 8px; color: #555;">STGO</div>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px;">VER 14 MÁS →</button>
+          </div>
+          <div class="bottomb">
+            <div class="item active">DJs</div>
+            <div class="item">VENUES</div>
+            <div class="item">FAVS</div>
+            <div class="item">ENTRAR</div>
+            <div class="item">+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2: inbox bookings -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— INBOX BOOKINGS</div>
+            <div class="anton" style="font-size: 22px; margin-top: 4px;">3 NUEVOS<span style="color: var(--orange);">.</span></div>
+
+            <div style="display: flex; gap: 3px; margin-top: 8px; overflow-x: auto;">
+              <span class="tag" style="background: var(--orange); color: var(--ink); font-size: 8px;">TODOS·12</span>
+              <span class="tag outline" style="font-size: 8px;">★·3</span>
+              <span class="tag outline" style="font-size: 8px;">⏱·2</span>
+              <span class="tag outline" style="font-size: 8px;">✓·2</span>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">★ NUEVO · HACE 8 MIN</div>
+                <div class="anton" style="font-size: 13px; margin-top: 2px;">CLUB ROOM</div>
+                <div style="font-size: 10px; margin-top: 2px;">Estamos armando line-up 14-jun...</div>
+              </div>
+              <div style="border: 2px solid var(--ink); background: var(--orange); padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700;">★ NUEVO · HACE 2h</div>
+                <div class="anton" style="font-size: 13px; margin-top: 2px;">SUBTERRÁNEO</div>
+                <div style="font-size: 10px; margin-top: 2px;">Marco te pasó el contacto...</div>
+              </div>
+              <div style="border-left: 6px solid var(--warning); border-top: 2px solid var(--ink); border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--warning);">⏱ COTIZADO · 5 DÍAS · FU AUTO HOY</div>
+                <div class="anton" style="font-size: 13px; margin-top: 2px;">PHUKET / TARDEO</div>
+                <div style="font-size: 10px; margin-top: 2px; color: #555;">Propuesta $480K + rider...</div>
+              </div>
+              <div style="border-left: 6px solid var(--success); border-top: 2px solid var(--ink); border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: #FFF; padding: 8px; margin-bottom: 5px;">
+                <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--success);">✓ AGENDADO · 30-MAY</div>
+                <div class="anton" style="font-size: 13px; margin-top: 2px;">GLOBOX</div>
+                <div style="font-size: 10px; margin-top: 2px; color: #555;">$420K · 22:30 → 02:00</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item">CAL</div>
+            <div class="item active">PK</div>
+            <div class="item">+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 3: toggle disponible -->
+      <div class="phone-shell">
+        <div class="screen">
+          <div class="topb">
+            <div class="logo">DROP<span class="dot">.</span></div>
+            <div style="font-size: 9px; font-family: 'Space Mono';">SALIR</div>
+          </div>
+          <div class="content">
+            <div class="mono" style="font-size: 9px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em;">— CONFIG · DISPONIBILIDAD</div>
+            <div class="anton" style="font-size: 20px; margin-top: 4px; line-height: 1;">¿ESTÁS<br/>DISPONIBLE?<span style="color: var(--orange);">.</span></div>
+
+            <div style="background: var(--orange); border: 2px solid var(--ink); padding: 14px; margin-top: 12px; display: flex; align-items: center; gap: 10px;">
+              <div style="width: 44px; height: 24px; border: 2px solid var(--ink); background: var(--ink); position: relative;">
+                <div style="position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; background: var(--cream);"></div>
+              </div>
+              <div style="flex: 1;">
+                <div class="anton" style="font-size: 14px;">DISPONIBLE</div>
+                <div class="mono" style="font-size: 8px;">ACTIVO</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <div class="mono" style="font-size: 9px; font-weight: 700; text-transform: uppercase;">DESDE</div>
+              <input value="01-JUN-2026" style="width: 100%; padding: 6px 8px; border: 2px solid var(--ink); font-family: 'Space Mono'; font-size: 10px; margin-top: 4px;" />
+            </div>
+            <div style="margin-top: 8px;">
+              <div class="mono" style="font-size: 9px; font-weight: 700; text-transform: uppercase;">HASTA</div>
+              <input value="31-JUL-2026" style="width: 100%; padding: 6px 8px; border: 2px solid var(--ink); font-family: 'Space Mono'; font-size: 10px; margin-top: 4px;" />
+            </div>
+
+            <div style="background: var(--cream); border: 2px solid var(--ink); padding: 8px; margin-top: 12px;">
+              <div class="mono" style="font-size: 8px; font-weight: 700; color: var(--orange);">— PREVIEW EN /dj</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <div style="width: 26px; height: 26px; background: var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Anton'; font-size: 13px; color: var(--cream);">J<span style="color: var(--orange);">.</span></div>
+                <div style="flex: 1;">
+                  <div class="anton" style="font-size: 11px;">JAY PORTU</div>
+                  <div class="mono" style="font-size: 7px;">SANTIAGO · TECHNO</div>
+                </div>
+                <span class="tag orange" style="font-size: 7px;">★</span>
+              </div>
+            </div>
+
+            <button class="btn orange" style="width: 100%; margin-top: 10px;">GUARDAR</button>
+          </div>
+          <div class="bottomb">
+            <div class="item">DASH</div>
+            <div class="item">CRM</div>
+            <div class="item">CAL</div>
+            <div class="item">GROWTH</div>
+            <div class="item active">+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FASES TÉCNICAS -->
+<!-- ============================================================ -->
+<section style="background: var(--ink); color: var(--cream); padding: 60px 24px;">
+  <div class="sec-head" style="border-bottom-color: var(--orange);">
+    <div class="num">06</div>
+    <div class="ttl" style="color: var(--cream);">FASES TÉCNICAS</div>
+    <div class="sub" style="color: var(--orange);">CÓMO SE IMPLEMENTA</div>
+  </div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE A · DB</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">MIGRATION 0018</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>ALTER dj_profile: available_from, available_until, available_note, hidden_from_directory</li>
+          <li>ALTER bookings (press_kit_bookings): status enum (nuevo/leido/cotizado/agendado/rechazado), notes_internal, quoted_amount_clp, follow_up_id</li>
+          <li>ALTER contacts (venues): capacity_estimate, accepted_genres[] (auto-poblar de gigs históricos via IA Ollama)</li>
+          <li>Índices: dj_profile.available_from, bookings.status</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE B · UI PÚBLICO</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">DIRECTORIO + SEO</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>/dj (page público, sin auth gate) con filtros server-side</li>
+          <li>/dj/[slug] redirect a /p/[slug] existente</li>
+          <li>Sitemap XML dinámico /sitemap.xml</li>
+          <li>OpenGraph + JSON-LD por DJ</li>
+          <li>Toggle disponibilidad en /configuracion</li>
+        </ul>
+      </div>
+      <div style="border: 2px solid var(--orange); padding: 18px; background: rgba(255,92,0,0.08);">
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FASE C · INBOX + VENUES</div>
+        <h3 class="anton" style="font-size: 22px; color: var(--cream); margin-top: 6px;">PRIVADO</h3>
+        <ul style="font-size: 13px; line-height: 1.55; color: #ccc; padding-left: 14px; margin-top: 8px;">
+          <li>/press-kit/bookings con estados + KPIs</li>
+          <li>Workflow estado → status_actions.ts</li>
+          <li>Auto-crear follow-up al pasar a "cotizado"</li>
+          <li>Auto-crear evento calendario al "agendar"</li>
+          <li>/descubrir filtros nuevos + IA poblamiento de géneros</li>
+          <li>Cron trigger 7: nuevo booking sin leer +24h</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 2px dashed var(--orange); margin: 32px 0;" />
+
+    <div class="grid-2">
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— LO QUE SÍ HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Directorio público SEO-friendly indexable</li>
+          <li>Filtros género/ciudad/disponibilidad</li>
+          <li>Toggle "disponible para tocar" con rango fechas</li>
+          <li>Inbox bookings tipo Gmail con estados workflow</li>
+          <li>Follow-up auto al pasar a "cotizado"</li>
+          <li>Evento calendario auto al "agendar"</li>
+          <li>KPIs: tasa respuesta, tiempo respuesta, cierre %</li>
+          <li>Búsqueda venues con capacidad + géneros aceptados</li>
+          <li>IA poblamiento de géneros aceptados por venue</li>
+        </ul>
+      </div>
+      <div>
+        <div class="mono" style="font-size: 10px; font-weight: 700; color: #C53030; letter-spacing: 0.12em;">— LO QUE NO HAY</div>
+        <ul style="font-size: 14px; line-height: 1.7; color: var(--cream); padding-left: 18px; margin-top: 10px;">
+          <li>Pagos/booking transaccional (eso es Sprint 24 con Stripe)</li>
+          <li>Mensajería interna chat (los bookings llegan por formulario/Gmail existente)</li>
+          <li>Verificación oficial de DJs / blue check (más adelante con membresías)</li>
+          <li>Reviews / ratings (siempre genera más drama que valor)</li>
+          <li>Algoritmo de match DJ ↔ venue (out of scope, los filtros son suficiente)</li>
+          <li>Notificaciones a bookers cuando DJ activa "disponible"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background: var(--cream); padding: 50px 24px; border-top: 4px solid var(--orange);">
+  <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div class="mono" style="font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em;">— FIN DEL MOCKUP · SPRINT 20</div>
+      <h2 class="anton" style="font-size: 60px; margin-top: 8px;">MARKETPLACE<span style="color: var(--orange);">.</span></h2>
+    </div>
+    <div style="text-align: right;">
+      <div class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em;">DROP. · THE DJ OS · v0.15 (next)</div>
+      <div class="mono" style="font-size: 9px; color: #555; margin-top: 4px;">propuesto · pendiente de aprobación</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

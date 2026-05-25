@@ -73,6 +73,11 @@ export default async function BookingDetailPage({ params }: PageProps) {
         id={booking.id}
         status={booking.status}
         contactId={booking.created_contact_id}
+        quotedAmountClp={booking.quoted_amount_clp}
+        notesInternal={booking.notes_internal}
+        eventDate={booking.event_date}
+        hasFollowUp={!!booking.follow_up_id}
+        hasCalendarEvent={!!booking.calendar_event_id}
       />
 
       {booking.created_contact_id && (

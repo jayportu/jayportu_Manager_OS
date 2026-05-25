@@ -1,6 +1,10 @@
 "use server";
 
-import { updateProfileSlug, updateBookingStatus } from "@/lib/queries/presskit";
+import {
+  updateProfileSlug,
+  updateBookingStatus,
+  updateBookingWorkflow,
+} from "@/lib/queries/presskit";
 import { createContact } from "@/lib/queries/contacts";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -96,10 +100,11 @@ export async function convertBookingToContactAction(
     };
     const contact = await createContact(contactInput);
 
-    // Actualizar booking
+    // Actualizar booking — Sprint 20: el nuevo status equivalente a "convertido"
+    // es 'respondido' (se creó contacto, aún no es agendado ni cotizado oficial).
     await supabase
       .from("booking_form_submissions")
-      .update({ status: "convertido", created_contact_id: contact.id })
+      .update({ status: "respondido", created_contact_id: contact.id })
       .eq("id", bookingId)
       .eq("user_id", user.id);
 
@@ -109,6 +114,33 @@ export async function convertBookingToContactAction(
     revalidatePath("/dashboard");
 
     return { ok: true, data: { contact_id: contact.id } };
+  } catch (e) {
+    return errResult(e);
+  }
+}
+
+/**
+ * Sprint 20 — Cambio de status con workflow auto:
+ *   cotizado → crea follow_up para +3 días
+ *   agendado → crea calendar_event con monto y payment_status=pending
+ */
+export async function updateBookingWorkflowAction(
+  bookingId: string,
+  patch: {
+    status: BookingStatus;
+    quoted_amount_clp?: number | null;
+    notes_internal?: string;
+    event_date?: string | null;
+  }
+): Promise<Result<{ followUpId?: string; calendarEventId?: string }>> {
+  try {
+    const result = await updateBookingWorkflow(bookingId, patch);
+    revalidatePath("/press-kit");
+    revalidatePath(`/press-kit/bookings/${bookingId}`);
+    revalidatePath("/crm");
+    revalidatePath("/calendario");
+    revalidatePath("/dashboard");
+    return { ok: true, data: result };
   } catch (e) {
     return errResult(e);
   }

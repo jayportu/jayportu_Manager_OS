@@ -46,7 +46,7 @@ export default async function PressKitAdminPage() {
   const formOpens = summary.byEvent["form_open"] || 0;
   const formSubmits = summary.byEvent["form_submit"] || 0;
 
-  const pendingBookings = bookings.filter((b) => b.status === "pendiente").length;
+  const pendingBookings = bookings.filter((b) => b.status === "nuevo").length;
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">

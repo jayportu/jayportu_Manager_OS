@@ -15,6 +15,7 @@ import {
   CONTACT_TYPE_LABELS,
   CONTACT_STATUS_LABELS,
   MAIN_CHANNEL_LABELS,
+  isVenueType,
   type Contact,
   type ContactInsert,
   type ContactUpdate,
@@ -51,6 +52,9 @@ const EMPTY: ContactInsert = {
   // Sprint 19 — Tags + notas privadas
   tags: [],
   private_notes: "",
+  // Sprint 20 — Venue (solo aplica si type IN VENUE_TYPES)
+  capacity_estimate: null,
+  accepted_genres: [],
 };
 
 /** Sprint 19 — Normaliza tag a lowercase + dashes (sin espacios). */
@@ -89,6 +93,8 @@ export function ContactForm({ initial }: Props) {
           notes: initial.notes,
           tags: initial.tags ?? [],
           private_notes: initial.private_notes ?? "",
+          capacity_estimate: initial.capacity_estimate ?? null,
+          accepted_genres: initial.accepted_genres ?? [],
         }
       : EMPTY
   );
@@ -353,6 +359,72 @@ export function ContactForm({ initial }: Props) {
           </div>
         )}
       </Card>
+
+      {/* Venue info — Sprint 20 (solo si type IN VENUE_TYPES) */}
+      {isVenueType(form.type as ContactType) && (
+        <Card className="p-6 space-y-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+            Info del venue
+          </h2>
+          <p className="text-xs text-fg-muted -mt-2">
+            Datos para que /descubrir pueda matchearte con otros DJs que
+            buscan venues por capacidad o género.
+          </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="capacity">Capacidad aprox (personas)</Label>
+              <Input
+                id="capacity"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="Ej: 300"
+                value={form.capacity_estimate ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value.trim();
+                  update(
+                    "capacity_estimate",
+                    v ? parseInt(v, 10) : null
+                  );
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="genres">Géneros que aceptan</Label>
+              <Input
+                id="genres"
+                placeholder="techno, house, deep (separados por coma)"
+                value={(form.accepted_genres ?? []).join(", ")}
+                onChange={(e) => {
+                  const list = e.target.value
+                    .split(",")
+                    .map((g) =>
+                      g
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, "")
+                        .replace(/\s+/g, "-")
+                    )
+                    .filter((g) => g.length > 0);
+                  update("accepted_genres", list);
+                }}
+              />
+              {(form.accepted_genres ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {(form.accepted_genres ?? []).map((g) => (
+                    <span
+                      key={g}
+                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream"
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Tags — Sprint 19 */}
       <Card className="p-6 space-y-3">
