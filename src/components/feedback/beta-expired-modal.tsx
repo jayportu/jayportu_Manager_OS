@@ -1,0 +1,81 @@
+"use client";
+
+/**
+ * Sprint 23.5 — Modal full-screen que bloquea la app cuando beta_status='expired'.
+ *
+ * No tiene botón "X" para cerrar. Solo permite:
+ *   - "Salir" → logout
+ *   - "Quiero suscribirme" → mailto a hola@jayportu.com (Sprint 24 traerá el flow real)
+ *
+ * Se muestra DEBAJO de cualquier otra cosa de la UI, no permite que el user
+ * interactúe con la app. Es read-only para todo propósito práctico, aunque
+ * técnicamente puedan ver sus datos detrás del overlay.
+ */
+
+export function BetaExpiredModal() {
+  function handleLogout() {
+    // Simple navigation: server route /logout maneja el sign out
+    window.location.href = "/logout";
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-ink/85 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="beta-expired-title"
+    >
+      <div
+        className="w-full max-w-lg bg-cream border-[3px] border-ink p-6 md:p-8"
+        style={{ boxShadow: "12px 12px 0 0 #FF5C00" }}
+      >
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange">
+          — BETA EXPIRÓ
+        </div>
+        <h2
+          id="beta-expired-title"
+          className="font-display text-4xl md:text-5xl leading-[0.95] mt-2"
+        >
+          GRACIAS<span className="text-orange">.</span>
+        </h2>
+
+        <div className="mt-5 space-y-4 text-sm md:text-base leading-relaxed">
+          <p>
+            Tus <strong>15 días de beta</strong> en DROP terminaron. Gracias
+            por probar la app y por el feedback que dejaste.
+          </p>
+          <p>
+            Para no perder tus datos, tu cuenta sigue activa pero
+            <strong> en modo lectura</strong>. Puedes ver tus contactos,
+            calendario y tracklists, pero no puedes crear cosas nuevas
+            hasta que abramos las suscripciones.
+          </p>
+          <p className="text-fg-muted text-xs">
+            ¿Quieres ser de los primeros en suscribirte? Hazme saber y te
+            aviso ni bien esté listo.
+          </p>
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <a
+            href="mailto:hola@jayportu.com?subject=Quiero%20suscribirme%20a%20DROP&body=Hola%20Jay%2C%20mi%20beta%20termin%C3%B3%20y%20quiero%20seguir%20usando%20DROP."
+            className="flex-1 inline-flex items-center justify-center h-11 px-4 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:bg-ink hover:text-orange transition-colors"
+          >
+            Quiero suscribirme →
+          </a>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center justify-center h-11 px-4 bg-cream border-2 border-ink/40 text-fg-muted font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:border-ink hover:text-ink transition-colors"
+          >
+            Salir
+          </button>
+        </div>
+
+        <div className="border-t-2 border-ink/15 mt-6 pt-4 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-subtle text-center">
+          DROP. · THE DJ OS · MADE IN SANTIAGO
+        </div>
+      </div>
+    </div>
+  );
+}

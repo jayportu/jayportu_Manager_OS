@@ -6,6 +6,7 @@ import {
   updateRiderItem,
   deleteRiderItem,
 } from "@/lib/queries/tech-rider";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { revalidatePath } from "next/cache";
 import type {
   DjProfileUpdate,
@@ -61,6 +62,7 @@ export async function addRiderItemAction(
   input: TechRiderItemInsert
 ): Promise<{ ok: true; item: TechRiderItem } | { ok: false; error: string }> {
   try {
+    await assertBetaActive();
     const item = await addRiderItem(input);
     revalidatePath("/configuracion");
     revalidatePath(`/p/[slug]`, "page");

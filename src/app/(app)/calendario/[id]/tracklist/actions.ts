@@ -14,6 +14,7 @@ import {
   deleteTracklist,
 } from "@/lib/queries/tracklists";
 import { createClient } from "@/lib/supabase/server";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 import type {
   Tracklist,
   TracklistTrack,
@@ -33,6 +34,7 @@ export async function addTrackAction(
   input: TracklistTrackInsert
 ): Promise<{ ok: true; track: TracklistTrack } | { ok: false; error: string }> {
   try {
+    await assertBetaActive();
     const track = await addTrack(input);
     revalidatePath("/calendario/[id]/tracklist", "page");
     return { ok: true, track };
@@ -73,6 +75,7 @@ export async function bulkImportTracksAction(
   { ok: true; inserted: number } | { ok: false; error: string }
 > {
   try {
+    await assertBetaActive();
     const { inserted } = await bulkInsertTracks(tracklistId, tracks);
     revalidatePath("/calendario/[id]/tracklist", "page");
     return { ok: true, inserted };

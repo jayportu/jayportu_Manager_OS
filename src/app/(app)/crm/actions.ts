@@ -14,6 +14,7 @@ import {
   pauseRecurrence,
   deleteRecurrenceSeries,
 } from "@/lib/queries/follow-ups";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type {
@@ -37,6 +38,7 @@ export async function createContactAction(
   input: ContactInsert
 ): Promise<Result<{ id: string }>> {
   try {
+    await assertBetaActive();
     const c = await createContact(input);
     revalidatePath("/crm");
     revalidatePath("/dashboard");

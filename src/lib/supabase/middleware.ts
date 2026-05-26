@@ -22,6 +22,7 @@ const PUBLIC_PATHS = [
   "/api/gmail/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/growth/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/push/send-cron", // cron endpoint (protegido con CRON_SECRET en header)
+  "/api/beta/expire-cron", // Sprint 23.5 cron (protegido con CRON_SECRET)
   "/sw.js", // service worker debe ser servido sin auth gate
   "/manifest.json", // manifest PWA público
   // /api/gmail/callback NO es público — el callback verifica sesión adentro.

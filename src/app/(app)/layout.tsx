@@ -5,6 +5,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { NpsModal } from "@/components/feedback/nps-modal";
+import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { getBetaState } from "@/lib/beta-status";
 import { consumeBetaInviteIfAny } from "@/lib/queries/beta-invite";
@@ -83,6 +84,10 @@ export default async function AppLayout({
       {betaState.pendingNps && <NpsModal milestone={betaState.pendingNps} />}
       {/* Sprint 23.5 — Tracker silent de page_view (cero impacto en LCP) */}
       <PageViewTracker />
+      {/* Sprint 23.5 — Modal bloqueante cuando beta expiró (admin queda exento) */}
+      {profile?.beta_status === "expired" && !profile?.is_admin && (
+        <BetaExpiredModal />
+      )}
     </div>
   );
 }
