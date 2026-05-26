@@ -3,7 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getBookingByViewToken } from "@/lib/queries/presskit";
 import { createClient } from "@/lib/supabase/server";
-import { BOOKING_STATUS_LABELS } from "@/types/database";
+import { BookingTimeline } from "@/components/booking/booking-timeline";
+import { CounterofferForm } from "./counteroffer-form";
 import { dateTime, shortDate } from "@/lib/format";
 
 /**
@@ -45,6 +46,7 @@ const STATUS_STYLES: Record<
   leido: { bg: "bg-info", text: "text-white", border: "border-info", tag: "Leído por el DJ" },
   respondido: { bg: "bg-cream", text: "text-ink", border: "border-ink", tag: "Respondido" },
   cotizado: { bg: "bg-warning", text: "text-white", border: "border-warning", tag: "Cotizado" },
+  contraofertado: { bg: "bg-ink", text: "text-cream", border: "border-ink", tag: "Contraoferta enviada" },
   agendado: { bg: "bg-success", text: "text-white", border: "border-success", tag: "Agendado ✓" },
   rechazado: { bg: "bg-danger", text: "text-white", border: "border-danger", tag: "No disponible" },
 };
@@ -173,11 +175,11 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Cotización si aplica */}
+          {/* Cotización destacada si aplica */}
           {booking.quoted_amount_clp && booking.quoted_amount_clp > 0 && (
             <div className="border-2 border-warning bg-warning/10 p-5 mb-4">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-warning mb-1">
-                — MONTO COTIZADO
+                — MONTO COTIZADO POR EL DJ
               </div>
               <div
                 style={{
@@ -190,12 +192,67 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
               >
                 ${booking.quoted_amount_clp.toLocaleString("es-CL")} CLP
               </div>
-              <p className="text-xs text-fg-muted mt-2">
-                El DJ te cotizó este monto. Pronto vas a poder aceptar /
-                contraofertar / agendar desde acá (Bloque C en desarrollo).
-              </p>
             </div>
           )}
+
+          {/* Counteroffer del booker si ya la mandó */}
+          {booking.status === "contraofertado" && (
+            <div className="border-2 border-ink bg-ink text-cream p-5 mb-4">
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-1">
+                — TU CONTRAOFERTA
+              </div>
+              <div className="space-y-1 mt-2">
+                {booking.counter_amount_clp && (
+                  <div>
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-cream/60">
+                      Monto:{" "}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily:
+                          "var(--font-anton), Impact, system-ui, sans-serif",
+                        fontSize: "24px",
+                      }}
+                    >
+                      ${booking.counter_amount_clp.toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
+                )}
+                {booking.counter_event_date && (
+                  <div className="font-mono text-sm">
+                    Nueva fecha:{" "}
+                    <span className="text-orange">
+                      {shortDate(booking.counter_event_date)}
+                    </span>
+                  </div>
+                )}
+                {booking.counter_message && (
+                  <p className="text-sm mt-2 whitespace-pre-line">
+                    “{booking.counter_message}”
+                  </p>
+                )}
+              </div>
+              <div className="font-mono text-[10px] text-cream/60 mt-3 uppercase tracking-wider">
+                Esperando respuesta del DJ
+              </div>
+            </div>
+          )}
+
+          {/* Form de counteroffer (solo si DJ ya cotizó y no se mandó counter) */}
+          {booking.status === "cotizado" && (
+            <div className="mb-4">
+              <CounterofferForm
+                token={token}
+                quotedAmountClp={booking.quoted_amount_clp}
+                originalDate={booking.event_date}
+              />
+            </div>
+          )}
+
+          {/* Timeline siempre visible (debajo del form/counter, arriba de los CTAs) */}
+          <div className="mb-4">
+            <BookingTimeline booking={booking} perspective="booker" />
+          </div>
 
           {/* CTAs según contexto */}
           <div className="mt-6 flex flex-wrap gap-3">

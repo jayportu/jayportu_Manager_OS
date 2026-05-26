@@ -145,3 +145,166 @@ export async function updateBookingWorkflowAction(
     return errResult(e);
   }
 }
+
+/**
+ * Bloque C · C4 — DJ acepta la contraoferta del booker.
+ *
+ * Pasa el booking a 'agendado' usando los campos counter_* como
+ * definitivos (counter_amount → quoted_amount; counter_event_date →
+ * event_date). Internamente delega a updateBookingWorkflow para que
+ * cree el calendar_event automático del Sprint 20.
+ */
+export async function acceptCounterofferAction(
+  bookingId: string
+): Promise<Result<{ calendarEventId?: string }>> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    // Leer counter actual
+    const { data: booking, error: readErr } = await supabase
+      .from("booking_form_submissions")
+      .select("*")
+      .eq("id", bookingId)
+      .eq("user_id", user.id)
+      .single();
+    if (readErr || !booking) throw new Error("Booking no encontrado");
+
+    const b = booking as {
+      counter_amount_clp: number | null;
+      counter_event_date: string | null;
+      event_date: string | null;
+      quoted_amount_clp: number | null;
+      status: string;
+    };
+
+    if (b.status !== "contraofertado") {
+      throw new Error(
+        `No podés aceptar contraoferta en estado '${b.status}'`
+      );
+    }
+
+    // Resolver valores finales
+    const finalAmount = b.counter_amount_clp ?? b.quoted_amount_clp;
+    const finalDate = b.counter_event_date ?? b.event_date;
+
+    if (!finalDate) {
+      throw new Error(
+        "Falta la fecha del evento para agendar. Pedile al booker que la incluya."
+      );
+    }
+
+    // Promover a agendado (crea calendar_event auto via updateBookingWorkflow)
+    const result = await updateBookingWorkflow(bookingId, {
+      status: "agendado",
+      quoted_amount_clp: finalAmount,
+      event_date: finalDate,
+    });
+
+    // C5 — Push notification al booker si tiene cuenta logueada
+    if (booking.booker_user_id) {
+      try {
+        const { sendPushToUser } = await import("@/lib/push/server");
+        const amountTxt = finalAmount
+          ? ` · $${finalAmount.toLocaleString("es-CL")} CLP`
+          : "";
+        await sendPushToUser(booking.booker_user_id, {
+          title: "Tu evento fue agendado",
+          body: `El DJ aceptó tu contraoferta${amountTxt}. Próximo paso: contrato y pago.`,
+          url: "/booker/requests",
+          tag: `booking-${bookingId}`,
+        });
+      } catch (pushErr) {
+        console.error("acceptCounterofferAction push error:", pushErr);
+      }
+    }
+
+    revalidatePath("/press-kit");
+    revalidatePath(`/press-kit/bookings/${bookingId}`);
+    revalidatePath("/calendario");
+    revalidatePath("/dashboard");
+    revalidatePath("/booker/requests");
+    return { ok: true, data: { calendarEventId: result.calendarEventId } };
+  } catch (e) {
+    return errResult(e);
+  }
+}
+
+/**
+ * Bloque C · C4 — DJ recotiza después de una contraoferta.
+ *
+ * Si la contraoferta del booker no le sirve, el DJ puede mandar una
+ * nueva cotización. Vuelve a status='cotizado' con el nuevo monto y
+ * limpia los campos counter_* para que el booker pueda contraofertar
+ * de nuevo si quiere.
+ */
+export async function recounterAction(
+  bookingId: string,
+  newAmount: number,
+  newDate?: string | null
+): Promise<Result> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    if (!newAmount || newAmount <= 0) {
+      throw new Error("Monto inválido");
+    }
+
+    const updatePayload: Record<string, unknown> = {
+      status: "cotizado",
+      quoted_amount_clp: newAmount,
+      quoted_at: new Date().toISOString(),
+      // Limpiar counter para que el booker pueda mandar uno nuevo
+      counter_amount_clp: null,
+      counter_event_date: null,
+      counter_message: "",
+      counter_at: null,
+    };
+    if (newDate) updatePayload.event_date = newDate;
+
+    // Necesitamos el booker_user_id antes del update (para push después)
+    const { data: pre } = await supabase
+      .from("booking_form_submissions")
+      .select("booker_user_id, view_token")
+      .eq("id", bookingId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const { error } = await supabase
+      .from("booking_form_submissions")
+      .update(updatePayload)
+      .eq("id", bookingId)
+      .eq("user_id", user.id);
+    if (error) throw new Error(error.message);
+
+    // C5 — Push notification al booker
+    if (pre?.booker_user_id) {
+      try {
+        const { sendPushToUser } = await import("@/lib/push/server");
+        await sendPushToUser(pre.booker_user_id, {
+          title: "Nueva cotización del DJ",
+          body: `El DJ te recotizó por $${newAmount.toLocaleString("es-CL")} CLP. Tocá para revisar.`,
+          url: `/b/${pre.view_token}`,
+          tag: `booking-${bookingId}`,
+        });
+      } catch (pushErr) {
+        console.error("recounterAction push error:", pushErr);
+      }
+    }
+
+    revalidatePath("/press-kit");
+    revalidatePath(`/press-kit/bookings/${bookingId}`);
+    revalidatePath("/dashboard");
+    revalidatePath("/booker/requests");
+    return { ok: true, data: undefined };
+  } catch (e) {
+    return errResult(e);
+  }
+}

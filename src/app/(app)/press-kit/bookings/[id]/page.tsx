@@ -5,6 +5,8 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { BOOKING_STATUS_LABELS } from "@/types/database";
 import { BookingActions } from "./booking-actions";
+import { CounterofferResponse } from "./counteroffer-response";
+import { BookingTimeline } from "@/components/booking/booking-timeline";
 import { dateTime, shortDate, whatsappLink } from "@/lib/format";
 
 interface PageProps {
@@ -67,6 +69,24 @@ export default async function BookingDetailPage({ params }: PageProps) {
           </div>
         )}
       </Card>
+
+      {/* Bloque C — Counteroffer del booker (si aplica) */}
+      {booking.status === "contraofertado" && (
+        <CounterofferResponse
+          bookingId={booking.id}
+          counterAmount={booking.counter_amount_clp}
+          counterDate={booking.counter_event_date}
+          counterMessage={booking.counter_message}
+          counterAt={booking.counter_at}
+          originalDate={booking.event_date}
+          quotedAmount={booking.quoted_amount_clp}
+        />
+      )}
+
+      {/* Timeline visual del booking */}
+      <div className="mb-5">
+        <BookingTimeline booking={booking} perspective="dj" />
+      </div>
 
       {/* Acciones */}
       <BookingActions

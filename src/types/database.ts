@@ -448,6 +448,7 @@ export const BOOKING_STATUS = [
   "leido",
   "respondido",
   "cotizado",
+  "contraofertado",
   "agendado",
   "rechazado",
 ] as const;
@@ -477,6 +478,12 @@ export interface BookingSubmission {
   /** Bloque B — Booker logueado opcional + token público para /b/[token] */
   booker_user_id: string | null;
   view_token: string;
+  /** Bloque C — Counteroffer del booker después de cotizado */
+  counter_amount_clp: number | null;
+  counter_event_date: string | null;
+  counter_message: string;
+  counter_at: string | null;
+  responded_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -486,6 +493,7 @@ export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
   leido: "Leído",
   respondido: "Respondido",
   cotizado: "Cotizado",
+  contraofertado: "Contraoferta del booker",
   agendado: "Agendado",
   rechazado: "Rechazado",
 };
