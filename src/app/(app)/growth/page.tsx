@@ -125,7 +125,7 @@ export default async function GrowthPage() {
               </h3>
               <p className="text-sm text-fg-muted mb-3">
                 Para medir tu crecimiento, necesito saber con cuántos
-                seguidores empezás en cada plataforma. Tarda 30 segundos.
+                seguidores tienes en cada plataforma. Tarda 30 segundos.
               </p>
               <SnapshotDialog
                 existingSnapshots={snapshots}

@@ -34,7 +34,7 @@ export async function submitCounterofferAction(
   if (!amount && !eventDate && !(message && message.trim().length > 0)) {
     return {
       ok: false,
-      error: "Mandá al menos un monto, fecha o mensaje en la contraoferta.",
+      error: "Manda al menos un monto, fecha o mensaje en la contraoferta.",
     };
   }
 
@@ -53,7 +53,7 @@ export async function submitCounterofferAction(
   if (booking.status !== "cotizado") {
     return {
       ok: false,
-      error: `No podés contraofertar en este estado (${booking.status}). Solo cuando el DJ ya cotizó.`,
+      error: `No puedes contraofertar en este estado (${booking.status}). Solo cuando el DJ ya cotizó.`,
     };
   }
 
@@ -69,7 +69,7 @@ export async function submitCounterofferAction(
   if (user && booking.booker_user_id && user.id !== booking.booker_user_id) {
     return {
       ok: false,
-      error: "Este request es de otro booker, no podés contraofertar.",
+      error: "Este request es de otro booker, no puedes contraofertar.",
     };
   }
 
@@ -111,7 +111,7 @@ export async function submitCounterofferAction(
       : "";
     await sendPushToUser(booking.user_id, {
       title: "Contraoferta recibida en DROP.",
-      body: `${bookerName} te contraofertó${amountTxt}. Tocá para responder.`,
+      body: `${bookerName} te contraofertó${amountTxt}. Toca para responder.`,
       url: `/press-kit/bookings/${booking.id}`,
       tag: `booking-${booking.id}`,
     });

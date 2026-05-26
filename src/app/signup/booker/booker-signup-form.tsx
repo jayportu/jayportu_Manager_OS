@@ -203,8 +203,8 @@ export function BookerSignupForm() {
       </Button>
 
       <div className="font-mono text-[10px] text-fg-subtle tracking-wider leading-relaxed">
-        Al crear cuenta aceptás recibir notificaciones de tus requests y
-        DJs guardados. Sin spam — podés salir cuando quieras.
+        Al crear cuenta aceptas recibir notificaciones de tus requests y
+        DJs guardados. Sin spam — puedes salir cuando quieras.
       </div>
     </form>
   );

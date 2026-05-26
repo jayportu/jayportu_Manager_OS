@@ -183,7 +183,7 @@ export async function acceptCounterofferAction(
 
     if (b.status !== "contraofertado") {
       throw new Error(
-        `No podés aceptar contraoferta en estado '${b.status}'`
+        `No puedes aceptar contraoferta en estado '${b.status}'`
       );
     }
 
@@ -193,7 +193,7 @@ export async function acceptCounterofferAction(
 
     if (!finalDate) {
       throw new Error(
-        "Falta la fecha del evento para agendar. Pedile al booker que la incluya."
+        "Falta la fecha del evento para agendar. Pídele al booker que la incluya."
       );
     }
 
@@ -290,7 +290,7 @@ export async function recounterAction(
         const { sendPushToUser } = await import("@/lib/push/server");
         await sendPushToUser(pre.booker_user_id, {
           title: "Nueva cotización del DJ",
-          body: `El DJ te recotizó por $${newAmount.toLocaleString("es-CL")} CLP. Tocá para revisar.`,
+          body: `El DJ te recotizó por $${newAmount.toLocaleString("es-CL")} CLP. Toca para revisar.`,
           url: `/b/${pre.view_token}`,
           tag: `booking-${bookingId}`,
         });

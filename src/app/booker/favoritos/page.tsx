@@ -138,7 +138,7 @@ function EmptyState() {
         SIN FAVORITOS TODAVÍA
       </h2>
       <p className="text-sm text-fg-muted max-w-md mx-auto mb-6">
-        Cuando encuentres un DJ que te guste en el directorio, tocá el
+        Cuando encuentres un DJ que te guste en el directorio, toca el
         corazón para guardarlo y tenerlo a mano para tu próximo evento.
       </p>
       <Link

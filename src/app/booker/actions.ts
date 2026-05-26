@@ -26,7 +26,7 @@ export async function toggleFavoriteAction(
 
   // No permitir que un DJ se favoritee a sí mismo (edge case)
   if (user.id === djUserId) {
-    return { ok: false, error: "No te podés favoritar a vos mismo" };
+    return { ok: false, error: "No puedes favoritarte a ti mismo" };
   }
 
   // Buscar si ya existe

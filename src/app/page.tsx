@@ -126,7 +126,7 @@ function DjSide() {
             letterSpacing: "-0.005em",
           }}
         >
-          TOMÁ EL<br />
+          TOMA EL<br />
           CONTROL DE<br />
           TU CARRERA<span className="text-orange">.</span>
         </h1>
@@ -164,7 +164,7 @@ function DjSide() {
           Solicitar invitación →
         </Link>
         <div className="mt-4 font-mono text-[10px] tracking-[0.14em] text-cream/50">
-          ¿Ya tenés invite? <Link href="/login" className="underline hover:text-orange">Entrá acá</Link>
+          ¿Ya tienes invite? <Link href="/login" className="underline hover:text-orange">Entra acá</Link>
         </div>
       </div>
     </section>
@@ -206,13 +206,13 @@ function BookerSide() {
             letterSpacing: "-0.005em",
           }}
         >
-          ENCONTRÁ<br />
+          ENCUENTRA<br />
           AL DJ<br />
           INDICADO<span className="text-orange">.</span>
         </h1>
         <p className="mt-6 text-base md:text-lg leading-relaxed max-w-lg text-fg">
-          Directorio de DJs verificados en LATAM. Filtrá por género, ciudad
-          y disponibilidad. Mandá tu request directo al artista — sin
+          Directorio de DJs verificados en LATAM. Filtra por género, ciudad
+          y disponibilidad. Manda tu request directo al artista — sin
           intermediarios, sin comisión.
         </p>
         <ul className="mt-7 space-y-2.5 max-w-md">
@@ -220,7 +220,7 @@ function BookerSide() {
             "Directorio /dj con filtros por género y ciudad",
             "Disponibilidad pública por fecha",
             "Inbox de tus requests con estado en vivo",
-            "Guardá tus DJs favoritos para el próximo evento",
+            "Guarda tus DJs favoritos para el próximo evento",
           ].map((t) => (
             <li
               key={t}

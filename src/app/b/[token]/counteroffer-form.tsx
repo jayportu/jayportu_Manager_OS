@@ -64,7 +64,7 @@ export function CounterofferForm({
           — ¿NO TE CIERRA ESTE MONTO?
         </div>
         <p className="text-sm text-fg mb-4 leading-relaxed">
-          Podés mandar una contraoferta con un monto distinto, otra fecha
+          Puedes mandar una contraoferta con un monto distinto, otra fecha
           o un mensaje. El DJ la va a ver en su dashboard y decide si la
           acepta, la rebate o re-cotiza.
         </p>
@@ -90,7 +90,7 @@ export function CounterofferForm({
           — MANDAR CONTRAOFERTA
         </div>
         <p className="text-xs text-fg-muted">
-          Llená al menos uno: monto, fecha o mensaje.
+          Llena al menos uno: monto, fecha o mensaje.
         </p>
       </div>
 

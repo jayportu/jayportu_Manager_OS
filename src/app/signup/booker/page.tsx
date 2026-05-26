@@ -78,19 +78,19 @@ export default async function BookerSignupPage() {
               letterSpacing: "-0.005em",
             }}
           >
-            EMPEZÁ A<br />
+            EMPIEZA A<br />
             BOOKEAR DJS<span className="text-orange">.</span>
           </h1>
           <p className="text-sm text-fg-muted mb-7 leading-relaxed">
-            Sin comisión, sin intermediarios. Contactá directo a los DJs
-            del directorio y guardá tus favoritos para próximos eventos.
+            Sin comisión, sin intermediarios. Contacta directo a los DJs
+            del directorio y guarda tus favoritos para próximos eventos.
           </p>
 
           <BookerSignupForm />
 
           <div className="mt-6 pt-5 border-t border-ink/15">
             <div className="text-[11px] text-fg-subtle font-mono tracking-wider mb-1.5">
-              ¿YA TENÉS CUENTA?
+              ¿YA TIENES CUENTA?
             </div>
             <Link
               href="/login"

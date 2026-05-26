@@ -286,7 +286,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
           {isAnon && (
             <p className="mt-6 font-mono text-[10px] tracking-wider text-fg-subtle leading-relaxed">
               Cualquiera con este link puede ver el estado de tu request.
-              Si querés cerrarlo, creá cuenta y manejá todos tus requests
+              Si quieres cerrarlo, crea cuenta y maneja todos tus requests
               desde un lugar seguro.
             </p>
           )}
