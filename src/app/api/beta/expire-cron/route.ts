@@ -100,7 +100,7 @@ export async function GET(req: Request) {
       if (!email) continue;
       const res = await sendEmail({
         to: email,
-        subject: "Tu beta de DROP. terminó · ¿Te quedas?",
+        subject: "Tus 15 días de beta en DROP llegaron a su fin",
         html: betaExpiredEmailHtml(u.artist_name),
         text: betaExpiredEmailText(u.artist_name),
         replyTo: process.env.RESEND_REPLY_TO || undefined,

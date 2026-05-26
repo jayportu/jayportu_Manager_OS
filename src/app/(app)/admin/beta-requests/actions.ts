@@ -62,7 +62,7 @@ export async function approveBetaRequestAction(
       });
       const sendRes = await sendEmail({
         to: updated.email,
-        subject: "Estás dentro · DROP. Beta",
+        subject: "Tu acceso a DROP — bienvenido a la beta",
         html,
         text,
         replyTo: process.env.RESEND_REPLY_TO || undefined,
@@ -121,7 +121,7 @@ export async function resendInviteEmailAction(
     const inviteUrl = `${getSiteUrl()}/login?invite=${r.invite_token}`;
     const sendRes = await sendEmail({
       to: r.email,
-      subject: "Recordatorio · Tu invitación a DROP. Beta",
+      subject: "Recordatorio sobre tu acceso a DROP",
       html: betaInviteEmailHtml({
         artistName: r.artist_name,
         inviteUrl,

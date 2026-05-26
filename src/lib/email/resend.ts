@@ -38,6 +38,26 @@ export interface SendEmailInput {
   replyTo?: string;
 }
 
+/**
+ * Headers anti-spam que se mandan en todos los emails:
+ *
+ * - List-Unsubscribe: requerido por Gmail/Yahoo para "bulk senders" desde
+ *   Feb 2024. Apunta a mailto + URL HTTPS. Aunque solo mandemos
+ *   transaccionales, Gmail castiga a quien NO tiene este header (lo trata
+ *   como bulk sin opt-out).
+ * - List-Unsubscribe-Post: indica que la URL acepta POST one-click.
+ * - Precedence: bulk → marca como "automated mail" (mejor que ausencia).
+ */
+function buildAntiSpamHeaders(): Record<string, string> {
+  const supportEmail = process.env.RESEND_REPLY_TO || "hola@jayportu.com";
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+  return {
+    "List-Unsubscribe": `<mailto:${supportEmail}?subject=unsubscribe>, <${siteUrl}/api/unsubscribe>`,
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  };
+}
+
 export async function sendEmail(
   input: SendEmailInput
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
@@ -57,6 +77,7 @@ export async function sendEmail(
       html: input.html,
       text: input.text,
       replyTo: input.replyTo,
+      headers: buildAntiSpamHeaders(),
     });
     if (res.error) {
       return { ok: false, error: res.error.message };

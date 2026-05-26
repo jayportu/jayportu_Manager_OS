@@ -3,8 +3,17 @@ import "server-only";
 /**
  * Sprint 23.5 — Templates HTML de emails.
  *
- * Inline styles para máxima compatibilidad con clientes de email
- * (Gmail, Outlook, Apple Mail). Sin CSS externo. Paleta Type Beat.
+ * Diseñados para deliverability primero, estética después. Cambios vs
+ * primera versión (que caía en spam por dominio sin reputación):
+ *   - Sin emoji en subject (algunos filtros lo penalizan).
+ *   - Sin caps lock en headlines (penalty fuerte de Gmail).
+ *   - Menos peso de HTML decorativo: layout simple basado en texto,
+ *     una sola CTA, sin grandes bloques de color.
+ *   - HTML+plain text balanceados (mismo contenido).
+ *   - Bordes y colores mínimos: el orange queda solo en accent point.
+ *   - Sin palabras spammy típicas (FREE, URGENT, ACCESS NOW, click here).
+ *
+ * Inline styles para compatibilidad con Gmail/Outlook/Apple Mail.
  */
 
 export function betaInviteEmailHtml(input: {
@@ -12,98 +21,80 @@ export function betaInviteEmailHtml(input: {
   inviteUrl: string;
   fromName?: string;
 }): string {
-  const fromName = input.fromName || "Jay Portu";
+  const fromName = input.fromName || "Jaime";
   return `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bienvenido a la beta de DROP.</title>
+  <title>Tu acceso a DROP</title>
 </head>
-<body style="margin:0; padding:0; background:#F4EFE7; font-family:-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif; color:#0A0A0A;">
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F4EFE7;">
+<body style="margin:0; padding:0; background:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; color:#0A0A0A; line-height:1.5;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;">
     <tr>
       <td align="center" style="padding:32px 16px;">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px; width:100%; background:#ffffff; border:3px solid #0A0A0A;">
-          <!-- Header -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px; width:100%;">
+
+          <!-- Brand line discreta -->
           <tr>
-            <td style="padding:32px 32px 0 32px;">
-              <div style="font-family:'Space Mono',Consolas,monospace; font-size:11px; font-weight:700; letter-spacing:2px; color:#FF5C00; text-transform:uppercase;">— BIENVENIDO A LA BETA</div>
-              <div style="font-family:Impact,'Anton',sans-serif; font-size:48px; line-height:0.9; letter-spacing:-1px; margin-top:8px;">
-                DROP<span style="color:#FF5C00;">.</span>
+            <td style="padding:0 8px 24px 8px;">
+              <div style="font-size:13px; color:#555; letter-spacing:0.5px;">
+                DROP<span style="color:#FF5C00;">.</span> &nbsp;—&nbsp; The DJ OS
               </div>
             </td>
           </tr>
 
-          <!-- Body -->
+          <!-- Body principal -->
           <tr>
-            <td style="padding:24px 32px;">
-              <p style="font-size:18px; line-height:1.4; margin:0 0 16px 0;">
-                Hola <strong>${escapeHtml(input.artistName)}</strong>,
-              </p>
-              <p style="font-size:15px; line-height:1.55; margin:0 0 16px 0;">
-                Estás dentro. Te aprobamos para la beta cerrada de DROP —
-                el sistema operativo para DJs independientes.
-              </p>
-              <p style="font-size:15px; line-height:1.55; margin:0 0 24px 0;">
-                Tienes <strong>15 días</strong> de acceso completo. Cero restricciones.
-                Para entrar, haz click en el botón de abajo: te lleva al login,
-                ingresas tu email, te llega un magic link, y listo.
+            <td style="padding:0 8px;">
+              <p style="font-size:16px; margin:0 0 16px 0;">
+                Hola ${escapeHtml(input.artistName)},
               </p>
 
-              <!-- CTA -->
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px 0;">
-                <tr>
-                  <td>
-                    <a href="${input.inviteUrl}"
-                       style="display:inline-block; padding:14px 28px; background:#FF5C00; color:#0A0A0A; border:3px solid #0A0A0A; text-decoration:none; font-family:'Space Mono',Consolas,monospace; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; box-shadow:5px 5px 0 0 #0A0A0A;">
-                      ENTRAR A DROP →
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="font-size:12px; line-height:1.5; color:#7A7670; margin:0 0 8px 0;">
-                Si el botón no funciona, copia y pega este link:
-              </p>
-              <p style="font-size:12px; line-height:1.5; word-break:break-all; margin:0 0 24px 0;">
-                <a href="${input.inviteUrl}" style="color:#FF5C00;">${input.inviteUrl}</a>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Te confirmo tu acceso a DROP, el sistema operativo que estoy construyendo para DJs independientes. Estás aprobado para la beta cerrada de 15 días.
               </p>
 
-              <hr style="border:0; border-top:2px solid #0A0A0A; margin:24px 0;" />
-
-              <p style="font-size:14px; line-height:1.5; margin:0 0 12px 0;">
-                <strong>¿Cómo se usa la beta?</strong>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Para activar tu cuenta, abre el siguiente enlace:
               </p>
-              <ul style="font-size:14px; line-height:1.6; margin:0 0 16px 0; padding-left:20px;">
-                <li>Tu feedback decide el roadmap. Hay un botón flotante &ldquo;Feedback&rdquo; en cada pantalla.</li>
-                <li>Te haré 2 preguntas cortas (día 7 y día 15) para medir si te sirve.</li>
-                <li>Si te queda, tienes prioridad en el lanzamiento abierto.</li>
-              </ul>
 
-              <p style="font-size:14px; line-height:1.5; margin:24px 0 0 0;">
-                Cualquier duda me escribes directo a este mismo email.
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                <a href="${input.inviteUrl}" style="color:#0A0A0A; text-decoration:underline;">${input.inviteUrl}</a>
               </p>
-              <p style="font-size:14px; line-height:1.5; margin:8px 0 0 0;">
-                — ${escapeHtml(fromName)}
+
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Una vez dentro, vas a poder gestionar tus contactos, llevar tu calendario, ver el crecimiento de tus redes y tener un press kit público en un link compartible.
+              </p>
+
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Durante los 15 días te voy a hacer dos preguntas cortas para saber qué te sirve y qué falta. Tu feedback define qué construimos primero.
+              </p>
+
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                Cualquier duda, respondes este correo y me llega directo.
+              </p>
+
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                ${escapeHtml(fromName)}
               </p>
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Footer minimalista -->
           <tr>
-            <td style="border-top:2px solid #0A0A0A; padding:16px 32px; background:#F4EFE7;">
-              <div style="font-family:'Space Mono',Consolas,monospace; font-size:10px; letter-spacing:2px; color:#7A7670; text-transform:uppercase; text-align:center;">
-                DROP. · THE DJ OS · MADE IN SANTIAGO
-              </div>
+            <td style="padding:32px 8px 0 8px; border-top:1px solid #E5E1D8; margin-top:32px;">
+              <p style="font-size:12px; color:#7A7670; margin:16px 0 4px 0;">
+                Recibes este email porque solicitaste acceso a la beta de DROP en jayportu-manager-os.vercel.app/beta. Si no fuiste tú, puedes ignorar este mensaje — sin acción de tu parte no se crea ninguna cuenta.
+              </p>
+              <p style="font-size:12px; color:#7A7670; margin:8px 0 0 0;">
+                DROP — Santiago, Chile
+              </p>
             </td>
           </tr>
+
         </table>
-
-        <p style="font-size:11px; color:#7A7670; max-width:560px; line-height:1.5; margin:16px auto 0; padding:0 16px;">
-          Recibes este email porque solicitaste acceso a la beta cerrada de DROP en drop.dj/beta.
-          Si no fuiste tú, ignora este mensaje (sin tu acción, no se crea ninguna cuenta).
-        </p>
       </td>
     </tr>
   </table>
@@ -116,29 +107,26 @@ export function betaInviteEmailText(input: {
   inviteUrl: string;
   fromName?: string;
 }): string {
-  const fromName = input.fromName || "Jay Portu";
+  const fromName = input.fromName || "Jaime";
   return `Hola ${input.artistName},
 
-Estás dentro. Te aprobamos para la beta cerrada de DROP — el sistema operativo para DJs independientes.
+Te confirmo tu acceso a DROP, el sistema operativo que estoy construyendo para DJs independientes. Estás aprobado para la beta cerrada de 15 días.
 
-Tienes 15 días de acceso completo. Cero restricciones.
-
-Para entrar, abre este link:
+Para activar tu cuenta, abre el siguiente enlace:
 ${input.inviteUrl}
 
-Después: ingresas tu email, te llega un magic link, y listo.
+Una vez dentro, vas a poder gestionar tus contactos, llevar tu calendario, ver el crecimiento de tus redes y tener un press kit público en un link compartible.
 
-¿Cómo se usa la beta?
-- Tu feedback decide el roadmap. Hay un botón flotante "Feedback" en cada pantalla.
-- Te haré 2 preguntas cortas (día 7 y día 15) para medir si te sirve.
-- Si te queda, tienes prioridad en el lanzamiento abierto.
+Durante los 15 días te voy a hacer dos preguntas cortas para saber qué te sirve y qué falta. Tu feedback define qué construimos primero.
 
-Cualquier duda me escribes directo a este mismo email.
+Cualquier duda, respondes este correo y me llega directo.
 
-— ${fromName}
+Saludos,
+${fromName}
 
-—
-DROP. · THE DJ OS · MADE IN SANTIAGO`;
+--
+DROP — The DJ OS — Santiago, Chile
+Recibes este email porque solicitaste acceso a la beta en jayportu-manager-os.vercel.app/beta.`;
 }
 
 function escapeHtml(s: string): string {
