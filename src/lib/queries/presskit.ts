@@ -64,6 +64,8 @@ export async function createBookingSubmission(input: {
   message?: string;
   referrer?: string;
   user_agent?: string;
+  /** Bloque B — Si el booker está logueado, su user_id para link directo. */
+  booker_user_id?: string | null;
 }): Promise<BookingSubmission | null> {
   const admin = createAdminClient();
   const { data, error } = await admin
@@ -79,6 +81,7 @@ export async function createBookingSubmission(input: {
       message: input.message || "",
       referrer: input.referrer || "",
       user_agent: input.user_agent || "",
+      booker_user_id: input.booker_user_id || null,
     })
     .select("*")
     .single();
@@ -87,6 +90,45 @@ export async function createBookingSubmission(input: {
     return null;
   }
   return data as BookingSubmission;
+}
+
+/**
+ * Bloque B — Lookup público por view_token (sin auth).
+ * Devuelve booking + datos básicos del DJ para mostrar la vista /b/[token].
+ *
+ * Dos queries (no usamos FK join porque booking.user_id apunta a auth.users
+ * y dj_profile.user_id es la otra side; relación lógica, no FK directa).
+ */
+export async function getBookingByViewToken(token: string): Promise<
+  | (BookingSubmission & {
+      dj_artist_name: string;
+      dj_public_slug: string;
+      dj_logo_url: string;
+    })
+  | null
+> {
+  const admin = createAdminClient();
+
+  const { data: booking, error } = await admin
+    .from("booking_form_submissions")
+    .select("*")
+    .eq("view_token", token)
+    .maybeSingle();
+  if (error || !booking) return null;
+
+  const b = booking as BookingSubmission;
+  const { data: dj } = await admin
+    .from("dj_profile")
+    .select("artist_name, public_slug, logo_url")
+    .eq("user_id", b.user_id)
+    .maybeSingle();
+
+  return {
+    ...b,
+    dj_artist_name: (dj as { artist_name?: string } | null)?.artist_name ?? "DJ",
+    dj_public_slug: (dj as { public_slug?: string } | null)?.public_slug ?? "",
+    dj_logo_url: (dj as { logo_url?: string } | null)?.logo_url ?? "",
+  };
 }
 
 // ─── Owner-only queries (con session) ────────────────────────────────

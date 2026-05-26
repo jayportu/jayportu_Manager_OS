@@ -474,6 +474,9 @@ export interface BookingSubmission {
   calendar_event_id: string | null;
   quoted_at: string | null;
   agendado_at: string | null;
+  /** Bloque B — Booker logueado opcional + token público para /b/[token] */
+  booker_user_id: string | null;
+  view_token: string;
   created_at: string;
   updated_at: string;
 }
