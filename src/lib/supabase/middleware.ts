@@ -33,7 +33,10 @@ const PUBLIC_PATHS = [
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const INVITE_COOKIE = "dropbeta_invite_token";
-const INVITE_TTL = 60 * 30; // 30 minutos
+// 7 días: cubre el caso "user abre invite, hace signup, tarda en confirmar
+// el email (5-15min normal), o lo abre en otro dispositivo después del trabajo".
+// Antes eran 30 min y se perdía la activación silenciosamente.
+const INVITE_TTL = 60 * 60 * 24 * 7;
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

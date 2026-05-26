@@ -14,6 +14,13 @@ import "server-only";
  * `consumeBetaInviteIfAny` lee la cookie, valida que el email del user
  * coincida con el de la solicitud, activa beta_status='active' y limpia
  * el invite_token de la DB (one-shot).
+ *
+ * FALLBACK por email (importante): si la cookie no llegó (Safari ITP, mobile
+ * cross-device, incógnito, cookie expirada), buscamos beta_requests por
+ * email = user.email AND status='approved' AND user_id IS NULL. Esto blinda
+ * el caso "confirmé el email en otro dispositivo" — sin esto el user queda
+ * logueado pero sin beta_status='active' y el lockout post-15d lo bloquea
+ * aunque nunca haya usado la beta.
  */
 
 import { cookies } from "next/headers";
@@ -21,6 +28,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { findBetaRequestByToken } from "@/lib/queries/beta";
 
 const INVITE_COOKIE = "dropbeta_invite_token";
+
+interface BetaRequestRow {
+  id: string;
+  email: string;
+  status: string;
+  invite_token: string | null;
+  user_id: string | null;
+}
 
 /**
  * Lookup read-only del invite para mostrar banner pre-fill en /login.
@@ -41,82 +56,170 @@ export async function startBetaInviteFlow(
 /**
  * Consume la cookie del invite si existe y el user actual matches.
  * Activa beta_status='active', limpia invite_token, asocia user_id.
- * Idempotente: si no hay cookie, no hace nada.
+ * Idempotente: si no hay cookie, hace fallback por email.
  *
- * Llamado desde el layout (app) en cada request — el cost es 1 select
- * a beta_requests (indexado por invite_token) cuando hay cookie, cero
- * queries cuando no hay.
- *
- * Nota: cookies().delete() acá funciona porque el layout se ejecuta
- * después del flujo de auth y Next.js lo permite en ese contexto (el
- * response stream aún no se commiteó). Si en el futuro Next.js endurece
- * esto, mover el delete al middleware también.
+ * Logs verbose en cada return path para diagnosticar después por qué un
+ * user quedó (o no) activado — sin esto no había forma de auditar.
  */
 export async function consumeBetaInviteIfAny(opts: {
   userId: string;
   userEmail: string | null;
-}): Promise<{ activated: true } | { activated: false }> {
+}): Promise<
+  | { activated: true; via: "cookie" | "email_fallback" }
+  | { activated: false; reason: string }
+> {
+  const userIdShort = opts.userId.slice(0, 8);
+  const admin = createAdminClient();
   const c = await cookies();
   const token = c.get(INVITE_COOKIE)?.value;
-  if (!token) return { activated: false };
 
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("beta_requests")
-    .select("id, email, status, invite_token, user_id")
-    .eq("invite_token", token)
-    .maybeSingle();
+  // ─────────────────────────────────────────────────────────────────
+  // Path 1: cookie presente → buscar por invite_token
+  // ─────────────────────────────────────────────────────────────────
+  let row: BetaRequestRow | null = null;
+  let via: "cookie" | "email_fallback" = "cookie";
 
-  // Limpiar cookie sí o sí (one-shot intent — incluso si falla la activación,
-  // no queremos que se reintente en cada request). Si Next.js tira porque el
-  // contexto no permite delete, hacemos best-effort y seguimos.
-  try {
-    c.delete(INVITE_COOKIE);
-  } catch {
-    // noop — el cookie expira en 30min de todos modos
+  if (token) {
+    const { data, error } = await admin
+      .from("beta_requests")
+      .select("id, email, status, invite_token, user_id")
+      .eq("invite_token", token)
+      .maybeSingle();
+
+    if (error) {
+      console.error("[beta-invite] DB error buscando por token", {
+        userId: userIdShort,
+        err: error.message,
+      });
+    }
+    row = (data as BetaRequestRow | null) ?? null;
+
+    // Limpiar cookie sí o sí (one-shot intent). Si el delete tira porque
+    // el contexto no lo permite (RSC streaming), seguimos — la cookie
+    // expira sola eventualmente.
+    try {
+      c.delete(INVITE_COOKIE);
+    } catch {
+      // noop
+    }
   }
 
-  if (!data) return { activated: false };
-  const r = data as {
-    id: string;
-    email: string;
-    status: string;
-    invite_token: string | null;
-    user_id: string | null;
-  };
+  // ─────────────────────────────────────────────────────────────────
+  // Path 2 (FALLBACK): no había cookie o no matcheó → buscar por email
+  // ─────────────────────────────────────────────────────────────────
+  if (!row && opts.userEmail) {
+    const { data, error } = await admin
+      .from("beta_requests")
+      .select("id, email, status, invite_token, user_id")
+      .eq("email", opts.userEmail.toLowerCase())
+      .eq("status", "approved")
+      .is("user_id", null)
+      .maybeSingle();
 
-  // Validaciones de seguridad:
-  if (r.status !== "approved") return { activated: false };
-  if (r.user_id) return { activated: false }; // ya consumido por otro
-  if (!opts.userEmail) return { activated: false };
-  // El email del usuario logueado debe coincidir con el email de la
-  // solicitud — previene que alguien reuse un invite con otra cuenta.
-  if (opts.userEmail.toLowerCase() !== r.email.toLowerCase()) {
-    return { activated: false };
+    if (error) {
+      console.error("[beta-invite] DB error fallback por email", {
+        userId: userIdShort,
+        err: error.message,
+      });
+    }
+    if (data) {
+      row = data as BetaRequestRow;
+      via = "email_fallback";
+      console.log("[beta-invite] activando via fallback por email", {
+        userId: userIdShort,
+        email: opts.userEmail,
+      });
+    }
   }
 
-  // Activar beta en dj_profile (upsert por si aún no existe el row)
+  if (!row) {
+    console.log("[beta-invite] sin invite que consumir", {
+      userId: userIdShort,
+      hadCookie: !!token,
+      hasEmail: !!opts.userEmail,
+    });
+    return { activated: false, reason: "no_invite_found" };
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Validaciones de seguridad
+  // ─────────────────────────────────────────────────────────────────
+  if (row.status !== "approved") {
+    console.log("[beta-invite] invite no aprobado", {
+      userId: userIdShort,
+      status: row.status,
+      via,
+    });
+    return { activated: false, reason: "not_approved" };
+  }
+  if (row.user_id && row.user_id !== opts.userId) {
+    console.log("[beta-invite] invite ya consumido por otro user", {
+      userId: userIdShort,
+      via,
+    });
+    return { activated: false, reason: "already_consumed" };
+  }
+  if (!opts.userEmail) {
+    console.log("[beta-invite] user sin email", { userId: userIdShort });
+    return { activated: false, reason: "no_user_email" };
+  }
+  if (opts.userEmail.toLowerCase() !== row.email.toLowerCase()) {
+    console.warn("[beta-invite] email mismatch (posible reuso de invite)", {
+      userId: userIdShort,
+      userEmail: opts.userEmail,
+      inviteEmail: row.email,
+      via,
+    });
+    return { activated: false, reason: "email_mismatch" };
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Activar beta_status + limpiar invite_token (transacción lógica)
+  // ─────────────────────────────────────────────────────────────────
   const nowIso = new Date().toISOString();
-  await admin
+  const { error: upsertErr } = await admin
     .from("dj_profile")
     .upsert(
       {
         user_id: opts.userId,
         beta_status: "active",
         beta_approved_at: nowIso,
-        beta_request_id: r.id,
+        beta_request_id: row.id,
       },
       { onConflict: "user_id" }
     );
 
-  // Asociar user_id en beta_requests + limpiar invite_token (one-shot)
-  await admin
+  if (upsertErr) {
+    console.error("[beta-invite] upsert dj_profile FALLÓ", {
+      userId: userIdShort,
+      err: upsertErr.message,
+      via,
+    });
+    return { activated: false, reason: "profile_upsert_failed" };
+  }
+
+  const { error: updateErr } = await admin
     .from("beta_requests")
     .update({
       user_id: opts.userId,
       invite_token: null, // invalidar para que no se reuse
     })
-    .eq("id", r.id);
+    .eq("id", row.id);
 
-  return { activated: true };
+  if (updateErr) {
+    // Profile YA quedó activado, pero no pudimos limpiar invite_token.
+    // No es crítico (el user ya está active); solo logueamos.
+    console.error("[beta-invite] update beta_requests falló pero profile OK", {
+      userId: userIdShort,
+      err: updateErr.message,
+      via,
+    });
+  }
+
+  console.log("[beta-invite] ACTIVATED OK", {
+    userId: userIdShort,
+    email: opts.userEmail,
+    via,
+  });
+  return { activated: true, via };
 }

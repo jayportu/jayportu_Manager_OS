@@ -18,6 +18,37 @@ interface Props {
   inviteArtistName: string | null;
 }
 
+/**
+ * Mapea errores comunes de Supabase Auth a mensajes en chileno.
+ * Si no matchea ninguno, devuelve el mensaje original.
+ */
+function translateSupabaseError(message: string, status?: number): string {
+  const m = message.toLowerCase();
+  if (status === 429 || m.includes("rate limit") || m.includes("too many requests")) {
+    return "Demasiados intentos seguidos. Espera unos minutos e intenta de nuevo, o avísale al admin.";
+  }
+  if (m.includes("at least 6") || m.includes("password should")) {
+    return "La contraseña debe tener mínimo 6 caracteres.";
+  }
+  if (m.includes("invalid login credentials") || m.includes("invalid_credentials")) {
+    return "Email o contraseña incorrectos. ¿Es tu primera vez? Crea cuenta abajo.";
+  }
+  if (m.includes("email not confirmed")) {
+    return "Aún no confirmas tu email. Revisa tu bandeja de entrada (también spam).";
+  }
+  if (m.includes("user already registered") || m.includes("already registered")) {
+    return "Este email ya tiene cuenta. Usa 'Iniciar sesión' arriba.";
+  }
+  if (m.includes("invalid email") || m.includes("email address")) {
+    return "El email no tiene formato válido.";
+  }
+  if (m.includes("network") || m.includes("fetch")) {
+    return "Problema de conexión. Revisa tu internet e intenta de nuevo.";
+  }
+  // Fallback: devolvemos el mensaje pero con contexto
+  return `${message}. Si persiste, escríbele al admin.`;
+}
+
 export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
   const router = useRouter();
   const supabase = createClient();
@@ -49,14 +80,23 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
         password,
       });
       if (error) {
-        setError(error.message);
+        setError(translateSupabaseError(error.message, error.status));
         setLoading(false);
         return;
       }
       router.refresh();
       router.push("/dashboard");
     } else {
-      const { error } = await supabase.auth.signUp({
+      // Validación adicional: si vino con invite, forzar email match.
+      // El input está readOnly pero un user con devtools podría cambiarlo.
+      if (inviteEmail && email.trim().toLowerCase() !== inviteEmail.toLowerCase()) {
+        setError(
+          `Para activar la beta tienes que usar el email ${inviteEmail}. Si necesitas otro, pídele al admin un invite nuevo.`
+        );
+        setLoading(false);
+        return;
+      }
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -64,12 +104,21 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
         },
       });
       if (error) {
-        setError(error.message);
+        setError(translateSupabaseError(error.message, error.status));
+        setLoading(false);
+        return;
+      }
+      // Detección de email ya registrado: Supabase responde sin error pero
+      // con identities=[]. Es el patrón documentado para "already registered".
+      if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+        setError(
+          "Este email ya tiene cuenta. Usa 'Iniciar sesión' arriba con tu contraseña."
+        );
         setLoading(false);
         return;
       }
       setInfo(
-        "Te enviamos un email para confirmar tu cuenta. Revisa tu bandeja."
+        "Te enviamos un email para confirmar tu cuenta. Revisa tu bandeja (también spam). El link dura unos minutos."
       );
       setLoading(false);
     }
