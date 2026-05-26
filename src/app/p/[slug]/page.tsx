@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 // Cache 60s: balance entre performance y frescura. revalidatePath() en
 // server actions (tech rider, profile, availability) invalida instantáneamente.
 export const revalidate = 60;
-import { Logo } from "@/components/brand/logo";
 import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
 import { BookingForm } from "./booking-form";
@@ -80,223 +79,388 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const sp = profile.spotify_url;
   const web = profile.website;
 
+  // Acortar nombre para hero (line-break si tiene 2+ palabras)
+  const artistName = profile.artist_name || "DJ";
+  const artistParts = artistName.trim().split(/\s+/);
+  const heroLines =
+    artistParts.length >= 2
+      ? [artistParts[0], artistParts.slice(1).join(" ")]
+      : [artistName];
+
   return (
-    <div className="min-h-screen bg-bg text-fg">
+    <div className="min-h-screen bg-cream text-ink">
       {/* Beacon: registra view al montar */}
       <TrackBeacon userId={profile.user_id} event="view" />
 
-      <main className="max-w-3xl mx-auto px-4 md:px-6 py-10 md:py-16">
-        {/* ── Hero ─────────────────────────────────────────── */}
-        <section className="text-center mb-12 md:mb-16">
-          <div className="flex justify-center mb-6">
-            <Logo variant="stacked" tone="light" size={200} priority />
+      {/* ═══ HERO ink full-width brutalist ═══ */}
+      <header className="relative bg-ink text-cream border-b-4 border-orange overflow-hidden">
+        {/* Watermark "DJ" gigante */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute select-none font-display leading-[0.85] text-[180px] md:text-[320px]"
+          style={{
+            right: "-30px",
+            bottom: "-80px",
+            color: "rgba(255,92,0,0.08)",
+          }}
+        >
+          DJ
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-6 md:px-12 py-12 md:py-16">
+          {/* Top row: kicker + status chip */}
+          <div className="flex justify-between items-start gap-4">
+            <div className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.15em] text-orange">
+              — PRESS KIT · VOL. 01
+            </div>
+            {profile.available_from && (
+              <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-orange text-ink border-2 border-orange">
+                ● DISPONIBLE
+              </span>
+            )}
           </div>
+
+          {/* Hero title */}
+          <h1 className="font-display leading-[0.85] tracking-tight mt-3 text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px]">
+            {heroLines.map((line, i) => (
+              <span key={i} className="block">
+                {line}
+                {i === heroLines.length - 1 && (
+                  <span className="text-orange">.</span>
+                )}
+              </span>
+            ))}
+          </h1>
+
+          {/* Tagline */}
           {profile.tagline && (
-            <p className="text-lg md:text-xl text-fg-muted max-w-xl mx-auto">
+            <p className="mt-5 text-base md:text-lg max-w-2xl text-cream/80">
               {profile.tagline}
             </p>
           )}
-          <div className="flex justify-center mt-4 text-xs text-fg-subtle tracking-widest uppercase">
-            {profile.city}
-            {profile.country ? ` · ${profile.country}` : ""}
-          </div>
 
-          {/* Géneros */}
-          {profile.genres.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2 mt-7">
-              {profile.genres.map((g) => (
-                <span
-                  key={g}
-                  className="text-[11px] font-semibold tracking-wider uppercase px-3 py-1.5 bg-accent-soft border border-accent/30 text-accent rounded-full"
-                >
-                  {g}
-                </span>
-              ))}
-            </div>
+          {/* Géneros + ciudad como labels outline cream */}
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {profile.genres.slice(0, 4).map((g) => (
+              <span
+                key={g}
+                className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream"
+              >
+                {g}
+              </span>
+            ))}
+            {profile.city && (
+              <span className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream">
+                {profile.city}
+                {profile.country ? ` · ${profile.country}` : ""}
+              </span>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* ═══ TABS row brutalist (anchors a secciones) ═══ */}
+      <nav
+        className="bg-white border-b-2 border-ink sticky top-0 z-30"
+        aria-label="Secciones del press kit"
+      >
+        <div className="max-w-6xl mx-auto flex overflow-x-auto">
+          <a
+            href="#bio"
+            className="font-display text-base md:text-lg leading-none px-4 md:px-6 py-3.5 bg-orange border-r-2 border-ink hover:bg-orange/90 transition-colors whitespace-nowrap"
+          >
+            — BIO
+          </a>
+          {(sc || yt || sp) && (
+            <a
+              href="#musica"
+              className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 border-r-2 border-ink hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
+            >
+              Música
+            </a>
           )}
+          {(hasStructuredRider ||
+            profile.tech_rider_ideal ||
+            profile.tech_rider_alt) && (
+            <a
+              href="#rider"
+              className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 border-r-2 border-ink hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
+            >
+              Tech rider
+            </a>
+          )}
+          <a
+            href="#contacto"
+            className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
+          >
+            Contacto
+          </a>
+        </div>
+      </nav>
 
-          {/* Acciones rápidas */}
-          <div className="flex flex-wrap justify-center gap-2 mt-8">
-            {wa && (
-              <TrackedLink
-                href={wa}
-                userId={profile.user_id}
-                event="click_whatsapp"
-                external
-                className="inline-flex items-center justify-center h-11 px-5 rounded-md bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
-              >
-                WhatsApp
-              </TrackedLink>
-            )}
-            {email && (
-              <TrackedLink
-                href={`mailto:${email}`}
-                userId={profile.user_id}
-                event="click_email"
-                className="inline-flex items-center justify-center h-11 px-5 rounded-md border border-border text-sm font-medium hover:bg-bg-panel transition-colors"
-              >
-                Email
-              </TrackedLink>
-            )}
-            {ig && (
-              <TrackedLink
-                href={normalizeUrl(ig)}
-                userId={profile.user_id}
-                event="click_instagram"
-                external
-                className="inline-flex items-center justify-center h-11 px-5 rounded-md border border-border text-sm font-medium hover:bg-bg-panel transition-colors"
-              >
-                Instagram
-              </TrackedLink>
-            )}
-          </div>
-        </section>
-
-        {/* ── About ────────────────────────────────────────── */}
-        {(profile.bio_long || profile.bio_short) && (
-          <section className="mb-12 md:mb-16">
-            <h2 className="text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-4">
-              About
-            </h2>
-            <div className="text-base text-fg leading-relaxed whitespace-pre-wrap">
-              {profile.bio_long || profile.bio_short}
-            </div>
-          </section>
-        )}
-
-        {/* ── Sets de SoundCloud ───────────────────────────── */}
-        {sc && (
-          <section className="mb-12 md:mb-16">
-            <h2 className="text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-4">
-              Latest sets
-            </h2>
-            <SoundcloudEmbed
-              url={sc}
-              userId={profile.user_id}
-              onClickEvent="click_soundcloud"
-            />
-          </section>
-        )}
-
-        {/* ── Videos YouTube ──────────────────────────────── */}
-        {yt && (
-          <section className="mb-12 md:mb-16">
-            <h2 className="text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-4">
-              Videos
-            </h2>
-            <YoutubeEmbed
-              url={yt}
-              userId={profile.user_id}
-              onClickEvent="click_youtube"
-            />
-          </section>
-        )}
-
-        {/* ── Más canales ──────────────────────────────────── */}
-        {(sp || web) && (
-          <section className="mb-12 md:mb-16">
-            <h2 className="text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-4">
-              Más canales
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {sp && (
-                <TrackedLink
-                  href={normalizeUrl(sp)}
-                  userId={profile.user_id}
-                  event="click_spotify"
-                  external
-                  className="inline-flex items-center justify-center h-10 px-4 rounded-md border border-border text-sm hover:bg-bg-panel transition-colors"
-                >
-                  Spotify
-                </TrackedLink>
-              )}
-              {web && (
-                <TrackedLink
-                  href={normalizeUrl(web)}
-                  userId={profile.user_id}
-                  event="click_website"
-                  external
-                  className="inline-flex items-center justify-center h-10 px-4 rounded-md border border-border text-sm hover:bg-bg-panel transition-colors"
-                >
-                  Website
-                </TrackedLink>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* ── Tech rider ──────────────────────────────────── */}
-        {hasStructuredRider ? (
-          <section className="mb-12 md:mb-16">
-            <StagePlot items={riderItems} artistName={profile.artist_name} />
-            <TechRiderRender
-              items={riderItems}
-              hospitalityNote={profile.hospitality}
-            />
-          </section>
-        ) : (
-          (profile.tech_rider_ideal || profile.tech_rider_alt) && (
-            <section className="mb-12 md:mb-16">
-              <details className="group">
-                <summary className="cursor-pointer flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-2 list-none">
-                  <span>Tech rider</span>
-                  <span className="text-fg-muted group-open:rotate-180 transition-transform">
-                    ▾
-                  </span>
-                </summary>
-                <div className="grid md:grid-cols-2 gap-4 mt-4">
-                  {profile.tech_rider_ideal && (
-                    <div className="p-4 rounded-lg bg-bg-panel border border-border">
-                      <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
-                        Ideal
-                      </div>
-                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                        {profile.tech_rider_ideal}
-                      </div>
-                    </div>
-                  )}
-                  {profile.tech_rider_alt && (
-                    <div className="p-4 rounded-lg bg-bg-panel border border-border">
-                      <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
-                        Alternativo
-                      </div>
-                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                        {profile.tech_rider_alt}
-                      </div>
-                    </div>
-                  )}
+      {/* ═══ BODY · grid 2fr / 1fr ═══ */}
+      <main className="max-w-6xl mx-auto px-6 md:px-12 py-10 md:py-16">
+        <div className="grid md:grid-cols-[2fr_1fr] gap-8 md:gap-12">
+          {/* ────── COLUMNA IZQUIERDA: bio + stats + music + rider ────── */}
+          <div>
+            {/* ── BIO ── */}
+            {(profile.bio_long || profile.bio_short) && (
+              <section id="bio" className="mb-10 scroll-mt-20">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
+                  — SOBRE
                 </div>
-                {profile.hospitality && (
-                  <div className="mt-4 p-4 rounded-lg bg-bg-panel border border-border">
-                    <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
-                      Hospitality
+                <p className="text-base leading-relaxed mt-3 whitespace-pre-wrap">
+                  {profile.bio_long || profile.bio_short}
+                </p>
+              </section>
+            )}
+
+            {/* ── STATS 3 col borde ink ── */}
+            <section className="mb-10">
+              <div className="grid grid-cols-3 border-2 border-ink">
+                <StatTile
+                  value={profile.genres.length || "—"}
+                  label="GÉNEROS"
+                  variant="white"
+                />
+                <StatTile
+                  value={
+                    riderItems.length > 0 ? String(riderItems.length) : "—"
+                  }
+                  label="RIDER ITEMS"
+                  variant="ink"
+                />
+                <StatTile
+                  value={profile.city ? "CL" : "—"}
+                  label="BASE"
+                  variant="orange"
+                />
+              </div>
+            </section>
+
+            {/* ── MÚSICA ── */}
+            {(sc || yt || sp || web) && (
+              <section id="musica" className="mb-10 scroll-mt-20">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                  — MÚSICA
+                </div>
+
+                {sc && (
+                  <div className="mb-6">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2">
+                      SoundCloud
                     </div>
-                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {profile.hospitality}
-                    </div>
+                    <SoundcloudEmbed
+                      url={sc}
+                      userId={profile.user_id}
+                      onClickEvent="click_soundcloud"
+                    />
                   </div>
                 )}
-              </details>
-            </section>
-          )
-        )}
 
-        {/* ── Booking ──────────────────────────────────────── */}
-        <section className="mb-12 md:mb-16">
-          <h2 className="text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-4">
-            Booking
-          </h2>
-          <div className="rounded-xl border border-border bg-bg-panel p-6 md:p-8">
-            <BookingForm userId={profile.user_id} artistName={profile.artist_name} />
+                {yt && (
+                  <div className="mb-6">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2">
+                      YouTube
+                    </div>
+                    <YoutubeEmbed
+                      url={yt}
+                      userId={profile.user_id}
+                      onClickEvent="click_youtube"
+                    />
+                  </div>
+                )}
+
+                {(sp || web) && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {sp && (
+                      <TrackedLink
+                        href={normalizeUrl(sp)}
+                        userId={profile.user_id}
+                        event="click_spotify"
+                        external
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-white hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                      >
+                        Spotify →
+                      </TrackedLink>
+                    )}
+                    {web && (
+                      <TrackedLink
+                        href={normalizeUrl(web)}
+                        userId={profile.user_id}
+                        event="click_website"
+                        external
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-white hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                      >
+                        Website →
+                      </TrackedLink>
+                    )}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* ── TECH RIDER ── */}
+            {hasStructuredRider ? (
+              <section id="rider" className="mb-10 scroll-mt-20">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                  — TECH RIDER
+                </div>
+                <StagePlot
+                  items={riderItems}
+                  artistName={profile.artist_name}
+                />
+                <TechRiderRender
+                  items={riderItems}
+                  hospitalityNote={profile.hospitality}
+                />
+              </section>
+            ) : (
+              (profile.tech_rider_ideal || profile.tech_rider_alt) && (
+                <section id="rider" className="mb-10 scroll-mt-20">
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                    — TECH RIDER
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {profile.tech_rider_ideal && (
+                      <div className="p-4 border-2 border-ink bg-white">
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                          IDEAL
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                          {profile.tech_rider_ideal}
+                        </div>
+                      </div>
+                    )}
+                    {profile.tech_rider_alt && (
+                      <div className="p-4 border-2 border-ink bg-white">
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                          ALTERNATIVO
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                          {profile.tech_rider_alt}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {profile.hospitality && (
+                    <div className="mt-4 p-4 border-2 border-ink bg-white">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                        HOSPITALITY
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {profile.hospitality}
+                      </div>
+                    </div>
+                  )}
+                </section>
+              )
+            )}
           </div>
-        </section>
 
-        {/* ── Footer ──────────────────────────────────────── */}
-        <footer className="text-center text-[10px] uppercase tracking-[0.3em] text-fg-subtle py-8 border-t border-border">
-          {profile.artist_name}
-          {email ? ` · ${email}` : ""}
+          {/* ────── COLUMNA DERECHA: contacto sticky card naranja ────── */}
+          <aside id="contacto" className="scroll-mt-20">
+            <div className="md:sticky md:top-20">
+              {/* Acciones rápidas arriba */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {wa && (
+                  <TrackedLink
+                    href={wa}
+                    userId={profile.user_id}
+                    event="click_whatsapp"
+                    external
+                    className="inline-flex items-center justify-center h-10 px-3 bg-ink text-orange border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-orange hover:text-ink transition-colors"
+                  >
+                    WhatsApp
+                  </TrackedLink>
+                )}
+                {email && (
+                  <TrackedLink
+                    href={`mailto:${email}`}
+                    userId={profile.user_id}
+                    event="click_email"
+                    className="inline-flex items-center justify-center h-10 px-3 bg-white border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+                  >
+                    Email
+                  </TrackedLink>
+                )}
+                {ig && (
+                  <TrackedLink
+                    href={normalizeUrl(ig)}
+                    userId={profile.user_id}
+                    event="click_instagram"
+                    external
+                    className="inline-flex items-center justify-center h-10 px-3 bg-white border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+                  >
+                    Instagram
+                  </TrackedLink>
+                )}
+              </div>
+
+              {/* Form de booking — card naranja brutalist */}
+              <div className="bg-orange border-2 border-ink p-5">
+                <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
+                  — RESERVAR
+                </div>
+                <h2 className="font-display text-3xl md:text-4xl leading-none mt-2 mb-4">
+                  Contáctame<span className="text-ink">.</span>
+                </h2>
+                <BookingForm
+                  userId={profile.user_id}
+                  artistName={profile.artist_name}
+                />
+                <p className="mt-3 font-mono text-[10px] text-center uppercase tracking-wider text-ink">
+                  — RESPONDO EN MENOS DE 24H
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* ── Footer ─────────────────────────────────────── */}
+        <footer className="mt-16 pt-6 border-t-2 border-ink flex flex-wrap justify-between items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em] text-fg-subtle">
+          <div>
+            {profile.artist_name}
+            {email ? ` · ${email}` : ""}
+          </div>
+          <div className="opacity-60">DROP. · THE DJ OS</div>
         </footer>
       </main>
+    </div>
+  );
+}
+
+function StatTile({
+  value,
+  label,
+  variant,
+}: {
+  value: string | number;
+  label: string;
+  variant: "white" | "ink" | "orange";
+}) {
+  const bg = {
+    white: "bg-white text-ink",
+    ink: "bg-ink text-cream",
+    orange: "bg-orange text-ink",
+  }[variant];
+  const isLast = variant === "orange"; // borde derecho solo si no es la última
+  return (
+    <div
+      className={`${bg} text-center py-4 px-2 ${
+        isLast ? "" : "border-r-2 border-ink"
+      }`}
+    >
+      <div className="font-display text-4xl md:text-5xl leading-none">
+        {value}
+      </div>
+      <div
+        className={`font-mono text-[9px] md:text-[10px] font-bold uppercase tracking-wider mt-2 ${
+          variant === "ink" ? "text-orange" : ""
+        }`}
+      >
+        — {label}
+      </div>
     </div>
   );
 }

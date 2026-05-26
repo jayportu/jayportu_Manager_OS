@@ -215,80 +215,42 @@ export default async function DashboardPage() {
 
       {!isFirstTime && (
       <>
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wider text-fg-muted font-semibold mb-2">
-            Contactos
-          </div>
-          <div className="font-display text-4xl leading-none tracking-wider">
-            {stats.total}
-          </div>
-          <div className="text-xs mt-2 flex items-center gap-1 text-fg-muted">
-            <Users className="w-3 h-3" />
-            En tu CRM
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wider text-fg-muted font-semibold mb-2">
-            Pipeline activo
-          </div>
-          <div className="font-display text-4xl leading-none tracking-wider">
-            {pipelineActive}
-          </div>
-          <div className="text-xs mt-2 flex items-center gap-1 text-fg-muted">
-            <Briefcase className="w-3 h-3" />
-            En proceso
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wider text-fg-muted font-semibold mb-2">
-            Follow-ups
-          </div>
-          <div
-            className={`font-display text-4xl leading-none tracking-wider ${
-              overdueCount > 0 ? "text-danger" : ""
-            }`}
-          >
-            {pendingFollowUps.length}
-          </div>
-          <div
-            className={`text-xs mt-2 flex items-center gap-1 ${
-              overdueCount > 0 ? "text-danger" : "text-fg-muted"
-            }`}
-          >
-            {overdueCount > 0 ? (
-              <>
-                <TrendingDown className="w-3 h-3" />
-                {overdueCount} atrasados
-              </>
-            ) : (
-              <>
-                <Clock className="w-3 h-3" />
-                Pendientes
-              </>
-            )}
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wider text-fg-muted font-semibold mb-2">
-            Score promedio
-          </div>
-          <div
-            className={`font-display text-4xl leading-none tracking-wider ${
-              stats.avgScore >= 70 ? "text-accent" : ""
-            }`}
-          >
-            {stats.total > 0 ? stats.avgScore : "—"}
-          </div>
-          <div className="text-xs mt-2 flex items-center gap-1 text-fg-muted">
-            <TrendingUp className="w-3 h-3" />
-            de tus contactos
-          </div>
-        </Card>
+      {/* KPIs · grid brutalist zero-gap, tiles alternados */}
+      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-7">
+        {/* Contactos · ink */}
+        <KpiTile
+          label="Contactos"
+          value={stats.total}
+          footer="En tu CRM"
+          icon={Users}
+          variant="ink"
+        />
+        {/* Pipeline · orange */}
+        <KpiTile
+          label="Pipeline activo"
+          value={pipelineActive}
+          footer="En proceso"
+          icon={Briefcase}
+          variant="orange"
+        />
+        {/* Follow-ups · white o danger si hay atrasados */}
+        <KpiTile
+          label="Follow-ups"
+          value={pendingFollowUps.length}
+          footer={
+            overdueCount > 0 ? `${overdueCount} atrasados` : "Pendientes"
+          }
+          icon={overdueCount > 0 ? TrendingDown : Clock}
+          variant={overdueCount > 0 ? "danger" : "white"}
+        />
+        {/* Score · white con accent si ≥70 */}
+        <KpiTile
+          label="Score promedio"
+          value={stats.total > 0 ? stats.avgScore : "—"}
+          footer="de tus contactos"
+          icon={TrendingUp}
+          variant={stats.avgScore >= 70 && stats.total > 0 ? "orange" : "white"}
+        />
       </div>
 
       {/* Two columns: Follow-ups + Top contactos */}
@@ -448,6 +410,74 @@ export default async function DashboardPage() {
 
       <div className="text-center text-[10px] uppercase tracking-widest text-fg-subtle py-6">
         {profile?.city || "Santiago"} · {profile?.country || "Chile"} · DROP. v0.13
+      </div>
+    </div>
+  );
+}
+
+// ─── KPI tile brutalist ──────────────────────────────────────────────
+// Tiles alternados (ink / orange / white / danger) sin gaps, border-ink
+// global. Mantiene la grilla compacta y plana del mockup.
+function KpiTile({
+  label,
+  value,
+  footer,
+  icon: Icon,
+  variant,
+}: {
+  label: string;
+  value: number | string;
+  footer: string;
+  icon: React.ComponentType<{ className?: string }>;
+  variant: "ink" | "orange" | "white" | "danger";
+}) {
+  const styles = {
+    ink: {
+      bg: "bg-ink",
+      labelText: "text-cream/60",
+      valueText: "text-cream",
+      footerText: "text-cream/70",
+    },
+    orange: {
+      bg: "bg-orange",
+      labelText: "text-ink/70",
+      valueText: "text-ink",
+      footerText: "text-ink/80",
+    },
+    white: {
+      bg: "bg-white",
+      labelText: "text-fg-subtle",
+      valueText: "text-ink",
+      footerText: "text-fg-muted",
+    },
+    danger: {
+      bg: "bg-danger",
+      labelText: "text-white/70",
+      valueText: "text-white",
+      footerText: "text-white/85",
+    },
+  }[variant];
+
+  return (
+    <div
+      className={`${styles.bg} p-5 border-ink [&:not(:last-child)]:border-r-2 [&:nth-child(2)]:border-r-0 md:[&:nth-child(2)]:border-r-2 [&:nth-child(-n+2)]:border-b-2 md:[&:nth-child(-n+2)]:border-b-0`}
+    >
+      <div
+        className={`font-mono text-[10px] font-bold uppercase tracking-[0.12em] ${styles.labelText} mb-2`}
+      >
+        — {label}
+      </div>
+      <div
+        className={`font-display leading-none tracking-tight ${styles.valueText}`}
+        style={{ fontSize: "clamp(40px, 5vw, 60px)" }}
+      >
+        {value}
+      </div>
+      <div
+        className={`text-[11px] mt-2 flex items-center gap-1.5 font-mono uppercase tracking-wider ${styles.footerText}`}
+      >
+        <Icon className="w-3 h-3" />
+        {footer}
       </div>
     </div>
   );

@@ -50,37 +50,66 @@ export default async function GrowthPage() {
     (p) => p.url && p.url.trim().length > 0 && !deltasPlatforms.has(p.platform)
   );
 
+  // Calcular delta total de seguidores en los últimos 30d (suma de todas las
+  // plataformas). Si negativo, mostrar con signo "-". Si positivo, con "+".
+  const totalDelta = deltas.reduce((sum, d) => sum + (d.delta ?? 0), 0);
+  const deltaSign = totalDelta > 0 ? "+" : totalDelta < 0 ? "-" : "";
+  const deltaAbs = Math.abs(totalDelta);
+  const deltaLabel =
+    deltas.length > 0 ? `${deltaSign}${deltaAbs}` : "—";
+  // Mejor plataforma (la que creció más, ignorando deltas null)
+  const bestDelta = deltas.length > 0
+    ? deltas.reduce((max, d) =>
+        (d.delta ?? -Infinity) > (max.delta ?? -Infinity) ? d : max
+      )
+    : null;
+  const bestDeltaValue = bestDelta?.delta ?? 0;
+
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-7">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-accent" />
-            Growth
+      {/* ═══ Hero brutalist ═══ */}
+      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5 relative overflow-hidden">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — GROWTH · ÚLTIMOS 30 DÍAS
+        </div>
+        <div className="mt-2 flex flex-wrap items-end gap-4 justify-between">
+          <h1 className="font-display text-4xl md:text-6xl leading-none">
+            {deltaLabel} SEGUIDORE{deltaAbs === 1 ? "" : "S"}
+            <span className="text-orange">.</span>
           </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            Crecimiento de audiencia en IG, YouTube, SoundCloud y demás
-            plataformas. Registro manual + IA local para sugerir contenido.
-          </p>
+          <div className="flex gap-2 flex-wrap">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/growth/posts">
+                <Calendar className="w-4 h-4" />
+                Posts
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/growth/campanas">
+                <TrendingUp className="w-4 h-4" />
+                Campañas
+              </Link>
+            </Button>
+            <SnapshotDialog
+              existingSnapshots={snapshots}
+              buttonVariant="default"
+            />
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/growth/posts">
-              <Calendar className="w-4 h-4" />
-              Posts
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/growth/campanas">
-              <TrendingUp className="w-4 h-4" />
-              Campañas
-            </Link>
-          </Button>
-          <SnapshotDialog
-            existingSnapshots={snapshots}
-            buttonVariant="default"
-          />
-        </div>
+        <p className="text-sm text-fg-muted mt-2 max-w-2xl">
+          {bestDelta && bestDeltaValue > 0 ? (
+            <>
+              <strong>{SOCIAL_PLATFORM_LABELS[bestDelta.platform]}</strong>{" "}
+              lidera el crecimiento (+{bestDeltaValue}). Registro manual +
+              snapshots auto sync para mover esta cifra mes a mes.
+            </>
+          ) : (
+            <>
+              Crecimiento de audiencia en IG, YouTube, SoundCloud y demás.
+              Registro manual o sync auto para medir lo que importa.
+            </>
+          )}
+        </p>
       </div>
 
       {/* Empty state primera vez */}

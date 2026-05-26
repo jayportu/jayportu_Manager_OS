@@ -50,13 +50,23 @@ export default async function PressKitAdminPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Press kit
-        </h1>
-        <p className="text-sm text-fg-muted mt-1">
-          Tu landing pública. Comparte el link en Instagram bio, mensajes a
-          bookers, propuestas.
+      {/* ═══ Hero brutalist ═══ */}
+      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — PRESS KIT · LANDING PÚBLICA
+        </div>
+        <div className="mt-2 flex flex-wrap items-end gap-3 justify-between">
+          <h1 className="font-display text-4xl md:text-6xl leading-none">
+            PRESS KIT<span className="text-orange">.</span>
+          </h1>
+          <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+            últimos 7 días · {views} views · {clicks} clicks
+          </div>
+        </div>
+        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+          Tu landing pública en{" "}
+          <span className="font-mono text-ink">{publicUrl}</span>. Compártela
+          en IG bio, mensajes a bookers, propuestas.
         </p>
       </div>
 

@@ -61,34 +61,113 @@ export default async function CrmPage({ searchParams }: PageProps) {
     listAllUserTags(),
   ]);
 
+  // KPIs derivados (cálculo en memoria sobre el resultado filtrado)
+  const pipelineStatuses = new Set<ContactStatus>([
+    "interesado",
+    "propuesta_enviada",
+    "negociando",
+  ]);
+  const inPipeline = contacts.filter((c) => pipelineStatuses.has(c.status)).length;
+  const scoreAvg =
+    contacts.length > 0
+      ? Math.round(
+          contacts.reduce((sum, c) => sum + (c.score || 0), 0) / contacts.length
+        )
+      : 0;
+  const venueTypes = new Set<ContactType>([
+    "club",
+    "bar",
+    "rooftop",
+    "festival",
+    "productora",
+  ]);
+  const venuesCount = contacts.filter((c) => venueTypes.has(c.type)).length;
+  const isFiltered =
+    !!(sp.q || sp.type || sp.status || sp.score || activeTags.length > 0);
+
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">CRM</h1>
-          <p className="text-sm text-fg-muted mt-1">
-            {contacts.length} {contacts.length === 1 ? "contacto" : "contactos"}
-            {sp.q || sp.type || sp.status || sp.score || activeTags.length > 0
-              ? " (filtrado)"
-              : ""}
-          </p>
+      {/* ═══ Hero brutalist ═══ */}
+      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5 relative overflow-hidden">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — CRM · CONTACTOS{isFiltered ? " · FILTRADOS" : ""}
         </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/crm/importar">
-              <Upload className="w-4 h-4" />
-              Importar CSV
-            </Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/crm/nuevo">
-              <Plus className="w-4 h-4" />
-              Nuevo contacto
-            </Link>
-          </Button>
+        <div className="mt-2 flex flex-wrap items-end gap-4 justify-between">
+          <h1 className="font-display text-4xl md:text-6xl leading-none">
+            {String(contacts.length).padStart(2, "0")} CONTACTO
+            {contacts.length === 1 ? "" : "S"}
+            <span className="text-orange">.</span>
+          </h1>
+          <div className="flex gap-2 flex-wrap">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/crm/importar">
+                <Upload className="w-4 h-4" />
+                Importar CSV
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="orange">
+              <Link href="/crm/nuevo">
+                <Plus className="w-4 h-4" />
+                Nuevo contacto
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* ═══ KPIs · grid 4 col zero-gap borde ink ═══ */}
+      {contacts.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
+          <div className="bg-white p-4 border-r-2 border-ink border-b-2 md:border-b-0">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
+              — VENUES
+            </div>
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+              {String(venuesCount).padStart(2, "0")}
+            </div>
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">
+              Clubes · bares · festivales
+            </div>
+          </div>
+          <div className="bg-orange p-4 md:border-r-2 border-ink border-b-2 md:border-b-0">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+              — EN PIPELINE
+            </div>
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+              {String(inPipeline).padStart(2, "0")}
+            </div>
+            <div className="font-mono text-[10px] mt-2">
+              Interesado · negociando · propuesta
+            </div>
+          </div>
+          <div className="bg-white p-4 border-r-2 border-ink">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
+              — SCORE PROMEDIO
+            </div>
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+              {scoreAvg || "—"}
+            </div>
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">
+              {scoreAvg >= 70
+                ? "Calidad alta"
+                : scoreAvg >= 50
+                ? "Mixto"
+                : "Para depurar"}
+            </div>
+          </div>
+          <div className="bg-ink text-cream p-4">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
+              — TOTAL
+            </div>
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+              {String(contacts.length).padStart(2, "0")}
+            </div>
+            <div className="font-mono text-[10px] mt-2 opacity-70">
+              {isFiltered ? "Filtrados" : "Todos los contactos"}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sprint 19 — Filtro por tags */}
       {(allTags.length > 0 || activeTags.length > 0) && (
