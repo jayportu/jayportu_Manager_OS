@@ -20,8 +20,16 @@ export default function BetaPage() {
     <div className="min-h-screen bg-cream text-ink">
       <header className="border-b-2 border-ink px-6 md:px-10 py-5 flex items-center gap-4">
         <Logo variant="horizontal" tone="light" size={120} />
-        <div className="ml-auto font-mono text-[10px] uppercase tracking-[0.15em] text-fg-muted">
-          Beta cerrada · acceso anticipado
+        <div className="ml-auto flex items-center gap-4">
+          <span className="hidden md:inline font-mono text-[10px] uppercase tracking-[0.15em] text-fg-muted">
+            Beta cerrada · acceso anticipado
+          </span>
+          <a
+            href="/login"
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink hover:text-orange transition-colors border-b border-transparent hover:border-orange"
+          >
+            ¿Ya tienes cuenta? Iniciar sesión →
+          </a>
         </div>
       </header>
 

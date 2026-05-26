@@ -179,6 +179,21 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
           </>
         )}
       </div>
+
+      {/* Sprint 23.5 — Cross-link a /beta para DJs sin cuenta aún */}
+      {!inviteEmail && (
+        <div className="border-t-2 border-ink/10 mt-6 pt-5 text-center">
+          <div className="text-xs text-fg-muted mb-2">
+            ¿Aún no tienes cuenta y eres DJ?
+          </div>
+          <a
+            href="/beta"
+            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-ink border-b border-orange hover:border-ink transition-colors"
+          >
+            Solicitar acceso a la beta →
+          </a>
+        </div>
+      )}
     </Card>
   );
 }
