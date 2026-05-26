@@ -7,12 +7,13 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = [
   "/login",
-  "/signup",
+  "/signup", // /signup/booker es público (Bloque B)
   "/auth",
   "/_next",
   "/favicon.ico",
   "/p/", // press kit públicos
   "/dj", // Sprint 20 — directorio público de DJs
+  "/b/", // Bloque B — vista tokenizada del booker sin login
   "/beta", // Sprint 23.5 — formulario solicitud beta
   "/api/beta", // Sprint 23.5 — submit del formulario beta
   "/sitemap.xml", // Sprint 20 — sitemap dinámico
@@ -88,15 +89,12 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Sprint 23.5 — La raíz "/" se trata especial:
-  //   - Con sesión → cae al RootPage que redirige a /dashboard
-  //   - Sin sesión → redirige a /beta (landing pública de la beta)
-  // Antes mandaba a /login sin contexto, perdíamos DJs nuevos.
-  if (pathname === "/" && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/beta";
-    return NextResponse.redirect(url);
-  }
+  // Bloque B — La raíz "/" ahora es la landing pública split-screen
+  // (DJ vs Booker). El RootPage decide qué hacer según el tipo de usuario:
+  //   - DJ logueado → /dashboard
+  //   - Booker logueado → /booker/requests
+  //   - Sin sesión → renderiza landing split
+  // No redirect desde middleware: dejamos que la page.tsx decida.
 
   // Si no hay user y la ruta es privada → redirige a /login
   if (!user && !isPublic && pathname !== "/") {

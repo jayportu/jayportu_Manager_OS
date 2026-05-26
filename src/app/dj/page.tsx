@@ -5,6 +5,7 @@ import {
   listPublicGenres,
   listPublicCities,
 } from "@/lib/queries/directory";
+import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 
 export const dynamic = "force-dynamic";
 
@@ -347,6 +348,14 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             ★ DISPONIBLE
           </span>
         )}
+        {/* Botón corazón (solo se muestra si el visitante es Booker logueado) */}
+        <div className="absolute top-2 left-2">
+          <FavoriteButtonClient
+            djUserId={dj.user_id}
+            size="sm"
+            redirectOnUnauth={false}
+          />
+        </div>
       </div>
       <div className="p-3 border-t-2 border-ink flex flex-col gap-1.5">
         <div

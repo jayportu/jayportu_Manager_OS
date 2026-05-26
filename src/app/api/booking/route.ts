@@ -3,8 +3,12 @@
  * Recibe el formulario público del press kit.
  * Crea booking_form_submissions y NO crea contacto automático
  * (Jaime decide en /press-kit si convertir o no, para evitar spam).
+ *
+ * Bloque B — Si el visitante tiene sesión de booker activa, asociamos
+ * el booking a su booker_user_id para que aparezca en /booker/requests.
  */
 import { createBookingSubmission } from "@/lib/queries/presskit";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +43,29 @@ export async function POST(request: Request) {
   const ua = request.headers.get("user-agent") || "";
   const ref = request.headers.get("referer") || "";
 
+  // Bloque B — Si hay un booker logueado, asociamos el booking
+  let bookerUserId: string | null = null;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: visitor },
+    } = await supabase.auth.getUser();
+    if (visitor) {
+      // Solo asociamos si NO es el dueño del press kit (un DJ probando su form)
+      // y si tiene booker_account (no es otro DJ).
+      if (visitor.id !== user_id) {
+        const { data: booker } = await supabase
+          .from("booker_accounts")
+          .select("user_id")
+          .eq("user_id", visitor.id)
+          .maybeSingle();
+        if (booker) bookerUserId = visitor.id;
+      }
+    }
+  } catch {
+    // Falla silenciosa: si no podemos detectar booker, queda anónimo.
+  }
+
   const submission = await createBookingSubmission({
     user_id,
     name: name.trim(),
@@ -50,6 +77,7 @@ export async function POST(request: Request) {
     message: body.message?.trim() || "",
     referrer: ref,
     user_agent: ua,
+    booker_user_id: bookerUserId,
   });
 
   if (!submission) {
@@ -59,5 +87,9 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true, id: submission.id });
+  return NextResponse.json({
+    ok: true,
+    id: submission.id,
+    view_token: submission.view_token,
+  });
 }

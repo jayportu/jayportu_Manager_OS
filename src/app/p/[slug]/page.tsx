@@ -13,6 +13,7 @@ import { SoundcloudEmbed, YoutubeEmbed } from "./embeds";
 import { PdfPressKit } from "./pdf-press-kit";
 import { TechRiderRender } from "./tech-rider-render";
 import { StagePlot } from "./stage-plot";
+import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { whatsappLink, normalizeUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
@@ -108,16 +109,20 @@ export default async function PresskitPublicPage({ params }: PageProps) {
         </div>
 
         <div className="relative max-w-6xl mx-auto px-6 md:px-12 py-12 md:py-16">
-          {/* Top row: kicker + status chip */}
+          {/* Top row: kicker + status chip + favorite */}
           <div className="flex justify-between items-start gap-4">
             <div className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.15em] text-orange">
               — PRESS KIT · VOL. 01
             </div>
-            {profile.available_from && (
-              <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-orange text-ink border-2 border-orange">
-                ● DISPONIBLE
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {profile.available_from && (
+                <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-orange text-ink border-2 border-orange">
+                  ● DISPONIBLE
+                </span>
+              )}
+              {/* Botón corazón — solo visible para Bookers logueados */}
+              <FavoriteButtonClient djUserId={profile.user_id} size="lg" />
+            </div>
           </div>
 
           {/* Hero title */}
