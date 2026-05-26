@@ -138,7 +138,7 @@ function BookingFallbackLinks({
   return (
     <div className="mt-4 pt-4 border-t border-border text-xs text-fg-muted">
       <p className="mb-2">
-        O contactá directo por:
+        O contacta directo por:
       </p>
       <div className="flex flex-wrap gap-2">
         {publicEmail && (

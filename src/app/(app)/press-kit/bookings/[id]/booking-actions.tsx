@@ -33,6 +33,7 @@ const STATUS_FLOW: { key: BookingStatus; tint: string }[] = [
   { key: "leido", tint: "bg-info text-white" },
   { key: "respondido", tint: "bg-cream text-ink" },
   { key: "cotizado", tint: "bg-warning text-white" },
+  { key: "contraofertado", tint: "bg-ink text-cream" },
   { key: "agendado", tint: "bg-success text-white" },
   { key: "rechazado", tint: "bg-danger text-white" },
 ];
