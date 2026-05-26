@@ -21,7 +21,11 @@ export function betaInviteEmailHtml(input: {
   inviteUrl: string;
   fromName?: string;
 }): string {
-  const fromName = input.fromName || "Jaime";
+  // Firma default: "DROP. Team" con el punto naranja matcheando el branding.
+  // Si el caller pasa un fromName (futuro: firma personal), se escapa y usa tal cual.
+  const signatureHtml = input.fromName
+    ? escapeHtml(input.fromName)
+    : `DROP<span style="color:#FF5C00;">.</span> Team`;
   return `<!doctype html>
 <html lang="es">
 <head>
@@ -77,7 +81,7 @@ export function betaInviteEmailHtml(input: {
 
               <p style="font-size:15px; margin:0;">
                 Saludos,<br>
-                ${escapeHtml(fromName)}
+                ${signatureHtml}
               </p>
             </td>
           </tr>
@@ -107,7 +111,7 @@ export function betaInviteEmailText(input: {
   inviteUrl: string;
   fromName?: string;
 }): string {
-  const fromName = input.fromName || "Jaime";
+  const fromName = input.fromName || "DROP. Team";
   return `Hola ${input.artistName},
 
 Te confirmo tu acceso a DROP, el sistema operativo que estoy construyendo para DJs independientes. Estás aprobado para la beta cerrada de 15 días.
