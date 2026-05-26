@@ -67,55 +67,17 @@ src/
 - Para uso público (press kits, directorio, formularios de booking, tracking)
   usamos `service_role` desde server-side routes con validación de identidad
 
-## Roadmap
+## Roadmap y estado del proyecto
 
-El roadmap vivo está en **`NEXT_SESSION.md`**. Ese archivo es la source
-of truth — lo que está acá en README es solo arquitectura.
+➡️ **Fuente de verdad única: [`DROP_ROADMAP_PENDIENTE.md`](./DROP_ROADMAP_PENDIENTE.md)**
 
-Estado general (mayo 2026): Sprints 0-23.5 cerrados y deployados.
+Ahí vive todo lo de "dónde voy / qué falta / qué decidí": estado actual,
+roadmap de sprints, decisiones abiertas, deuda técnica y la visión post-MVP
+(SaaS, monetización, workspaces). Este README solo describe qué es DROP. y
+cómo levantarlo.
 
-## Roadmap post-MVP (SaaS para DJs, monetización)
+## Multi-usuario y monetización futura
 
-Una vez que el producto demuestre valor con los beta testers actuales,
-evolucionamos hacia SaaS. **Nada de esto se implementa ahora**, queda
-registrado para no olvidarlo:
-
-### Modelo de monetización
-- Free tier: hasta X contactos, sin IA local, press kit con marca
-- Plan Pro mensual: ilimitado, integración Gmail/Calendar, Ollama, sin marca
-- Plan Team: workspaces compartidos para manager + DJ
-
-### Cambios técnicos necesarios
-1. **Workspaces / Teams**
-   - Tabla `workspaces` (1 DJ o agencia)
-   - Tabla `workspace_members` (user_id, workspace_id, role)
-   - RLS cambia de `user_id = auth.uid()` a `workspace_id IN (mis workspaces)`
-   - Migration que mueve toda la data actual de `user_id` a un workspace por user
-2. **Plans + billing** (cuando podamos pagar Stripe)
-   - Stripe Subscriptions + webhooks
-   - Tabla `subscriptions` (workspace_id, plan, status, current_period_end)
-   - Gates por plan en queries (limit de contacts, features bloqueadas)
-3. **Onboarding multi-DJ**
-   - Landing pública neutra `/` (no redirige a /dashboard)
-   - Selector de tema/branding por workspace
-   - Subir logo propio (Supabase Storage)
-   - Slug del press kit es per-workspace, no per-user
-4. **Branding configurable**
-   - Reemplazar `<Logo />` por componente que lea `workspace.logo_url`
-   - Paleta también configurable (al menos accent color)
-5. **Permisos granulares**
-   - Roles: owner, editor, viewer
-   - Owner ve billing, others no
-6. **Marketing y SEO**
-   - Landing page con value proposition (decisión actual: split DJ/Booker)
-   - Pricing page
-   - Blog/recursos para SEO orgánico
-
-### Por qué la arquitectura actual ya está lista
-- ✅ RLS en todas las tablas (cada user su data)
-- ✅ Auth con Supabase (escala a miles de usuarios free)
-- ✅ Press kits con slugs únicos
-- ✅ Directorio público `/dj` con filtros (Sprint 20)
-- ✅ Sistema de IA híbrida (Ollama local + opción de sumar OpenAI API)
-- ✅ Sitemap dinámico + robots.txt para SEO
-- ✅ Emails con anti-spam compliance (List-Unsubscribe headers)
+La arquitectura ya contempla escalar a SaaS multi-DJ (workspaces, planes,
+branding configurable). El detalle de esa visión post-MVP está en el
+[roadmap](./DROP_ROADMAP_PENDIENTE.md) — **nada de eso se implementa ahora.**
