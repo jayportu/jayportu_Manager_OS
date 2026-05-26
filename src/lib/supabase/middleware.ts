@@ -60,8 +60,18 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
+  // Sprint 23.5 — La raíz "/" se trata especial:
+  //   - Con sesión → cae al RootPage que redirige a /dashboard
+  //   - Sin sesión → redirige a /beta (landing pública de la beta)
+  // Antes mandaba a /login sin contexto, perdíamos DJs nuevos.
+  if (pathname === "/" && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/beta";
+    return NextResponse.redirect(url);
+  }
+
   // Si no hay user y la ruta es privada → redirige a /login
-  if (!user && !isPublic) {
+  if (!user && !isPublic && pathname !== "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
