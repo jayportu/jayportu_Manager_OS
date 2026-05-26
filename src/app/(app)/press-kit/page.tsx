@@ -24,6 +24,7 @@ import {
 } from "@/types/database";
 import { CopyLinkButton } from "./copy-link-button";
 import { SlugEditor } from "./slug-editor";
+import { ShareTools } from "./share-tools";
 import { relativeTime } from "@/lib/format";
 
 export default async function PressKitAdminPage() {
@@ -162,6 +163,9 @@ export default async function PressKitAdminPage() {
           <SlugEditor currentSlug={profile.public_slug} baseUrl={baseUrl} />
         </div>
       </Card>
+
+      {/* Share tools — QR generator + UTM picker (Bloque A · A8) */}
+      <ShareTools publicUrl={publicUrl} artistSlug={profile.public_slug} />
 
       {/* KPIs últimos 7 días */}
       <h2 className="text-xs uppercase tracking-widest text-fg-muted mb-3 font-semibold">

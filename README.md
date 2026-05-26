@@ -1,36 +1,32 @@
-# JAY Manager OS
+# JAY Manager OS · DROP.
 
-App de gestión de carrera DJ. Empezó como proyecto personal de **JAY PORTU**
-y está diseñada desde el inicio para escalar a múltiples usuarios DJ.
+App de gestión de carrera DJ. Repo interno `JAY_Manager_OS` · marca pública **DROP.** (the DJ OS). Empezó como proyecto personal de **JAY PORTU** y está diseñada desde el inicio para escalar a múltiples usuarios DJ.
 
 ## Visión
 
-- **Fase 1 (actual)**: MVP personal de JAY PORTU para gestionar su carrera con
-  costo $0. Multi-usuario por arquitectura (RLS), permite agregar usuarios de
-  prueba (ej. Fernanda).
-- **Fase 2 (post-MVP, cuando el producto esté maduro)**: SaaS para DJs con
-  **membresías de pago**. Modelo freemium o por planes. La arquitectura ya
-  contempla esto desde el día 1.
+- **Fase 1 (actual)**: beta cerrada por invitación. Acceso vía `/beta` →
+  aprobación → email con invite token → `/login?invite=...`. 15 días de
+  acceso completo, lockout post-período. Multi-usuario por arquitectura
+  (RLS).
+- **Fase 2 (post-MVP)**: SaaS para DJs con **membresías de pago**. Modelo
+  freemium o por planes. La arquitectura ya contempla esto desde el día 1.
 
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript
-- Tailwind CSS + shadcn/ui (paleta Studio Dark)
-- Supabase Free (Postgres + Auth + Storage)
+- Tailwind CSS + shadcn/ui
+- Supabase (Postgres + Auth + Storage) — Free
 - Vercel Hobby (hosting)
 - Ollama local (IA, opcional)
+- Resend (emails transaccionales, con anti-spam compliance)
 
-## Estética
+## Estética · DROP. brand
 
-- Fondo `#0F0F11`, paneles `#18181B`, bordes `#27272A`
-- Texto `#FAFAFA` / `#A1A1AA`
-- Acento amarillo `#E8B923` (del press kit JAY PORTU) sólo en CTAs, badges
-  y números clave
-- Tipografías: Iceland (display) + Inter (body)
+Paleta brutalist Type Beat (ver `drop_brandbook.html` / `drop_brandbook.pdf`):
 
-> Nota: la paleta y logo actual son de la marca JAY PORTU. Cuando se
-> convierta en SaaS multi-DJ, el branding por defecto cambiará a algo neutro
-> y cada DJ tendrá su propio branding en su workspace.
+- Cream `#F4EFE7` (fondo) · Ink `#0A0A0A` (texto) · Orange `#FF5C00` (accent)
+- Success `#1F8A5C` · Warning `#C77A00` · Info `#2B5BA8` · Danger `#C53030`
+- Tipografías: **Anton** (display) + **Inter** (body) + **Space Mono** (mono/tags)
 
 ## Setup local
 
@@ -47,12 +43,16 @@ src/
 ├── app/
 │   ├── (app)/           ← rutas protegidas por auth (por user_id)
 │   ├── auth/callback/   ← OAuth/email confirm callback
-│   ├── login/           ← login + signup (cualquier DJ se registra)
+│   ├── beta/            ← formulario de solicitud de invite (público)
+│   ├── login/           ← login solo por invite token (beta cerrada)
+│   ├── welcome/         ← onboarding wizard post-login
+│   ├── dj/              ← directorio público de DJs (sin auth)
 │   ├── p/[slug]/        ← press kits públicos (sin auth)
-│   └── api/             ← track, booking, export
+│   └── api/             ← track, booking, export, push, cron, unsubscribe
 ├── components/          ← layout + ui (shadcn) + brand
 ├── lib/
 │   ├── ai/              ← Ollama client + prompts
+│   ├── email/           ← Resend + templates anti-spam
 │   ├── queries/         ← server queries por tabla
 │   ├── supabase/        ← client + server + middleware + admin
 │   └── templates/       ← sistema de variables
@@ -63,31 +63,22 @@ src/
 
 - Cada tabla tiene **RLS habilitado**: un usuario solo lee/escribe SUS filas
 - Validado por `auth.uid() = user_id` en las policies de Postgres
-- Signup abierto en `/login` — cualquiera con email puede crear cuenta
-- Para uso público (press kits, formularios de booking, tracking) usamos
-  `service_role` desde server-side routes con validación de identidad
+- **Signup cerrado**: solo se entra con invite token desde `/beta`
+- Para uso público (press kits, directorio, formularios de booking, tracking)
+  usamos `service_role` desde server-side routes con validación de identidad
 
-## Roadmap actual (MVP, costo $0)
+## Roadmap
 
-- ✅ Sprint 0 — Setup base + auth + deploy
-- ✅ Sprint 1 — Perfil DJ + Export JSON
-- ✅ Sprint 2 — CRM (contacts + interactions + follow-ups)
-- ✅ Sprint 3 — Press kit público + tracking + bookings
-- ✅ Sprint 4 — IA local (Ollama) + ChatGPT Strategy Mode
-- ✅ Sprint 5 — Plantillas con variables
-- ⏳ Sprint 6 — Gmail API
-- ⏳ Sprint 7 — Calendar API
-- ⏳ Sprint 8 — Descubrir oportunidades (Overpass + CSV + manual)
-- ⏳ Sprint 9 — Campañas
-- ⏳ Sprint 10 — Crecimiento (registro manual de métricas + recomendaciones)
-- ⏳ Sprint 11 — PWA + push notifications
-- ⏳ Sprint 12 — Pulido + onboarding mejorado
+El roadmap vivo está en **`NEXT_SESSION.md`**. Ese archivo es la source
+of truth — lo que está acá en README es solo arquitectura.
+
+Estado general (mayo 2026): Sprints 0-23.5 cerrados y deployados.
 
 ## Roadmap post-MVP (SaaS para DJs, monetización)
 
-Una vez que el producto demuestre valor para JAY (y para Fernanda como
-beta tester), evolucionamos hacia SaaS. **Nada de esto se implementa
-ahora**, queda registrado para no olvidarlo:
+Una vez que el producto demuestre valor con los beta testers actuales,
+evolucionamos hacia SaaS. **Nada de esto se implementa ahora**, queda
+registrado para no olvidarlo:
 
 ### Modelo de monetización
 - Free tier: hasta X contactos, sin IA local, press kit con marca
@@ -106,33 +97,25 @@ ahora**, queda registrado para no olvidarlo:
    - Gates por plan en queries (limit de contacts, features bloqueadas)
 3. **Onboarding multi-DJ**
    - Landing pública neutra `/` (no redirige a /dashboard)
-   - Selector de tema/branding por workspace (no solo JAY PORTU)
+   - Selector de tema/branding por workspace
    - Subir logo propio (Supabase Storage)
    - Slug del press kit es per-workspace, no per-user
 4. **Branding configurable**
-   - Reemplazar `<Logo />` que apunta a `/brand/logo-mark-light.png` por
-     un componente que lea `workspace.logo_url`
+   - Reemplazar `<Logo />` por componente que lea `workspace.logo_url`
    - Paleta también configurable (al menos accent color)
 5. **Permisos granulares**
    - Roles: owner, editor, viewer
    - Owner ve billing, others no
 6. **Marketing y SEO**
-   - Landing page con value proposition
+   - Landing page con value proposition (decisión actual: split DJ/Booker)
    - Pricing page
-   - Blog/recursos para SEO orgánico (DJs buscando "cómo conseguir gigs")
+   - Blog/recursos para SEO orgánico
 
 ### Por qué la arquitectura actual ya está lista
 - ✅ RLS en todas las tablas (cada user su data)
 - ✅ Auth con Supabase (escala a miles de usuarios free)
-- ✅ Press kits con slugs únicos (1 user = 1 slug; en futuro 1 workspace = 1+ slugs)
-- ✅ Sistema de IA híbrida (Ollama local = no cuesta nada por usuario;
-  en plan pago podemos sumar OpenAI API si Jaime decide)
-
-## Para Fernanda (beta tester actual)
-
-Fernanda se registra normalmente en `/login` → "Crear cuenta". Va a tener
-**su propia instancia** completamente separada de la de Jaime. Puede
-cargar sus propios contactos, perfil, plantillas, etc.
-
-Si Jaime y Fernanda quieren ver/editar la MISMA data (workspace
-compartido), eso es Sprint 14+ (post-MVP) cuando movamos a workspaces.
+- ✅ Press kits con slugs únicos
+- ✅ Directorio público `/dj` con filtros (Sprint 20)
+- ✅ Sistema de IA híbrida (Ollama local + opción de sumar OpenAI API)
+- ✅ Sitemap dinámico + robots.txt para SEO
+- ✅ Emails con anti-spam compliance (List-Unsubscribe headers)

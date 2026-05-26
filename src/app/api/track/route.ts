@@ -1,10 +1,13 @@
 /**
  * POST /api/track
  * Endpoint público para registrar eventos del press kit.
- * Recibe { user_id, event, referrer? }.
+ * Recibe { user_id, event, referrer?, metadata? }.
  *
  * Usa service_role (admin) porque los visitantes son anónimos.
  * Valida que user_id exista en dj_profile antes de aceptar.
+ *
+ * `metadata` se acepta como objeto plano (ej. UTMs: { utm_source, utm_medium }).
+ * Sanitizamos: solo strings, máx 16 keys, valores cortos.
  */
 import { trackEvent } from "@/lib/queries/presskit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -21,6 +24,7 @@ export async function POST(request: Request) {
     user_id?: string;
     event?: string;
     referrer?: string;
+    metadata?: Record<string, unknown>;
   };
   try {
     body = await request.json();
@@ -29,6 +33,18 @@ export async function POST(request: Request) {
   }
 
   const { user_id, event, referrer } = body;
+  // Sanitizar metadata: solo strings, máx 16 keys, valores ≤200 chars
+  const cleanMetadata: Record<string, string> = {};
+  if (body.metadata && typeof body.metadata === "object") {
+    let count = 0;
+    for (const [k, v] of Object.entries(body.metadata)) {
+      if (count >= 16) break;
+      if (typeof v === "string" && k.length <= 64 && v.length <= 200) {
+        cleanMetadata[k] = v;
+        count++;
+      }
+    }
+  }
   if (!user_id || !event) {
     return NextResponse.json(
       { error: "Faltan user_id o event" },
@@ -74,6 +90,7 @@ export async function POST(request: Request) {
       referrer: referrer || "",
       user_agent: ua,
       country: cf || vc || "",
+      metadata: Object.keys(cleanMetadata).length > 0 ? cleanMetadata : undefined,
     });
   } catch (e) {
     console.error("trackEvent error:", e);

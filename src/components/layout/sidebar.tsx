@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ComingSoonBadge } from "@/components/coming-soon";
 
 /**
  * DROP. — Sidebar desktop (Type Beat brutalist poster).
@@ -10,9 +11,18 @@ import { cn } from "@/lib/utils";
  * watermark D. de fondo, user card al pie con stats.
  *
  * Sólo visible en md+. En mobile se muestra Topbar + BottomNav.
+ *
+ * Items con `comingSoon: true` muestran badge "pronto" y la página interna
+ * renderiza <ComingSoon /> en lugar de la UI real (beta cerrada).
  */
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string;
+  label: string;
+  comingSoon?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/crm", label: "CRM" },
   { href: "/descubrir", label: "Descubrir" },
@@ -133,7 +143,7 @@ export function Sidebar({
 
       {/* Nav items (scrollea si el nav es más alto que el espacio disponible) */}
       <nav className="relative z-10 flex flex-col flex-1 min-h-0 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label }) => {
+        {NAV_ITEMS.map(({ href, label, comingSoon }) => {
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href));
@@ -148,7 +158,10 @@ export function Sidebar({
                   : "text-[#aaa] hover:text-cream"
               )}
             >
-              <span>{label}</span>
+              <span className="flex items-center gap-2">
+                {label}
+                {comingSoon && <ComingSoonBadge />}
+              </span>
               <span aria-hidden="true">{isActive ? "◉" : ""}</span>
             </Link>
           );
