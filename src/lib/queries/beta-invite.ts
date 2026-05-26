@@ -3,22 +3,28 @@ import "server-only";
 /**
  * Sprint 23.5 — Helpers de invite flow.
  *
- * El user llega a /login?invite=<token>. Validamos el token, seteamos
- * una cookie HttpOnly con el request_id. Después de que el user hace
- * signup/login, consumeBetaInvite() lee la cookie, activa el beta y
- * limpia el invite_token (one-shot).
+ * El user llega a /login?invite=<token>. El middleware setea la cookie
+ * HttpOnly `dropbeta_invite_token` con el token raw (Next.js NO permite
+ * setear cookies desde un server component — por eso vive en el middleware).
+ *
+ * El server component de /login solo LEE la DB para mostrar el banner
+ * "Estás dentro, hola {nombre}" — no escribe nada.
+ *
+ * Después de que el user completa signup/login y aterriza en (app)/layout,
+ * `consumeBetaInviteIfAny` lee la cookie, valida que el email del user
+ * coincida con el de la solicitud, activa beta_status='active' y limpia
+ * el invite_token de la DB (one-shot).
  */
 
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { findBetaRequestByToken } from "@/lib/queries/beta";
 
-const INVITE_COOKIE = "dropbeta_invite";
-const INVITE_TTL_SECONDS = 60 * 30; // 30 minutos
+const INVITE_COOKIE = "dropbeta_invite_token";
 
 /**
- * Lee el token de query, valida contra DB, setea cookie. Devuelve
- * datos para pre-fill del form de signup. Llamado desde /login server.
+ * Lookup read-only del invite para mostrar banner pre-fill en /login.
+ * NO escribe cookies (eso lo hace el middleware). NO debería tirar.
  */
 export async function startBetaInviteFlow(
   token: string
@@ -29,15 +35,6 @@ export async function startBetaInviteFlow(
   if (!req.invite_token) return null;
   // Si ya fue consumido (user_id ya seteado), no permitir reuso
   if (req.user_id) return null;
-
-  const c = await cookies();
-  c.set(INVITE_COOKIE, req.id, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: INVITE_TTL_SECONDS,
-    path: "/",
-  });
   return { email: req.email, artist_name: req.artist_name };
 }
 
@@ -47,27 +44,37 @@ export async function startBetaInviteFlow(
  * Idempotente: si no hay cookie, no hace nada.
  *
  * Llamado desde el layout (app) en cada request — el cost es 1 select
- * a beta_requests (indexado por id) cuando hay cookie, cero queries
- * cuando no hay.
+ * a beta_requests (indexado por invite_token) cuando hay cookie, cero
+ * queries cuando no hay.
+ *
+ * Nota: cookies().delete() acá funciona porque el layout se ejecuta
+ * después del flujo de auth y Next.js lo permite en ese contexto (el
+ * response stream aún no se commiteó). Si en el futuro Next.js endurece
+ * esto, mover el delete al middleware también.
  */
 export async function consumeBetaInviteIfAny(opts: {
   userId: string;
   userEmail: string | null;
 }): Promise<{ activated: true } | { activated: false }> {
   const c = await cookies();
-  const requestId = c.get(INVITE_COOKIE)?.value;
-  if (!requestId) return { activated: false };
+  const token = c.get(INVITE_COOKIE)?.value;
+  if (!token) return { activated: false };
 
   const admin = createAdminClient();
   const { data } = await admin
     .from("beta_requests")
     .select("id, email, status, invite_token, user_id")
-    .eq("id", requestId)
+    .eq("invite_token", token)
     .maybeSingle();
 
   // Limpiar cookie sí o sí (one-shot intent — incluso si falla la activación,
-  // no queremos que se reintente en cada request)
-  c.delete(INVITE_COOKIE);
+  // no queremos que se reintente en cada request). Si Next.js tira porque el
+  // contexto no permite delete, hacemos best-effort y seguimos.
+  try {
+    c.delete(INVITE_COOKIE);
+  } catch {
+    // noop — el cookie expira en 30min de todos modos
+  }
 
   if (!data) return { activated: false };
   const r = data as {

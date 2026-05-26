@@ -29,6 +29,12 @@ const PUBLIC_PATHS = [
   // Pero /api/gmail/auth y /disconnect requieren sesión, las dejamos detrás del middleware.
 ];
 
+// UUID v4 básico — los invite_tokens son gen_random_uuid()
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const INVITE_COOKIE = "dropbeta_invite_token";
+const INVITE_TTL = 60 * 30; // 30 minutos
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -60,6 +66,23 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+
+  // Sprint 23.5 — Invite flow:
+  // /login?invite=<UUID> → guardamos el token en cookie HttpOnly. El cookie
+  // no se puede setear desde un server component (Next.js lanza error), por
+  // eso lo hacemos acá. La consume luego (app)/layout vía consumeBetaInviteIfAny.
+  if (pathname === "/login") {
+    const inviteParam = request.nextUrl.searchParams.get("invite");
+    if (inviteParam && UUID_RE.test(inviteParam)) {
+      supabaseResponse.cookies.set(INVITE_COOKIE, inviteParam, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        maxAge: INVITE_TTL,
+        path: "/",
+      });
+    }
+  }
 
   // Sprint 23.5 — La raíz "/" se trata especial:
   //   - Con sesión → cae al RootPage que redirige a /dashboard
