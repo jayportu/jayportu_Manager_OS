@@ -195,7 +195,7 @@ function BookerSide() {
         <div className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-orange flex items-center gap-3">
           <span>— ERES BOOKER</span>
           <span className="flex-1 h-px bg-ink/30 max-w-[200px]" />
-          <span className="text-ink/50">ACCESO ABIERTO</span>
+          <span className="text-ink/50">PRÓXIMAMENTE</span>
         </div>
         <h1
           className="mt-5"
@@ -237,12 +237,11 @@ function BookerSide() {
       </div>
 
       <div className="relative z-10 mt-10 flex flex-wrap gap-3">
-        <Link
-          href="/signup/booker"
-          className="inline-flex items-center gap-3 px-7 py-4 bg-ink text-cream border-2 border-ink font-mono text-[12px] font-bold tracking-[0.18em] uppercase hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+        <span
+          className="inline-flex items-center gap-3 px-7 py-4 bg-ink/30 text-ink/40 border-2 border-ink/20 font-mono text-[12px] font-bold tracking-[0.18em] uppercase cursor-not-allowed select-none"
         >
-          Crear cuenta gratis →
-        </Link>
+          Próximamente
+        </span>
         <Link
           href="/dj"
           className="inline-flex items-center gap-3 px-7 py-4 bg-cream text-ink border-2 border-ink font-mono text-[12px] font-bold tracking-[0.18em] uppercase hover:bg-orange transition-colors"

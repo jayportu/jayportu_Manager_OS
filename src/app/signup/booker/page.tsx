@@ -1,51 +1,14 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
-import { BookerSignupForm } from "./booker-signup-form";
-
-/**
- * Bloque B · B2 — Signup público para Bookers (consumidores).
- *
- * Diferencia clave vs DJs:
- *   - DJs: beta cerrada, requieren invite vía /beta.
- *   - Bookers: signup abierto. Cualquier productor / venue / particular
- *     puede crearse cuenta para usar el directorio + inbox de requests.
- *
- * Si el user ya tiene sesión:
- *   - Con dj_profile → /dashboard (es DJ, no puede ser booker también)
- *   - Con booker_account → /booker/requests (ya está dentro)
- *   - Sin ninguno → mostramos el form igual (raro, pero válido)
- */
 
 export const metadata: Metadata = {
-  title: "Crear cuenta · Booker · DROP.",
-  description:
-    "Crea tu cuenta gratis en DROP. para contactar DJs verificados en LATAM. Sin comisión, sin intermediarios.",
+  title: "Próximamente · Booker · DROP.",
+  description: "El portal para bookers de DROP. estará disponible muy pronto.",
 };
 
-export default async function BookerSignupPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    const [{ data: dj }, { data: booker }] = await Promise.all([
-      supabase.from("dj_profile").select("user_id").eq("user_id", user.id).maybeSingle(),
-      supabase
-        .from("booker_accounts")
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-    ]);
-    if (dj) redirect("/dashboard");
-    if (booker) redirect("/booker/requests");
-  }
-
+export default function BookerSignupPage() {
   return (
     <main className="min-h-screen bg-cream flex flex-col">
-      {/* Header */}
       <header className="bg-ink text-cream border-b-2 border-orange py-5 px-6 flex items-center justify-between">
         <Link
           href="/"
@@ -59,18 +22,18 @@ export default async function BookerSignupPage() {
           DROP<span className="text-orange">.</span>
         </Link>
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">
-          BOOKER · ACCESO ABIERTO
+          BOOKER · PRÓXIMAMENTE
         </div>
       </header>
 
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-orange mb-3 flex items-center gap-3">
-            <span>— CREAR CUENTA BOOKER</span>
+            <span>— PORTAL BOOKER</span>
             <span className="flex-1 h-px bg-orange/40 max-w-[120px]" />
           </div>
           <h1
-            className="mb-3"
+            className="mb-5"
             style={{
               fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
               fontSize: "56px",
@@ -78,26 +41,23 @@ export default async function BookerSignupPage() {
               letterSpacing: "-0.005em",
             }}
           >
-            EMPIEZA A<br />
-            BOOKEAR DJS<span className="text-orange">.</span>
+            PRÓXIMA<br />
+            MENTE<span className="text-orange">.</span>
           </h1>
           <p className="text-sm text-fg-muted mb-7 leading-relaxed">
-            Sin comisión, sin intermediarios. Contacta directo a los DJs
-            del directorio y guarda tus favoritos para próximos eventos.
+            El registro para bookers estará disponible muy pronto. Mientras
+            tanto, puedes explorar el directorio de DJs y mandar requests
+            directamente desde cada perfil — sin necesidad de cuenta.
           </p>
 
-          <BookerSignupForm />
+          <Link
+            href="/dj"
+            className="inline-flex items-center gap-3 px-7 py-4 bg-ink text-cream border-2 border-ink font-mono text-[12px] font-bold tracking-[0.18em] uppercase hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+          >
+            Ver directorio de DJs →
+          </Link>
 
           <div className="mt-6 pt-5 border-t border-ink/15">
-            <div className="text-[11px] text-fg-subtle font-mono tracking-wider mb-1.5">
-              ¿YA TIENES CUENTA?
-            </div>
-            <Link
-              href="/login"
-              className="text-sm underline hover:text-orange"
-            >
-              Iniciar sesión
-            </Link>
             <div className="mt-3 text-[11px] text-fg-subtle font-mono tracking-wider">
               ¿ERES DJ?{" "}
               <Link href="/beta" className="underline hover:text-orange">
