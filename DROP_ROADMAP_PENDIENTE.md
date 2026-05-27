@@ -24,6 +24,29 @@
 - Nada operativo abierto. La app corre end-to-end en prod.
 - Próximo: **decisiones de Capa 2** (ver sección 6) antes de abrir S18.5 (Contratos) y S19 (Pagos).
 
+### Booker en "Próximamente" — qué incluir al lanzar el registro
+
+El registro de bookers está **deshabilitado** (landing y `/signup/booker` muestran "Próximamente"). El backend YA está construido; esto es lo que el perfil del booker debe contemplar **cuando se decida lanzar**.
+
+**Ya construido (no rehacer):**
+- Tabla `booker_accounts` (migración `0021`) con: `full_name`, `email`, `booker_type`, `city`, `country`, `whatsapp`, `newsletter_optin`, timestamps.
+- 8 tipos de booker: venue/club/bar · productora · agencia de booking · evento privado · casamiento · corporativo · festival · otro.
+- Formulario `/signup/booker` (hecho, solo oculto) que captura: nombre, email, password, tipo, ciudad.
+- Flujo completo: signup → email confirm → portal `/booker` (favoritos, requests, calendario) + claim de bookings huérfanos por email + vista pública tokenizada `/b/[token]`.
+
+**Capturado en el schema pero que el form NO pide aún (decidir si sumar al lanzar):**
+- `country` (país)
+- `whatsapp` (para que el DJ pueda responder fuera de la app)
+- `newsletter_optin` (opt-in de marketing)
+
+**Decisiones pendientes antes de lanzar:**
+- ¿Qué campos son obligatorios vs opcionales? (hoy: nombre obligatorio; tipo y ciudad opcionales)
+- ¿Pedir WhatsApp en el signup?
+- ¿Verificación de email obligatoria antes de poder mandar un request?
+- ¿Anti-spam / rate limit en el signup abierto? (riesgo de cuentas falsas en registro público)
+- ¿Mostrar el opt-in de newsletter en el form?
+- ¿Cuándo lanzar? Depende de tener suficientes DJs en el directorio `/dj` para que la cuenta de booker valga la pena.
+
 ---
 
 ## 1 · Roadmap pendiente (orden post-RTP review)
