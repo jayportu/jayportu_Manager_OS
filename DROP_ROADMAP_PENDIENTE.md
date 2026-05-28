@@ -5,8 +5,8 @@
 > El `README.md` solo describe qué es DROP. y cómo levantarlo. Todo lo de
 > "dónde voy / qué falta / qué decidí" vive en este archivo.
 >
-> Última actualización: 2026-05-26
-> Estado git: Bloques B + C mergeados a `main` y deployados. Rama `feat/C-booking-state` borrada (ya integrada).
+> Última actualización: 2026-05-28
+> Estado git: Bloques B + C mergeados a `main` y deployados. Rama `feat/C-booking-state` borrada (ya integrada). Migraciones `0023` (admin Fer), `0024` (foto de perfil) y `0025` (bump bucket press-kits a 25 MB) corridas en prod. **Sprint RA-1 cerrado.**
 
 ---
 
@@ -252,7 +252,7 @@ Las 5 inconsistencias de las secciones 4 originales. Ninguna rompe la app. Se re
 
 No hay mapeo 1:1 entre "sprints" y números de migración. Son dos sistemas distintos:
 
-- **Migraciones** (`supabase/migrations/NNNN_descripcion.sql`): orden secuencial de 4 dígitos, una por cambio de schema. Es el orden **autoritativo** del SQL. Hoy van de `0001` a `0022`.
+- **Migraciones** (`supabase/migrations/NNNN_descripcion.sql`): orden secuencial de 4 dígitos, una por cambio de schema. Es el orden **autoritativo** del SQL. Hoy van de `0001` a `0025`.
 - **Sprints / Bloques** (S0…S25, Bloques A/B/C): unidades narrativas de planificación. Un sprint puede tocar varias migraciones o ninguna.
 - **Para encontrar el SQL de un feature:** leer el comentario de cabecera de cada migración (cada archivo documenta a qué Bloque/Sprint pertenece) o `grep` en `supabase/migrations/`.
 
@@ -282,6 +282,62 @@ Ejemplo: Bloque B → `0021`, Bloque C → `0022`. El "Sprint 18" narrativo ≈ 
 ### Por qué la arquitectura ya está lista
 - ✅ RLS en todas las tablas · ✅ Auth Supabase (escala a miles free) · ✅ Press kits con slugs únicos
 - ✅ Directorio público `/dj` con filtros · ✅ IA híbrida (Ollama local + opción OpenAI) · ✅ Sitemap + robots.txt · ✅ Emails anti-spam
+
+---
+
+## 11 · Features inspiradas en Resident Advisor (RA review · 2026-05-27)
+
+Review completo de `es.ra.co` para traer a DROP. lo que aplica al modelo (OS de gestión para DJs/bookers en Chile). Las 4 seleccionadas, ordenadas de quick-win a estructural:
+
+| # | Feature | Qué suma | Estado | Esfuerzo |
+|---|---|---|---|---|
+| **RA-1** | Perfil + booking info | Bloque de stats de credibilidad (ciudades/venues/shows tocados, derivados de `calendario`) + módulo de reserva destacado en `/p/[slug]`, estilo página de artista RA | ✅ **HECHO** (commit `a1d2ff3`) | Bajo |
+| **RA-3** | Seguir + notificaciones | Convertir el favorito del booker (`FavoriteButtonClient`) en "seguir con aviso": email vía Resend cuando el DJ publica disponibilidad o nuevo show | ⏳ **siguiente sugerido** | Bajo-medio |
+| **RA-2** | Descubrimiento + Picks | Fila curada "DROP Picks" (flag admin, reusa `is_admin`) + recomendaciones en `/dj`; los filtros género/ciudad/disponibilidad ya existen | ⏳ | Medio |
+| **RA-4** | Panel multi-entidad | Una cuenta administra varios DJs (manager/agencia), estilo RA Pro. Toca el modelo `user_id ↔ dj_profile` 1:1, RLS y casi todas las queries | ⏳ | Alto |
+
+**Descartado del review RA (no replicar):** ticketing propio (mejor integrar Passline/PuntoTicket), revista editorial, podcast/reseñas, reventa, producir eventos propios, base global de artistas / multi-idioma. Razón: fuera del core de un OS de gestión y/o desproporcionado para la etapa.
+
+### Entregado
+
+#### Perfil + foto + IA del editor
+- ✅ **Foto de perfil (avatar)** — Subida en `/perfil` con preview circular; visible en hero del press kit (circular, borde naranja) y sidebar (reemplaza la inicial). Click en cualquiera abre **lightbox a tamaño real** (modal brutalist, ESC/click fuera para cerrar).
+  - Migración `0024_avatar.sql`: columna `avatar_url` + bucket Storage `avatars` (5 MB, jpg/png/webp).
+  - Componente compartido `src/components/avatar-lightbox.tsx`.
+- ✅ **Perfil separado de Configuración** — Ruta propia `/perfil` con el formulario de identidad. Configuración queda solo con ajustes/integraciones.
+  - Entrada: el bloque avatar+nombre del sidebar (abajo-izq) es clickeable → `/perfil`.
+  - Archivos movidos: `profile-form`/`avatar-upload`/`avatar-actions` → `perfil/`.
+  - ⏳ Pendiente menor: en mobile no hay acceso directo en BottomNav (sí por URL).
+
+#### Sprint RA-1 · Perfil pro (cerrado 2026-05-28)
+- ✅ **T1** `getPublicGigStats(userId)` — service-role sobre `calendar_events` type='show'. Devuelve shows pasados, lugares distintos, año del primer show y próximos (máx 5). Sin gigs → fallback automático en el caller.
+- ✅ **T2** Bloque stats data-driven en `/p/[slug]`: si el DJ tiene shows, muestra **SHOWS · LUGARES · DESDE**; si no, fallback a GÉNEROS · RIDER · BASE.
+- ✅ **T3** Sección **"Próximas fechas"** debajo del bloque de stats (tile ink con día/mes Anton + título y lugar). Solo visible si hay ≥1 futuro.
+- ✅ **T4** Módulo **"Información de reserva"** destacado al inicio del aside: email + whatsapp como texto visible (estilo página de artista RA).
+- ✅ **T5** Verificación con perfil de prueba (Pablo Rocha + 5 gigs inyectados); screenshot OK; data de prueba limpiada.
+- Archivos: `src/lib/queries/gig-stats.ts` (nuevo) + `src/app/p/[slug]/page.tsx` (edits). Sin migración.
+- Commit: `a1d2ff3`.
+
+#### Unificación tech rider (cerrado 2026-05-28)
+**Raíz del bug que reportó SANTIS:** había dos lugares para editar tech rider (textareas libres en `/perfil` + editor estructurado en `/configuracion`); el público priorizaba el estructurado y silenciaba el legacy.
+- ✅ Sacar los 3 textareas legacy (`tech_rider_ideal`, `tech_rider_alt`, `hospitality`) del ProfileForm. Reemplazo por un card simple "Editar tech rider →" que lleva a `/configuracion#tech-rider`. Columnas se quedan en DB.
+- ✅ Bloque **"Notas antiguas en tu perfil"** read-only en TechRiderSection si el DJ tiene texto legacy, para que migre al editor por categoría.
+- ✅ Render público muestra las notas legacy como `NOTAS · IDEAL / ALTERNATIVO` (back-compat hasta que el DJ limpie).
+- ✅ **Botón self-serve "Limpiar notas antiguas"** en TechRiderSection con confirmación. Action `clearLegacyTechRiderAction()` vacía los 3 campos. Cierra el ciclo de migración.
+- Commits: `795521b` (unificación) + `483bda6` (botón limpiar).
+
+#### Press kit PDF y deliverability
+- ✅ **Bump del límite del PDF** del press kit: 10 MB → **25 MB** (más margen para press kits con imágenes/varias páginas). Migración `0025_press_kit_size_bump.sql`.
+
+#### Admin · Comunicación con beta
+- ✅ **Recordatorio beta personalizado** en `/admin/beta-reminder`. Tabla de destinatarios con días restantes (naranja ≤7, rojo ≤3) + envío secuencial con rate limit safety + detalle por destinatario. **Disparado 2026-05-28 a los 9 DJs activos, todos `delivered`.**
+- ✅ **Instrumentación** de envíos en `usage_events` (`beta_reminder_sent`, `_failed`, `_batch_done`) con `resend_email_id` para correlación. Auditoría in-app además del dashboard de Resend.
+- ✅ **Bug followup a SANTIS** — template reutilizable `bugFixFollowupEmail{Html,Text}` + action específica + botón en `/admin/beta-reminder` ("Avisar a SANTIS del fix de tech rider"). Le agradece el reporte y le pide probar 3 puntos.
+
+#### Lecciones aprendidas (anotadas en memoria persistente)
+- 🧠 Antes de `git push origin main` correr `npm run build` (no solo `tsc --noEmit`) — Vercel valida ESLint estricto y rompe builds que tsc no atrapa. Ver memoria `vercel_build_lesson_drop.md`.
+
+**Siguiente sprint sugerido:** **RA-3 · Seguir + notificaciones** (bajo-medio, reusa favoritos + Resend). RA-2 (Picks) y RA-4 (panel multi-entidad) quedan después.
 
 ---
 
