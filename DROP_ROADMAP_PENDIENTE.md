@@ -5,8 +5,8 @@
 > El `README.md` solo describe qué es DROP. y cómo levantarlo. Todo lo de
 > "dónde voy / qué falta / qué decidí" vive en este archivo.
 >
-> Última actualización: 2026-05-28 (PM)
-> Estado git: Bloques B + C mergeados a `main` y deployados. Migraciones `0023` (admin Fer), `0024` (foto de perfil) y `0025` (bump bucket press-kits a 25 MB) corridas en prod. **Sprint RA-1 cerrado · barrido completo de deuda técnica · mobile rework (drawer) · iconos sidebar slide-in.** RA-3 con mockup HTML esperando approval.
+> Última actualización: 2026-05-28 (noche)
+> Estado git: Bloques B + C mergeados a `main` y deployados. Migraciones `0023` (admin Fer), `0024` (foto de perfil), `0025` (bump press-kits a 25 MB), `0026` (follow_notifications) y `0027` (dj_update_events + trigger) corridas en prod. **Sprints RA-1 y RA-3 cerrados · barrido completo de deuda técnica · mobile rework (drawer) · iconos sidebar slide-in.** Siguiente sprint sugerido: **RA-2 Parte A · DROP Picks** (~3-4h, bajo riesgo).
 
 ---
 
@@ -292,8 +292,9 @@ Review completo de `es.ra.co` para traer a DROP. lo que aplica al modelo (OS de 
 | # | Feature | Qué suma | Estado | Esfuerzo |
 |---|---|---|---|---|
 | **RA-1** | Perfil + booking info | Bloque de stats de credibilidad (ciudades/venues/shows tocados, derivados de `calendario`) + módulo de reserva destacado en `/p/[slug]`, estilo página de artista RA | ✅ **HECHO** (commit `a1d2ff3`) | Bajo |
-| **RA-3** | Seguir + notificaciones | Convertir el favorito del booker (`FavoriteButtonClient`) en "seguir con aviso": email vía Resend cuando el DJ publica disponibilidad o nuevo show | ⏳ **siguiente sugerido** | Bajo-medio |
-| **RA-2** | Descubrimiento + Picks | Fila curada "DROP Picks" (flag admin, reusa `is_admin`) + recomendaciones en `/dj`; los filtros género/ciudad/disponibilidad ya existen | ⏳ | Medio |
+| **RA-3** | Seguir + notificaciones | Toggle "Seguir con avisos" en el press kit + feed `/booker/seguidos` con borde naranja en no leídas + cron diario que manda email digest a followers. Migraciones `0026` + `0027` + GH Action. | ✅ **HECHO** (commits `f1ef4e5` → `e539b72`) | Bajo-medio |
+| **RA-2 · A** | DROP Picks (curado admin) | Fila "DROP PICKS" arriba de `/dj` con DJs marcados manualmente por el admin. Columna `is_drop_pick` + `drop_pick_priority` en `dj_profile`. Toggle ⭐ en `/admin`. Badge naranja "PICK" en las cards públicas. | ⏳ **siguiente sugerido** | ~3-4h |
+| **RA-2 · B** | "Para ti" (recomendaciones) | Tab "Para ti" en `/dj` para bookers logueados, sugiriendo DJs por géneros/ciudad de sus favoritos. Requiere data suficiente para no salir vacío. | ⏳ **diferido** (esperar más uso real) | ~4-5h |
 | **RA-4** | Panel multi-entidad | Una cuenta administra varios DJs (manager/agencia), estilo RA Pro. Toca el modelo `user_id ↔ dj_profile` 1:1, RLS y casi todas las queries | ⏳ | Alto |
 
 **Descartado del review RA (no replicar):** ticketing propio (mejor integrar Passline/PuntoTicket), revista editorial, podcast/reseñas, reventa, producir eventos propios, base global de artistas / multi-idioma. Razón: fuera del core de un OS de gestión y/o desproporcionado para la etapa.
@@ -351,7 +352,18 @@ Review completo de `es.ra.co` para traer a DROP. lo que aplica al modelo (OS de 
 - 🧠 Antes de `git push origin main` correr `npm run build` (no solo `tsc --noEmit`) — Vercel valida ESLint estricto y rompe builds que tsc no atrapa. Ver memoria `vercel_build_lesson_drop.md`.
 - 🇨🇱 Tuteo chileno SIEMPRE en chat / emails / UI / commits. Nunca voseo argentino. Ver memoria `tono_drop.md`.
 
-**Siguiente sprint con mockup listo:** **RA-3 · Seguir + notificaciones**. Mockup HTML interactivo en `drop_ra3_seguir_notif_mockup.html` con 3 pestañas (toggle en página del DJ · feed de seguidos · email de aviso). Esperando approval del cliente para implementar. RA-2 (Picks) y RA-4 (panel multi-entidad) quedan después.
+#### Sprint RA-3 · Seguir + notificaciones (cerrado 2026-05-28)
+- ✅ **Fase 1** — schema + toggle. Migración `0026`: `notify_email` y `last_read_at` en `booker_favorites`. Toggle "Seguir con avisos" debajo del hero de `/p/[slug]` (componente `FollowNotifyToggle` + endpoint `/api/booker/favorite-state` extendido + action `toggleFollowNotifyAction`). Commit `f1ef4e5`.
+- ✅ **Fase 2** — captura de events. Migración `0027`: tabla `dj_update_events` (`show_scheduled` + `availability_updated`) con trigger SQL `security definer` para auto-emit en cambios de `available_*` en `dj_profile`. Hook TS en `updateBookingSubmissionStatus` para emit en transición a `agendado`. Commit `d8993c3`.
+- ✅ **Fase 3** — cron + email. Endpoint `/api/follow-updates/cron` (CRON_SECRET-protected): agrupa events por DJ, manda digest a followers con `notify_email=true`, loguea en `usage_events` (`follow_notif_sent`/`_failed`), marca `notified_at`. Template `followUpdatesEmail{Html,Text}`. GH Action diaria 13:00 UTC. Preview HTML en `drop_ra3_email_preview.html`. Commit `e6a1115`.
+- ✅ **Fase 4** — feed. `/booker/favoritos` → `/booker/seguidos` con feed cronológico de updates (borde naranja en no leídas, badge "N nuevos"), `markFollowFeedRead()` al cargar, grilla de todos los DJs seguidos abajo. Redirect permanente del path viejo. Commit `e539b72`.
+- 🎨 Mockups: `drop_ra3_seguir_notif_mockup.html` (UX) + `drop_ra3_email_preview.html` (email real renderizado).
+
+**Siguiente sprint sugerido:** **RA-2 Parte A · DROP Picks** (3-4h, bajo riesgo).
+
+**Parte B "Para ti"** queda diferida hasta que haya más bookers activos con favoritos (hoy 1-2 con datos suficientes).
+
+**RA-4 · Panel multi-entidad** queda como último de la track porque es un cambio de arquitectura mayor (rompe el modelo `user_id ↔ dj_profile` 1:1).
 
 ---
 
