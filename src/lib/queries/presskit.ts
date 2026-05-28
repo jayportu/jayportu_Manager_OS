@@ -234,35 +234,52 @@ export async function updateBookingWorkflow(
 
   const result: { followUpId?: string; calendarEventId?: string } = {};
 
+  // Auto-action (Deuda #04): cuando un booking pasa por primera vez a un
+  // estado "trabajado" (leido en adelante), promover al booker a contact
+  // del CRM si todavía no existe. Antes esto solo se hacía en cotizado;
+  // ahora arranca antes para que el CRM tenga el lead desde el primer
+  // engagement del DJ.
+  const TRABAJADO_STATES = new Set([
+    "leido",
+    "respondido",
+    "cotizado",
+    "contraofertado",
+    "agendado",
+  ]);
+  if (
+    TRABAJADO_STATES.has(patch.status as string) &&
+    !b.created_contact_id &&
+    b.name
+  ) {
+    const { data: contact } = await supabase
+      .from("contacts")
+      .insert({
+        user_id: user.id,
+        name: b.name,
+        email: b.email || "",
+        whatsapp: b.phone || "",
+        source: "booking_form",
+        status: "negociando",
+        notes: b.message || "",
+      })
+      .select("id")
+      .single();
+    if (contact) {
+      const contactId = (contact as { id: string }).id;
+      updateObj.created_contact_id = contactId;
+      // Actualizar b localmente para que los handlers de cotizado/agendado
+      // de abajo vean el contact_id recién creado.
+      b.created_contact_id = contactId;
+    }
+  }
+
   // Auto-action: cotizado → crear follow_up para +3 días
   if (
     patch.status === "cotizado" &&
     b.status !== "cotizado" &&
     !b.follow_up_id
   ) {
-    // Necesita un contact_id para crear follow_up. Si no hay, intentar
-    // primero promover el booking a contacto (created_contact_id).
-    let contactId = b.created_contact_id;
-    if (!contactId && b.name) {
-      const { data: contact } = await supabase
-        .from("contacts")
-        .insert({
-          user_id: user.id,
-          name: b.name,
-          email: b.email || "",
-          whatsapp: b.phone || "",
-          source: "booking_form",
-          status: "negociando",
-          notes: b.message || "",
-        })
-        .select("id")
-        .single();
-      if (contact) {
-        contactId = (contact as { id: string }).id;
-        updateObj.created_contact_id = contactId;
-      }
-    }
-
+    const contactId = b.created_contact_id;
     if (contactId) {
       const dueAt = new Date();
       dueAt.setDate(dueAt.getDate() + 3);

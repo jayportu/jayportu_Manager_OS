@@ -144,8 +144,8 @@ El registro de bookers está **deshabilitado** (landing y `/signup/booker` muest
 | 01 | Booking workflow lineal, no bidireccional | 🔴 Crítica | ✅ resuelto por Idea 1 (Bloque C) |
 | 02 | `/api/booking` no crea contacto, pero S20 sí crea follow-up auto | 🟡 Inconsistencia | Política única: auto-crear contacto al pasar a `leido`, mantener auto follow-up |
 | 03 | No hay contratos ni pagos (gap RTP) | 🔴 Crítica | Ideas 2 (S18.5) + 3 (S19) |
-| 04 | `presskit_events.event` tiene 11 valores hardcoded en CHECK | 🟢 Deuda técnica | Validar en server con whitelist en código, sin CHECK constraint |
-| 05 | No hay `sitemap.xml` ni `robots.txt` explícito | 🟡 SEO | `app/sitemap.ts` + `app/robots.ts` (~30 min) |
+| 04 | `presskit_events.event` tiene 11 valores hardcoded en CHECK | 🟢 Descartado | `trackEvent()` ya valida vía `PresskitEventType`; el CHECK queda como belt-and-suspenders contra typos en los 2 inserts directos (counter_submitted/_accepted) |
+| 05 | No hay `sitemap.xml` ni `robots.txt` explícito | ✅ Hecho | `src/app/sitemap.ts` + `src/app/robots.ts` existen |
 | 06 | Disponibilidad existe en data, no en UI pública | 🟡 Feature incompleta | Idea 4 (S20) |
 | 07 | 21 migraciones para una app personal — SQL adelantado al frontend | 🟢 Deuda técnica | Auditar columnas/tablas 0017-0020 sin UI consumidora. Cerrar UI o quitar SQL |
 
@@ -158,7 +158,7 @@ El registro de bookers está **deshabilitado** (landing y `/signup/booker` muest
 | 01 | Dos rutas a campañas: `/campanas` y `/growth/campanas` | 🔴 UX confuso | Consolidar en `/campanas` con tabs "Outbound" / "Growth/Ads" |
 | 02 | README vs NEXT_SESSION desincronizados sobre sprints | 🔴 Docs | Consolidar NEXT_SESSION como source-of-truth, eliminar sección "Roadmap actual" del README |
 | 03 | 3 entry points públicos: `/login`, `/welcome`, `/beta` | 🟡 Flujo poco claro | Definir gate beta abierta/cerrada. Si abierta: eliminar `/beta`. Si cerrada: redirect `/login` → `/beta` |
-| 04 | `created_contact_id` en bookings nunca se popula desde el form | 🟢 Deuda | Auto-poblar al pasar a `leido`/`cotizado`, remover del POST público |
+| 04 | `created_contact_id` en bookings nunca se popula desde el form | ✅ Hecho (commit por venir) | Ahora se auto-popula al pasar a cualquier estado "trabajado" (leido, respondido, cotizado, contraofertado, agendado). Antes solo cotizado. |
 | 05 | "Sprint 18" en NEXT_SESSION ≠ "Sprint 18" en migraciones | 🟡 Confusión estructural | Alinear nombre de sprint con número de migración, documentar la convención |
 
 ---
@@ -244,9 +244,9 @@ Las 5 inconsistencias de las secciones 4 originales. Ninguna rompe la app. Se re
 |---|---|---|
 | 02 | Docs desincronizados (README / NEXT_SESSION / roadmap) | ✅ resuelto 2026-05-26 — este doc es la fuente única; NEXT_SESSION borrado |
 | 05 | Convención sprint ↔ migración | ✅ documentada abajo |
-| 04 | `created_contact_id` nunca se popula desde el form | ⏳ auto-poblar al pasar a leído/cotizado |
-| 01 | Dos rutas a campañas: `/campanas` y `/growth/campanas` | ⏳ unificar en tabs cuando se toque Campañas (S22) |
-| 03 | 3 entry points públicos: `/login`, `/welcome`, `/beta` | ⏳ requiere decidir gate beta abierta/cerrada primero |
+| 04 | `created_contact_id` nunca se popula desde el form | ✅ resuelto 2026-05-28 — auto-promueve a contact en leido/respondido/cotizado/contraofertado/agendado (`presskit.ts`) |
+| 01 | Dos rutas a campañas: `/campanas` y `/growth/campanas` | ⏳ **requiere decisión** — unificar en tabs cuando se toque Campañas (S22). Pregunta abierta: ¿tabs "Outbound · Growth/Ads" o consolidar todo en uno? |
+| 03 | 3 entry points públicos: `/login`, `/welcome`, `/beta` | ⏳ **requiere decisión** — definir gate beta abierta/cerrada primero. Si abierta: eliminar `/beta`. Si cerrada (hoy): redirect `/login` → `/beta` |
 
 ### Convención sprint ↔ migración (fix #05)
 
