@@ -19,7 +19,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { href: "/booker/requests", label: "Mis requests", icon: Inbox },
-  { href: "/booker/favoritos", label: "Favoritos", icon: Heart },
+  { href: "/booker/seguidos", label: "Seguidos", icon: Heart },
   { href: "/booker/calendario", label: "Calendario", icon: Calendar, comingSoon: true },
   { href: "/booker/buscar", label: "Buscar DJs", icon: Search, comingSoon: true },
 ];

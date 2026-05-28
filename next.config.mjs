@@ -24,6 +24,13 @@ const nextConfig = {
         destination: "/dashboard",
         permanent: true,
       },
+      // 2026-05-28: /booker/favoritos → /booker/seguidos (Sprint RA-3).
+      // El feed de seguidos reemplaza el listado simple de favoritos.
+      {
+        source: "/booker/favoritos",
+        destination: "/booker/seguidos",
+        permanent: true,
+      },
     ];
   },
 };

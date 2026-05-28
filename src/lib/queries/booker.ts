@@ -248,3 +248,138 @@ export async function isFavorite(djUserId: string): Promise<boolean> {
     .maybeSingle();
   return !!data;
 }
+
+// ════════════════════════════════════════════════════════════════════
+// Sprint RA-3 — Feed de updates de los DJs seguidos
+// ════════════════════════════════════════════════════════════════════
+
+export interface FeedUpdate {
+  event_id: string;
+  dj_user_id: string;
+  artist_name: string;
+  public_slug: string;
+  avatar_url: string;
+  type: "show_scheduled" | "availability_updated";
+  payload: Record<string, unknown>;
+  created_at: string;
+  /** true si el booker no había abierto su feed cuando este event fue creado. */
+  unread: boolean;
+  /** Si el booker tiene avisos por email activos sobre este DJ. */
+  notify_email: boolean;
+}
+
+/**
+ * Devuelve los updates recientes (últimos 30 días) de los DJs que el
+ * booker tiene en booker_favorites. Determina "unread" comparando
+ * created_at del event vs last_read_at del follow correspondiente.
+ *
+ * Solo lectura — no marca nada como leído. El marcado lo hace
+ * markFollowFeedRead() (server action), llamado al renderizar la
+ * página /booker/seguidos.
+ */
+export async function listFollowFeed(): Promise<FeedUpdate[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  // 1. Trae los follows del booker (dj_user_id + last_read_at + notify_email)
+  const { data: rawFollows, error: fErr } = await supabase
+    .from("booker_favorites")
+    .select("dj_user_id, last_read_at, notify_email")
+    .eq("user_id", user.id);
+  if (fErr || !rawFollows || rawFollows.length === 0) return [];
+  type FollowRow = {
+    dj_user_id: string;
+    last_read_at: string | null;
+    notify_email: boolean;
+  };
+  const follows = rawFollows as FollowRow[];
+  const followByDj = new Map<string, FollowRow>(
+    follows.map((f) => [f.dj_user_id, f])
+  );
+
+  // 2. Trae los events de esos DJs (últimos 30 días) via service_role
+  //    porque dj_update_events tiene RLS de "solo own". Importamos
+  //    createAdminClient dinámico para evitar ciclos.
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const cutoffIso = new Date(
+    Date.now() - 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+  const djIds = follows.map((f) => f.dj_user_id);
+  const { data: rawEvents, error: evErr } = await admin
+    .from("dj_update_events")
+    .select("id, dj_user_id, type, payload, created_at")
+    .in("dj_user_id", djIds)
+    .gte("created_at", cutoffIso)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (evErr || !rawEvents) return [];
+  type EventRow = {
+    id: string;
+    dj_user_id: string;
+    type: "show_scheduled" | "availability_updated";
+    payload: Record<string, unknown>;
+    created_at: string;
+  };
+  const events = rawEvents as EventRow[];
+  if (events.length === 0) return [];
+
+  // 3. Trae perfiles de DJs
+  const uniqueDjIds = Array.from(new Set(events.map((e) => e.dj_user_id)));
+  const { data: rawProfiles } = await admin
+    .from("dj_profile")
+    .select("user_id, artist_name, public_slug, avatar_url")
+    .in("user_id", uniqueDjIds);
+  type ProfileRow = {
+    user_id: string;
+    artist_name: string;
+    public_slug: string;
+    avatar_url: string;
+  };
+  const profileByDj = new Map<string, ProfileRow>(
+    ((rawProfiles ?? []) as ProfileRow[]).map((p) => [p.user_id, p])
+  );
+
+  // 4. Combinar
+  return events
+    .map((ev): FeedUpdate | null => {
+      const dj = profileByDj.get(ev.dj_user_id);
+      const follow = followByDj.get(ev.dj_user_id);
+      if (!dj || !follow) return null;
+      const unread = !follow.last_read_at
+        ? true
+        : new Date(ev.created_at) > new Date(follow.last_read_at);
+      return {
+        event_id: ev.id,
+        dj_user_id: ev.dj_user_id,
+        artist_name: dj.artist_name,
+        public_slug: dj.public_slug,
+        avatar_url: dj.avatar_url,
+        type: ev.type,
+        payload: ev.payload,
+        created_at: ev.created_at,
+        unread,
+        notify_email: follow.notify_email,
+      };
+    })
+    .filter((x): x is FeedUpdate => x !== null);
+}
+
+/**
+ * Marca todos los follows del booker como leídos a `now()`. Llamado
+ * desde la página /booker/seguidos en cada visita.
+ */
+export async function markFollowFeedRead(): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase
+    .from("booker_favorites")
+    .update({ last_read_at: new Date().toISOString() })
+    .eq("user_id", user.id);
+}

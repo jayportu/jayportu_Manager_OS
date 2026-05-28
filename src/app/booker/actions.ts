@@ -43,7 +43,7 @@ export async function toggleFavoriteAction(
       .delete()
       .eq("id", (existing as { id: string }).id);
     if (error) return { ok: false, error: error.message };
-    revalidatePath("/booker/favoritos");
+    revalidatePath("/booker/seguidos");
     revalidatePath("/dj");
     return { ok: true, favorited: false };
   } else {
@@ -52,7 +52,7 @@ export async function toggleFavoriteAction(
       dj_user_id: djUserId,
     });
     if (error) return { ok: false, error: error.message };
-    revalidatePath("/booker/favoritos");
+    revalidatePath("/booker/seguidos");
     revalidatePath("/dj");
     return { ok: true, favorited: true };
   }
@@ -98,7 +98,7 @@ export async function toggleFollowNotifyAction(
       .update({ notify_email: newNotify })
       .eq("id", row.id);
     if (error) return { ok: false, error: error.message };
-    revalidatePath("/booker/favoritos");
+    revalidatePath("/booker/seguidos");
     return { ok: true, favorited: true, notifyEmail: newNotify };
   }
 
@@ -109,7 +109,7 @@ export async function toggleFollowNotifyAction(
     notify_email: true,
   });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/booker/favoritos");
+  revalidatePath("/booker/seguidos");
   revalidatePath("/dj");
   return { ok: true, favorited: true, notifyEmail: true };
 }
