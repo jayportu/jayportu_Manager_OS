@@ -14,6 +14,7 @@ import { PdfPressKit } from "./pdf-press-kit";
 import { TechRiderRender } from "./tech-rider-render";
 import { StagePlot } from "./stage-plot";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
+import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { whatsappLink, normalizeUrl } from "@/lib/format";
 import type { Metadata } from "next";
@@ -54,6 +55,13 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   // Sprint 21 — items del rider estructurado (sin RLS via service_role).
   const riderItems = await listPublicRiderItems(profile.user_id);
   const hasStructuredRider = riderItems.length > 0;
+
+  // Sprint RA-1 — stats públicos de gigs (sin RLS via service_role).
+  const gigStats = await getPublicGigStats(profile.user_id);
+  const hasGigData =
+    gigStats.showsPasados > 0 ||
+    gigStats.lugaresDistintos > 0 ||
+    gigStats.proximos.length > 0;
 
   // Modo PDF: el DJ subió un press kit propio. Mostramos el PDF tal cual
   // a pantalla completa, con botones flotantes mínimos para contacto.
@@ -230,28 +238,104 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               </section>
             )}
 
-            {/* ── STATS 3 col borde ink ── */}
+            {/* ── STATS 3 col borde ink ──
+                Si el DJ tiene gigs en su calendario, mostramos SHOWS · LUGARES
+                · DESDE (estilo RA "stats del artista"). Si no, fallback al
+                stats actual (géneros / rider / base). */}
             <section className="mb-10">
               <div className="grid grid-cols-3 border-2 border-ink">
-                <StatTile
-                  value={profile.genres.length || "—"}
-                  label="GÉNEROS"
-                  variant="white"
-                />
-                <StatTile
-                  value={
-                    riderItems.length > 0 ? String(riderItems.length) : "—"
-                  }
-                  label="RIDER ITEMS"
-                  variant="ink"
-                />
-                <StatTile
-                  value={profile.city ? "CL" : "—"}
-                  label="BASE"
-                  variant="orange"
-                />
+                {hasGigData ? (
+                  <>
+                    <StatTile
+                      value={gigStats.showsPasados || "—"}
+                      label="SHOWS"
+                      variant="white"
+                    />
+                    <StatTile
+                      value={gigStats.lugaresDistintos || "—"}
+                      label="LUGARES"
+                      variant="ink"
+                    />
+                    <StatTile
+                      value={gigStats.desdeAño ?? "—"}
+                      label="DESDE"
+                      variant="orange"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <StatTile
+                      value={profile.genres.length || "—"}
+                      label="GÉNEROS"
+                      variant="white"
+                    />
+                    <StatTile
+                      value={
+                        riderItems.length > 0 ? String(riderItems.length) : "—"
+                      }
+                      label="RIDER ITEMS"
+                      variant="ink"
+                    />
+                    <StatTile
+                      value={profile.city ? "CL" : "—"}
+                      label="BASE"
+                      variant="orange"
+                    />
+                  </>
+                )}
               </div>
             </section>
+
+            {/* ── PRÓXIMAS FECHAS ──
+                Solo visible si hay ≥1 show futuro. Estilo RA "Próximos
+                eventos": fecha + título + lugar, lista vertical brutalista. */}
+            {gigStats.proximos.length > 0 && (
+              <section className="mb-10">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                  — PRÓXIMAS FECHAS
+                </div>
+                <ul className="border-2 border-ink divide-y-2 divide-ink">
+                  {gigStats.proximos.map((gig) => {
+                    const d = new Date(gig.startAt);
+                    const dia = d
+                      .toLocaleDateString("es-CL", { day: "2-digit" })
+                      .toUpperCase();
+                    const mes = d
+                      .toLocaleDateString("es-CL", { month: "short" })
+                      .replace(".", "")
+                      .toUpperCase();
+                    return (
+                      <li key={gig.id} className="flex items-stretch bg-white">
+                        <div className="bg-ink text-cream px-4 py-3 flex flex-col items-center justify-center shrink-0 min-w-[72px]">
+                          <span
+                            className="font-display leading-none text-2xl"
+                            style={{
+                              fontFamily:
+                                "var(--font-anton), Impact, system-ui, sans-serif",
+                            }}
+                          >
+                            {dia}
+                          </span>
+                          <span className="font-mono text-[9px] tracking-[0.1em] mt-1 text-orange">
+                            {mes}
+                          </span>
+                        </div>
+                        <div className="px-4 py-3 flex-1 min-w-0">
+                          <div className="font-bold text-sm truncate">
+                            {gig.title}
+                          </div>
+                          {gig.location && (
+                            <div className="text-xs text-fg-muted truncate mt-0.5">
+                              {gig.location}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            )}
 
             {/* ── MÚSICA ── */}
             {(sc || yt || sp || web) && (
@@ -404,6 +488,50 @@ export default async function PresskitPublicPage({ params }: PageProps) {
           {/* ────── COLUMNA DERECHA: contacto sticky card naranja ────── */}
           <aside id="contacto" className="scroll-mt-20">
             <div className="md:sticky md:top-20">
+              {/* Sprint RA-1 — Información de reserva destacada (estilo RA).
+                  Si el DJ tiene email/whatsapp, se muestran como texto claro
+                  antes de los botones de acción. */}
+              {(email || profile.whatsapp) && (
+                <div className="bg-white border-2 border-ink p-4 mb-4">
+                  <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
+                    — INFORMACIÓN DE RESERVA
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    {email && (
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+                          Email
+                        </span>
+                        <TrackedLink
+                          href={`mailto:${email}`}
+                          userId={profile.user_id}
+                          event="click_email"
+                          className="font-medium text-ink hover:text-orange transition-colors break-all"
+                        >
+                          {email}
+                        </TrackedLink>
+                      </div>
+                    )}
+                    {profile.whatsapp && wa && (
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+                          WhatsApp
+                        </span>
+                        <TrackedLink
+                          href={wa}
+                          userId={profile.user_id}
+                          event="click_whatsapp"
+                          external
+                          className="font-medium text-ink hover:text-orange transition-colors"
+                        >
+                          +{profile.whatsapp.replace(/[^0-9]/g, "")}
+                        </TrackedLink>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Acciones rápidas arriba */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {wa && (
