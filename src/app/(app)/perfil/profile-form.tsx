@@ -315,6 +315,21 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
           Tech rider & hospitality
         </h2>
+        <div className="p-3 bg-accent-soft border-2 border-accent/30 text-xs text-fg">
+          <span className="font-mono font-bold uppercase tracking-wider text-accent">
+            — Tip:
+          </span>{" "}
+          Estos campos libres son <strong>notas adicionales</strong>. Para tu
+          rider detallado por categoría (con cantidades y equipo alternativo),
+          usa el{" "}
+          <a
+            href="/configuracion"
+            className="underline underline-offset-2 text-accent"
+          >
+            editor estructurado en Configuración
+          </a>
+          . Si rellenas ambos, los dos aparecen en tu press kit público.
+        </div>
         <div className="space-y-2">
           <Label htmlFor="tech_rider_ideal">Tech rider ideal</Label>
           <Textarea

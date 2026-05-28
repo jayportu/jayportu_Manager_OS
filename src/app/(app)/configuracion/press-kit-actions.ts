@@ -12,7 +12,7 @@ function err(e: unknown): { ok: false; error: string } {
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB (mismo límite del bucket)
+const MAX_BYTES = 25 * 1024 * 1024; // 25 MB (mismo límite del bucket, migración 0025)
 const BUCKET = "press-kits";
 
 /**
@@ -44,7 +44,7 @@ export async function uploadPressKitPdfAction(
     if (file.size > MAX_BYTES) {
       return {
         ok: false,
-        error: `El archivo supera 10 MB (es ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
+        error: `El archivo supera 25 MB (es ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
       };
     }
     if (file.type !== "application/pdf") {

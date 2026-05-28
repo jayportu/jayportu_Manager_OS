@@ -58,8 +58,8 @@ export function PressKitSection({
       e.target.value = "";
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("El archivo supera 10 MB");
+    if (file.size > 25 * 1024 * 1024) {
+      setError("El archivo supera 25 MB");
       e.target.value = "";
       return;
     }
@@ -200,7 +200,7 @@ export function PressKitSection({
         ) : (
           <div>
             <p className="text-xs text-fg-muted mb-3">
-              Si ya tienes un press kit diseñado en PDF, súbelo. Máximo 10 MB.
+              Si ya tienes un press kit diseñado en PDF, súbelo. Máximo 25 MB.
             </p>
             <Button onClick={chooseFile} disabled={isPending} size="sm">
               <Upload className="w-3.5 h-3.5" />

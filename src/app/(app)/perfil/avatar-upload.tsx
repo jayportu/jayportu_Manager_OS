@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { uploadAvatarAction, deleteAvatarAction } from "./avatar-actions";
+import { AvatarLightbox } from "@/components/avatar-lightbox";
 
 interface AvatarUploadProps {
   initialUrl: string;
@@ -56,16 +57,16 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
         — Foto de perfil
       </span>
       <div className="flex items-center gap-4">
-        {/* Preview circular */}
-        <div className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-ink bg-ink flex items-center justify-center">
-          {url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={url}
-              alt="Foto de perfil"
-              className="w-full h-full object-cover"
-            />
-          ) : (
+        {/* Preview circular (click → tamaño real) */}
+        {url ? (
+          <AvatarLightbox
+            src={url}
+            alt="Foto de perfil"
+            className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-ink bg-ink"
+            imgClassName="w-full h-full object-cover transition-transform group-hover:scale-[1.05]"
+          />
+        ) : (
+          <div className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-ink bg-ink flex items-center justify-center">
             <span
               className="text-orange"
               style={{
@@ -76,8 +77,8 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
             >
               {initial}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">

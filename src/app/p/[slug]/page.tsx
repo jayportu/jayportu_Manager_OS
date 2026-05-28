@@ -13,6 +13,7 @@ import { SoundcloudEmbed, YoutubeEmbed } from "./embeds";
 import { PdfPressKit } from "./pdf-press-kit";
 import { TechRiderRender } from "./tech-rider-render";
 import { StagePlot } from "./stage-plot";
+import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { whatsappLink, normalizeUrl } from "@/lib/format";
 import type { Metadata } from "next";
@@ -125,13 +126,12 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Foto de perfil */}
+          {/* Foto de perfil (click → tamaño real) */}
           {profile.avatar_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <AvatarLightbox
               src={profile.avatar_url}
               alt={artistName}
-              className="mt-6 w-20 h-20 md:w-28 md:h-28 rounded-full object-cover border-4 border-orange"
+              className="mt-6 block w-20 h-20 md:w-28 md:h-28"
             />
           )}
 
@@ -329,6 +329,34 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   items={riderItems}
                   hospitalityNote={profile.hospitality}
                 />
+
+                {/* Notas adicionales del rider (campos legacy del perfil) —
+                    visibles SOLO si el DJ los rellenó, además del rider
+                    estructurado. Evita que su texto se pierda en público. */}
+                {(profile.tech_rider_ideal || profile.tech_rider_alt) && (
+                  <div className="mt-4 grid md:grid-cols-2 gap-4">
+                    {profile.tech_rider_ideal && (
+                      <div className="p-4 border-2 border-ink bg-white">
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                          NOTAS · IDEAL
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                          {profile.tech_rider_ideal}
+                        </div>
+                      </div>
+                    )}
+                    {profile.tech_rider_alt && (
+                      <div className="p-4 border-2 border-ink bg-white">
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                          NOTAS · ALTERNATIVO
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                          {profile.tech_rider_alt}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </section>
             ) : (
               (profile.tech_rider_ideal || profile.tech_rider_alt) && (
