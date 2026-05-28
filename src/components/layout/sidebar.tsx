@@ -96,7 +96,7 @@ export function Sidebar({
       {/* Logo + LIVE indicator */}
       <div className="relative z-10 shrink-0 px-[22px] pt-[22px] pb-[18px] border-b-2 border-orange flex items-start justify-between">
         <span
-          className="select-none"
+          className="select-none animate-logo-strobe"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
             fontSize: "56px",

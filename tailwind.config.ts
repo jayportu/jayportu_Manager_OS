@@ -128,12 +128,29 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.3" },
         },
+        "logo-strobe": {
+          "0%, 86%, 100%": { transform: "translate(0, 0)", textShadow: "none" },
+          "87%": {
+            transform: "translate(-2px, 1px)",
+            textShadow: "2px 0 #FF5C00, -2px 0 #00E0FF",
+          },
+          "89%": {
+            transform: "translate(2px, -1px)",
+            textShadow: "-2px 0 #FF5C00, 2px 0 #00E0FF",
+          },
+          "91%": {
+            transform: "translate(-1px, 0)",
+            textShadow: "2px 0 #FF5C00, -2px 0 #00E0FF",
+          },
+          "93%": { transform: "translate(0, 0)", textShadow: "none" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "ticker-scroll": "ticker-scroll 28s linear infinite",
         blink: "blink 1.5s ease-in-out infinite",
+        "logo-strobe": "logo-strobe 3.5s steps(1) infinite",
       },
     },
   },
