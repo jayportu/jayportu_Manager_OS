@@ -330,9 +330,9 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   hospitalityNote={profile.hospitality}
                 />
 
-                {/* Notas adicionales del rider (campos legacy del perfil) —
-                    visibles SOLO si el DJ los rellenó, además del rider
-                    estructurado. Evita que su texto se pierda en público. */}
+                {/* Notas legacy del perfil. Visibles mientras el DJ no
+                    haya migrado al editor estructurado (puede vaciarlas
+                    desde Configuración cuando termine). */}
                 {(profile.tech_rider_ideal || profile.tech_rider_alt) && (
                   <div className="mt-4 grid md:grid-cols-2 gap-4">
                     {profile.tech_rider_ideal && (

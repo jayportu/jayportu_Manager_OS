@@ -73,9 +73,9 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       website: form.website,
       public_email: form.public_email,
       whatsapp: form.whatsapp,
-      tech_rider_ideal: form.tech_rider_ideal,
-      tech_rider_alt: form.tech_rider_alt,
-      hospitality: form.hospitality,
+      // tech_rider_ideal / tech_rider_alt / hospitality: legacy fields,
+      // ya NO se editan desde acá (movido a /configuracion · tech rider).
+      // Las columnas quedan en DB con su valor anterior por back-compat.
     };
 
     startTransition(async () => {
@@ -310,56 +310,23 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         </div>
       </Card>
 
-      {/* Tech rider */}
-      <Card className="p-6 space-y-4">
+      {/* Tech rider — movido a Configuración (editor estructurado) */}
+      <Card className="p-6 space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
           Tech rider & hospitality
         </h2>
-        <div className="p-3 bg-accent-soft border-2 border-accent/30 text-xs text-fg">
-          <span className="font-mono font-bold uppercase tracking-wider text-accent">
-            — Tip:
-          </span>{" "}
-          Estos campos libres son <strong>notas adicionales</strong>. Para tu
-          rider detallado por categoría (con cantidades y equipo alternativo),
-          usa el{" "}
-          <a
-            href="/configuracion"
-            className="underline underline-offset-2 text-accent"
-          >
-            editor estructurado en Configuración
-          </a>
-          . Si rellenas ambos, los dos aparecen en tu press kit público.
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="tech_rider_ideal">Tech rider ideal</Label>
-          <Textarea
-            id="tech_rider_ideal"
-            value={form.tech_rider_ideal}
-            onChange={(e) => update("tech_rider_ideal", e.target.value)}
-            rows={3}
-            placeholder="1x Pioneer DJM-V10 + 3x CDJ-3000 (LINKED) + 1x Booth monitor"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="tech_rider_alt">Tech rider alternativo</Label>
-          <Textarea
-            id="tech_rider_alt"
-            value={form.tech_rider_alt}
-            onChange={(e) => update("tech_rider_alt", e.target.value)}
-            rows={3}
-            placeholder="1x Allen & Heath Xone 92/96 + 3x XDJ-1000MK2 (LINKED) + 1x Booth monitor"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="hospitality">Hospitality</Label>
-          <Textarea
-            id="hospitality"
-            value={form.hospitality}
-            onChange={(e) => update("hospitality", e.target.value)}
-            rows={2}
-            placeholder="Agua mineral con gas · Red Bull Sugar Free"
-          />
-        </div>
+        <p className="text-sm text-fg-muted">
+          Tu tech rider y hospitality ahora se editan desde el{" "}
+          <strong>editor estructurado</strong> en Configuración: cada equipo
+          con su categoría, cantidad y alternativo. Eso alimenta tu press kit
+          y el stage plot automático.
+        </p>
+        <a
+          href="/configuracion#tech-rider"
+          className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors w-fit"
+        >
+          Editar tech rider →
+        </a>
       </Card>
 
       {/* Submit */}

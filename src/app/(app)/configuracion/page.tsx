@@ -42,8 +42,13 @@ export default async function ConfiguracionPage() {
         <AvailabilitySection profile={profile} />
       </div>
 
-      <div className="mt-12 pt-8 border-t border-border">
-        <TechRiderSection initialItems={riderItems} />
+      <div id="tech-rider" className="mt-12 pt-8 border-t border-border scroll-mt-24">
+        <TechRiderSection
+          initialItems={riderItems}
+          legacyTechRiderIdeal={profile.tech_rider_ideal}
+          legacyTechRiderAlt={profile.tech_rider_alt}
+          legacyHospitality={profile.hospitality}
+        />
       </div>
 
       <div id="auto-post" className="mt-12 pt-8 border-t border-border scroll-mt-24">

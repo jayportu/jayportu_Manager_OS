@@ -27,6 +27,12 @@ import {
 
 interface Props {
   initialItems: TechRiderItem[];
+  /** Notas legacy del ProfileForm (rider ideal/alt + hospitality libre).
+   *  Si existen, se muestran en modo lectura para que el DJ las pase al
+   *  editor estructurado. Las columnas siguen en DB hasta migración manual. */
+  legacyTechRiderIdeal?: string;
+  legacyTechRiderAlt?: string;
+  legacyHospitality?: string;
 }
 
 const CATEGORY_DESCRIPTIONS: Record<RiderCategory, string> = {
@@ -63,7 +69,16 @@ const CATEGORY_SUGGESTIONS: Record<RiderCategory, string[]> = {
   otros: [],
 };
 
-export function TechRiderSection({ initialItems }: Props) {
+export function TechRiderSection({
+  initialItems,
+  legacyTechRiderIdeal,
+  legacyTechRiderAlt,
+  legacyHospitality,
+}: Props) {
+  const hasLegacy =
+    (legacyTechRiderIdeal && legacyTechRiderIdeal.trim().length > 0) ||
+    (legacyTechRiderAlt && legacyTechRiderAlt.trim().length > 0) ||
+    (legacyHospitality && legacyHospitality.trim().length > 0);
   const router = useRouter();
   const [items, setItems] = useState<TechRiderItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
@@ -235,6 +250,52 @@ export function TechRiderSection({ initialItems }: Props) {
           }`}
         >
           {message.text}
+        </div>
+      )}
+
+      {hasLegacy && (
+        <div className="border-2 border-accent bg-accent-soft p-4 space-y-3">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-accent">
+            — Notas antiguas en tu perfil
+          </div>
+          <p className="text-xs text-fg">
+            Antes el tech rider se escribía como texto libre. Esto se va a
+            mostrar en tu press kit hasta que pases la info al editor de
+            categorías de abajo (más limpio + permite stage plot
+            automático). Cuando termines de migrar, dime y limpiamos.
+          </p>
+          <div className="grid md:grid-cols-2 gap-3">
+            {legacyTechRiderIdeal && legacyTechRiderIdeal.trim().length > 0 && (
+              <div className="border border-ink bg-cream p-3">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                  IDEAL
+                </div>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {legacyTechRiderIdeal}
+                </div>
+              </div>
+            )}
+            {legacyTechRiderAlt && legacyTechRiderAlt.trim().length > 0 && (
+              <div className="border border-ink bg-cream p-3">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                  ALTERNATIVO
+                </div>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {legacyTechRiderAlt}
+                </div>
+              </div>
+            )}
+            {legacyHospitality && legacyHospitality.trim().length > 0 && (
+              <div className="border border-ink bg-cream p-3 md:col-span-2">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                  HOSPITALITY
+                </div>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {legacyHospitality}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
