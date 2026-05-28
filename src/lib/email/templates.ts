@@ -380,6 +380,130 @@ DROP — The DJ OS — Santiago, Chile
 Recibes este correo porque reportaste un bug en la beta. Si no quieres más, respondes "unsubscribe".`;
 }
 
+/**
+ * Sprint RA-3 — Email digest de updates de un DJ para sus followers.
+ * Se manda diariamente vía cron a cada booker con notify_email=true,
+ * agregando todos los updates del DJ en las últimas 24h.
+ */
+export interface FollowUpdate {
+  type: "show_scheduled" | "availability_updated";
+  title: string;
+  detail?: string;
+}
+
+export function followUpdatesEmailHtml(input: {
+  bookerName: string;
+  djArtistName: string;
+  djSlug: string;
+  updates: FollowUpdate[];
+  dashboardUrl: string;
+  siteUrl: string;
+}): string {
+  const updatesHtml = input.updates
+    .map(
+      (u) => `
+              <li style="margin:0 0 12px 0;">
+                <strong>${escapeHtml(u.title)}</strong>${
+                u.detail
+                  ? `<br/><span style="color:#7A7670; font-size:14px;">${escapeHtml(u.detail)}</span>`
+                  : ""
+              }
+              </li>`
+    )
+    .join("");
+  const profileUrl = `${input.siteUrl}/p/${input.djSlug}`;
+  return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>${escapeHtml(input.djArtistName)} actualizó su agenda</title>
+</head>
+<body style="margin:0; padding:0; background:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; color:#0A0A0A; line-height:1.5;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px; width:100%;">
+          <tr>
+            <td style="padding:0 8px 24px 8px;">
+              <div style="font-size:13px; color:#555; letter-spacing:0.5px;">
+                DROP<span style="color:#FF5C00;">.</span> &nbsp;—&nbsp; The DJ OS
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 8px;">
+              <p style="font-size:16px; margin:0 0 16px 0;">
+                Hola ${escapeHtml(input.bookerName)},
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                <strong>${escapeHtml(input.djArtistName)}</strong>, que sigues, tiene novedades:
+              </p>
+              <ul style="font-size:15px; margin:0 0 20px 20px; padding:0;">
+                ${updatesHtml}
+              </ul>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                <a href="${profileUrl}" style="display:inline-block; padding:12px 18px; background:#0A0A0A; color:#FF5C00; text-decoration:none; font-family:'Space Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; border:2px solid #0A0A0A;">Ver perfil de ${escapeHtml(input.djArtistName)} →</a>
+              </p>
+              <p style="font-size:13px; color:#7A7670; margin:0 0 16px 0;">
+                ¿Recibes muchos avisos? Puedes pausar las notificaciones desde el perfil del DJ o desde tu feed de seguidos en DROP.
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:#FF5C00;">.</span> Team
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 8px 0 8px; border-top:1px solid #E5E1D8;">
+              <p style="font-size:12px; color:#7A7670; margin:16px 0 4px 0;">
+                Recibes este email porque sigues a ${escapeHtml(input.djArtistName)} con avisos activados en DROP. Puedes pausarlos en cualquier momento desde su perfil.
+              </p>
+              <p style="font-size:12px; color:#7A7670; margin:8px 0 0 0;">
+                DROP — Santiago, Chile
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function followUpdatesEmailText(input: {
+  bookerName: string;
+  djArtistName: string;
+  djSlug: string;
+  updates: FollowUpdate[];
+  siteUrl: string;
+}): string {
+  const lines = input.updates
+    .map((u, i) => {
+      const head = `${i + 1}. ${u.title}`;
+      return u.detail ? `${head}\n   ${u.detail}` : head;
+    })
+    .join("\n");
+  const profileUrl = `${input.siteUrl}/p/${input.djSlug}`;
+  return `Hola ${input.bookerName},
+
+${input.djArtistName}, que sigues, tiene novedades:
+
+${lines}
+
+Ver perfil: ${profileUrl}
+
+¿Recibes muchos avisos? Puedes pausar las notificaciones desde el perfil del DJ o desde tu feed de seguidos en DROP.
+
+Saludos,
+DROP. Team
+
+--
+DROP — The DJ OS — Santiago, Chile
+Recibes este correo porque sigues a ${input.djArtistName} con avisos activados. Puedes pausarlos en cualquier momento desde su perfil.`;
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
