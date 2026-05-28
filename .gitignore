@@ -37,3 +37,10 @@ next-env.d.ts
 
 # Claude Code config
 .claude/
+
+# Artefactos generados por scripts/ — regenerables, no van a git
+/*.docx
+/*.pptx
+/drop_brandbook.pdf
+/drop_reels_output/
+/drop_ig_assets/
