@@ -343,6 +343,24 @@ export async function updateBookingWorkflow(
       }
     }
     updateObj.agendado_at = new Date().toISOString();
+
+    // RA-3 Fase 2 — Emit "show_scheduled" event para que el cron
+    // notifique a los followers del DJ con notify_email=true. No bloquea
+    // la transición si falla.
+    try {
+      await supabase.from("dj_update_events").insert({
+        dj_user_id: user.id,
+        type: "show_scheduled",
+        payload: {
+          booking_id: b.id,
+          title: `${b.name}${b.venue ? ` · ${b.venue}` : ""}`,
+          venue: b.venue || null,
+          event_date: patch.event_date ?? b.event_date ?? null,
+        },
+      });
+    } catch (e) {
+      console.error("dj_update_events insert failed:", e);
+    }
   }
 
   // Auto-action: si hay follow_up activo de la serie y el booking pasa a
