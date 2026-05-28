@@ -103,6 +103,30 @@ export async function deleteRiderItemAction(
 }
 
 /**
+ * Limpia los textareas legacy de tech rider (tech_rider_ideal,
+ * tech_rider_alt, hospitality) cuando el DJ ya migró todo al editor
+ * estructurado. Self-serve desde TechRiderSection.
+ */
+export async function clearLegacyTechRiderAction(): Promise<
+  { ok: true } | { ok: false; error: string }
+> {
+  try {
+    await updateMyProfile({
+      tech_rider_ideal: "",
+      tech_rider_alt: "",
+      hospitality: "",
+    } as DjProfileUpdate);
+    revalidatePath("/configuracion");
+    revalidatePath("/perfil");
+    revalidatePath("/p/[slug]", "page");
+    return { ok: true };
+  } catch (e) {
+    const error = e instanceof Error ? e.message : "Error desconocido";
+    return { ok: false, error };
+  }
+}
+
+/**
  * Sprint 21 — Actualiza la config del webhook de auto-post (Zapier/Make/n8n).
  */
 export async function updateAutoPostAction(patch: {

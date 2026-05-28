@@ -4,6 +4,7 @@ import {
   listBetaReminderRecipients,
 } from "./actions";
 import { BetaReminderClient } from "./beta-reminder-client";
+import { SantisFollowupButton } from "./santis-followup-button";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +113,25 @@ export default async function BetaReminderPage() {
             limit del plan free.
           </span>
         </div>
+      </Card>
+
+      {/* Email puntual de seguimiento a un bug reporter (SANTIS) */}
+      <Card className="p-6 space-y-4 mt-8">
+        <div>
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
+            — Bug followup
+          </div>
+          <h2 className="font-display text-2xl leading-none mt-2">
+            Agradecer a SANTIS<span className="text-orange">.</span>
+          </h2>
+          <p className="text-sm text-fg-muted mt-2 max-w-2xl">
+            Email puntual a SANTIS para cerrarle el loop del bug del tech
+            rider que reportó. Le agrada el reporte, le cuenta qué se
+            arregló y le pide que pruebe en /perfil, /configuracion y su
+            press kit público.
+          </p>
+        </div>
+        <SantisFollowupButton />
       </Card>
     </div>
   );

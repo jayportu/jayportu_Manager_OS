@@ -261,6 +261,125 @@ DROP — The DJ OS — Santiago, Chile
 Recibes este correo porque estás participando en la beta cerrada. Si no quieres más mensajes, respondes "unsubscribe" y te quito.`;
 }
 
+/**
+ * Email puntual de agradecimiento + invitación a probar un fix específico.
+ * Pensado para usuarios beta que reportaron un bug y queremos cerrarles el
+ * loop cuando se deploya el arreglo. Tres "puntos a verificar" custom.
+ */
+export function bugFixFollowupEmailHtml(input: {
+  artistName: string;
+  bugTitle: string;
+  fixSummary: string;
+  checkPoints: Array<{ label: string; url: string }>;
+  dashboardUrl: string;
+}): string {
+  const points = input.checkPoints
+    .map(
+      (p, i) => `
+              <li style="margin:0 0 10px 0;">
+                <strong>${escapeHtml(p.label)}</strong> —
+                <a href="${p.url}" style="color:#0A0A0A; text-decoration:underline;">${p.url}</a>
+              </li>`
+    )
+    .join("");
+  return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tu reporte: ${escapeHtml(input.bugTitle)}</title>
+</head>
+<body style="margin:0; padding:0; background:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; color:#0A0A0A; line-height:1.5;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px; width:100%;">
+          <tr>
+            <td style="padding:0 8px 24px 8px;">
+              <div style="font-size:13px; color:#555; letter-spacing:0.5px;">
+                DROP<span style="color:#FF5C00;">.</span> &nbsp;—&nbsp; The DJ OS
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 8px;">
+              <p style="font-size:16px; margin:0 0 16px 0;">
+                Hola ${escapeHtml(input.artistName)},
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Antes que nada, <strong>gracias por avisar del problema con el tech rider</strong>. Reportes así son lo que más me ayuda a mejorar DROP durante esta beta.
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                ${escapeHtml(input.fixSummary)}
+              </p>
+              <p style="font-size:15px; margin:0 0 12px 0;">
+                Te invito a chequear que todo se vea como esperás en estos tres lugares:
+              </p>
+              <ol style="font-size:15px; margin:0 0 20px 20px; padding:0;">
+                ${points}
+              </ol>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Si algo todavía no calza, respondes este correo y lo seguimos puliendo. Cualquier feedback adicional es bienvenido.
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                <a href="${input.dashboardUrl}" style="color:#0A0A0A; text-decoration:underline;">Abrir DROP</a>
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:#FF5C00;">.</span> Team
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 8px 0 8px; border-top:1px solid #E5E1D8; margin-top:32px;">
+              <p style="font-size:12px; color:#7A7670; margin:16px 0 4px 0;">
+                Recibes este correo porque reportaste un bug en la beta de DROP y queremos cerrarte el loop. Si prefieres no recibir más, respondes "unsubscribe".
+              </p>
+              <p style="font-size:12px; color:#7A7670; margin:8px 0 0 0;">
+                DROP — Santiago, Chile
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function bugFixFollowupEmailText(input: {
+  artistName: string;
+  bugTitle: string;
+  fixSummary: string;
+  checkPoints: Array<{ label: string; url: string }>;
+  dashboardUrl: string;
+}): string {
+  const points = input.checkPoints
+    .map((p, i) => `${i + 1}. ${p.label} — ${p.url}`)
+    .join("\n");
+  return `Hola ${input.artistName},
+
+Antes que nada, gracias por avisar del problema con el tech rider. Reportes así son lo que más me ayuda a mejorar DROP durante esta beta.
+
+${input.fixSummary}
+
+Te invito a chequear que todo se vea como esperás en estos tres lugares:
+
+${points}
+
+Si algo todavía no calza, respondes este correo y lo seguimos puliendo. Cualquier feedback adicional es bienvenido.
+
+Abrir DROP: ${input.dashboardUrl}
+
+Saludos,
+DROP. Team
+
+--
+DROP — The DJ OS — Santiago, Chile
+Recibes este correo porque reportaste un bug en la beta. Si no quieres más, respondes "unsubscribe".`;
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")

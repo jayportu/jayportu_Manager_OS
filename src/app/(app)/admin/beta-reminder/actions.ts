@@ -15,6 +15,8 @@ import { sendEmail, isResendConfigured } from "@/lib/email/resend";
 import {
   betaReminderEmailHtml,
   betaReminderEmailText,
+  bugFixFollowupEmailHtml,
+  bugFixFollowupEmailText,
 } from "@/lib/email/templates";
 import { logUsageEvent } from "@/lib/queries/beta";
 
@@ -222,6 +224,123 @@ export async function sendBetaReminderToAllAction(): Promise<
     });
 
     return { ok: true, sent, failed, results };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}
+
+/**
+ * Email puntual de seguimiento al bug del tech rider que reportó SANTIS.
+ * Lo agradece, le cuenta qué se arregló y le pide probar tres puntos
+ * (perfil sin textareas, configuración con notas legacy, press kit
+ * público).
+ *
+ * Hardcoded para SANTIS por su public_slug. Si en el futuro queremos
+ * generalizar, refactorizar a (slug | userId) en el input.
+ */
+const SANTIS_PUBLIC_SLUG = "jay-efeb8263";
+
+export async function sendSantisTechRiderFollowupAction(): Promise<
+  | { ok: true; emailId: string; email: string }
+  | { ok: false; error: string }
+> {
+  try {
+    await assertAdmin();
+
+    if (!isResendConfigured()) {
+      return { ok: false, error: "Resend no está configurado en este entorno." };
+    }
+
+    const admin = createAdminClient();
+    const { data: profile, error: profErr } = await admin
+      .from("dj_profile")
+      .select("user_id, artist_name, public_slug")
+      .eq("public_slug", SANTIS_PUBLIC_SLUG)
+      .maybeSingle();
+    if (profErr) return { ok: false, error: profErr.message };
+    if (!profile) return { ok: false, error: "SANTIS no encontrado por slug." };
+
+    // Email vía admin.auth (no expuesto en dj_profile)
+    const { data: userResp, error: userErr } =
+      await admin.auth.admin.getUserById(profile.user_id as string);
+    if (userErr) return { ok: false, error: userErr.message };
+    const email = userResp.user?.email;
+    if (!email) return { ok: false, error: "SANTIS sin email en auth." };
+
+    const siteUrl = getSiteUrl();
+    const dashboardUrl = `${siteUrl}/dashboard`;
+    const artistName = (profile.artist_name as string) || "SANTIS";
+
+    const fixSummary =
+      "Ya está deployado el arreglo: los textareas de tech rider salieron de /perfil (ahí solo queda un acceso al editor estructurado), y tus notas antiguas siguen visibles en Configuración para que las migres al editor por categoría. Las notas también siguen apareciendo en tu press kit público mientras tanto, así no se pierde nada.";
+
+    const checkPoints = [
+      {
+        label: "Tu perfil (ya sin textareas de tech rider)",
+        url: `${siteUrl}/perfil`,
+      },
+      {
+        label: "Configuración · tu editor estructurado + notas antiguas",
+        url: `${siteUrl}/configuracion#tech-rider`,
+      },
+      {
+        label: "Tu press kit público (sigue mostrando todo)",
+        url: `${siteUrl}/p/${SANTIS_PUBLIC_SLUG}`,
+      },
+    ];
+
+    const subject = "Tu reporte del tech rider — ya está arreglado";
+    const html = bugFixFollowupEmailHtml({
+      artistName,
+      bugTitle: "tech rider",
+      fixSummary,
+      checkPoints,
+      dashboardUrl,
+    });
+    const text = bugFixFollowupEmailText({
+      artistName,
+      bugTitle: "tech rider",
+      fixSummary,
+      checkPoints,
+      dashboardUrl,
+    });
+
+    const res = await sendEmail({
+      to: email,
+      subject,
+      html,
+      text,
+      replyTo: process.env.RESEND_REPLY_TO || "hola@jayportu.com",
+    });
+
+    if (!res.ok) {
+      await logUsageEvent({
+        event: "bug_followup_failed",
+        page: "/admin/beta-reminder",
+        metadata: {
+          recipient_user_id: profile.user_id,
+          recipient_artist_name: artistName,
+          recipient_email: email,
+          bug: "tech_rider",
+          error: res.error,
+        },
+      });
+      return { ok: false, error: res.error };
+    }
+
+    await logUsageEvent({
+      event: "bug_followup_sent",
+      page: "/admin/beta-reminder",
+      metadata: {
+        recipient_user_id: profile.user_id,
+        recipient_artist_name: artistName,
+        recipient_email: email,
+        bug: "tech_rider",
+        resend_email_id: res.id,
+      },
+    });
+
+    return { ok: true, emailId: res.id, email };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
   }

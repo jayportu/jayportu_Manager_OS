@@ -23,6 +23,7 @@ import {
   addRiderItemAction,
   updateRiderItemAction,
   deleteRiderItemAction,
+  clearLegacyTechRiderAction,
 } from "./actions";
 
 interface Props {
@@ -255,14 +256,47 @@ export function TechRiderSection({
 
       {hasLegacy && (
         <div className="border-2 border-accent bg-accent-soft p-4 space-y-3">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-accent">
-            — Notas antiguas en tu perfil
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-accent">
+              — Notas antiguas en tu perfil
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => {
+                if (
+                  !confirm(
+                    "Esto borra el texto libre de tech rider ideal, alternativo y hospitality. La info del editor estructurado de abajo NO se toca. ¿Continuar?"
+                  )
+                )
+                  return;
+                setMessage(null);
+                startTransition(async () => {
+                  const result = await clearLegacyTechRiderAction();
+                  if (result.ok) {
+                    setMessage({
+                      type: "ok",
+                      text: "Notas antiguas limpiadas.",
+                    });
+                    router.refresh();
+                  } else {
+                    setMessage({ type: "err", text: result.error });
+                  }
+                });
+              }}
+              className="shrink-0"
+            >
+              Limpiar notas antiguas
+            </Button>
           </div>
           <p className="text-xs text-fg">
             Antes el tech rider se escribía como texto libre. Esto se va a
             mostrar en tu press kit hasta que pases la info al editor de
             categorías de abajo (más limpio + permite stage plot
-            automático). Cuando termines de migrar, dime y limpiamos.
+            automático). Cuando termines, clickea {"\""}Limpiar notas
+            antiguas{"\""}.
           </p>
           <div className="grid md:grid-cols-2 gap-3">
             {legacyTechRiderIdeal && legacyTechRiderIdeal.trim().length > 0 && (
