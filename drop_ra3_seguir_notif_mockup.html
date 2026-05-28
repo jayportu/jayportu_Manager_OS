@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DROP. — Mockup RA-3 · Seguir + notificaciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --cream: #F4EFE7;
+      --ink: #0A0A0A;
+      --orange: #FF5C00;
+      --mute: #6B6B6B;
+      --subtle: #B8AE9C;
+      --panel: #fff;
+      --line: #E5E1D8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, -apple-system, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    .display { font-family: Anton, Impact, sans-serif; line-height: 0.9; }
+    .mono { font-family: 'Space Mono', monospace; letter-spacing: 0.08em; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 40px 28px 80px; }
+
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 14px;
+    }
+    .topbar h1 { font-family: Anton, Impact, sans-serif; font-size: 40px; margin: 0; }
+    .topbar h1 .dot { color: var(--orange); }
+    .topbar p { margin: 6px 0 0; max-width: 600px; font-size: 14px; color: var(--mute); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border: 2px solid var(--ink);
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px 14px;
+      background: var(--cream);
+      color: var(--ink);
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: none;
+      border-right: 2px solid var(--ink);
+      transition: background-color .15s ease, color .15s ease;
+      text-align: left;
+    }
+    .tab:last-child { border-right: none; }
+    .tab:hover { background: var(--ink); color: var(--orange); }
+    .tab.is-active { background: var(--orange); color: var(--ink); }
+    .tab .count {
+      display: inline-block;
+      background: var(--ink);
+      color: var(--orange);
+      font-size: 9px;
+      padding: 2px 5px;
+      margin-left: 6px;
+    }
+    .tab.is-active .count { background: var(--cream); color: var(--ink); }
+
+    .pane { display: none; }
+    .pane.is-active { display: block; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 880px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .notes {
+      border: 2px solid var(--ink);
+      background: #fff;
+      padding: 16px 18px;
+    }
+    .notes h3 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 22px;
+      margin: 0 0 6px;
+    }
+    .notes h3 .dot { color: var(--orange); }
+    .notes .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .notes ul { padding-left: 18px; margin: 8px 0 0; font-size: 13px; color: var(--ink); }
+    .notes li { margin-bottom: 6px; }
+    .notes code {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      background: var(--cream);
+      padding: 1px 5px;
+      border: 1px solid var(--line);
+    }
+
+    /* ─── Tab 1: Página del DJ ─── */
+    .dj-card {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 4px solid var(--orange);
+    }
+    .dj-card .kicker {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 6px;
+    }
+    .dj-card .actions {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      display: flex;
+      gap: 8px;
+    }
+    .dj-card .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--orange);
+      margin-top: 14px;
+    }
+    .dj-card h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 60px;
+      line-height: 0.9;
+      margin: 12px 0 8px;
+    }
+    .dj-card h2 .dot { color: var(--orange); }
+    .dj-card .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+    .dj-card .meta .chip {
+      border: 1px solid rgba(244,239,231,0.3);
+      padding: 4px 8px;
+    }
+
+    .follow-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--cream);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+    .follow-btn:hover { background: var(--orange); }
+    .follow-btn.is-following {
+      background: var(--orange);
+      color: var(--ink);
+    }
+    .follow-btn.is-following:hover { background: var(--cream); }
+    .heart-btn {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--ink);
+      background: var(--cream);
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .heart-btn.is-fav { background: var(--orange); color: var(--ink); }
+    .heart-btn.is-fav svg { fill: var(--ink); }
+
+    .notif-toggle {
+      margin-top: 16px;
+      padding: 14px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .notif-toggle .pill {
+      width: 44px;
+      height: 24px;
+      border: 2px solid var(--ink);
+      background: var(--cream);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color .2s ease;
+    }
+    .notif-toggle .pill::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: var(--ink);
+      transition: transform .2s ease;
+    }
+    .notif-toggle.is-on .pill { background: var(--orange); }
+    .notif-toggle.is-on .pill::after { transform: translateX(20px); }
+    .notif-toggle .text { flex: 1; font-size: 13px; color: var(--ink); }
+    .notif-toggle .text strong { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.08em; }
+    .notif-toggle .text .help { color: var(--mute); font-size: 11px; margin-top: 2px; }
+
+    /* ─── Tab 2: Feed ─── */
+    .feed-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--ink);
+    }
+    .feed-header h2 { font-family: Anton, Impact, sans-serif; font-size: 32px; margin: 0; }
+    .feed-header h2 .dot { color: var(--orange); }
+    .feed-header .stat {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    .feed-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .feed-tab {
+      padding: 8px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--mute);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+    }
+    .feed-tab.is-active {
+      color: var(--ink);
+      border-bottom-color: var(--orange);
+    }
+    .feed-tab .badge {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--ink);
+      font-size: 9px;
+      padding: 1px 5px;
+      margin-left: 4px;
+    }
+
+    .update-card {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 14px;
+      padding: 14px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      margin-bottom: 10px;
+      align-items: start;
+    }
+    .update-card.is-unread {
+      background: var(--cream);
+      border-color: var(--orange);
+    }
+    .update-card .av {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Anton, Impact, sans-serif;
+      font-size: 28px;
+      object-fit: cover;
+      overflow: hidden;
+    }
+    .update-card .av img { width: 100%; height: 100%; object-fit: cover; }
+    .update-card .body { min-width: 0; }
+    .update-card .who {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 20px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .update-card .what {
+      font-size: 13px;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .update-card .what strong { color: var(--orange); }
+    .update-card .when {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    .update-card .ago {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mute);
+      white-space: nowrap;
+    }
+    .update-card.is-unread .ago::before {
+      content: '●';
+      color: var(--orange);
+      margin-right: 4px;
+    }
+
+    .empty-hint {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--mute);
+      font-size: 14px;
+    }
+
+    /* ─── Tab 3: Email ─── */
+    .email-frame {
+      background: #fff;
+      border: 2px solid var(--ink);
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 8px 8px 0 0 var(--orange);
+    }
+    .email-frame .header {
+      background: var(--cream);
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--line);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+    }
+    .email-frame .header strong { display: block; color: var(--ink); margin-bottom: 2px; }
+    .email-frame .header span { color: var(--mute); }
+    .email-frame .body { padding: 28px 22px; font-size: 15px; color: var(--ink); line-height: 1.6; }
+    .email-frame .brand-line {
+      font-size: 13px;
+      color: var(--mute);
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+    }
+    .email-frame .brand-line .dot { color: var(--orange); }
+    .email-frame p { margin: 0 0 16px; }
+    .email-frame a { color: var(--ink); text-decoration: underline; }
+    .email-frame .cta {
+      display: inline-block;
+      padding: 12px 18px;
+      background: var(--ink);
+      color: var(--orange);
+      text-decoration: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 2px solid var(--ink);
+      margin: 4px 0 24px;
+    }
+    .email-frame .cta:hover { background: var(--orange); color: var(--ink); }
+    .email-frame .footer {
+      border-top: 1px solid var(--line);
+      padding: 16px 22px;
+      font-size: 11px;
+      color: var(--mute);
+    }
+
+    .footnote {
+      margin-top: 30px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--mute);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="topbar">
+      <div>
+        <h1>RA-3 · Seguir + notificaciones<span class="dot">.</span></h1>
+        <p>Cómo se vería para un booker. Click en los toggles del medio para sentir la interacción. Las 3 pestañas muestran los 3 momentos del flow.</p>
+      </div>
+      <div class="mono" style="font-size:11px; color:var(--mute);">DROP. — mockup · 2026-05-28</div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs" id="tabs">
+      <button class="tab is-active" data-pane="dj">1 · Página del DJ</button>
+      <button class="tab" data-pane="feed">2 · Feed de seguidos <span class="count">3 nuevos</span></button>
+      <button class="tab" data-pane="email">3 · Email de aviso</button>
+    </div>
+
+    <!-- ════════════════ PANE 1: Página del DJ ════════════════ -->
+    <div class="pane is-active" data-pane="dj">
+      <div class="grid-2">
+        <!-- Hero del press kit (vista del booker) -->
+        <div>
+          <div class="dj-card">
+            <div class="kicker">— PRESS KIT · VOL. 01</div>
+            <div class="actions">
+              <button class="heart-btn" id="heart" title="Guardar como favorito">
+                <i data-lucide="heart" style="width:18px;height:18px;"></i>
+              </button>
+            </div>
+            <img class="avatar" src="https://i.pravatar.cc/200?img=12" alt="DJ avatar" />
+            <h2>Pablo<br/>Rocha<span class="dot">.</span></h2>
+            <div class="meta">
+              <span class="chip">HOUSE</span>
+              <span class="chip">MINIMAL</span>
+              <span class="chip">DEEP HOUSE</span>
+              <span class="chip">VALPARAÍSO · CHILE</span>
+            </div>
+          </div>
+
+          <!-- Toggle nuevo: Seguir + notificaciones -->
+          <div class="notif-toggle" id="notifToggle">
+            <div class="pill" role="switch" aria-checked="false"></div>
+            <div class="text">
+              <strong>SEGUIR CON AVISOS</strong>
+              <div class="help" id="notifHelp">
+                Te avisaré por email cuando Pablo publique disponibilidad nueva o agende un show.
+              </div>
+            </div>
+            <i data-lucide="bell" style="color: var(--orange); width:20px; height:20px;"></i>
+          </div>
+        </div>
+
+        <!-- Notas técnicas -->
+        <div class="notes">
+          <div class="tag">— LO NUEVO</div>
+          <h3>Qué cambia<span class="dot">.</span></h3>
+          <ul>
+            <li>Se mantiene el <code>❤️ favorito</code> que ya existe (Bloque B).</li>
+            <li>Se suma <strong>toggle "Seguir con avisos"</strong> debajo del hero. Por default va apagado.</li>
+            <li>Al activarlo: se crea fila en <code>booker_follows</code> con flag <code>notify_email = true</code>.</li>
+            <li>El email del booker se usa para mandar avisos vía Resend.</li>
+            <li>El booker puede apagarlo desde su feed (tab 2) sin volver a la página del DJ.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PANE 2: Feed de seguidos ════════════════ -->
+    <div class="pane" data-pane="feed">
+      <div class="grid-2">
+        <div>
+          <div class="feed-header">
+            <h2>Seguidos<span class="dot">.</span></h2>
+            <div class="stat">3 NUEVOS · 7 DJS</div>
+          </div>
+
+          <div class="feed-tabs">
+            <button class="feed-tab is-active">Nuevo <span class="badge">3</span></button>
+            <button class="feed-tab">Todos los DJs</button>
+            <button class="feed-tab">Solo favoritos</button>
+          </div>
+
+          <!-- Update cards -->
+          <div class="update-card is-unread">
+            <div class="av"><img src="https://i.pravatar.cc/200?img=12" alt="" /></div>
+            <div class="body">
+              <div class="who">PABLO ROCHA</div>
+              <div class="what">Publicó <strong>disponibilidad nueva</strong> · 12 jul al 30 ago.</div>
+              <div class="when">Valparaíso · Chile</div>
+            </div>
+            <div class="ago">HACE 2H</div>
+          </div>
+
+          <div class="update-card is-unread">
+            <div class="av"><img src="https://i.pravatar.cc/200?img=33" alt="" /></div>
+            <div class="body">
+              <div class="who">SANTIS</div>
+              <div class="what">Agendó un show: <strong>OPEN AIR Norte</strong>.</div>
+              <div class="when">12 jul · Antofagasta</div>
+            </div>
+            <div class="ago">HACE 8H</div>
+          </div>
+
+          <div class="update-card is-unread">
+            <div class="av"><img src="https://i.pravatar.cc/200?img=8" alt="" /></div>
+            <div class="body">
+              <div class="who">NICO VILLEGAS</div>
+              <div class="what">Actualizó su <strong>tech rider</strong> y subió foto nueva.</div>
+              <div class="when">Santiago</div>
+            </div>
+            <div class="ago">AYER</div>
+          </div>
+
+          <div class="update-card">
+            <div class="av"><img src="https://i.pravatar.cc/200?img=15" alt="" /></div>
+            <div class="body">
+              <div class="who">BELIXZA</div>
+              <div class="what">Agendó un show: <strong>Vela Sessions Vol. 3</strong>.</div>
+              <div class="when">20 jun · Concepción</div>
+            </div>
+            <div class="ago">HACE 3D</div>
+          </div>
+        </div>
+
+        <div class="notes">
+          <div class="tag">— LO NUEVO</div>
+          <h3>De favoritos a feed<span class="dot">.</span></h3>
+          <ul>
+            <li>La página <code>/booker/favoritos</code> se renombra a <code>/booker/seguidos</code> (con redirect del path viejo).</li>
+            <li>Pasa a ser un <strong>feed cronológico</strong> de updates: nuevos shows, cambios de disponibilidad, ediciones grandes de perfil.</li>
+            <li>Cada card muestra <strong>qué cambió</strong>, no solo el nombre del DJ.</li>
+            <li>Las cards con borde naranja son "no leídas" desde el último login.</li>
+            <li>El badge "3 nuevos" en el sidebar/menú indica updates pendientes.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PANE 3: Email de aviso ════════════════ -->
+    <div class="pane" data-pane="email">
+      <div class="grid-2">
+        <div>
+          <div class="email-frame">
+            <div class="header">
+              <strong>De: DROP. Team &lt;noreply@drop.gigs&gt;</strong>
+              <span>Asunto: Pablo Rocha agendó un show nuevo</span>
+            </div>
+            <div class="body">
+              <div class="brand-line">DROP<span class="dot">.</span> &nbsp;—&nbsp; The DJ OS</div>
+
+              <p>Hola <strong>Fernanda</strong>,</p>
+
+              <p><strong>Pablo Rocha</strong>, que sigues, acaba de agendar un show:</p>
+
+              <p style="background: var(--cream); padding: 14px; border-left: 3px solid var(--orange); margin-bottom: 20px;">
+                <strong>OPEN AIR Norte</strong><br/>
+                <span style="color: var(--mute); font-size: 14px;">12 jul 2026 · Antofagasta, Chile</span>
+              </p>
+
+              <p>Si lo querías para tu evento esa fecha, mejor le escribes pronto.</p>
+
+              <a class="cta" href="#">Ver perfil de Pablo →</a>
+
+              <p style="font-size: 13px; color: var(--mute);">
+                ¿Recibes muchos avisos? Puedes pausar las notificaciones de un DJ desde tu feed, o de todos desde <a href="#">configuración</a>.
+              </p>
+
+              <p>
+                Saludos,<br>
+                DROP<span class="dot">.</span> Team
+              </p>
+            </div>
+            <div class="footer">
+              Recibes este email porque sigues a Pablo Rocha en DROP. con avisos activados.<br>
+              <a href="#">Pausar avisos de Pablo</a> · <a href="#">Pausar todos</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes">
+          <div class="tag">— LO NUEVO</div>
+          <h3>Cuándo se dispara<span class="dot">.</span></h3>
+          <ul>
+            <li><strong>Show nuevo agendado</strong> (status pasa a <code>agendado</code>) → email inmediato a sus seguidores con notif activa.</li>
+            <li><strong>Disponibilidad nueva publicada</strong> (DJ actualiza <code>available_from/until</code>) → email a seguidores.</li>
+            <li><strong>NO dispara</strong> en: edits chicos del perfil, fotos nuevas (eso queda solo en el feed).</li>
+          </ul>
+          <h3 style="margin-top: 16px;">Anti-spam<span class="dot">.</span></h3>
+          <ul>
+            <li>Máximo <strong>1 email por DJ por día</strong>, agrupando updates si hay varios.</li>
+            <li>El booker puede pausar por-DJ (link en el footer) o globalmente.</li>
+            <li>Footer con <code>List-Unsubscribe</code> y enlaces self-serve (igual que beta-reminder).</li>
+            <li>Logueado en <code>usage_events</code> (<code>follow_notif_sent</code>) para auditoría.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <p class="footnote">→ Si te gusta, lo implemento. Si querés ajustar (toggle siempre on por default, otro copy en el email, otro orden en el feed, etc), dime los cambios.</p>
+  </div>
+
+  <script>
+    // Tabs principales
+    document.getElementById('tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('.tab');
+      if (!btn) return;
+      const pane = btn.dataset.pane;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('is-active', t === btn));
+      document.querySelectorAll('.pane').forEach(p => p.classList.toggle('is-active', p.dataset.pane === pane));
+    });
+
+    // Heart toggle
+    document.getElementById('heart').addEventListener('click', e => {
+      e.currentTarget.classList.toggle('is-fav');
+    });
+
+    // Notif toggle
+    document.getElementById('notifToggle').addEventListener('click', e => {
+      const el = document.getElementById('notifToggle');
+      el.classList.toggle('is-on');
+      const on = el.classList.contains('is-on');
+      el.querySelector('.pill').setAttribute('aria-checked', String(on));
+      document.getElementById('notifHelp').textContent = on
+        ? '✓ Te avisaré por email. Puedes apagarlo desde tu feed.'
+        : 'Te avisaré por email cuando Pablo publique disponibilidad nueva o agende un show.';
+    });
+
+    lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { BottomNav } from "@/components/layout/bottom-nav";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { NpsModal } from "@/components/feedback/nps-modal";
 import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
@@ -68,17 +68,15 @@ export default async function AppLayout({
           userEmail={user.email}
           betaDaysRemaining={betaState.daysRemaining}
         />
-        <main
-          className="flex-1 overflow-y-auto md:pb-0"
-          style={{
-            paddingBottom: "calc(5rem + env(safe-area-inset-bottom))",
-          }}
-        >
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
-      {/* Bottom nav (mobile only) — ya es fixed bottom-0 */}
-      <BottomNav />
+      {/* Menú mobile (drawer desplegable) — reemplaza BottomNav */}
+      <MobileMenu
+        userEmail={user.email}
+        isAdmin={profile?.is_admin === true}
+        artistName={profile?.artist_name ?? null}
+        avatarUrl={profile?.avatar_url ?? null}
+      />
       {/* Sprint 23.5 — Widget feedback flotante (beta users + admin) */}
       {showFeedbackWidget && <FeedbackWidget />}
       {/* Sprint 23.5 — Modal NPS día 7 / día 15 (solo beta active con hito pendiente) */}

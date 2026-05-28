@@ -117,7 +117,7 @@ export function ComingSoon({
             {ctaLabel} →
           </Link>
           <Link
-            href="/mas"
+            href="/dashboard"
             className="inline-flex items-center px-5 py-3 bg-cream text-ink font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange transition-colors"
           >
             Ver roadmap

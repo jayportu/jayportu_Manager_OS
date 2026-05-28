@@ -16,6 +16,14 @@ const nextConfig = {
         destination: "/growth/ads/:path*",
         permanent: true,
       },
+      // 2026-05-28: /mas era el hub mobile cuando teníamos BottomNav.
+      // Con el menú desplegable nuevo ya no hace falta — todo se accede
+      // desde el sidebar/drawer.
+      {
+        source: "/mas",
+        destination: "/dashboard",
+        permanent: true,
+      },
     ];
   },
 };

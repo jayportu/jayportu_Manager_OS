@@ -1,8 +1,9 @@
 "use client";
 
-import { Search, LogOut } from "lucide-react";
+import { Search, LogOut, Menu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { MOBILE_MENU_OPEN_EVENT } from "./mobile-menu";
 
 interface TopbarProps {
   userEmail?: string;
@@ -56,6 +57,18 @@ export function Topbar({ userEmail, betaDaysRemaining }: TopbarProps) {
         height: "calc(4rem + env(safe-area-inset-top))",
       }}
     >
+      {/* Hamburger (mobile only) — abre el MobileMenu vía custom event */}
+      <button
+        type="button"
+        onClick={() =>
+          window.dispatchEvent(new CustomEvent(MOBILE_MENU_OPEN_EVENT))
+        }
+        aria-label="Abrir menú"
+        className="md:hidden h-10 w-10 -ml-2 mr-1 flex items-center justify-center text-ink hover:text-orange transition-colors shrink-0"
+      >
+        <Menu className="w-6 h-6" strokeWidth={2.25} />
+      </button>
+
       {/* Logo mobile */}
       <div className="md:hidden flex items-center shrink-0">
         <span
