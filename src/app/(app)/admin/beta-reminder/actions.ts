@@ -16,6 +16,7 @@ import {
   betaReminderEmailHtml,
   betaReminderEmailText,
 } from "@/lib/email/templates";
+import { logUsageEvent } from "@/lib/queries/beta";
 
 const BETA_DAYS = 15;
 
@@ -178,14 +179,47 @@ export async function sendBetaReminderToAllAction(): Promise<
       if (res.ok) {
         sent += 1;
         results.push({ recipient, ok: true, emailId: res.id });
+        await logUsageEvent({
+          event: "beta_reminder_sent",
+          page: "/admin/beta-reminder",
+          metadata: {
+            recipient_user_id: recipient.userId,
+            recipient_artist_name: recipient.artistName,
+            recipient_email: recipient.email,
+            days_remaining: recipient.daysRemaining,
+            resend_email_id: res.id,
+          },
+        });
       } else {
         failed += 1;
         results.push({ recipient, ok: false, error: res.error });
+        await logUsageEvent({
+          event: "beta_reminder_failed",
+          page: "/admin/beta-reminder",
+          metadata: {
+            recipient_user_id: recipient.userId,
+            recipient_artist_name: recipient.artistName,
+            recipient_email: recipient.email,
+            days_remaining: recipient.daysRemaining,
+            error: res.error,
+          },
+        });
       }
 
       // Pequeña pausa entre envíos (rate limit safety, 2 req/seg en free).
       await new Promise((r) => setTimeout(r, 600));
     }
+
+    // Evento resumen del batch
+    await logUsageEvent({
+      event: "beta_reminder_batch_done",
+      page: "/admin/beta-reminder",
+      metadata: {
+        total: recipients.length,
+        sent,
+        failed,
+      },
+    });
 
     return { ok: true, sent, failed, results };
   } catch (e) {
