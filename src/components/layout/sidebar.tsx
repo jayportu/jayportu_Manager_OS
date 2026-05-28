@@ -4,6 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ComingSoonBadge } from "@/components/coming-soon";
+import {
+  LayoutDashboard,
+  Users,
+  Compass,
+  Megaphone,
+  CalendarDays,
+  FileImage,
+  LayoutTemplate,
+  Mail,
+  TrendingUp,
+  Sparkles,
+  Settings,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
  * DROP. — Sidebar desktop (Type Beat brutalist poster).
@@ -19,21 +33,22 @@ import { ComingSoonBadge } from "@/components/coming-soon";
 interface NavItem {
   href: string;
   label: string;
+  icon: LucideIcon;
   comingSoon?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/crm", label: "CRM" },
-  { href: "/descubrir", label: "Descubrir" },
-  { href: "/campanas", label: "Campañas" },
-  { href: "/calendario", label: "Calendario" },
-  { href: "/press-kit", label: "Press kit" },
-  { href: "/plantillas", label: "Plantillas" },
-  { href: "/gmail", label: "Gmail" },
-  { href: "/growth", label: "Growth" },
-  { href: "/ia", label: "IA · Strategy" },
-  { href: "/configuracion", label: "Configuración" },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/crm", label: "CRM", icon: Users },
+  { href: "/descubrir", label: "Descubrir", icon: Compass },
+  { href: "/campanas", label: "Campañas", icon: Megaphone },
+  { href: "/calendario", label: "Calendario", icon: CalendarDays },
+  { href: "/press-kit", label: "Press kit", icon: FileImage },
+  { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
+  { href: "/gmail", label: "Gmail", icon: Mail },
+  { href: "/growth", label: "Growth", icon: TrendingUp },
+  { href: "/ia", label: "IA · Strategy", icon: Sparkles },
+  { href: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -145,7 +160,7 @@ export function Sidebar({
 
       {/* Nav items (scrollea si el nav es más alto que el espacio disponible) */}
       <nav className="relative z-10 flex flex-col flex-1 min-h-0 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, comingSoon }) => {
+        {NAV_ITEMS.map(({ href, label, icon: Icon, comingSoon }) => {
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href));
@@ -154,13 +169,29 @@ export function Sidebar({
               key={href}
               href={href}
               className={cn(
-                "px-[22px] py-[9px] grid grid-cols-[1fr_auto] gap-[10px] items-center transition-colors font-mono text-[12px] font-bold uppercase tracking-[0.08em] border-l-[3px] border-transparent",
+                "group px-[22px] py-[9px] grid grid-cols-[1fr_auto] gap-[10px] items-center transition-colors font-mono text-[12px] font-bold uppercase tracking-[0.08em] border-l-[3px] border-transparent",
                 isActive
                   ? "bg-orange text-ink border-l-ink"
                   : "text-[#aaa] hover:text-cream"
               )}
             >
-              <span className="flex items-center gap-2">
+              <span className="flex items-center">
+                {/* Slide-in icon: oculto por default, entra desde la izquierda
+                    en hover/active. Naranja sobre fondo ink, ink sobre fondo
+                    naranja (item activo). */}
+                <Icon
+                  aria-hidden="true"
+                  className={cn(
+                    "shrink-0 overflow-hidden -translate-x-2 opacity-0 w-0 transition-all duration-200 ease-out",
+                    "group-hover:translate-x-0 group-hover:opacity-100 group-hover:w-[16px] group-hover:mr-2",
+                    isActive
+                      ? "translate-x-0 opacity-100 w-[16px] mr-2 text-ink"
+                      : "text-orange"
+                  )}
+                  strokeWidth={2.25}
+                  width={16}
+                  height={16}
+                />
                 {label}
                 {comingSoon && <ComingSoonBadge />}
               </span>
