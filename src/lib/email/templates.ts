@@ -275,7 +275,7 @@ export function bugFixFollowupEmailHtml(input: {
 }): string {
   const points = input.checkPoints
     .map(
-      (p, i) => `
+      (p) => `
               <li style="margin:0 0 10px 0;">
                 <strong>${escapeHtml(p.label)}</strong> —
                 <a href="${p.url}" style="color:#0A0A0A; text-decoration:underline;">${p.url}</a>
