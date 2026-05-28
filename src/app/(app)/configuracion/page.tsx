@@ -3,7 +3,7 @@ import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
 import { listMyRiderItems } from "@/lib/queries/tech-rider";
 import { redirect } from "next/navigation";
-import { ProfileForm } from "./profile-form";
+import Link from "next/link";
 import { ExportButton } from "./export-button";
 import { OllamaSetup } from "./ollama-setup";
 import { GmailSetup } from "./gmail-setup";
@@ -30,14 +30,15 @@ export default async function ConfiguracionPage() {
           Configuración
         </h1>
         <p className="text-sm text-fg-muted mt-1">
-          Tu identidad como DJ. Esta info se usa en el dashboard, el press kit
-          público y las plantillas.
+          Ajustes de la app e integraciones. Tu identidad como DJ ahora vive en{" "}
+          <Link href="/perfil" className="text-accent underline underline-offset-2">
+            Perfil
+          </Link>
+          .
         </p>
       </div>
 
-      <ProfileForm initialProfile={profile} />
-
-      <div className="mt-12 pt-8 border-t border-border">
+      <div>
         <AvailabilitySection profile={profile} />
       </div>
 

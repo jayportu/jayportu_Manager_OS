@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { saveProfileAction } from "./actions";
+import { saveProfileAction } from "../configuracion/actions";
+import { AvatarUpload } from "./avatar-upload";
 import { X } from "lucide-react";
 
 const GENRE_SUGGESTIONS = [
@@ -95,6 +96,10 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
           Identidad
         </h2>
+        <AvatarUpload
+          initialUrl={form.avatar_url}
+          artistName={form.artist_name}
+        />
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="artist_name">Nombre artístico *</Label>

@@ -35,7 +35,7 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("dj_profile")
-    .select("onboarding_completed_at, is_admin, artist_name, beta_status, beta_approved_at")
+    .select("onboarding_completed_at, is_admin, artist_name, avatar_url, beta_status, beta_approved_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -60,6 +60,7 @@ export default async function AppLayout({
         userEmail={user.email}
         isAdmin={profile?.is_admin === true}
         artistName={profile?.artist_name ?? null}
+        avatarUrl={profile?.avatar_url ?? null}
       />
       {/* Columna derecha: topbar fijo arriba + main scrolleable */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">

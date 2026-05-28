@@ -26,6 +26,7 @@ export interface DjProfile {
   whatsapp: string;
   logo_url: string;
   hero_image_url: string;
+  avatar_url: string;
   tech_rider_ideal: string;
   tech_rider_alt: string;
   hospitality: string;

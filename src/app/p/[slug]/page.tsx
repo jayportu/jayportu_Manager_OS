@@ -125,6 +125,16 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             </div>
           </div>
 
+          {/* Foto de perfil */}
+          {profile.avatar_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatar_url}
+              alt={artistName}
+              className="mt-6 w-20 h-20 md:w-28 md:h-28 rounded-full object-cover border-4 border-orange"
+            />
+          )}
+
           {/* Hero title */}
           <h1 className="font-display leading-[0.85] tracking-tight mt-3 text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px]">
             {heroLines.map((line, i) => (

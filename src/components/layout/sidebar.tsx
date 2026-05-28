@@ -40,12 +40,14 @@ interface SidebarProps {
   userEmail?: string;
   isAdmin?: boolean;
   artistName?: string | null;
+  avatarUrl?: string | null;
 }
 
 export function Sidebar({
   userEmail,
   isAdmin = false,
   artistName,
+  avatarUrl,
 }: SidebarProps) {
   const pathname = usePathname();
   const displayName = artistName && artistName.trim().length > 0
@@ -193,17 +195,30 @@ export function Sidebar({
         >
           — ARTISTA
         </div>
-        <div className="flex items-center gap-[10px]">
-          <div
-            className="w-[38px] h-[38px] bg-orange text-ink flex items-center justify-center"
-            style={{
-              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-              fontSize: "22px",
-              lineHeight: 0.85,
-            }}
-          >
-            {avatarChar}
-          </div>
+        <Link
+          href="/perfil"
+          title="Editar perfil"
+          className="flex items-center gap-[10px] -m-1 p-1 transition-colors hover:bg-[#202020]"
+        >
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              className="w-[38px] h-[38px] object-cover shrink-0"
+            />
+          ) : (
+            <div
+              className="w-[38px] h-[38px] bg-orange text-ink flex items-center justify-center shrink-0"
+              style={{
+                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                fontSize: "22px",
+                lineHeight: 0.85,
+              }}
+            >
+              {avatarChar}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <div
               className="text-cream truncate"
@@ -219,7 +234,7 @@ export function Sidebar({
               {userEmail || "DJ · LATAM"}
             </div>
           </div>
-        </div>
+        </Link>
         <div className="grid grid-cols-2 gap-2 mt-3 border-t border-[#2a2a2a] pt-[10px]">
           <div>
             <div className="font-mono text-[8px] text-[#666]" style={{ letterSpacing: "0.08em" }}>
