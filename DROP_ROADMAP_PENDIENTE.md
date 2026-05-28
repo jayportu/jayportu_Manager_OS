@@ -5,8 +5,8 @@
 > El `README.md` solo describe qué es DROP. y cómo levantarlo. Todo lo de
 > "dónde voy / qué falta / qué decidí" vive en este archivo.
 >
-> Última actualización: 2026-05-28
-> Estado git: Bloques B + C mergeados a `main` y deployados. Rama `feat/C-booking-state` borrada (ya integrada). Migraciones `0023` (admin Fer), `0024` (foto de perfil) y `0025` (bump bucket press-kits a 25 MB) corridas en prod. **Sprint RA-1 cerrado.**
+> Última actualización: 2026-05-28 (PM)
+> Estado git: Bloques B + C mergeados a `main` y deployados. Migraciones `0023` (admin Fer), `0024` (foto de perfil) y `0025` (bump bucket press-kits a 25 MB) corridas en prod. **Sprint RA-1 cerrado · barrido completo de deuda técnica · mobile rework (drawer) · iconos sidebar slide-in.** RA-3 con mockup HTML esperando approval.
 
 ---
 
@@ -334,10 +334,24 @@ Review completo de `es.ra.co` para traer a DROP. lo que aplica al modelo (OS de 
 - ✅ **Instrumentación** de envíos en `usage_events` (`beta_reminder_sent`, `_failed`, `_batch_done`) con `resend_email_id` para correlación. Auditoría in-app además del dashboard de Resend.
 - ✅ **Bug followup a SANTIS** — template reutilizable `bugFixFollowupEmail{Html,Text}` + action específica + botón en `/admin/beta-reminder` ("Avisar a SANTIS del fix de tech rider"). Le agradece el reporte y le pide probar 3 puntos.
 
+#### Iconos del sidebar (cerrado 2026-05-28)
+- ✅ Cada item del nav muestra un icono lucide (Set A · semántico) que entra **deslizándose desde la izquierda** en hover o cuando el item está activo. Decisión basada en mockup `drop_sidebar_icons_mockup.html`. Commit `c1f0646`.
+
+#### Mobile rework (cerrado 2026-05-28)
+- ✅ **BottomNav reemplazado por menú desplegable** (drawer slide-in desde la izquierda). Expone los 11 items del sidebar + admin si aplica + bloque de artista clickeable → `/perfil`. Mismo set de íconos lucide del desktop. Antes solo había 5 items y `Perfil` ni se podía alcanzar desde mobile.
+- ✅ Botón hamburguesa en Topbar (mobile only) que se comunica con el drawer vía `CustomEvent` para no acoplar Topbar (client) ↔ MobileMenu (client) con store.
+- ✅ Página `/mas` eliminada (redundante con el drawer). Redirect permanente `/mas` → `/dashboard` en `next.config.mjs`.
+- ✅ ESC, click en backdrop, y cambio de ruta cierran el drawer. Scroll del body se bloquea mientras está abierto.
+- Commit: `d321bce`.
+
+#### Limpieza repo (cerrado 2026-05-28)
+- ✅ Untrackeados `.docx`/`.pptx` de la raíz (artefactos regenerables por `scripts/build_estado_*.js`). Patterns agregados a `.gitignore` (`/*.docx`, `/*.pptx`, `drop_brandbook.pdf`, `drop_reels_output/`, `drop_ig_assets/`). Commit `e8a4191`.
+
 #### Lecciones aprendidas (anotadas en memoria persistente)
 - 🧠 Antes de `git push origin main` correr `npm run build` (no solo `tsc --noEmit`) — Vercel valida ESLint estricto y rompe builds que tsc no atrapa. Ver memoria `vercel_build_lesson_drop.md`.
+- 🇨🇱 Tuteo chileno SIEMPRE en chat / emails / UI / commits. Nunca voseo argentino. Ver memoria `tono_drop.md`.
 
-**Siguiente sprint sugerido:** **RA-3 · Seguir + notificaciones** (bajo-medio, reusa favoritos + Resend). RA-2 (Picks) y RA-4 (panel multi-entidad) quedan después.
+**Siguiente sprint con mockup listo:** **RA-3 · Seguir + notificaciones**. Mockup HTML interactivo en `drop_ra3_seguir_notif_mockup.html` con 3 pestañas (toggle en página del DJ · feed de seguidos · email de aviso). Esperando approval del cliente para implementar. RA-2 (Picks) y RA-4 (panel multi-entidad) quedan después.
 
 ---
 
