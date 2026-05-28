@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DROP. — Logo animado · opciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0E0E0E;
+    --cream: #F4EFE7;
+    --orange: #FF5C00;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1c1c1c;
+    color: var(--cream);
+    font-family: "JetBrains Mono", monospace;
+    padding: 48px 32px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page-title {
+    font-family: "Anton", Impact, sans-serif;
+    font-size: 40px;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .page-title .dot { color: var(--orange); }
+  .page-sub {
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 0.05em;
+    margin-bottom: 40px;
+    max-width: 620px;
+    line-height: 1.6;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+  }
+  /* Cada tarjeta = una réplica del header real del sidebar */
+  .card {
+    border: 1px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #161616;
+  }
+  .card-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 16px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .card-label .name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--orange);
+  }
+  .card-label .num {
+    font-size: 11px;
+    color: #555;
+  }
+  .card-desc {
+    padding: 10px 16px 0;
+    font-size: 11px;
+    color: #999;
+    line-height: 1.5;
+    min-height: 52px;
+  }
+  /* El "header del sidebar" tal cual la app */
+  .sidebar-header {
+    background: var(--ink);
+    margin: 14px 16px 16px;
+    padding: 20px 18px 16px;
+    border-bottom: 2px solid var(--orange);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .logo {
+    font-family: "Anton", Impact, system-ui, sans-serif;
+    font-size: 52px;
+    line-height: 0.78;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    user-select: none;
+    position: relative;
+  }
+  .logo .dot { color: var(--orange); display: inline-block; }
+  /* Badge LIVE — NO se toca, queda igual que en la app */
+  .live {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .live .led {
+    width: 7px; height: 7px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ════════════ OPCIÓN 1 · BEAT (kick 4x4) ════════════ */
+  /* El wordmark "bombea" como un bombo a negras; el punto pega más fuerte. */
+  .o1 .logo { animation: o1-pump 0.5s ease-out infinite; transform-origin: left center; }
+  .o1 .dot  { animation: o1-dot 0.5s ease-out infinite; transform-origin: center 80%; }
+  @keyframes o1-pump { 0%{transform:scale(1.04)} 18%{transform:scale(1)} 100%{transform:scale(1)} }
+  @keyframes o1-dot  { 0%{transform:scale(1.5)} 22%{transform:scale(1)} 100%{transform:scale(1)} }
+
+  /* ════════════ OPCIÓN 2 · THE DROP (bass drop) ════════════ */
+  /* El logo "cae" desde arriba y rebota — el momento del drop. Loop cada 4.5s. */
+  .o2 .logo { animation: o2-drop 4.5s cubic-bezier(.22,1.4,.36,1) infinite; }
+  @keyframes o2-drop {
+    0%   { transform: translateY(-120%); opacity: 0; }
+    12%  { transform: translateY(0);     opacity: 1; }
+    16%  { transform: translateY(-14%); }
+    22%  { transform: translateY(0); }
+    26%  { transform: translateY(-5%); }
+    30%, 100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ════════════ OPCIÓN 3 · VINILO (turntable) ════════════ */
+  /* El punto naranja gira como un plato/vinilo. Wordmark firme. */
+  .o3 .dot {
+    animation: o3-spin 1.4s linear infinite;
+    transform-origin: center 78%;
+    position: relative;
+  }
+  .o3 .dot::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1.5px solid var(--orange);
+    border-top-color: transparent;
+    opacity: 0.5;
+  }
+  @keyframes o3-spin { to { transform: rotate(360deg); } }
+
+  /* ════════════ OPCIÓN 4 · ECUALIZADOR (glow al beat) ════════════ */
+  /* Resplandor naranja que late: como un VU / luces de cabina. */
+  .o4 .logo { animation: o4-glow 1.1s ease-in-out infinite; }
+  @keyframes o4-glow {
+    0%,100% { text-shadow: 0 0 0 rgba(255,92,0,0); }
+    50%     { text-shadow: 0 0 18px rgba(255,92,0,.65), 0 0 4px rgba(255,92,0,.9); }
+  }
+  .o4 .dot { animation: o4-dot 1.1s ease-in-out infinite; }
+  @keyframes o4-dot { 0%,100%{opacity:.55} 50%{opacity:1} }
+
+  /* ════════════ OPCIÓN 5 · STROBE / GLITCH (club) ════════════ */
+  /* Sacudida tipo strobe + corte RGB, breve y con fuerza, cada 3.5s. */
+  .o5 .logo { animation: o5-glitch 3.5s steps(1) infinite; }
+  @keyframes o5-glitch {
+    0%, 86%, 100% { transform: translate(0,0); text-shadow: none; }
+    87% { transform: translate(-2px,1px); text-shadow: 2px 0 var(--orange), -2px 0 #00e0ff; }
+    89% { transform: translate(2px,-1px); text-shadow: -2px 0 var(--orange), 2px 0 #00e0ff; }
+    91% { transform: translate(-1px,0);   text-shadow: 2px 0 var(--orange), -2px 0 #00e0ff; }
+    93% { transform: translate(0,0); text-shadow: none; }
+  }
+
+  /* ════════════ OPCIÓN 6 · WAVEFORM (la onda) ════════════ */
+  /* Cada letra sube y baja en secuencia, como una forma de onda de audio. */
+  .o6 .logo span.l { display: inline-block; animation: o6-wave 1.3s ease-in-out infinite; }
+  .o6 .logo span.l:nth-child(1){ animation-delay: 0s; }
+  .o6 .logo span.l:nth-child(2){ animation-delay: .1s; }
+  .o6 .logo span.l:nth-child(3){ animation-delay: .2s; }
+  .o6 .logo span.l:nth-child(4){ animation-delay: .3s; }
+  .o6 .logo span.dot{ animation: o6-wave 1.3s ease-in-out infinite; animation-delay: .4s; display:inline-block; }
+  @keyframes o6-wave { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  .hint {
+    margin-top: 40px;
+    font-size: 11px;
+    color: #666;
+    max-width: 1100px;
+    line-height: 1.7;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+  }
+  .hint b { color: var(--orange); }
+</style>
+</head>
+<body>
+  <div class="page-title">DROP<span class="dot">.</span> — logo animado</div>
+  <div class="page-sub">
+    6 opciones. El logo NO cambia: misma fuente (Anton), mismo punto naranja, el badge LIVE intacto.
+    Solo se añade movimiento, todas en loop para que las veas tal cual quedarían. Dime el número que más te pegue.
+  </div>
+
+  <div class="grid">
+
+    <!-- 1 -->
+    <div class="card o1">
+      <div class="card-label"><span class="name">BEAT · 4x4</span><span class="num">01</span></div>
+      <div class="card-desc">El wordmark bombea al ritmo de un bombo a negras. El punto pega más fuerte. Energía constante, como una cabina en marcha.</div>
+      <div class="sidebar-header">
+        <span class="logo">DROP<span class="dot">.</span></span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card o2">
+      <div class="card-label"><span class="name">THE DROP</span><span class="num">02</span></div>
+      <div class="card-desc">El logo CAE desde arriba y rebota — literalmente "the drop", el momento cumbre del set. Loop cada pocos segundos.</div>
+      <div class="sidebar-header">
+        <span class="logo">DROP<span class="dot">.</span></span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card o3">
+      <div class="card-label"><span class="name">VINILO</span><span class="num">03</span></div>
+      <div class="card-desc">El punto naranja gira como un plato / vinilo, con un anillo de aguja. El texto, firme. Sutil pero inconfundiblemente DJ.</div>
+      <div class="sidebar-header">
+        <span class="logo">DROP<span class="dot">.</span></span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card o4">
+      <div class="card-label"><span class="name">EQ · GLOW</span><span class="num">04</span></div>
+      <div class="card-desc">Resplandor naranja que late, como las luces de cabina o un VU. Da "vida" sin mover el logo de sitio.</div>
+      <div class="sidebar-header">
+        <span class="logo">DROP<span class="dot">.</span></span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card o5">
+      <div class="card-label"><span class="name">STROBE</span><span class="num">05</span></div>
+      <div class="card-desc">Sacudida tipo strobe con corte RGB, breve y con fuerza, cada pocos segundos. Estética club / glitch.</div>
+      <div class="sidebar-header">
+        <span class="logo">DROP<span class="dot">.</span></span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="card o6">
+      <div class="card-label"><span class="name">WAVEFORM</span><span class="num">06</span></div>
+      <div class="card-desc">Cada letra sube y baja en secuencia, como una forma de onda de audio recorriendo el logo.</div>
+      <div class="sidebar-header">
+        <span class="logo"><span class="l">D</span><span class="l">R</span><span class="l">O</span><span class="l">P</span><span class="dot">.</span></span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hint">
+    <b>Mi recomendación:</b> <b>01 BEAT</b> (energía permanente, lee "en vivo" al instante) o <b>02 THE DROP</b>
+    (concepto perfecto con el nombre, pero más llamativa). Las dos pueden ir más suaves o más fuertes si me dices.
+    Cuando elijas, lo dejo aplicado en el sidebar real — sin tocar el logo ni el LIVE.
+  </div>
+</body>
+</html>

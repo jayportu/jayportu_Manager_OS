@@ -137,7 +137,7 @@ async function buildTriggers(userId: string): Promise<PushPayload[]> {
         out.push({
           title: "🎯 Campaña al 90% del objetivo",
           body: `"${c.name}" ya alcanzó ${Math.round(pct)}% del objetivo. Considera cerrarla.`,
-          url: `/growth/campanas/${c.id}`,
+          url: `/growth/ads/${c.id}`,
           tag: `campaign-near-goal-${c.id}`,
         });
       }

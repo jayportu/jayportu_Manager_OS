@@ -110,7 +110,7 @@ export function NewGrowthCampaignForm({ baselines, defaultPaid = false }: Props)
         external_url: isPaid && externalUrl ? externalUrl : null,
       });
       if (r.ok) {
-        router.push(`/growth/campanas/${r.data.id}`);
+        router.push(`/growth/ads/${r.data.id}`);
       } else {
         setError(r.error);
       }

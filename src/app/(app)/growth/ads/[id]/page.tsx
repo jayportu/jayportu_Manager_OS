@@ -74,7 +74,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       <Link
-        href="/growth/campanas"
+        href="/growth/ads"
         className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
       >
         <ArrowLeft className="w-4 h-4" />

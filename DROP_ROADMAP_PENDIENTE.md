@@ -245,8 +245,8 @@ Las 5 inconsistencias de las secciones 4 originales. Ninguna rompe la app. Se re
 | 02 | Docs desincronizados (README / NEXT_SESSION / roadmap) | ✅ resuelto 2026-05-26 — este doc es la fuente única; NEXT_SESSION borrado |
 | 05 | Convención sprint ↔ migración | ✅ documentada abajo |
 | 04 | `created_contact_id` nunca se popula desde el form | ✅ resuelto 2026-05-28 — auto-promueve a contact en leido/respondido/cotizado/contraofertado/agendado (`presskit.ts`) |
-| 01 | Dos rutas a campañas: `/campanas` y `/growth/campanas` | ⏳ **requiere decisión** — unificar en tabs cuando se toque Campañas (S22). Pregunta abierta: ¿tabs "Outbound · Growth/Ads" o consolidar todo en uno? |
-| 03 | 3 entry points públicos: `/login`, `/welcome`, `/beta` | ⏳ **requiere decisión** — definir gate beta abierta/cerrada primero. Si abierta: eliminar `/beta`. Si cerrada (hoy): redirect `/login` → `/beta` |
+| 01 | Dos rutas a campañas: `/campanas` y `/growth/campanas` | ✅ resuelto 2026-05-28 — renombrado `/growth/campanas` → `/growth/ads` (URL + label "Ads"). Redirect permanente del path viejo en `next.config.mjs`. `/campanas` queda solo para outbound (mensajes a contactos del CRM). |
+| 03 | 3 entry points públicos: `/login`, `/welcome`, `/beta` | ✅ resuelto vía **señalización suave** — el `LoginForm` ya tiene cross-link "¿Aún no tienes cuenta y eres DJ? → Solicitar acceso a la beta" al pie (Sprint 23.5). Versión "fuerte" (redirect automático) descartada — la suave alcanza para la beta cerrada. |
 
 ### Convención sprint ↔ migración (fix #05)
 

@@ -90,13 +90,13 @@ export default async function GrowthCampaignsListPage({
         </p>
         <div className="mt-4 flex gap-2 flex-wrap">
           <Button asChild variant="outline">
-            <Link href="/growth/campanas/nueva">
+            <Link href="/growth/ads/nueva">
               <Plus className="w-4 h-4" />
               Orgánica
             </Link>
           </Button>
           <Button asChild variant="orange">
-            <Link href="/growth/campanas/nueva?paid=1">
+            <Link href="/growth/ads/nueva?paid=1">
               <DollarSign className="w-4 h-4" />
               Pagada
             </Link>
@@ -141,7 +141,7 @@ export default async function GrowthCampaignsListPage({
       {/* Filtros por status */}
       <div className="flex items-center gap-1.5 flex-wrap mb-5">
         <Link
-          href="/growth/campanas"
+          href="/growth/ads"
           className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
             !sp.status
               ? "bg-ink text-orange border-ink"
@@ -156,7 +156,7 @@ export default async function GrowthCampaignsListPage({
             return (
               <Link
                 key={s}
-                href={`/growth/campanas?status=${s}`}
+                href={`/growth/ads?status=${s}`}
                 className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
                   isActive
                     ? "bg-ink text-orange border-ink"
@@ -180,7 +180,7 @@ export default async function GrowthCampaignsListPage({
             DROP calcule tu costo por follower.
           </p>
           <Button asChild variant="orange">
-            <Link href="/growth/campanas/nueva">+ Crear primera campaña</Link>
+            <Link href="/growth/ads/nueva">+ Crear primera campaña</Link>
           </Button>
         </Card>
       ) : (
@@ -192,7 +192,7 @@ export default async function GrowthCampaignsListPage({
             };
             const roi = roiById.get(c.id);
             return (
-              <Link key={c.id} href={`/growth/campanas/${c.id}`}>
+              <Link key={c.id} href={`/growth/ads/${c.id}`}>
                 <Card className="p-5 hover:border-orange transition-colors group cursor-pointer">
                   <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
                     <div className="min-w-0 flex-1">

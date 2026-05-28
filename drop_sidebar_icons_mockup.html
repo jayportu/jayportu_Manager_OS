@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DROP. — Mockup iconos sidebar (hover)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --cream: #F4EFE7;
+      --ink: #0A0A0A;
+      --orange: #FF5C00;
+      --mute: #6B6B6B;
+      --panel: #161616;
+      --line: #2a2a2a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, -apple-system, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    .display { font-family: Anton, Impact, sans-serif; letter-spacing: 0.01em; line-height: 0.9; }
+    .mono { font-family: 'Space Mono', monospace; letter-spacing: 0.08em; }
+
+    /* ─── Layout principal ─── */
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 16px;
+    }
+    .topbar h1 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 44px;
+      margin: 0;
+    }
+    .topbar h1 .dot { color: var(--orange); }
+    .topbar p {
+      margin: 0;
+      max-width: 560px;
+      font-size: 14px;
+      color: var(--mute);
+    }
+
+    /* ─── Controles (toggles) ─── */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 800px) { .controls { grid-template-columns: 1fr; } }
+    .ctrl {
+      border: 2px solid var(--ink);
+      background: #fff;
+      padding: 12px;
+    }
+    .ctrl-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+    .ctrl-row { display: flex; gap: 0; }
+    .ctrl-row button {
+      flex: 1;
+      border: 2px solid var(--ink);
+      background: var(--cream);
+      color: var(--ink);
+      padding: 8px 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      margin-left: -2px;
+    }
+    .ctrl-row button:first-child { margin-left: 0; }
+    .ctrl-row button:hover { background: var(--ink); color: var(--orange); }
+    .ctrl-row button.is-active {
+      background: var(--orange);
+      color: var(--ink);
+    }
+
+    /* ─── Demo grid ─── */
+    .demo {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .demo { grid-template-columns: 1fr; } }
+
+    /* ─── Sidebar (réplica del real) ─── */
+    .sidebar {
+      width: 260px;
+      background: var(--ink);
+      color: var(--cream);
+      border-right: 2px solid var(--orange);
+      position: relative;
+      overflow: hidden;
+      min-height: 640px;
+      padding: 18px 0;
+    }
+    .sidebar .brand {
+      padding: 0 18px 22px;
+      font-family: Anton, Impact, sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
+    .sidebar .brand .dot { color: var(--orange); }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav a {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 18px;
+      color: var(--cream);
+      text-decoration: none;
+      font-family: Anton, Impact, sans-serif;
+      font-size: 17px;
+      letter-spacing: 0.02em;
+      transition: background-color .15s ease, color .15s ease;
+    }
+    .nav a .dash {
+      color: var(--orange);
+      width: 14px;
+      display: inline-block;
+      transition: opacity .15s ease, transform .2s ease;
+    }
+    .nav a .icon-slot {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform .2s ease, opacity .2s ease, color .15s ease;
+      color: var(--orange);
+    }
+    .nav a .label { flex: 1; }
+    .nav a:hover { background: #1a1a1a; }
+
+    /* Activo (simulado en /campanas) */
+    .nav a.active {
+      background: var(--orange);
+      color: var(--ink);
+    }
+    .nav a.active .dash { color: var(--ink); }
+    .nav a.active .icon-slot { color: var(--ink); }
+
+    /* ── Modo 1: slide-in desde la izquierda ── */
+    body[data-anim="slide"] .nav a .icon-slot {
+      width: 0;
+      opacity: 0;
+      transform: translateX(-8px);
+      overflow: hidden;
+    }
+    body[data-anim="slide"] .nav a:hover .icon-slot,
+    body[data-anim="slide"] .nav a.active .icon-slot {
+      width: 18px;
+      opacity: 1;
+      transform: translateX(0);
+    }
+    /* En slide ocultamos el dash salvo en activo */
+    body[data-anim="slide"] .nav a .dash { display: none; }
+    body[data-anim="slide"] .nav a.active .dash { display: none; }
+
+    /* ── Modo 2: el dash se reemplaza por el icono en hover ── */
+    body[data-anim="replace"] .nav a .icon-slot {
+      position: absolute;
+      left: 18px;
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    body[data-anim="replace"] .nav a .dash {
+      opacity: 1;
+    }
+    body[data-anim="replace"] .nav a:hover .dash,
+    body[data-anim="replace"] .nav a.active .dash {
+      opacity: 0;
+      transform: translateX(-4px);
+    }
+    body[data-anim="replace"] .nav a:hover .icon-slot,
+    body[data-anim="replace"] .nav a.active .icon-slot {
+      opacity: 1;
+      transform: scale(1);
+    }
+    body[data-anim="replace"] .nav a .label {
+      margin-left: 24px;
+    }
+
+    /* ── Modo 3: siempre visible, naranja en hover ── */
+    body[data-anim="always"] .nav a .icon-slot {
+      color: rgba(244, 239, 231, 0.35); /* cream/35 */
+      opacity: 1;
+      transform: scale(1);
+    }
+    body[data-anim="always"] .nav a:hover .icon-slot {
+      color: var(--orange);
+      transform: scale(1.12);
+    }
+    body[data-anim="always"] .nav a.active .icon-slot {
+      color: var(--ink);
+    }
+    body[data-anim="always"] .nav a .dash { display: none; }
+
+    /* ─── Right column ─── */
+    .info { padding: 4px 0; }
+    .info h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+    .info h2 .dot { color: var(--orange); }
+    .info-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .info p { font-size: 14px; color: var(--mute); margin: 0 0 16px; }
+    .legend {
+      border: 2px solid var(--ink);
+      background: #fff;
+      padding: 0;
+      margin-top: 12px;
+    }
+    .legend table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .legend th, .legend td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e0d8c6;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .legend th {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .legend td:first-child { font-weight: 600; width: 130px; }
+    .legend td .icon-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+    }
+    .legend tr:last-child td { border-bottom: none; }
+
+    .footnote {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--mute);
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body data-anim="slide" data-set="mix">
+
+  <div class="page">
+    <header class="topbar">
+      <div>
+        <h1>Iconos en sidebar<span class="dot">.</span></h1>
+        <p style="margin-top:8px;">Pasa el mouse por encima de los items del sidebar de la izquierda para ver el icono. Cambia el <em>set</em> y la <em>animación</em> con los toggles.</p>
+      </div>
+      <div class="mono" style="font-size:11px; color:var(--mute);">DROP. — mockup · 2026-05-28</div>
+    </header>
+
+    <section class="controls">
+      <div class="ctrl">
+        <div class="ctrl-label">— Set de iconos</div>
+        <div class="ctrl-row" id="ctrl-set">
+          <button data-set="a">Set A · Limpio</button>
+          <button data-set="b">Set B · DJ</button>
+          <button data-set="mix" class="is-active">Mix recomendado</button>
+        </div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-label">— Animación al hover</div>
+        <div class="ctrl-row" id="ctrl-anim">
+          <button data-anim="slide" class="is-active">1 · Slide-in</button>
+          <button data-anim="replace">2 · Reemplaza dash</button>
+          <button data-anim="always">3 · Siempre visible</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo">
+      <!-- Réplica del sidebar real -->
+      <div class="sidebar">
+        <div class="brand">DROP<span class="dot">.</span></div>
+        <nav class="nav" id="nav">
+          <a href="#" data-key="dashboard"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Dashboard</span></a>
+          <a href="#" data-key="crm"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">CRM</span></a>
+          <a href="#" data-key="descubrir"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Descubrir</span></a>
+          <a href="#" data-key="campanas" class="active"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Campañas</span></a>
+          <a href="#" data-key="calendario"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Calendario</span></a>
+          <a href="#" data-key="press-kit"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Press kit</span></a>
+          <a href="#" data-key="plantillas"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Plantillas</span></a>
+          <a href="#" data-key="gmail"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Gmail</span></a>
+          <a href="#" data-key="growth"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Growth</span></a>
+          <a href="#" data-key="ia"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">IA · Strategy</span></a>
+          <a href="#" data-key="configuracion"><span class="dash">—</span><span class="icon-slot" data-icon></span><span class="label">Configuración</span></a>
+        </nav>
+      </div>
+
+      <!-- Tabla / leyenda -->
+      <div class="info">
+        <div class="info-tag">— Leyenda</div>
+        <h2>Qué icono va con qué<span class="dot">.</span></h2>
+        <p>Set A es semántico y legible. Set B suma personalidad DJ. El <strong>Mix recomendado</strong> combina A como base + 3 guiños del B (Dashboard, Growth, Configuración).</p>
+
+        <div class="legend">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Set A · Limpio</th>
+                <th>Set B · DJ</th>
+                <th>Mix</th>
+              </tr>
+            </thead>
+            <tbody id="legend-body">
+              <!-- filled by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <p class="footnote">→ Pasa el cursor por los items del sidebar para ver la animación elegida.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Mapeo de iconos por item y por set
+    // Nombres en kebab-case según lucide
+    const ICONS = {
+      'dashboard':     { a: 'layout-dashboard', b: 'disc-3' },
+      'crm':           { a: 'users',            b: 'headphones' },
+      'descubrir':     { a: 'compass',          b: 'radio' },
+      'campanas':      { a: 'megaphone',        b: 'speaker' },
+      'calendario':    { a: 'calendar-days',    b: 'calendar-clock' },
+      'press-kit':     { a: 'file-image',       b: 'disc' },
+      'plantillas':    { a: 'layout-template',  b: 'music-4' },
+      'gmail':         { a: 'mail',             b: 'at-sign' },
+      'growth':        { a: 'trending-up',      b: 'audio-waveform' },
+      'ia':            { a: 'sparkles',         b: 'wand-2' },
+      'configuracion': { a: 'settings',         b: 'sliders' },
+    };
+    // Mix: A excepto los 3 guiños del B
+    const MIX_USES_B = new Set(['dashboard', 'growth', 'configuracion']);
+    const LABELS = {
+      'dashboard': 'Dashboard',
+      'crm': 'CRM',
+      'descubrir': 'Descubrir',
+      'campanas': 'Campañas',
+      'calendario': 'Calendario',
+      'press-kit': 'Press kit',
+      'plantillas': 'Plantillas',
+      'gmail': 'Gmail',
+      'growth': 'Growth',
+      'ia': 'IA · Strategy',
+      'configuracion': 'Configuración',
+    };
+
+    function iconNameFor(key, set) {
+      if (set === 'a') return ICONS[key].a;
+      if (set === 'b') return ICONS[key].b;
+      return MIX_USES_B.has(key) ? ICONS[key].b : ICONS[key].a;
+    }
+
+    function renderIcons() {
+      const set = document.body.dataset.set;
+      document.querySelectorAll('.nav a').forEach(a => {
+        const key = a.dataset.key;
+        const slot = a.querySelector('[data-icon]');
+        const name = iconNameFor(key, set);
+        slot.innerHTML = `<i data-lucide="${name}"></i>`;
+      });
+      // (Re)build legend
+      const tbody = document.getElementById('legend-body');
+      tbody.innerHTML = Object.keys(ICONS).map(key => {
+        const isMixB = MIX_USES_B.has(key);
+        return `
+          <tr>
+            <td>${LABELS[key]}</td>
+            <td><span class="icon-cell"><i data-lucide="${ICONS[key].a}" style="width:16px;height:16px;"></i> ${ICONS[key].a}</span></td>
+            <td><span class="icon-cell"><i data-lucide="${ICONS[key].b}" style="width:16px;height:16px;color:${isMixB ? 'var(--orange)' : 'var(--ink)'};"></i> ${ICONS[key].b}${isMixB ? ' ★' : ''}</span></td>
+            <td><span class="icon-cell"><i data-lucide="${isMixB ? ICONS[key].b : ICONS[key].a}" style="width:16px;height:16px;color:var(--orange);"></i></span></td>
+          </tr>`;
+      }).join('');
+      lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+    }
+
+    function setActive(group, attr, value) {
+      group.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('is-active', b.dataset[attr] === value);
+      });
+    }
+
+    document.getElementById('ctrl-set').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.body.dataset.set = btn.dataset.set;
+      setActive(e.currentTarget, 'set', btn.dataset.set);
+      renderIcons();
+    });
+
+    document.getElementById('ctrl-anim').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.body.dataset.anim = btn.dataset.anim;
+      setActive(e.currentTarget, 'anim', btn.dataset.anim);
+    });
+
+    renderIcons();
+  </script>
+</body>
+</html>

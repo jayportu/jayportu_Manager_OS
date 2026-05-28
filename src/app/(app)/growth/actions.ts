@@ -36,7 +36,7 @@ export async function createGrowthCampaignAction(
   try {
     const c = await createGrowthCampaign(input);
     revalidatePath("/growth");
-    revalidatePath("/growth/campanas");
+    revalidatePath("/growth/ads");
     return { ok: true, data: { id: c.id } };
   } catch (e) {
     return err(e);
@@ -56,7 +56,7 @@ export async function updateGrowthCampaignStatusAction(
           : null,
     });
     revalidatePath("/growth");
-    revalidatePath(`/growth/campanas/${id}`);
+    revalidatePath(`/growth/ads/${id}`);
     return { ok: true, data: undefined };
   } catch (e) {
     return err(e);
@@ -66,7 +66,7 @@ export async function updateGrowthCampaignStatusAction(
 export async function deleteGrowthCampaignAction(id: string): Promise<void> {
   await deleteGrowthCampaign(id);
   revalidatePath("/growth");
-  redirect("/growth/campanas");
+  redirect("/growth/ads");
 }
 
 // ─── Content posts ───────────────────────────────────────────────────
@@ -79,7 +79,7 @@ export async function createContentPostAction(
     revalidatePath("/growth");
     revalidatePath("/growth/posts");
     if (input.growth_campaign_id) {
-      revalidatePath(`/growth/campanas/${input.growth_campaign_id}`);
+      revalidatePath(`/growth/ads/${input.growth_campaign_id}`);
     }
     return { ok: true, data: { id: p.id } };
   } catch (e) {
@@ -96,7 +96,7 @@ export async function updateContentPostAction(
     revalidatePath("/growth");
     revalidatePath("/growth/posts");
     if (updated.growth_campaign_id) {
-      revalidatePath(`/growth/campanas/${updated.growth_campaign_id}`);
+      revalidatePath(`/growth/ads/${updated.growth_campaign_id}`);
     }
     return { ok: true, data: undefined };
   } catch (e) {

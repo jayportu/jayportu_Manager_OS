@@ -177,7 +177,7 @@ export async function getCampaignROI(
 
 /**
  * Calcula ROIs de múltiples campañas para comparativa
- * (bar chart en /growth/campanas).
+ * (bar chart en /growth/ads).
  */
 export async function getCampaignROIs(
   campaigns: GrowthCampaign[]

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DROP. — variaciones STROBE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink:#0E0E0E; --cream:#F4EFE7; --orange:#FF5C00; --cyan:#00E0FF; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#1c1c1c; color:var(--cream);
+    font-family:"JetBrains Mono",monospace;
+    padding:48px 32px 80px; -webkit-font-smoothing:antialiased;
+  }
+  .page-title { font-family:"Anton",Impact,sans-serif; font-size:40px; letter-spacing:-0.01em; margin-bottom:6px; }
+  .page-title .dot { color:var(--orange); }
+  .page-sub { font-size:12px; color:#888; letter-spacing:0.05em; margin-bottom:40px; max-width:640px; line-height:1.6; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:24px; max-width:1100px; }
+  .card { border:1px solid #333; border-radius:4px; overflow:hidden; background:#161616; }
+  .card-label { display:flex; justify-content:space-between; align-items:baseline; padding:12px 16px; border-bottom:1px solid #2a2a2a; }
+  .card-label .name { font-size:11px; font-weight:700; letter-spacing:0.1em; color:var(--orange); }
+  .card-label .num { font-size:11px; color:#555; }
+  .card-desc { padding:10px 16px 0; font-size:11px; color:#999; line-height:1.5; min-height:52px; }
+  .sidebar-header {
+    background:var(--ink); margin:14px 16px 16px; padding:20px 18px 16px;
+    border-bottom:2px solid var(--orange); display:flex; align-items:flex-start;
+    justify-content:space-between; overflow:hidden;
+  }
+  .logo {
+    font-family:"Anton",Impact,system-ui,sans-serif; font-size:52px; line-height:0.78;
+    color:var(--cream); letter-spacing:-0.01em; user-select:none; position:relative;
+  }
+  .logo .dot { color:var(--orange); display:inline-block; }
+  .live { font-size:9px; font-weight:700; letter-spacing:0.1em; color:var(--orange); display:flex; align-items:center; gap:5px; white-space:nowrap; }
+  .live .led { width:7px; height:7px; background:var(--orange); border-radius:50%; animation:blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ═══════ A · STROBE ORIGINAL (referencia) ═══════ */
+  .a .logo { animation:a-glitch 3.5s steps(1) infinite; }
+  @keyframes a-glitch {
+    0%,86%,100% { transform:translate(0,0); text-shadow:none; }
+    87% { transform:translate(-2px,1px); text-shadow:2px 0 var(--orange),-2px 0 var(--cyan); }
+    89% { transform:translate(2px,-1px); text-shadow:-2px 0 var(--orange),2px 0 var(--cyan); }
+    91% { transform:translate(-1px,0);   text-shadow:2px 0 var(--orange),-2px 0 var(--cyan); }
+    93% { transform:translate(0,0); text-shadow:none; }
+  }
+
+  /* ═══════ B · STROBE FLASH (luz de club) ═══════ */
+  /* Ráfaga de destellos blancos rápidos, como un strobe real disparándose. */
+  .b .logo { animation:b-flash 3s steps(1) infinite; }
+  @keyframes b-flash {
+    0%,78%,100% { color:var(--cream); text-shadow:none; }
+    80% { color:#fff; text-shadow:0 0 20px #fff,0 0 6px #fff; }
+    82% { color:var(--cream); text-shadow:none; }
+    84% { color:#fff; text-shadow:0 0 20px #fff,0 0 6px #fff; }
+    86% { color:var(--cream); text-shadow:none; }
+    88% { color:#fff; text-shadow:0 0 20px #fff,0 0 6px #fff; }
+    90% { color:var(--cream); text-shadow:none; }
+  }
+  .b .dot { color:var(--orange) !important; }
+
+  /* ═══════ C · RGB SPLIT (aberración continua) ═══════ */
+  /* Separación cromática naranja/cyan que respira sin parar. Glitch sostenido y elegante. */
+  .c .logo { animation:c-rgb 2.4s ease-in-out infinite; }
+  @keyframes c-rgb {
+    0%,100% { text-shadow:0 0 0 rgba(0,0,0,0); }
+    50%     { text-shadow:3px 0 var(--orange),-3px 0 var(--cyan); }
+  }
+
+  /* ═══════ D · NEÓN ROTO (flicker) ═══════ */
+  /* Parpadeo irregular como un letrero de neón fallando, luego enciende firme. */
+  .d .logo { animation:d-neon 4s linear infinite; }
+  @keyframes d-neon {
+    0%,100% { opacity:1; text-shadow:0 0 12px rgba(255,92,0,.35); }
+    2% { opacity:.2; text-shadow:none; }
+    4% { opacity:1; text-shadow:0 0 12px rgba(255,92,0,.45); }
+    6% { opacity:.3; }
+    7% { opacity:1; }
+    9% { opacity:.15; text-shadow:none; }
+    10% { opacity:1; text-shadow:0 0 14px rgba(255,92,0,.5); }
+    72% { opacity:1; }
+    73% { opacity:.25; }
+    74% { opacity:1; }
+  }
+
+  /* ═══════ E · SCANLINE / VHS (corte horizontal) ═══════ */
+  /* El logo se "parte" en bandas que se desplazan, tipo glitch de señal/VHS. */
+  .e .logo { position:relative; }
+  .e .logo .clip {
+    position:absolute; inset:0; color:var(--cream);
+  }
+  .e .logo .clip .dot { color:var(--orange); }
+  .e .logo .base { opacity:0; }
+  .e .logo .clip.top {
+    clip-path:inset(0 0 55% 0);
+    animation:e-top 3.2s steps(1) infinite;
+  }
+  .e .logo .clip.bot {
+    clip-path:inset(55% 0 0 0);
+    animation:e-bot 3.2s steps(1) infinite;
+  }
+  @keyframes e-top {
+    0%,84%,100% { transform:translateX(0); }
+    85% { transform:translateX(-6px); }
+    87% { transform:translateX(4px); }
+    89% { transform:translateX(0); }
+  }
+  @keyframes e-bot {
+    0%,84%,100% { transform:translateX(0); }
+    85% { transform:translateX(6px); }
+    87% { transform:translateX(-4px); }
+    89% { transform:translateX(0); }
+  }
+
+  /* ═══════ F · STROBE + BEAT (híbrido) ═══════ */
+  /* Late suave constante (beat) y dispara una ráfaga glitch cada pocos segundos. */
+  .f .logo { animation:f-beat 0.5s ease-out infinite, f-burst 4s steps(1) infinite; transform-origin:left center; }
+  @keyframes f-beat { 0%{transform:scale(1.03)} 20%{transform:scale(1)} 100%{transform:scale(1)} }
+  @keyframes f-burst {
+    0%,90%,100% { text-shadow:none; }
+    91% { text-shadow:2px 0 var(--orange),-2px 0 var(--cyan); }
+    93% { text-shadow:-2px 0 var(--orange),2px 0 var(--cyan); }
+    95% { text-shadow:none; }
+  }
+
+  .hint { margin-top:40px; font-size:11px; color:#666; max-width:1100px; line-height:1.7; border-top:1px solid #333; padding-top:20px; }
+  .hint b { color:var(--orange); }
+</style>
+</head>
+<body>
+  <div class="page-title">DROP<span class="dot">.</span> — familia STROBE</div>
+  <div class="page-sub">
+    Variaciones sobre el strobe/glitch que te gustó. El logo no cambia y el badge LIVE queda intacto.
+    Todas en loop. Dime la letra (o combinación) y la dejo aplicada en el sidebar real.
+  </div>
+
+  <div class="grid">
+
+    <div class="card a">
+      <div class="card-label"><span class="name">STROBE ORIGINAL</span><span class="num">A</span></div>
+      <div class="card-desc">La que viste: sacudida con corte RGB naranja/cyan, breve y con fuerza cada pocos segundos.</div>
+      <div class="sidebar-header"><span class="logo">DROP<span class="dot">.</span></span><span class="live"><span class="led"></span>LIVE</span></div>
+    </div>
+
+    <div class="card b">
+      <div class="card-label"><span class="name">STROBE FLASH</span><span class="num">B</span></div>
+      <div class="card-desc">Ráfaga de destellos blancos rápidos, como un strobe de club disparándose. Más agresiva y luminosa.</div>
+      <div class="sidebar-header"><span class="logo">DROP<span class="dot">.</span></span><span class="live"><span class="led"></span>LIVE</span></div>
+    </div>
+
+    <div class="card c">
+      <div class="card-label"><span class="name">RGB SPLIT</span><span class="num">C</span></div>
+      <div class="card-desc">Aberración cromática naranja/cyan que respira sin parar. Glitch sostenido, elegante y permanente.</div>
+      <div class="sidebar-header"><span class="logo">DROP<span class="dot">.</span></span><span class="live"><span class="led"></span>LIVE</span></div>
+    </div>
+
+    <div class="card d">
+      <div class="card-label"><span class="name">NEÓN ROTO</span><span class="num">D</span></div>
+      <div class="card-desc">Parpadeo irregular como un letrero de neón fallando y volviendo a encender. Vibe bar/club nocturno.</div>
+      <div class="sidebar-header"><span class="logo">DROP<span class="dot">.</span></span><span class="live"><span class="led"></span>LIVE</span></div>
+    </div>
+
+    <div class="card e">
+      <div class="card-label"><span class="name">SCANLINE / VHS</span><span class="num">E</span></div>
+      <div class="card-desc">El logo se parte en bandas que se desplazan, tipo glitch de señal o VHS. Corte limpio y técnico.</div>
+      <div class="sidebar-header">
+        <span class="logo">
+          <span class="base">DROP<span class="dot">.</span></span>
+          <span class="clip top">DROP<span class="dot">.</span></span>
+          <span class="clip bot">DROP<span class="dot">.</span></span>
+        </span>
+        <span class="live"><span class="led"></span>LIVE</span>
+      </div>
+    </div>
+
+    <div class="card f">
+      <div class="card-label"><span class="name">STROBE + BEAT</span><span class="num">F</span></div>
+      <div class="card-desc">Late suave todo el tiempo (beat) y dispara una ráfaga glitch cada pocos segundos. Lo mejor de las dos.</div>
+      <div class="sidebar-header"><span class="logo">DROP<span class="dot">.</span></span><span class="live"><span class="led"></span>LIVE</span></div>
+    </div>
+
+  </div>
+
+  <div class="hint">
+    <b>Mi recomendación:</b> <b>F (STROBE + BEAT)</b> si quieres energía constante + el golpe glitch, o
+    <b>C (RGB SPLIT)</b> si la prefieres sutil y permanente. <b>B</b> es la más intensa. Dime la letra y la aplico.
+  </div>
+</body>
+</html>

@@ -85,9 +85,9 @@ export default async function GrowthPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link href="/growth/campanas">
+              <Link href="/growth/ads">
                 <TrendingUp className="w-4 h-4" />
-                Campañas
+                Ads
               </Link>
             </Button>
             <SnapshotDialog
@@ -157,14 +157,14 @@ export default async function GrowthPage() {
         </section>
       )}
 
-      {/* Campañas activas */}
+      {/* Ads activos */}
       <section className="mb-7">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold">
-            Campañas activas
+            Ads activos
           </h2>
           <Link
-            href="/growth/campanas"
+            href="/growth/ads"
             className="text-xs text-accent hover:underline"
           >
             Ver todas →
@@ -177,13 +177,13 @@ export default async function GrowthPage() {
               contenido coordinado para crecer.
             </p>
             <Button asChild>
-              <Link href="/growth/campanas/nueva">+ Crear campaña</Link>
+              <Link href="/growth/ads/nueva">+ Crear campaña</Link>
             </Button>
           </Card>
         ) : (
           <div className="space-y-2">
             {campaigns.map((c) => (
-              <Link key={c.id} href={`/growth/campanas/${c.id}`}>
+              <Link key={c.id} href={`/growth/ads/${c.id}`}>
                 <Card className="p-4 hover:border-accent/30 transition-colors group cursor-pointer">
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="min-w-0 flex-1">

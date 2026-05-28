@@ -129,9 +129,8 @@ function betaExpiredEmailHtml(artistName: string): string {
   </td></tr>
   <tr><td style="padding:24px 32px;">
     <p style="font-size:17px;line-height:1.5;margin:0 0 16px;">Hola <strong>${escapeHtml(artistName)}</strong>,</p>
-    <p style="font-size:15px;line-height:1.55;margin:0 0 16px;">Tus 15 días de beta en DROP. terminaron. Gracias por probar la app y por todo el feedback.</p>
-    <p style="font-size:15px;line-height:1.55;margin:0 0 16px;"><strong>Tu cuenta sigue ahí.</strong> Puedes entrar a verla, pero no podrás crear contactos, tracklists o agenda nuevos hasta que abramos las suscripciones (Sprint 24).</p>
-    <p style="font-size:15px;line-height:1.55;margin:0 0 16px;">Si quieres ser el primero en suscribirte cuando esté disponible, respóndeme este email con "QUIERO".</p>
+    <p style="font-size:15px;line-height:1.55;margin:0 0 16px;">Tus 15 días de beta en DROP. terminaron. Gracias por probar la app y por el feedback que dejaste — fue clave para mejorarla.</p>
+    <p style="font-size:15px;line-height:1.55;margin:0 0 16px;"><strong>Tu cuenta sigue ahí con todos tus datos.</strong> Te contactaré directamente cuando abramos la siguiente etapa.</p>
     <p style="font-size:14px;line-height:1.5;margin:24px 0 0;">— Jay Portu</p>
   </td></tr>
   <tr><td style="border-top:2px solid #0A0A0A;padding:16px 32px;background:#F4EFE7;">
@@ -145,11 +144,9 @@ function betaExpiredEmailHtml(artistName: string): string {
 function betaExpiredEmailText(artistName: string): string {
   return `Hola ${artistName},
 
-Tus 15 días de beta en DROP. terminaron. Gracias por probar la app y por todo el feedback.
+Tus 15 días de beta en DROP. terminaron. Gracias por probar la app y por el feedback que dejaste — fue clave para mejorarla.
 
-Tu cuenta sigue ahí. Puedes entrar a verla, pero no podrás crear contactos, tracklists o agenda nuevos hasta que abramos las suscripciones (Sprint 24).
-
-Si quieres ser el primero en suscribirte cuando esté disponible, respóndeme este email con "QUIERO".
+Tu cuenta sigue ahí con todos tus datos. Te contactaré directamente cuando abramos la siguiente etapa.
 
 — Jay Portu
 

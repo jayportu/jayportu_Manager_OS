@@ -42,33 +42,22 @@ export function BetaExpiredModal() {
         <div className="mt-5 space-y-4 text-sm md:text-base leading-relaxed">
           <p>
             Tus <strong>15 días de beta</strong> en DROP terminaron. Gracias
-            por probar la app y por el feedback que dejaste.
+            por probar la app y por el feedback que dejaste — fue clave para
+            mejorarla.
           </p>
           <p>
-            Para no perder tus datos, tu cuenta sigue activa pero
-            <strong> en modo lectura</strong>. Puedes ver tus contactos,
-            calendario y tracklists, pero no puedes crear cosas nuevas
-            hasta que abramos las suscripciones.
-          </p>
-          <p className="text-fg-muted text-xs">
-            ¿Quieres ser de los primeros en suscribirte? Hazme saber y te
-            aviso ni bien esté listo.
+            Tu cuenta sigue ahí con todos tus datos. Te contactaré directamente
+            cuando abramos la siguiente etapa.
           </p>
         </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-3">
-          <a
-            href="mailto:hola@jayportu.com?subject=Quiero%20suscribirme%20a%20DROP&body=Hola%20Jay%2C%20mi%20beta%20termin%C3%B3%20y%20quiero%20seguir%20usando%20DROP."
-            className="flex-1 inline-flex items-center justify-center h-11 px-4 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:bg-ink hover:text-orange transition-colors"
-          >
-            Quiero suscribirme →
-          </a>
+        <div className="mt-6">
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center justify-center h-11 px-4 bg-cream border-2 border-ink/40 text-fg-muted font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:border-ink hover:text-ink transition-colors"
+            className="inline-flex items-center justify-center h-11 px-6 bg-ink text-orange border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:bg-orange hover:text-ink transition-colors"
           >
-            Salir
+            Cerrar sesión
           </button>
         </div>
 
