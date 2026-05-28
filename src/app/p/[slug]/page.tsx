@@ -16,6 +16,7 @@ import { StagePlot } from "./stage-plot";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
+import { FollowNotifyToggle } from "@/components/booker/follow-notify-toggle";
 import { whatsappLink, normalizeUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
@@ -178,6 +179,15 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 {profile.country ? ` · ${profile.country}` : ""}
               </span>
             )}
+          </div>
+
+          {/* Sprint RA-3 — Toggle "Seguir con avisos" (solo se renderiza
+              cuando el visitante es un booker logueado). */}
+          <div className="max-w-md">
+            <FollowNotifyToggle
+              djUserId={profile.user_id}
+              djArtistName={artistName}
+            />
           </div>
         </div>
       </header>
