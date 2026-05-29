@@ -13,26 +13,13 @@
  * sugiere otra tarjeta o modo manual (TODO en F4).
  */
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Script from "next/script";
 import { subscribeAction } from "./actions";
 import { Loader2 } from "lucide-react";
 
 interface Props {
   userEmail: string;
-}
-
-interface MpInstance {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createCardToken: (data: any) => Promise<{ id?: string; error?: { message?: string }; cause?: Array<{ description?: string }> }>;
-}
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    MercadoPago?: new (publicKey: string, options?: any) => MpInstance;
-  }
 }
 
 type Status =
@@ -45,8 +32,6 @@ type Status =
 
 export function CheckoutForm({ userEmail }: Props) {
   const router = useRouter();
-  const [scriptReady, setScriptReady] = useState(false);
-  const [mp, setMp] = useState<MpInstance | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -59,48 +44,64 @@ export function CheckoutForm({ userEmail }: Props) {
   const [securityCode, setSecurityCode] = useState("");
   const [docNumber, setDocNumber] = useState("");
 
-  const formRef = useRef<HTMLFormElement>(null);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === "tokenizing" || status === "subscribing") return;
 
-  // Inicializar MP SDK cuando el script termine de cargar
-  useEffect(() => {
-    if (!scriptReady) return;
     const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
     if (!publicKey) {
       setErrorMsg("Configuración MP incompleta (falta public key).");
       setStatus("error");
       return;
     }
-    if (window.MercadoPago) {
-      const instance = new window.MercadoPago(publicKey, { locale: "es-CL" });
-      setMp(instance);
-    }
-  }, [scriptReady]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!mp || status === "tokenizing" || status === "subscribing") return;
 
     setErrorMsg(null);
     setStatus("tokenizing");
 
-    // 1. Generar card_token con MP SDK (data va directo a MP)
-    const tokenResp = await mp.createCardToken({
-      cardNumber: cardNumber.replace(/\s+/g, ""),
-      cardholderName,
-      cardExpirationMonth: expMonth,
-      cardExpirationYear:
-        expYear.length === 2 ? `20${expYear}` : expYear,
-      securityCode,
-      identificationType: "RUT",
-      identificationNumber: docNumber.replace(/[^0-9kK]/g, ""),
-    });
-
-    if (!tokenResp.id) {
-      const reason =
-        tokenResp.cause?.[0]?.description ||
-        tokenResp.error?.message ||
-        "No se pudo procesar la tarjeta.";
-      setErrorMsg(reason);
+    // 1. Generar card_token con MP REST API directo (sin SDK).
+    //    Los datos van cliente → MP API → token, sin pasar por nuestro
+    //    server. Compliance PCI SAQ-A-EP (merchant ve pero no almacena).
+    let tokenId: string;
+    try {
+      const yearFull =
+        expYear.length === 2 ? `20${expYear}` : expYear;
+      const tokenResp = await fetch(
+        `https://api.mercadopago.com/v1/card_tokens?public_key=${encodeURIComponent(publicKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            card_number: cardNumber.replace(/\s+/g, ""),
+            cardholder: {
+              name: cardholderName,
+              identification: {
+                type: "RUT",
+                number: docNumber.replace(/[^0-9kK]/g, ""),
+              },
+            },
+            expiration_month: parseInt(expMonth, 10),
+            expiration_year: parseInt(yearFull, 10),
+            security_code: securityCode,
+          }),
+        }
+      );
+      const tokenData = (await tokenResp.json()) as {
+        id?: string;
+        message?: string;
+        cause?: Array<{ code?: string; description?: string }>;
+      };
+      if (!tokenResp.ok || !tokenData.id) {
+        const reason =
+          tokenData.cause?.[0]?.description ||
+          tokenData.message ||
+          `No se pudo procesar la tarjeta (HTTP ${tokenResp.status}).`;
+        setErrorMsg(reason);
+        setStatus("error");
+        return;
+      }
+      tokenId = tokenData.id;
+    } catch (e) {
+      setErrorMsg(e instanceof Error ? e.message : "Error de red");
       setStatus("error");
       return;
     }
@@ -108,7 +109,7 @@ export function CheckoutForm({ userEmail }: Props) {
     // 2. Llamar server action que crea la preapproval
     setStatus("subscribing");
     startTransition(async () => {
-      const res = await subscribeAction({ cardTokenId: tokenResp.id! });
+      const res = await subscribeAction({ cardTokenId: tokenId });
       if (res.ok) {
         setStatus("success");
         setTimeout(() => router.push("/configuracion/suscripcion"), 600);
@@ -127,14 +128,7 @@ export function CheckoutForm({ userEmail }: Props) {
 
   return (
     <>
-      <Script
-        src="https://sdk.mercadopago.com/js/v2"
-        strategy="afterInteractive"
-        onLoad={() => setScriptReady(true)}
-      />
-
       <form
-        ref={formRef}
         onSubmit={handleSubmit}
         className="bg-white border-2 border-ink p-5 space-y-3"
       >
@@ -241,7 +235,7 @@ export function CheckoutForm({ userEmail }: Props) {
 
         <button
           type="submit"
-          disabled={!mp || busy || !scriptReady}
+          disabled={busy}
           className="w-full h-12 inline-flex items-center justify-center gap-2 bg-ink text-orange border-2 border-ink hover:bg-orange hover:text-ink disabled:opacity-50 disabled:hover:bg-ink disabled:hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
         >
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
