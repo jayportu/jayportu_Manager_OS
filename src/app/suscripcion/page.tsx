@@ -1,6 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { CheckoutForm } from "./checkout-form";
+import {
+  getOrCreateSubscription,
+  evaluateSubscriptionAccess,
+  isLegacyBetaUser,
+} from "@/lib/queries/subscription";
+
+export const dynamic = "force-dynamic";
 
 /**
  * Sprint S19 — Página de checkout de suscripción.
@@ -9,8 +17,8 @@ import Link from "next/link";
  * suscripción pueda llegar sin el modal de paywall bloqueando. Aún así
  * requiere sesión (si no, manda a /login).
  *
- * F2: stub mínimo con CTA + info. F3 reemplaza con el form real de
- * MercadoPago (card token + preapproval).
+ * Si el user ya tiene suscripción activa, lo redirigimos a la pantalla
+ * de gestión (F4).
  */
 export default async function SuscripcionPage() {
   const supabase = await createClient();
@@ -19,6 +27,23 @@ export default async function SuscripcionPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Si el user es legacy beta, no debería estar acá — el flow de beta
+  // tiene su propio lockout. Lo mandamos al dashboard.
+  const { data: profile } = await supabase
+    .from("dj_profile")
+    .select("beta_status, is_admin")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (profile?.is_admin || isLegacyBetaUser(profile?.beta_status as never)) {
+    redirect("/dashboard");
+  }
+
+  // Si ya está pagando, mostramos un estado distinto
+  const subscription = await getOrCreateSubscription(user.id);
+  const access = evaluateSubscriptionAccess(subscription);
+  const isPaying =
+    access.reason === "active" || subscription.status === "active";
+
   return (
     <div className="min-h-screen bg-cream text-ink p-6 md:p-10">
       <div className="max-w-xl mx-auto">
@@ -26,7 +51,7 @@ export default async function SuscripcionPage() {
           — SUSCRIPCIÓN · DROP. PRO
         </div>
         <h1
-          className="leading-none mb-4"
+          className="leading-none mb-2"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
             fontSize: "56px",
@@ -39,6 +64,7 @@ export default async function SuscripcionPage() {
           configuración.
         </p>
 
+        {/* Beneficios */}
         <div className="border-2 border-ink bg-white p-5 mb-6">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
             — INCLUIDO
@@ -53,26 +79,28 @@ export default async function SuscripcionPage() {
           </ul>
         </div>
 
-        <div className="border-2 border-dashed border-ink/30 bg-white p-5 mb-6">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-muted mb-2">
-            — CHECKOUT
-          </div>
-          <p className="text-sm text-fg-muted">
-            Esta página será el form de pago de MercadoPago (Fase 3 del sprint).
-            Por ahora, si quieres reactivar tu cuenta, escríbeme a{" "}
-            <a
-              href="mailto:hola@jayportu.com"
-              className="text-orange underline underline-offset-2"
+        {isPaying ? (
+          <div className="border-2 border-success bg-success/10 p-5 mb-4">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-success mb-1">
+              — YA ESTÁS SUSCRITO
+            </div>
+            <p className="text-sm">
+              Tu suscripción está activa. Puedes gestionarla desde Configuración.
+            </p>
+            <Link
+              href="/configuracion/suscripcion"
+              className="inline-flex items-center mt-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-ink border-b border-orange hover:border-ink transition-colors"
             >
-              hola@jayportu.com
-            </a>
-            .
-          </p>
-        </div>
+              Ir a mi suscripción →
+            </Link>
+          </div>
+        ) : (
+          <CheckoutForm userEmail={user.email ?? ""} />
+        )}
 
         <Link
           href="/dashboard"
-          className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
+          className="inline-flex items-center mt-6 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
         >
           ← Volver al dashboard
         </Link>

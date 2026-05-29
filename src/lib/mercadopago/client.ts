@@ -81,3 +81,145 @@ export const MP_PLAN = {
   frequencyType: "months" as const,
   reason: "DROP. — Suscripción mensual",
 } as const;
+
+/**
+ * Crea una preapproval (suscripción recurrente) en MP.
+ *
+ * Doc: https://www.mercadopago.cl/developers/es/reference/subscriptions/_preapproval/post
+ *
+ * Si el card_token no soporta recurrencia (típicamente RedCompra puro),
+ * MP responde con error que capturamos y devolvemos como fallback flag
+ * para que el caller ofrezca modo manual.
+ */
+export interface CreatePreapprovalInput {
+  cardTokenId: string;
+  payerEmail: string;
+  externalReference: string;
+  backUrl: string;
+}
+
+export interface PreapprovalResult {
+  id: string;
+  status: string;
+  next_payment_date?: string;
+  card_id?: string;
+  payer_id?: string;
+}
+
+export async function createPreapproval(
+  input: CreatePreapprovalInput
+): Promise<PreapprovalResult> {
+  const accessToken = getAccessToken();
+  const resp = await fetch("https://api.mercadopago.com/preapproval", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      reason: MP_PLAN.reason,
+      external_reference: input.externalReference,
+      payer_email: input.payerEmail,
+      card_token_id: input.cardTokenId,
+      back_url: input.backUrl,
+      auto_recurring: {
+        frequency: MP_PLAN.frequency,
+        frequency_type: MP_PLAN.frequencyType,
+        transaction_amount: MP_PLAN.amountClp,
+        currency_id: MP_PLAN.currency,
+      },
+      status: "authorized",
+    }),
+  });
+  const data = (await resp.json()) as PreapprovalResult & {
+    message?: string;
+    error?: string;
+    cause?: Array<{ code?: string; description?: string }>;
+  };
+  if (!resp.ok) {
+    const cause = data.cause?.[0]?.description || data.message || data.error;
+    throw new PreapprovalError(
+      cause || `MP preapproval falló (HTTP ${resp.status})`,
+      data
+    );
+  }
+  return data;
+}
+
+export class PreapprovalError extends Error {
+  rawResponse: unknown;
+  constructor(message: string, rawResponse: unknown) {
+    super(message);
+    this.name = "PreapprovalError";
+    this.rawResponse = rawResponse;
+  }
+}
+
+/**
+ * Lee una preapproval de MP por ID. Usado por el webhook para sync de
+ * estado (authorized → active, cancelled → expired, etc).
+ */
+export async function getPreapproval(
+  preapprovalId: string
+): Promise<PreapprovalResult & { external_reference?: string; status: string }> {
+  const accessToken = getAccessToken();
+  const resp = await fetch(
+    `https://api.mercadopago.com/preapproval/${preapprovalId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+  if (!resp.ok) {
+    throw new Error(`MP getPreapproval HTTP ${resp.status}`);
+  }
+  return (await resp.json()) as PreapprovalResult & { status: string };
+}
+
+/**
+ * Cancela una preapproval (cuando el user cancela su suscripción).
+ * Setea status='cancelled' en MP — ya no se cobrará más.
+ */
+export async function cancelPreapproval(preapprovalId: string): Promise<void> {
+  const accessToken = getAccessToken();
+  const resp = await fetch(
+    `https://api.mercadopago.com/preapproval/${preapprovalId}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: "cancelled" }),
+    }
+  );
+  if (!resp.ok) {
+    throw new Error(`MP cancelPreapproval HTTP ${resp.status}`);
+  }
+}
+
+/**
+ * Lee un payment de MP por ID. Usado por el webhook cuando recibe
+ * notif type='payment'.
+ */
+export async function getPayment(paymentId: string): Promise<{
+  id: number;
+  status: string;
+  status_detail: string;
+  transaction_amount: number;
+  payment_method_id?: string;
+  external_reference?: string;
+  metadata?: Record<string, unknown>;
+  card?: { last_four_digits?: string };
+}> {
+  const accessToken = getAccessToken();
+  const resp = await fetch(
+    `https://api.mercadopago.com/v1/payments/${paymentId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+  if (!resp.ok) {
+    throw new Error(`MP getPayment HTTP ${resp.status}`);
+  }
+  return await resp.json();
+}
