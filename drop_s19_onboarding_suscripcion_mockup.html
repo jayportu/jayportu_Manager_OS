@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DROP. — Mockup S19 · Onboarding + Suscripción</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --cream: #F4EFE7;
+      --ink: #0A0A0A;
+      --orange: #FF5C00;
+      --mute: #6B6B6B;
+      --subtle: #B8AE9C;
+      --panel: #fff;
+      --line: #E5E1D8;
+      --danger: #C53030;
+      --warning: #C77A00;
+      --success: #1F8A5C;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, -apple-system, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    .display { font-family: Anton, Impact, sans-serif; line-height: 0.9; }
+    .mono { font-family: 'Space Mono', monospace; letter-spacing: 0.08em; }
+    .page { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* ─── Topbar ─── */
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 12px;
+    }
+    .topbar h1 { font-family: Anton, Impact, sans-serif; font-size: 38px; margin: 0; }
+    .topbar h1 .dot { color: var(--orange); }
+    .topbar p { margin: 6px 0 0; max-width: 580px; font-size: 13px; color: var(--mute); }
+
+    /* ─── Tabs ─── */
+    .tabs {
+      display: flex;
+      border: 2px solid var(--ink);
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      flex: 1;
+      min-width: 130px;
+      padding: 11px 12px;
+      background: var(--cream);
+      color: var(--ink);
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: none;
+      border-right: 2px solid var(--ink);
+      transition: background-color .15s, color .15s;
+      text-align: left;
+    }
+    .tab:last-child { border-right: none; }
+    .tab:hover { background: var(--ink); color: var(--orange); }
+    .tab.is-active { background: var(--orange); color: var(--ink); }
+    .tab .step {
+      display: block;
+      font-size: 8px;
+      opacity: 0.7;
+      margin-bottom: 2px;
+    }
+
+    .pane { display: none; }
+    .pane.is-active { display: block; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 26px;
+      align-items: start;
+    }
+    @media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ─── Notas técnicas a la derecha ─── */
+    .notes {
+      border: 2px solid var(--ink);
+      background: #fff;
+      padding: 16px 18px;
+      position: sticky;
+      top: 16px;
+    }
+    .notes h3 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 22px;
+      margin: 0 0 6px;
+    }
+    .notes h3 .dot { color: var(--orange); }
+    .notes .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .notes ul { padding-left: 18px; margin: 6px 0 0; font-size: 13px; }
+    .notes li { margin-bottom: 6px; }
+    .notes code {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      background: var(--cream);
+      padding: 1px 4px;
+      border: 1px solid var(--line);
+    }
+
+    /* ─── Phone frame (mockups inline) ─── */
+    .phone {
+      border: 2px solid var(--ink);
+      background: #fff;
+      box-shadow: 8px 8px 0 0 var(--orange);
+      overflow: hidden;
+    }
+
+    /* ─── App topbar mockup ─── */
+    .app-topbar {
+      background: var(--cream);
+      border-bottom: 2px solid var(--ink);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-topbar .logo {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 24px;
+    }
+    .app-topbar .logo .dot { color: var(--orange); }
+    .trial-banner {
+      flex: 1;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border: 2px solid var(--ink);
+      background: var(--orange);
+      color: var(--ink);
+    }
+    .trial-banner.warning { background: var(--warning); color: var(--ink); }
+    .trial-banner.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+    .app-body {
+      padding: 22px 18px;
+      background: var(--cream);
+      min-height: 360px;
+    }
+
+    /* ─── Generic cards ─── */
+    .card {
+      border: 2px solid var(--ink);
+      background: #fff;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .card h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 32px;
+      margin: 0 0 6px;
+      line-height: 1;
+    }
+    .card h2 .dot { color: var(--orange); }
+    .card p { margin: 0 0 10px; font-size: 14px; }
+    .muted { color: var(--mute); font-size: 13px; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 2px solid var(--ink);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--orange);
+    }
+    .btn-primary:hover { background: var(--orange); color: var(--ink); }
+    .btn-outline {
+      background: var(--cream);
+      color: var(--ink);
+    }
+    .btn-outline:hover { background: var(--ink); color: var(--orange); }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .btn-orange {
+      background: var(--orange);
+      color: var(--ink);
+    }
+
+    /* ─── Paywall modal ─── */
+    .paywall-shell {
+      background: rgba(10,10,10,0.85);
+      padding: 32px 18px;
+      border: 2px solid var(--ink);
+    }
+    .paywall-card {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--cream);
+      border: 3px solid var(--ink);
+      box-shadow: 12px 12px 0 0 var(--orange);
+      padding: 28px;
+    }
+    .paywall-card .icon-circle {
+      width: 56px;
+      height: 56px;
+      border: 2px solid var(--ink);
+      background: var(--orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .paywall-card h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 38px;
+      line-height: 0.95;
+      margin: 0 0 8px;
+    }
+    .paywall-card h2 .dot { color: var(--orange); }
+
+    /* ─── Plan selector ─── */
+    .plan-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    @media (max-width: 540px) { .plan-options { grid-template-columns: 1fr; } }
+    .plan-option {
+      border: 2px solid var(--ink);
+      padding: 12px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .plan-option:hover { background: #fff; }
+    .plan-option.is-selected {
+      background: var(--orange);
+      color: var(--ink);
+    }
+    .plan-option .small {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .plan-option .name {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 22px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .plan-option .desc {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* ─── Checkout form mock ─── */
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .checkout-grid input {
+      padding: 10px;
+      border: 2px solid var(--ink);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      background: var(--cream);
+    }
+    .checkout-grid input.full { grid-column: 1 / -1; }
+
+    /* ─── Active subscription ─── */
+    .sub-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .sub-row:last-child { border-bottom: none; }
+    .sub-row .lbl {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    .sub-row .val {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 2px solid var(--ink);
+    }
+    .badge-active { background: var(--orange); color: var(--ink); }
+    .badge-cancelled { background: var(--warning); color: var(--ink); }
+    .badge-expired { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+    /* ─── Cancel modal ─── */
+    .confirm-card {
+      max-width: 420px;
+      margin: 16px auto;
+      background: #fff;
+      border: 2px solid var(--ink);
+      padding: 20px;
+    }
+    .footnote {
+      margin-top: 24px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--mute);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="topbar">
+      <div>
+        <h1>S19 · Onboarding + Suscripción<span class="dot">.</span></h1>
+        <p>Mockup del flujo completo: trial de 7 días → paywall → checkout MP (PAT o manual) → gestión → cancelación. Hace click en las pestañas para recorrer cada momento del flow.</p>
+      </div>
+      <div class="mono" style="font-size:11px; color:var(--mute);">DROP. — mockup · 2026-05-28</div>
+    </header>
+
+    <div class="tabs" id="tabs">
+      <button class="tab is-active" data-pane="trial"><span class="step">DÍA 1</span>Trial activo</button>
+      <button class="tab" data-pane="warning"><span class="step">DÍA 5</span>Aviso 2 días</button>
+      <button class="tab" data-pane="paywall"><span class="step">DÍA 8</span>Paywall</button>
+      <button class="tab" data-pane="checkout"><span class="step">PAGO</span>Checkout MP</button>
+      <button class="tab" data-pane="fallback"><span class="step">EDGE</span>Tarjeta sin PAT</button>
+      <button class="tab" data-pane="active"><span class="step">VIVA</span>Gestión</button>
+      <button class="tab" data-pane="cancel"><span class="step">SALIDA</span>Cancelar</button>
+    </div>
+
+    <!-- ════════════════════ DÍA 1 — Trial activo ════════════════════ -->
+    <div class="pane is-active" data-pane="trial">
+      <div class="grid-2">
+        <div>
+          <div class="phone">
+            <div class="app-topbar">
+              <div class="logo">DROP<span class="dot">.</span></div>
+              <div class="trial-banner">● TRIAL · 7 DÍAS RESTANTES</div>
+            </div>
+            <div class="app-body">
+              <div class="card" style="background:var(--orange);">
+                <div class="card-title" style="color:var(--ink);">— BIENVENIDA</div>
+                <h2>Bienvenido a DROP<span class="dot" style="color:var(--ink);text-decoration:underline;">.</span></h2>
+                <p style="font-size:14px;">Tienes <strong>7 días gratis</strong> para probar todo. Sin tarjeta, sin compromiso.</p>
+                <a class="btn btn-outline" style="background:#fff;">EMPEZAR EL TOUR →</a>
+              </div>
+              <div class="card">
+                <div class="card-title">— TU PRIMER PASO</div>
+                <h2 style="font-size:24px;">Completa tu perfil<span class="dot">.</span></h2>
+                <p class="muted">Sube tu foto, biografía y tech rider. Es lo que un booker va a ver de ti.</p>
+                <a class="btn btn-primary">Ir a perfil →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— DÍA 1</div>
+          <h3>Cómo arranca<span class="dot">.</span></h3>
+          <ul>
+            <li><strong>Banner naranja</strong> en el Topbar muestra los días restantes (reusa el banner de beta).</li>
+            <li>Welcome card amistosa pero <strong>sin pedir tarjeta</strong> al inicio.</li>
+            <li>Acceso completo a todas las features del OS.</li>
+            <li>Tracker en <code>usage_events</code>: <code>trial_started</code>.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ════════════════════ DÍA 5 — Aviso ════════════════════ -->
+    <div class="pane" data-pane="warning">
+      <div class="grid-2">
+        <div>
+          <div class="phone">
+            <div class="app-topbar">
+              <div class="logo">DROP<span class="dot">.</span></div>
+              <div class="trial-banner warning">⚠ TRIAL · 2 DÍAS RESTANTES</div>
+            </div>
+            <div class="app-body">
+              <div class="card" style="border-color:var(--warning); background:#FFF6E6;">
+                <div class="card-title" style="color:var(--warning);">— TU TRIAL CASI TERMINA</div>
+                <h2>Quedan 2 días<span class="dot">.</span></h2>
+                <p>Sigue usando DROP después del trial por <strong>$10.000 al mes</strong>. Cancelas cuando quieras.</p>
+                <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                  <a class="btn btn-primary">Suscribirme ahora →</a>
+                  <a class="btn btn-outline">Ver detalles</a>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">— LO QUE OBTIENES</div>
+                <ul style="margin:8px 0 0 18px; font-size:13px; line-height:1.7;">
+                  <li>CRM completo + campañas masivas</li>
+                  <li>Press kit público con tu URL propia</li>
+                  <li>Calendario con Google Calendar</li>
+                  <li>Stats de growth en todas tus redes</li>
+                  <li>Avisos automáticos a tus bookers</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— ESCALERA DE AVISOS</div>
+          <h3>Triggers automáticos<span class="dot">.</span></h3>
+          <ul>
+            <li><strong>Día 5</strong>: email + banner ámbar in-app.</li>
+            <li><strong>Día 6</strong>: email recordatorio.</li>
+            <li><strong>Día 7</strong> 21:00: último email "tu trial vence hoy".</li>
+            <li><strong>Día 8</strong>: lockout + paywall modal.</li>
+            <li>Tracker: <code>trial_warning_shown</code>, <code>trial_warning_clicked</code> para medir conversión.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ════════════════════ DÍA 8 — Paywall ════════════════════ -->
+    <div class="pane" data-pane="paywall">
+      <div class="grid-2">
+        <div>
+          <div class="paywall-shell">
+            <div class="paywall-card">
+              <div class="icon-circle"><i data-lucide="lock" style="width:24px;height:24px;color:var(--ink);"></i></div>
+              <div class="card-title">— TRIAL TERMINÓ</div>
+              <h2>Gracias por probar<span class="dot">.</span></h2>
+              <p style="font-size:14px;">Tu trial de 7 días llegó al final. Para seguir usando DROP, suscríbete por <strong>$10.000 / mes</strong>. Sin contratos. Cancelas cuando quieras.</p>
+
+              <div class="plan-options">
+                <div class="plan-option is-selected">
+                  <div class="small">★ RECOMENDADO</div>
+                  <div class="name">Pago automático<span class="dot">.</span></div>
+                  <div class="desc">$10.000 / mes con tarjeta. Te cobramos solo cada mes, sin que tengas que hacer nada.</div>
+                </div>
+                <div class="plan-option">
+                  <div class="small">SIN AUTOMATIZACIÓN</div>
+                  <div class="name">Mes a mes<span class="dot">.</span></div>
+                  <div class="desc">$10.000 / mes con pago manual. Te avisamos antes de cada vencimiento.</div>
+                </div>
+              </div>
+
+              <a class="btn btn-primary" style="width:100%; justify-content:center;">Continuar al pago →</a>
+              <p class="muted" style="margin-top:14px; font-size:11px;">O <a href="#" style="color:var(--mute);">cerrar sesión</a> y reactivar cuando quieras.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— LOCKOUT</div>
+          <h3>Comportamiento<span class="dot">.</span></h3>
+          <ul>
+            <li>Modal <strong>bloqueante</strong> sobre cualquier ruta de la app (igual al beta-expired actual).</li>
+            <li>Solo dos salidas: <strong>suscribirse</strong> o <strong>cerrar sesión</strong>.</li>
+            <li>Los datos del DJ <strong>quedan intactos</strong>. Si paga después, sigue desde donde estaba.</li>
+            <li>El bloqueo lee de <code>subscriptions.status</code> + <code>dj_profile.beta_status</code>.</li>
+            <li>Admin queda exento.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ════════════════════ Checkout MP ════════════════════ -->
+    <div class="pane" data-pane="checkout">
+      <div class="grid-2">
+        <div>
+          <div class="paywall-shell">
+            <div class="paywall-card">
+              <div class="card-title">— PAGO AUTOMÁTICO · MERCADOPAGO</div>
+              <h2>Activa tu suscripción<span class="dot">.</span></h2>
+              <p style="font-size:14px;">Plan: <strong>DROP. Pro · $10.000 / mes</strong>. Primer cobro hoy, después automático cada mes.</p>
+
+              <div style="background:#fff; border:2px solid var(--ink); padding:14px; margin:14px 0;">
+                <div class="card-title" style="margin-bottom:8px;">— DATOS DE TARJETA</div>
+                <div class="checkout-grid">
+                  <input class="full" placeholder="Número de tarjeta" inputmode="numeric" autocomplete="cc-number" />
+                  <input placeholder="MM / AA" inputmode="numeric" autocomplete="cc-exp" />
+                  <input type="password" placeholder="CVV" inputmode="numeric" maxlength="4" autocomplete="cc-csc" />
+                  <input class="full" placeholder="Nombre como aparece en la tarjeta" autocomplete="cc-name" />
+                  <input class="full" placeholder="RUT" />
+                </div>
+                <p class="muted" style="font-size:11px; margin:8px 0 0;">
+                  🔒 Los datos viajan directo a MercadoPago. DROP. no los guarda.
+                </p>
+              </div>
+
+              <a class="btn btn-primary" style="width:100%; justify-content:center;">Confirmar pago · $10.000 CLP →</a>
+              <p class="muted" style="margin-top:10px; font-size:11px;">Al continuar aceptas los <a href="#" style="color:var(--mute);">Términos</a>. Puedes cancelar la suscripción cuando quieras.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— TÉCNICO</div>
+          <h3>Qué pasa por debajo<span class="dot">.</span></h3>
+          <ul>
+            <li>Form integrado con <strong>MP SDK</strong> (Card Token Js) → genera <code>card_token</code> sin que la tarjeta toque tu server.</li>
+            <li>El backend de DROP. crea una <strong>preapproval</strong> en MP con el token + <code>reason: "DROP. Pro"</code> + <code>auto_recurring</code> mensual de $10.000.</li>
+            <li>MP devuelve <code>preapproval_id</code> → se guarda en <code>subscriptions</code> con status pending.</li>
+            <li>Primer cobro inmediato → webhook <code>payment.created</code> marca status = <code>active</code>.</li>
+            <li><code>dj_profile.beta_status</code> pasa a <code>paying</code>.</li>
+            <li>Banner de trial desaparece, modal de lockout deshabilitado.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ════════════════════ Fallback PAT → manual ════════════════════ -->
+    <div class="pane" data-pane="fallback">
+      <div class="grid-2">
+        <div>
+          <div class="paywall-shell">
+            <div class="confirm-card" style="border-color:var(--warning); background:#FFF6E6;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <i data-lucide="alert-triangle" style="width:22px;height:22px;color:var(--warning);"></i>
+                <div class="card-title" style="color:var(--warning); margin:0;">— TARJETA NO SOPORTA PAT</div>
+              </div>
+              <h2 style="font-family:Anton; font-size:26px; margin:6px 0 8px;">Tu banco no permite cobros automáticos<span class="dot">.</span></h2>
+              <p style="font-size:13px;">No te preocupes — tienes dos opciones para seguir suscrito:</p>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+                <a class="btn btn-primary" style="justify-content:center;">Probar con otra tarjeta →</a>
+                <a class="btn btn-orange" style="justify-content:center;">Activar pago mes a mes (manual) →</a>
+              </div>
+              <p class="muted" style="margin-top:14px; font-size:11px;">
+                Pago manual: cada mes te llega un email con tu link de pago.
+                Si no pagas en 7 días, se suspende la cuenta hasta que regularices.
+              </p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— EDGE CASE</div>
+          <h3>El 10% con débito local<span class="dot">.</span></h3>
+          <ul>
+            <li>MP API responde con error de "no autorizada para recurrencia" al crear la preapproval.</li>
+            <li>Capturamos ese error → modal con dos salidas (otra tarjeta o modo manual).</li>
+            <li>Modo manual: <code>subscriptions.payment_mode = 'manual'</code>. Cron mensual genera link de pago, manda email con CTA.</li>
+            <li>Si no paga en <strong>7 días post-vencimiento</strong> → lockout (mismo modal).</li>
+            <li>El DJ se entera de un solo problema: "vence el día X". UX limpio.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ════════════════════ Suscripción activa ════════════════════ -->
+    <div class="pane" data-pane="active">
+      <div class="grid-2">
+        <div>
+          <div class="phone">
+            <div class="app-topbar">
+              <div class="logo">DROP<span class="dot">.</span></div>
+              <div style="flex:1;"></div>
+              <span class="mono" style="font-size:10px; color:var(--mute);">CONFIGURACIÓN / SUSCRIPCIÓN</span>
+            </div>
+            <div class="app-body">
+              <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+                  <div>
+                    <div class="card-title">— MI SUSCRIPCIÓN</div>
+                    <h2>DROP. Pro<span class="dot">.</span></h2>
+                  </div>
+                  <span class="badge badge-active">● ACTIVA</span>
+                </div>
+                <div style="margin-top:14px;">
+                  <div class="sub-row"><span class="lbl">Plan</span><span class="val">$10.000 / mes</span></div>
+                  <div class="sub-row"><span class="lbl">Modo de pago</span><span class="val">PAT · Visa ••••4521</span></div>
+                  <div class="sub-row"><span class="lbl">Próximo cobro</span><span class="val">28 jun 2026</span></div>
+                  <div class="sub-row"><span class="lbl">Suscrita desde</span><span class="val">28 may 2026</span></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">— ACCIONES</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+                  <a class="btn btn-outline">Cambiar tarjeta</a>
+                  <a class="btn btn-outline">Ver historial</a>
+                  <a class="btn btn-danger" style="border-color:var(--danger);">Cancelar suscripción</a>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">— HISTORIAL</div>
+                <div class="sub-row"><span class="lbl">28 may 2026</span><span class="val">$10.000 · Pagado ✓</span></div>
+                <div class="sub-row"><span class="lbl">21 may 2026</span><span class="val">Trial iniciado</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— GESTIÓN</div>
+          <h3>/configuracion/suscripcion<span class="dot">.</span></h3>
+          <ul>
+            <li><strong>Estado en vivo</strong> · refleja exactamente lo que MP tiene (sincronizado vía webhook).</li>
+            <li><strong>Cambiar tarjeta</strong> · MP genera link específico para actualizar método sin perder la suscripción.</li>
+            <li><strong>Historial</strong> · lee de tu tabla <code>subscription_payments</code> + <code>usage_events</code>.</li>
+            <li><strong>Cancelar</strong> · botón rojo, va al modal de confirmación (próxima pestaña).</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ════════════════════ Cancelar ════════════════════ -->
+    <div class="pane" data-pane="cancel">
+      <div class="grid-2">
+        <div>
+          <div class="phone">
+            <div class="app-topbar">
+              <div class="logo">DROP<span class="dot">.</span></div>
+              <div style="flex:1;"></div>
+              <span class="mono" style="font-size:10px; color:var(--mute);">CANCELAR</span>
+            </div>
+            <div class="app-body" style="background:rgba(10,10,10,0.05);">
+              <div class="confirm-card">
+                <div class="card-title" style="color:var(--danger);">— ¿SEGURO?</div>
+                <h2 style="font-family:Anton; font-size:26px; margin:6px 0 12px;">Cancelar suscripción<span class="dot">.</span></h2>
+                <p style="font-size:13px;">Si cancelas hoy:</p>
+                <ul style="font-size:13px; padding-left:18px; line-height:1.7;">
+                  <li>Mantienes acceso completo hasta el <strong>28 jun 2026</strong> (fin del período pagado).</li>
+                  <li>No se cobra más después de esa fecha.</li>
+                  <li>No hay reembolso del período actual.</li>
+                  <li>Tus datos no se borran — puedes reactivar cuando quieras.</li>
+                </ul>
+
+                <p style="font-size:13px; margin-top:14px;"><strong>¿Por qué cancelas?</strong> (opcional, nos ayuda a mejorar)</p>
+                <textarea style="width:100%; border:2px solid var(--ink); padding:8px; font-family:inherit; font-size:13px; min-height:60px;" placeholder="Cuéntame brevemente..."></textarea>
+
+                <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                  <a class="btn btn-outline" style="flex:1; justify-content:center;">Mejor sigo suscrito</a>
+                  <a class="btn btn-danger" style="flex:1; justify-content:center;">Confirmar cancelación</a>
+                </div>
+              </div>
+
+              <!-- Estado post-cancelación -->
+              <div class="confirm-card" style="margin-top:14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <strong style="font-size:14px;">Post-cancelación</strong>
+                  <span class="badge badge-cancelled">CANCELADA · ACCESO HASTA 28 JUN</span>
+                </div>
+                <p class="muted" style="font-size:12px; margin-top:8px;">
+                  El DJ ve este estado en /configuracion/suscripcion hasta el día del corte.
+                  Botón "Reactivar suscripción" disponible para arrepentirse.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <div class="tag">— CANCELACIÓN</div>
+          <h3>Política + UX<span class="dot">.</span></h3>
+          <ul>
+            <li><strong>Cancela al fin del período</strong> · no inmediato. Manteniene fairness (ya pagó por el mes).</li>
+            <li><strong>Sin reembolso</strong> parcial. Es lo estándar y simple.</li>
+            <li><strong>Reactivación</strong> sin penalidad. Hasta que llega el corte, un click vuelve a activar.</li>
+            <li>Pregunta opcional "¿por qué cancelas?" → loguea en <code>usage_events</code> como <code>subscription_cancel_reason</code> para entender churn.</li>
+            <li>Email de cierre: "Lamentamos verte ir. Tu acceso sigue hasta X. Cualquier cosa, respondes este correo."</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <p class="footnote">→ Si te gusta, lo implemento. Si quieres ajustar el copy, el orden o agregar algún paso, dime y lo cambio antes de codear.</p>
+  </div>
+
+  <script>
+    document.getElementById('tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('.tab');
+      if (!btn) return;
+      const pane = btn.dataset.pane;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('is-active', t === btn));
+      document.querySelectorAll('.pane').forEach(p => p.classList.toggle('is-active', p.dataset.pane === pane));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Plan selector toggle
+    document.querySelectorAll('.plan-option').forEach(el => {
+      el.addEventListener('click', e => {
+        const parent = el.closest('.plan-options');
+        if (!parent) return;
+        parent.querySelectorAll('.plan-option').forEach(o => o.classList.remove('is-selected'));
+        el.classList.add('is-selected');
+      });
+    });
+
+    lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+  </script>
+</body>
+</html>

@@ -4,6 +4,56 @@
 > Si abres el proyecto y no sabes dónde estás o qué sigue, empieza acá.
 > El `README.md` solo describe qué es DROP. y cómo levantarlo. Todo lo de
 > "dónde voy / qué falta / qué decidí" vive en este archivo.
+
+---
+
+## 🎯 CÓMO RETOMAR — Resumen de sesión 2026-05-29
+
+**Estado al cierre**: todo lo de las sesiones de mayo está deployado a `main`.
+
+### Live en prod
+- ✅ Sprints **RA-1** (perfil pro: stats + booking info) y **RA-3** (seguir + notif por email) cerrados.
+- ✅ **Sprint S19 (Suscripción MP)** code-complete en 4 fases. F2 visualmente verificado en localhost; F3 (checkout MP) verificación end-to-end **diferida a prod**. Ver sección 12.
+- ✅ Mobile rework: BottomNav → menú desplegable con todos los items.
+- ✅ Iconos lucide en sidebar con slide-in.
+- ✅ Deuda técnica barrida (`created_contact_id` auto-promote, `/growth/ads` rename, etc).
+- ✅ Migraciones en prod: `0023` (admin Fer), `0024` (avatar), `0025` (press-kits 25MB), `0026` (follow_notifications), `0027` (dj_update_events), `0028` (subscriptions).
+- ✅ Beta legacy users (9 actuales) **NO se ven afectados** por ningún cambio nuevo — su flow original se mantiene hasta que la beta termine.
+
+### Próximo sprint sugerido (cuando quieras)
+**RA-2 Parte A · DROP Picks** (~3-4h, bajo riesgo) — fila curada de DJs destacados en `/dj` con toggle ⭐ desde admin. Detalle en sección 11.
+
+### Decisiones abiertas que destraban sprints
+- **Q02** Firma electrónica (define S18.5) — simple click-wrap recomendado.
+- **Q03** Gateway de pago: ✅ **decidido MercadoPago** (S19 ya construido, esperando prod).
+- **Lanzar registro de Booker** (backend listo, hoy en "Próximamente").
+
+### Para retomar S19 cuando salga el sitio oficial
+Ver sección 12. En resumen, 5 pasos:
+1. Cambiar credenciales MP de TEST → PROD en Vercel.
+2. Configurar webhook URL en MP panel.
+3. Generar `MP_WEBHOOK_SECRET`.
+4. Probar con tarjeta real (cobro mínimo refundable).
+5. Activar.
+
+### Activos útiles para próximas sesiones
+- **Script de user fantasma**: `scripts/setup_trial_test_user.mjs` — crea/refresca user con `beta_status='none'` para testear el flow nuevo de trial+suscripción. Credenciales:
+  - Email: `trial-test@dropdj.local`
+  - Password: `DropTrial2026!`
+  - User ID: `621a56ac-a23a-473c-9025-77e4c1c5e1dc`
+- **Mockups HTML para revisar UX antes de codear**:
+  - `drop_sidebar_icons_mockup.html` (iconos sidebar — implementado)
+  - `drop_ra3_seguir_notif_mockup.html` (RA-3 — implementado)
+  - `drop_ra3_email_preview.html` (email RA-3 — implementado)
+  - `drop_s19_onboarding_suscripcion_mockup.html` (S19 7 pestañas — implementado)
+  - `~/Desktop/drop_journey_pago_suscripcion.html` (S19 journey linear para Fer)
+
+### Lecciones aprendidas (memoria persistente)
+- **Tuteo chileno siempre** — `tono_drop.md` en memoria. Nunca voseo argentino.
+- **Antes de push a main correr `npm run build`** — `tsc --noEmit` no atrapa errores de ESLint. Y **detener el preview server antes** porque pisa el `.next` y rompe el dev. Ver `vercel_build_lesson_drop.md`.
+- **Working style**: estructurar en capas, una decisión a la vez, un solo siguiente paso. No abrumar. Ver `feedback_working_style_drop.md`.
+
+---
 >
 > Última actualización: 2026-05-28 (noche)
 > Última actualización: 2026-05-29
