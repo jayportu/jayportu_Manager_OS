@@ -38,6 +38,37 @@ export default async function ConfiguracionPage() {
         </p>
       </div>
 
+      {/* S19 — Link a gestión de suscripción (oculto para legacy beta users) */}
+      {!["active", "expired"].includes(profile?.beta_status ?? "") && (
+        <Link
+          href="/configuracion/suscripcion"
+          className="block mb-8 p-5 border-2 border-ink bg-white hover:bg-cream/40 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
+                — SUSCRIPCIÓN
+              </div>
+              <div
+                className="leading-none"
+                style={{
+                  fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                  fontSize: "26px",
+                }}
+              >
+                Mi suscripción<span className="text-orange">.</span>
+              </div>
+              <p className="text-xs text-fg-muted mt-1">
+                Estado, próximo cobro, historial y cancelación.
+              </p>
+            </div>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-fg-muted group-hover:text-orange transition-colors">
+              Ver →
+            </span>
+          </div>
+        </Link>
+      )}
+
       <div>
         <AvailabilitySection profile={profile} />
       </div>
