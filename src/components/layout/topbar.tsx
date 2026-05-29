@@ -9,6 +9,9 @@ interface TopbarProps {
   userEmail?: string;
   /** Sprint 23.5 — banner con días restantes de beta. null si no es beta. */
   betaDaysRemaining?: number | null;
+  /** Sprint S19 — banner con días restantes del trial. null si no aplica
+   *  (no es trial user, es beta legacy, o ya está pagando). */
+  trialDaysRemaining?: number | null;
 }
 
 /**
@@ -16,8 +19,12 @@ interface TopbarProps {
  * Bg cream con borde inferior 2px ink. Mobile: logo + ticker.
  * Desktop: search + email + cerrar sesión en estilo brutalist.
  */
-export function Topbar({ userEmail, betaDaysRemaining }: TopbarProps) {
-  // Banner color según días restantes:
+export function Topbar({
+  userEmail,
+  betaDaysRemaining,
+  trialDaysRemaining,
+}: TopbarProps) {
+  // Banner color según días restantes (mismo esquema para beta y trial):
   // - >2 días → orange (normal)
   // - 0-2 días → warning (yellow)
   // - <0 días → danger (expirado)
@@ -38,6 +45,22 @@ export function Topbar({ userEmail, betaDaysRemaining }: TopbarProps) {
       : betaDaysRemaining === 0
       ? "BETA · ÚLTIMO DÍA"
       : `BETA · ${betaDaysRemaining} ${betaDaysRemaining === 1 ? "DÍA" : "DÍAS"}`;
+
+  // Sprint S19 — Banner del trial (excluyente con el de beta: nunca
+  // co-existen, porque legacy beta users no entran al flow de trial).
+  const trialBannerColor =
+    trialDaysRemaining === null || trialDaysRemaining === undefined
+      ? null
+      : trialDaysRemaining <= 2
+      ? "bg-warning text-ink border-ink"
+      : "bg-orange text-ink border-ink";
+
+  const trialLabel =
+    trialDaysRemaining === null || trialDaysRemaining === undefined
+      ? null
+      : trialDaysRemaining === 0
+      ? "TRIAL · ÚLTIMO DÍA"
+      : `TRIAL · ${trialDaysRemaining} ${trialDaysRemaining === 1 ? "DÍA" : "DÍAS"}`;
   const router = useRouter();
   const supabase = createClient();
 
@@ -96,6 +119,17 @@ export function Topbar({ userEmail, betaDaysRemaining }: TopbarProps) {
         >
           {betaLabel}
         </span>
+      )}
+
+      {/* Sprint S19 — Banner trial (excluyente con beta) */}
+      {trialLabel && trialBannerColor && (
+        <a
+          href="/suscripcion"
+          className={`hidden sm:inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor}`}
+          title="Click para suscribirte ahora"
+        >
+          {trialLabel}
+        </a>
       )}
 
       {/* Search (desktop) */}

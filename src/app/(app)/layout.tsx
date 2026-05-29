@@ -6,9 +6,15 @@ import { MobileMenu } from "@/components/layout/mobile-menu";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { NpsModal } from "@/components/feedback/nps-modal";
 import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
+import { SubscriptionRequiredModal } from "@/components/subscription/subscription-required-modal";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { getBetaState } from "@/lib/beta-status";
 import { consumeBetaInviteIfAny } from "@/lib/queries/beta-invite";
+import {
+  getOrCreateSubscription,
+  evaluateSubscriptionAccess,
+  isLegacyBetaUser,
+} from "@/lib/queries/subscription";
 
 /**
  * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
@@ -53,6 +59,21 @@ export default async function AppLayout({
     betaApprovedAt: profile?.beta_approved_at ?? null,
   });
 
+  // Sprint S19 — Subscription gating (sistema paralelo a beta).
+  // Solo aplica a users que NO son beta legacy (active/expired). Para
+  // users post-launch (beta_status='none' o 'paying'), gestionamos el
+  // ciclo trial/paying/expired.
+  const isLegacyBeta = isLegacyBetaUser(profile?.beta_status);
+  const subscriptionAccess = isLegacyBeta || profile?.is_admin
+    ? null
+    : evaluateSubscriptionAccess(await getOrCreateSubscription(user.id));
+  const subscriptionBlocked =
+    subscriptionAccess !== null && !subscriptionAccess.hasAccess;
+  const trialDaysRemaining =
+    subscriptionAccess?.reason === "trial"
+      ? subscriptionAccess.daysRemaining
+      : null;
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar fijo (desktop) — se mantiene en su lugar, scrollea internamente si hace falta */}
@@ -67,6 +88,7 @@ export default async function AppLayout({
         <Topbar
           userEmail={user.email}
           betaDaysRemaining={betaState.daysRemaining}
+          trialDaysRemaining={trialDaysRemaining}
         />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
@@ -86,6 +108,20 @@ export default async function AppLayout({
       {/* Sprint 23.5 — Modal bloqueante cuando beta expiró (admin queda exento) */}
       {profile?.beta_status === "expired" && !profile?.is_admin && (
         <BetaExpiredModal />
+      )}
+      {/* Sprint S19 — Modal bloqueante para trial vencido / suscripción
+          expirada (sistema paralelo a beta; admin exento; legacy beta
+          users gestionados arriba). */}
+      {subscriptionBlocked && subscriptionAccess && (
+        <SubscriptionRequiredModal
+          reason={
+            subscriptionAccess.reason === "past_due"
+              ? "past_due"
+              : subscriptionAccess.reason === "trial_expired"
+                ? "trial_expired"
+                : "subscription_expired"
+          }
+        />
       )}
     </div>
   );
