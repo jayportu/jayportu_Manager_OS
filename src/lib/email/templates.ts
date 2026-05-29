@@ -90,7 +90,7 @@ export function betaInviteEmailHtml(input: {
           <tr>
             <td style="padding:32px 8px 0 8px; border-top:1px solid #E5E1D8; margin-top:32px;">
               <p style="font-size:12px; color:#7A7670; margin:16px 0 4px 0;">
-                Recibes este email porque solicitaste acceso a la beta de DROP en jayportu-manager-os.vercel.app/beta. Si no fuiste tú, puedes ignorar este mensaje — sin acción de tu parte no se crea ninguna cuenta.
+                Recibes este email porque solicitaste acceso a la beta de DROP en dropgigs.com/beta. Si no fuiste tú, puedes ignorar este mensaje — sin acción de tu parte no se crea ninguna cuenta.
               </p>
               <p style="font-size:12px; color:#7A7670; margin:8px 0 0 0;">
                 DROP — Santiago, Chile
@@ -130,7 +130,125 @@ ${fromName}
 
 --
 DROP — The DJ OS — Santiago, Chile
-Recibes este email porque solicitaste acceso a la beta en jayportu-manager-os.vercel.app/beta.`;
+Recibes este email porque solicitaste acceso a la beta en dropgigs.com/beta.`;
+}
+
+/**
+ * Sprint S20 — Email a cuentas huérfanas: el user creó cuenta antes de que
+ * cerráramos el signup, pero NUNCA pasó por la waitlist y NO está aprobado.
+ *
+ * Se usa desde el backoffice (botón "Limpiar" en la tabla de usuarios) junto
+ * con el borrado de la cuenta. Tono cordial — el caso típico es alguien
+ * que tropezó con la app sin contexto y se registró pensando que era abierta.
+ *
+ * NO firmado con nombre personal. Firma genérica "DROP. Team".
+ */
+export function needsBetaRequestEmailHtml(input: {
+  artistName?: string;
+  betaUrl: string;
+}): string {
+  const greeting = input.artistName
+    ? `Hola ${escapeHtml(input.artistName)},`
+    : `Hola,`;
+  return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tu cuenta en DROP — falta un paso</title>
+</head>
+<body style="margin:0; padding:0; background:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; color:#0A0A0A; line-height:1.5;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ffffff;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px; width:100%;">
+
+          <!-- Brand line discreta -->
+          <tr>
+            <td style="padding:0 8px 24px 8px;">
+              <div style="font-size:13px; color:#555; letter-spacing:0.5px;">
+                DROP<span style="color:#FF5C00;">.</span> &nbsp;—&nbsp; The DJ OS
+              </div>
+            </td>
+          </tr>
+
+          <!-- Body principal -->
+          <tr>
+            <td style="padding:0 8px;">
+              <p style="font-size:16px; margin:0 0 16px 0;">
+                ${greeting}
+              </p>
+
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Vimos que creaste una cuenta en DROP con este email, pero todavía estamos en beta cerrada y necesitamos que pases por la lista de espera antes de activarte.
+              </p>
+
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                DROP es un sistema operativo para DJs independientes: CRM de contactos, calendario, growth de redes y press kit en un link compartible. Si te interesa probarlo, llena el formulario de acceso acá:
+              </p>
+
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                <a href="${input.betaUrl}" style="color:#0A0A0A; text-decoration:underline;">${input.betaUrl}</a>
+              </p>
+
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Cuando recibamos tu solicitud te aprobamos y te llega un invite con tu acceso directo a la beta de 15 días.
+              </p>
+
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                Cualquier duda, respondes este correo y te leemos.
+              </p>
+
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:#FF5C00;">.</span> Team
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer minimalista -->
+          <tr>
+            <td style="padding:32px 8px 0 8px; border-top:1px solid #E5E1D8; margin-top:32px;">
+              <p style="font-size:12px; color:#7A7670; margin:16px 0 4px 0;">
+                Recibes este email porque alguien (probablemente tú) creó una cuenta con esta dirección en DROP antes de que activáramos el control de acceso por invitación. La cuenta fue eliminada porque no estaba aprobada. Si quieres entrar, usa el link de arriba.
+              </p>
+              <p style="font-size:12px; color:#7A7670; margin:8px 0 0 0;">
+                DROP — Santiago, Chile
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function needsBetaRequestEmailText(input: {
+  artistName?: string;
+  betaUrl: string;
+}): string {
+  const greeting = input.artistName ? `Hola ${input.artistName},` : `Hola,`;
+  return `${greeting}
+
+Vimos que creaste una cuenta en DROP con este email, pero todavía estamos en beta cerrada y necesitamos que pases por la lista de espera antes de activarte.
+
+DROP es un sistema operativo para DJs independientes: CRM de contactos, calendario, growth de redes y press kit en un link compartible. Si te interesa probarlo, llena el formulario de acceso acá:
+
+${input.betaUrl}
+
+Cuando recibamos tu solicitud te aprobamos y te llega un invite con tu acceso directo a la beta de 15 días.
+
+Cualquier duda, respondes este correo y te leemos.
+
+Saludos,
+DROP. Team
+
+--
+DROP — The DJ OS — Santiago, Chile
+Recibes este email porque alguien (probablemente tú) creó una cuenta con esta dirección en DROP antes de que activáramos el control de acceso por invitación. La cuenta fue eliminada porque no estaba aprobada. Si quieres entrar, usa el link de arriba.`;
 }
 
 /**

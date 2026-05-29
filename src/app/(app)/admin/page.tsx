@@ -14,6 +14,7 @@ import {
   getGlobalMetrics,
 } from "@/lib/queries/admin";
 import { relativeTime, dateTime, shortDate } from "@/lib/format";
+import { DeletePendingUserButton } from "./delete-pending-user-button";
 
 export const dynamic = "force-dynamic";
 
@@ -160,6 +161,7 @@ export default async function AdminPage() {
                     <th className="px-3 py-2.5 font-semibold text-right">Posts</th>
                     <th className="px-3 py-2.5 font-semibold text-right">Snaps</th>
                     <th className="px-3 py-2.5 font-semibold">Estado</th>
+                    <th className="px-3 py-2.5 font-semibold text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -217,6 +219,16 @@ export default async function AdminPage() {
                             <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-warning">
                               pendiente
                             </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                          {!isOnboarded && !u.is_admin ? (
+                            <DeletePendingUserButton
+                              userId={u.user_id}
+                              email={u.email}
+                            />
+                          ) : (
+                            <span className="text-fg-subtle text-xs">—</span>
                           )}
                         </td>
                       </tr>

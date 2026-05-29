@@ -87,6 +87,18 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
       router.refresh();
       router.push("/dashboard");
     } else {
+      // Sprint S20 — Beta cerrada. Si no llegó con invite, refusamos signup
+      // en el cliente como UX hint (la defensa real está en el trigger DB
+      // 0029_enforce_beta_signup que rechaza el insert a auth.users). Sin
+      // este check, alguien que llegue sin invite y manipule el modo via
+      // DevTools vería un error opaco de Supabase en vez del mensaje claro.
+      if (!inviteEmail) {
+        setError(
+          "La beta de DROP es cerrada. Para entrar, solicita acceso en dropgigs.com/beta."
+        );
+        setLoading(false);
+        return;
+      }
       // Validación adicional: si vino con invite, forzar email match.
       // El input está readOnly pero un user con devtools podría cambiarlo.
       if (inviteEmail && email.trim().toLowerCase() !== inviteEmail.toLowerCase()) {
@@ -195,39 +207,45 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
         </Button>
       </form>
 
-      <div className="text-center mt-6 text-sm text-fg-muted">
-        {mode === "login" ? (
-          <>
-            ¿Primera vez?{" "}
-            <button
-              type="button"
-              className="text-accent hover:underline"
-              onClick={() => {
-                setMode("signup");
-                setError(null);
-                setInfo(null);
-              }}
-            >
-              Crear cuenta
-            </button>
-          </>
-        ) : (
-          <>
-            ¿Ya tienes cuenta?{" "}
-            <button
-              type="button"
-              className="text-accent hover:underline"
-              onClick={() => {
-                setMode("login");
-                setError(null);
-                setInfo(null);
-              }}
-            >
-              Iniciar sesión
-            </button>
-          </>
-        )}
-      </div>
+      {/* Sprint S20 — Toggle login/signup. Sin invite, NO ofrecemos "Crear
+          cuenta" (la beta es cerrada — el único camino para nuevos DJs es
+          el form de /beta, mostrado en el bloque de abajo). Con invite, el
+          user empieza en signup y puede volver a login si ya tiene cuenta. */}
+      {inviteEmail && (
+        <div className="text-center mt-6 text-sm text-fg-muted">
+          {mode === "login" ? (
+            <>
+              ¿Primera vez?{" "}
+              <button
+                type="button"
+                className="text-accent hover:underline"
+                onClick={() => {
+                  setMode("signup");
+                  setError(null);
+                  setInfo(null);
+                }}
+              >
+                Crear cuenta
+              </button>
+            </>
+          ) : (
+            <>
+              ¿Ya tienes cuenta?{" "}
+              <button
+                type="button"
+                className="text-accent hover:underline"
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                  setInfo(null);
+                }}
+              >
+                Iniciar sesión
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Sprint 23.5 — Cross-link a /beta para DJs sin cuenta aún */}
       {!inviteEmail && (
