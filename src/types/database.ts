@@ -1237,3 +1237,75 @@ export interface Database {
     };
   };
 }
+
+// ════════════════════════════════════════════════════════════════════
+// Sprint S19 — Subscriptions (MercadoPago)
+// ════════════════════════════════════════════════════════════════════
+
+export const SUBSCRIPTION_STATUSES = [
+  "trial",
+  "pending",
+  "active",
+  "past_due",
+  "cancelled",
+  "expired",
+] as const;
+export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
+
+export const PAYMENT_MODES = ["auto", "manual"] as const;
+export type PaymentMode = (typeof PAYMENT_MODES)[number];
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  status: SubscriptionStatus;
+  payment_mode: PaymentMode;
+
+  // Trial
+  trial_started_at: string | null;
+  trial_ends_at: string | null;
+
+  // MP
+  mp_preapproval_id: string | null;
+  mp_payer_id: string | null;
+  card_last_4: string | null;
+  card_brand: string | null;
+
+  // Período actual
+  current_period_start: string | null;
+  current_period_end: string | null;
+
+  // Cancelación
+  cancel_at_period_end: boolean;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+
+  // Metadata
+  amount_clp: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export const SUBSCRIPTION_PAYMENT_STATUSES = [
+  "approved",
+  "rejected",
+  "pending",
+  "refunded",
+  "cancelled",
+] as const;
+export type SubscriptionPaymentStatus =
+  (typeof SUBSCRIPTION_PAYMENT_STATUSES)[number];
+
+export interface SubscriptionPayment {
+  id: string;
+  subscription_id: string;
+  user_id: string;
+  mp_payment_id: string | null;
+  amount_clp: number;
+  status: SubscriptionPaymentStatus;
+  payment_method: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  raw_metadata: Record<string, unknown>;
+  created_at: string;
+}
