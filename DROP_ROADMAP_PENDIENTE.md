@@ -6,7 +6,8 @@
 > "dónde voy / qué falta / qué decidí" vive en este archivo.
 >
 > Última actualización: 2026-05-28 (noche)
-> Estado git: Bloques B + C mergeados a `main` y deployados. Migraciones `0023` (admin Fer), `0024` (foto de perfil), `0025` (bump press-kits a 25 MB), `0026` (follow_notifications) y `0027` (dj_update_events + trigger) corridas en prod. **Sprints RA-1 y RA-3 cerrados · barrido completo de deuda técnica · mobile rework (drawer) · iconos sidebar slide-in.** Siguiente sprint sugerido: **RA-2 Parte A · DROP Picks** (~3-4h, bajo riesgo).
+> Última actualización: 2026-05-29
+> Estado git: Bloques B + C mergeados. Migraciones `0023` (admin Fer), `0024` (avatar), `0025` (press-kits 25MB), `0026` (follow_notifications), `0027` (dj_update_events) y `0028` (subscriptions) corridas en prod. **Sprints RA-1 y RA-3 cerrados · S19 Suscripción MP code-complete (verificación de checkout diferida a prod, ver nota abajo) · barrido completo de deuda técnica · mobile rework · iconos sidebar slide-in.** Siguiente sprint sugerido: **RA-2 Parte A · DROP Picks** (~3-4h, bajo riesgo).
 
 ---
 
@@ -364,6 +365,45 @@ Review completo de `es.ra.co` para traer a DROP. lo que aplica al modelo (OS de 
 **Parte B "Para ti"** queda diferida hasta que haya más bookers activos con favoritos (hoy 1-2 con datos suficientes).
 
 **RA-4 · Panel multi-entidad** queda como último de la track porque es un cambio de arquitectura mayor (rompe el modelo `user_id ↔ dj_profile` 1:1).
+
+---
+
+## 12 · Sprint S19 · Suscripción MercadoPago (code-complete · verificación diferida)
+
+Sistema de suscripción $10.000 CLP/mes vía MercadoPago, **paralelo al de beta** (los 9 DJs de beta legacy no se ven afectados). 4 fases entregadas:
+
+| Fase | Estado | Commit |
+|---|---|---|
+| **F1** Schema + SDK MP | ✅ deployado | `ae95df6` |
+| **F2** Trial 7d + paywall lockout | ✅ deployado y **visualmente verificado en localhost** (los 4 estados — trial 7d, trial 2d, vencido, active — se ven bien) | `80f5ea5` |
+| **F3** Checkout MP + webhook | ✅ código deployado, **verificación end-to-end diferida** | `102d218` + `7ea302b` (fix REST API) |
+| **F4** Gestión + cancelar | ✅ deployado | `8d85c34` |
+
+**Por qué F3 está diferida**: probar el checkout MP en sandbox/localhost tiene fricciones que **desaparecen en prod**:
+- Setup de "test users" específicos de MP (no aceptan cualquier email).
+- CORS de MP API desde localhost a veces errático.
+- Necesidad de **cloudflared** para que MP pueda alcanzar el webhook local.
+- Cache de Chrome con chunks viejos durante development (vimos varios "Card token service not found" que eran cache + SDK glitches).
+
+**Plan de reactivación cuando salga el sitio oficial**:
+1. Cambiar `NEXT_PUBLIC_MP_PUBLIC_KEY` y `MP_ACCESS_TOKEN` de TEST a PROD en Vercel.
+2. Configurar webhook URL en MP panel apuntando a `https://<dominio-real>/api/mp/webhook`.
+3. Generar `MP_WEBHOOK_SECRET` en MP panel y guardarlo como env var.
+4. Probar con tarjeta real (cobro de $10 CLP de prueba, refundable).
+5. Activar el sistema para nuevos signups (sin tocar beta legacy users).
+
+**Asuntos cubiertos por el código YA deployado**:
+- ✅ Trial 7 días automático para signups nuevos.
+- ✅ Banner Topbar (naranja → amarillo según días).
+- ✅ Modal paywall bloqueante cuando trial vence.
+- ✅ Form de checkout con MP (REST API direct + CVV protegido).
+- ✅ Server action que crea preapproval (PAT recurrente).
+- ✅ Webhook endpoint que sincroniza estado (preapproval + payment events).
+- ✅ Página de gestión (`/configuracion/suscripcion`) con estado, historial, cancelar.
+- ✅ Fallback PAT → manual cuando la tarjeta no soporta recurrencia.
+- ✅ Política de cancelación (mantiene acceso hasta fin del período, sin reembolso, puede reactivar).
+
+**Mockup compartido con Fer**: `~/Desktop/drop_journey_pago_suscripcion.html` (journey completo vertical scroll).
 
 ---
 
