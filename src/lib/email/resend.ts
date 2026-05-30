@@ -5,7 +5,7 @@ import "server-only";
  *
  * Setup:
  *   1) Crear cuenta en resend.com (gratis 100 emails/día sin tarjeta)
- *   2) Verificar el dominio (drop.dj o jayportu-manager-os.vercel.app)
+ *   2) Verificar el dominio (dropgigs.com)
  *   3) Setear RESEND_API_KEY + RESEND_FROM_EMAIL en Vercel
  *
  * Mientras no esté configurado, sendEmail() devuelve { ok: false } sin
@@ -51,7 +51,7 @@ export interface SendEmailInput {
 function buildAntiSpamHeaders(): Record<string, string> {
   const supportEmail = process.env.RESEND_REPLY_TO || "hola@jayportu.com";
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
   return {
     "List-Unsubscribe": `<mailto:${supportEmail}?subject=unsubscribe>, <${siteUrl}/api/unsubscribe>`,
     "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",

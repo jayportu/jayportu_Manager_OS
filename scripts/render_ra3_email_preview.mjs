@@ -98,7 +98,7 @@ const SAMPLE = {
   bookerName: "Fernanda",
   djArtistName: "Pablo Rocha",
   djSlug: "jay-01a16e87",
-  siteUrl: "https://jayportu-manager-os.vercel.app",
+  siteUrl: "https://dropgigs.com",
   updates: [
     {
       type: "show_scheduled",

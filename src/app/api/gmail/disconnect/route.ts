@@ -14,7 +14,7 @@ export async function POST() {
   try {
     await deleteGmailConnection();
     return NextResponse.redirect(
-      new URL("/gmail", process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app"),
+      new URL("/gmail", process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com"),
       { status: 303 }
     );
   } catch (e) {

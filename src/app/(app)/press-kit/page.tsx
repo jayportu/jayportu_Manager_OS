@@ -37,7 +37,7 @@ export default async function PressKitAdminPage() {
   ]);
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
   const publicUrl = `${baseUrl}/p/${profile.public_slug}`;
 
   const views = summary.byEvent["view"] || 0;

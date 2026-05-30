@@ -26,7 +26,7 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
   const redirectUri =
     (typeof window !== "undefined"
       ? window.location.origin
-      : "https://jayportu-manager-os.vercel.app") + "/api/gmail/callback";
+      : "https://dropgigs.com") + "/api/gmail/callback";
 
   return (
     <Card className="p-6 space-y-4">

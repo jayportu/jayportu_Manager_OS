@@ -48,7 +48,7 @@ export default async function ContactDetailPage({ params }: PageProps) {
   // Contexto para la IA
   const contactContext = buildContactContext(contact, interactions, djProfile);
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
   const presskitUrl = djProfile?.public_slug
     ? `${baseUrl}/p/${djProfile.public_slug}`
     : "";

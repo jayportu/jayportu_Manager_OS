@@ -9,7 +9,7 @@
  *   1. ollama instalado y corriendo (`ollama serve` automático en Mac)
  *   2. modelo descargado (`ollama pull llama3.1:8b-instruct-q4_K_M`)
  *   3. CORS abierto para nuestra URL:
- *      launchctl setenv OLLAMA_ORIGINS "https://jayportu-manager-os.vercel.app,http://localhost:3010"
+ *      launchctl setenv OLLAMA_ORIGINS "https://dropgigs.com,http://localhost:3010"
  *      (luego reiniciar Ollama)
  */
 

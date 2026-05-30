@@ -87,7 +87,7 @@ export async function POST(_req: Request, { params }: Params) {
   }
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
 
   const soundcloudText = formatSoundCloudDescription({
     tracklist,

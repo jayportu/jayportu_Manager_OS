@@ -24,7 +24,7 @@ export function OllamaSetup() {
     }
   }
 
-  const corsCmd = `launchctl setenv OLLAMA_ORIGINS "https://jayportu-manager-os.vercel.app,http://localhost:3010"`;
+  const corsCmd = `launchctl setenv OLLAMA_ORIGINS "https://dropgigs.com,http://localhost:3010"`;
   const restartCmd = `osascript -e 'quit app "Ollama"' && sleep 2 && open -a Ollama`;
   const pullCmd = `ollama pull ${DEFAULT_MODEL}`;
   const pullFallbackCmd = `ollama pull ${FALLBACK_MODEL}`;

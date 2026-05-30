@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           "User-Agent":
-            "JAY-Manager-OS/0.8 (https://jayportu-manager-os.vercel.app)",
+            "JAY-Manager-OS/0.8 (https://dropgigs.com)",
         },
         body: formBody,
         // Timeout corto para no quedar pegado

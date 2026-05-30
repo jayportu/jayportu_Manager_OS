@@ -147,7 +147,7 @@ export function BetaRequestsTable({ initialRequests }: Props) {
     const siteUrl =
       typeof window !== "undefined"
         ? window.location.origin
-        : "https://jayportu-manager-os.vercel.app";
+        : "https://dropgigs.com";
     const link = `${siteUrl}/login?invite=${r.invite_token}`;
     try {
       await navigator.clipboard.writeText(link);

@@ -10,7 +10,7 @@
  *   4. Sincroniza el estado de la subscription / inserta payment row.
  *
  * Para que MP pueda alcanzar este endpoint en dev, usamos cloudflared
- * tunnel (gratis, sin cuenta). En prod queda en jayportu-manager-os.vercel.app.
+ * tunnel (gratis, sin cuenta). En prod queda en dropgigs.com.
  */
 
 import { NextRequest, NextResponse } from "next/server";

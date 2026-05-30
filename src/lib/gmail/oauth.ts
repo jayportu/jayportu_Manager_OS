@@ -38,7 +38,7 @@ export const GMAIL_SCOPES = GOOGLE_SCOPES;
 export function getRedirectUri(): string {
   const base =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://jayportu-manager-os.vercel.app";
+    "https://dropgigs.com";
   return `${base}/api/gmail/callback`;
 }
 

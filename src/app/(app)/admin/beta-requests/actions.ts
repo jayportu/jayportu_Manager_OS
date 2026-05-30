@@ -21,7 +21,7 @@ import type { BetaRequestStatus } from "@/types/database";
 function getSiteUrl(): string {
   return (
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://jayportu-manager-os.vercel.app"
+    "https://dropgigs.com"
   );
 }
 

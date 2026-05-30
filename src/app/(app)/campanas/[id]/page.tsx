@@ -51,7 +51,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
   const candidates = allContacts.filter((c) => !existingIds.has(c.id));
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://jayportu-manager-os.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
