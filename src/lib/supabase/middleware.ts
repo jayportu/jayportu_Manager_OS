@@ -24,6 +24,7 @@ const PUBLIC_PATHS = [
   "/api/growth/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/push/send-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/beta/expire-cron", // Sprint 23.5 cron (protegido con CRON_SECRET)
+  "/api/follow-updates/cron", // Sprint RA-3 cron (protegido con CRON_SECRET)
   "/api/unsubscribe", // List-Unsubscribe header target (Gmail bulk sender req)
   "/sw.js", // service worker debe ser servido sin auth gate
   "/manifest.json", // manifest PWA público
