@@ -4,6 +4,7 @@ import {
   createGCalEvent,
   listGCalEvents,
   deleteGCalEvent,
+  updateGCalEvent,
 } from "@/lib/calendar/client";
 import {
   upsertCalendarEvent,
@@ -80,6 +81,89 @@ export async function createEventAction(args: {
     revalidatePath("/dashboard");
     if (args.contactId) revalidatePath(`/crm/${args.contactId}`);
     return { ok: true, data: { id: row.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+/**
+ * Sprint 24 — Edita campos básicos de un evento existente (título, tipo,
+ * fecha/hora, lugar, descripción). Hace PATCH en Google Calendar + update
+ * local en DB. Espejo de createEventAction.
+ *
+ * Para eventos all_day: no se permite cambiar fechas desde acá (requiere
+ * manejar `date` vs `dateTime` en GCal); el dialog las oculta.
+ */
+export async function updateEventAction(
+  eventId: string,
+  patch: {
+    type?: CalendarEventType;
+    title?: string;
+    description?: string;
+    location?: string;
+    startISO?: string;
+    endISO?: string;
+  }
+): Promise<Result> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    // Traemos el row para saber su google_event_id y all_day
+    const { data: row, error: readErr } = await supabase
+      .from("calendar_events")
+      .select("google_event_id, all_day")
+      .eq("user_id", user.id)
+      .eq("id", eventId)
+      .single();
+    if (readErr || !row) throw new Error("Evento no encontrado");
+
+    // Validación: end > start si se mandan ambos
+    if (patch.startISO && patch.endISO) {
+      if (new Date(patch.endISO) <= new Date(patch.startISO)) {
+        throw new Error("La fecha de fin debe ser posterior a la de inicio.");
+      }
+    }
+    // Si es all_day, ignoramos cambios de fecha (defensivo — el UI no debería mandarlos)
+    const startISO = row.all_day ? undefined : patch.startISO;
+    const endISO = row.all_day ? undefined : patch.endISO;
+
+    // PATCH en Google primero — si falla, no tocamos DB
+    if (row.google_event_id) {
+      await updateGCalEvent(row.google_event_id, {
+        title: patch.title,
+        description: patch.description,
+        location: patch.location,
+        startISO,
+        endISO,
+      });
+    }
+
+    // Update local
+    const dbPatch: Record<string, unknown> = {
+      sync_state: "synced",
+      last_synced_at: new Date().toISOString(),
+    };
+    if (patch.type !== undefined) dbPatch.type = patch.type;
+    if (patch.title !== undefined) dbPatch.title = patch.title;
+    if (patch.description !== undefined) dbPatch.description = patch.description;
+    if (patch.location !== undefined) dbPatch.location = patch.location;
+    if (startISO) dbPatch.start_at = startISO;
+    if (endISO) dbPatch.end_at = endISO;
+
+    const { error } = await supabase
+      .from("calendar_events")
+      .update(dbPatch)
+      .eq("user_id", user.id)
+      .eq("id", eventId);
+    if (error) throw new Error(error.message);
+
+    revalidatePath("/calendario");
+    revalidatePath("/dashboard");
+    return { ok: true, data: undefined };
   } catch (e) {
     return err(e);
   }
