@@ -5,7 +5,7 @@
  *
  * No tiene botón "X" para cerrar. Solo permite:
  *   - "Salir" → logout
- *   - "Quiero suscribirme" → mailto a hola@jayportu.com (Sprint 24 traerá el flow real)
+ *   - "Quiero suscribirme" → mailto a hola@dropgigs.com (Sprint 24 traerá el flow real)
  *
  * Se muestra DEBAJO de cualquier otra cosa de la UI, no permite que el user
  * interactúe con la app. Es read-only para todo propósito práctico, aunque

@@ -49,7 +49,7 @@ export interface SendEmailInput {
  * - Precedence: bulk → marca como "automated mail" (mejor que ausencia).
  */
 function buildAntiSpamHeaders(): Record<string, string> {
-  const supportEmail = process.env.RESEND_REPLY_TO || "hola@jayportu.com";
+  const supportEmail = process.env.RESEND_REPLY_TO || "hola@dropgigs.com";
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
   return {

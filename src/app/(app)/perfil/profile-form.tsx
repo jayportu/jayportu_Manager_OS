@@ -276,7 +276,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
               id="website"
               value={form.website}
               onChange={(e) => update("website", e.target.value)}
-              placeholder="https://jayportu.com"
+              placeholder="https://tunombre.com"
             />
           </div>
         </div>
@@ -295,7 +295,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
               type="email"
               value={form.public_email}
               onChange={(e) => update("public_email", e.target.value)}
-              placeholder="hola@jayportu.com"
+              placeholder="tunombre@gmail.com"
             />
           </div>
           <div className="space-y-2">

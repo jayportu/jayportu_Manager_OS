@@ -55,7 +55,7 @@ export default async function GmailPage({ searchParams }: PageProps) {
           <Mail className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
           <h3 className="font-semibold text-lg mb-1">Gmail no conectado</h3>
           <p className="text-sm text-fg-muted mb-6 max-w-md mx-auto">
-            Conecta tu cuenta hola@jayportu.com (o la que uses para booking)
+            Conecta tu cuenta hola@dropgigs.com (o la que uses para booking)
             para integrar Gmail en tu CRM.
           </p>
           <ConnectGmailButton />

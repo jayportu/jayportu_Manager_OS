@@ -175,7 +175,7 @@ export async function sendBetaReminderToAllAction(): Promise<
         subject,
         html,
         text,
-        replyTo: process.env.RESEND_REPLY_TO || "hola@jayportu.com",
+        replyTo: process.env.RESEND_REPLY_TO || "hola@dropgigs.com",
       });
 
       if (res.ok) {
@@ -310,7 +310,7 @@ export async function sendSantisTechRiderFollowupAction(): Promise<
       subject,
       html,
       text,
-      replyTo: process.env.RESEND_REPLY_TO || "hola@jayportu.com",
+      replyTo: process.env.RESEND_REPLY_TO || "hola@dropgigs.com",
     });
 
     if (!res.ok) {

@@ -45,7 +45,7 @@ p{max-width:480px;margin:8px auto;line-height:1.5}
 <body>
 <h1>Listo<span class="dot">.</span></h1>
 <p>Tu email quedó marcado para no recibir más comunicaciones automáticas de DROP.</p>
-<p>Si tienes alguna duda, escríbenos a <strong>hola@jayportu.com</strong>.</p>
+<p>Si tienes alguna duda, escríbenos a <strong>hola@dropgigs.com</strong>.</p>
 <div class="mono">— DROP. · THE DJ OS</div>
 </body>
 </html>`,

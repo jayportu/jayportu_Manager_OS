@@ -224,7 +224,7 @@ export function CheckoutForm({ userEmail }: Props) {
               <>
                 <strong>Tu tarjeta no permite cobros recurrentes.</strong>
                 <br />
-                Prueba con otra tarjeta o escríbeme a hola@jayportu.com para
+                Prueba con otra tarjeta o escríbeme a hola@dropgigs.com para
                 activar el modo manual mes-a-mes.
               </>
             ) : (

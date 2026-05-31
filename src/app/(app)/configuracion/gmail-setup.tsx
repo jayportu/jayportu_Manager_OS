@@ -154,7 +154,7 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
                 <li>Developer contact: tu email</li>
                 <li>Click <strong>Save and Continue</strong></li>
                 <li>Scopes: déjalo vacío → <strong>Save</strong></li>
-                <li>Test users: agrega tu email <code className="text-fg">hola@jayportu.com</code></li>
+                <li>Test users: agrega tu email <code className="text-fg">hola@dropgigs.com</code></li>
                 <li><strong>NO publiques</strong> la app. Modo &quot;Testing&quot; permite hasta 100 usuarios y no requiere verificación.</li>
               </ul>
             </Step>

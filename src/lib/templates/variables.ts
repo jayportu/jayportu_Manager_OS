@@ -55,7 +55,7 @@ export const AVAILABLE_VARIABLES: Array<{
   { key: "my_genres", label: "Mis géneros", example: "House, Tech House" },
   { key: "my_city", label: "Mi ciudad", example: "Santiago" },
   { key: "my_whatsapp", label: "Mi WhatsApp", example: "56988188531" },
-  { key: "my_email", label: "Mi email público", example: "hola@jayportu.com" },
+  { key: "my_email", label: "Mi email público", example: "hola@dropgigs.com" },
   { key: "my_instagram", label: "Mi Instagram", example: "@jay_portu" },
   { key: "presskit_url", label: "URL de mi press kit", example: "https://..." },
   { key: "date", label: "Hoy (corto)", example: "22 may" },
