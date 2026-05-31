@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DROP. — Conceptos de Reel · @drop.gigs</title>
+<title>DROP. — Conceptos de Reel v2 · CTA Curiosidad · @drop.gigs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <style>
-  :root{ --ink:#0A0A0A; --cream:#F4EFE7; --orange:#FF5C00; --cyan:#00E0FF; }
+  :root{ --ink:#0A0A0A; --cream:#F4EFE7; --orange:#FF5C00; --cyan:#00E0FF; --danger:#C53030;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:#1c1c1c;color:var(--cream);font-family:"Inter",sans-serif;padding:40px 28px 90px;-webkit-font-smoothing:antialiased;}
   h1{font-family:"Anton",sans-serif;font-size:42px;letter-spacing:-.01em;line-height:.95;}
   h1 .dot{color:var(--orange);}
-  .lede{font-size:13px;color:#9a9a9a;max-width:680px;line-height:1.6;margin:10px 0 8px;}
-  .rec{font-size:12px;color:var(--cream);background:#241a10;border:1px solid var(--orange);border-radius:6px;padding:12px 16px;max-width:680px;line-height:1.6;margin-bottom:38px;}
+  .lede{font-size:13px;color:#9a9a9a;max-width:720px;line-height:1.6;margin:10px 0 8px;}
+  .rec{font-size:12px;color:var(--cream);background:#241a10;border:1px solid var(--orange);border-radius:6px;padding:12px 16px;max-width:720px;line-height:1.6;margin-bottom:38px;}
   .rec b{color:var(--orange);}
   .mono{font-family:"Space Mono",monospace;}
 
-  .concept{margin-bottom:54px;border-top:1px solid #333;padding-top:26px;}
+  .concept{margin-bottom:60px;border-top:1px solid #333;padding-top:26px;}
   .c-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
   .c-num{font-family:"Anton",sans-serif;font-size:30px;color:var(--orange);}
   .c-name{font-family:"Anton",sans-serif;font-size:26px;letter-spacing:.01em;}
@@ -41,85 +41,346 @@
   .fill{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;}
   .ink{background:var(--ink);} .cream{background:var(--cream);color:var(--ink);} .orange{background:var(--orange);color:var(--ink);}
   .anton{font-family:"Anton",sans-serif;line-height:.9;letter-spacing:-.01em;}
-  .big{font-size:30px;} .med{font-size:21px;} .sm{font-size:15px;}
-  .kicker{font-family:"Space Mono",monospace;font-size:8px;letter-spacing:.18em;opacity:.8;margin-bottom:8px;}
-  .o{color:var(--orange);} .cr{color:var(--cream);} .ik{color:var(--ink);}
+  .xxl{font-size:54px;} .big{font-size:30px;} .med{font-size:21px;} .sm{font-size:15px;} .xs{font-size:12px;}
+  .kicker{font-family:"Space Mono",monospace;font-size:8px;letter-spacing:.18em;opacity:.85;margin-bottom:8px;}
+  .o{color:var(--orange);} .cr{color:var(--cream);} .ik{color:var(--ink);} .dn{color:var(--danger);}
   .grid-bg{background-image:linear-gradient(#1a1a1a 1px,transparent 1px),linear-gradient(90deg,#1a1a1a 1px,transparent 1px);background-size:16px 16px;}
-  .split{flex-direction:row !important;padding:0 !important;}
-  .split>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center;}
+  .scan{background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 2px,transparent 2px 4px);}
   .handle{font-family:"Space Mono",monospace;font-size:10px;font-weight:700;}
   .pill{font-family:"Space Mono",monospace;font-size:8px;border:1px solid currentColor;border-radius:20px;padding:2px 7px;display:inline-block;margin-top:8px;}
   .followbtn{font-family:"Space Mono",monospace;font-size:9px;font-weight:700;background:var(--orange);color:var(--ink);padding:6px 12px;border-radius:20px;margin-top:10px;}
-  /* mini mockups de "app" */
-  .card{background:#161616;border:1px solid #2a2a2a;border-radius:5px;padding:7px 9px;width:88%;text-align:left;margin:3px 0;}
-  .card .cl{font-family:"Space Mono",monospace;font-size:7px;color:#777;}
-  .card .cv{font-family:"Anton",sans-serif;font-size:13px;}
   .glitch{text-shadow:2px 0 var(--orange),-2px 0 var(--cyan);}
-  .audio{font-size:11px;color:#8a8a8a;margin-top:12px;font-family:"Space Mono",monospace;}
+  .leak{font-family:"Space Mono",monospace;font-size:13px;font-weight:700;color:#3df03d;background:#000;padding:6px 8px;border:1px dashed #3df03d;letter-spacing:.05em;}
+  .strike{text-decoration:line-through;text-decoration-color:var(--danger);text-decoration-thickness:2px;}
+  .leak-warn{font-family:"Space Mono",monospace;font-size:7px;color:var(--danger);letter-spacing:.2em;margin-top:10px;}
+  .audio{font-size:11px;color:#8a8a8a;margin-top:14px;font-family:"Space Mono",monospace;}
   .audio b{color:var(--orange);}
+
+  /* bloque de copy del post */
+  .post{
+    margin-top:22px;background:#111;border:1px solid #2a2a2a;border-radius:8px;
+    padding:18px 20px;max-width:760px;
+  }
+  .post-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .post-h .dot-orange{width:8px;height:8px;background:var(--orange);border-radius:50%;}
+  .post-h .lbl{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.16em;color:var(--orange);}
+  .post-block{margin-bottom:14px;}
+  .post-block:last-child{margin-bottom:0;}
+  .post-lbl{font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.18em;color:#888;text-transform:uppercase;margin-bottom:6px;}
+  .post-caption{font-family:"Inter",sans-serif;font-size:13.5px;color:var(--cream);line-height:1.55;white-space:pre-wrap;}
+  .post-caption b{color:var(--orange);}
+  .post-tags{font-family:"Inter",sans-serif;font-size:12px;color:#7a9bd1;line-height:1.6;}
+  .post-pinned{font-family:"Inter",sans-serif;font-size:12.5px;color:#bdbdbd;background:#0f0f0f;border-left:2px solid var(--orange);padding:8px 10px;line-height:1.5;}
+
+  /* carrusel slides */
+  .car-strip{display:flex;gap:14px;overflow-x:auto;padding-bottom:14px;}
+  .slide{flex:0 0 auto;width:230px;}
+  .square{width:230px;height:230px;border-radius:6px;overflow:hidden;position:relative;border:2px solid #000;box-shadow:0 6px 22px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;}
+  .slide .num{position:absolute;top:8px;left:10px;font-family:"Space Mono",monospace;font-size:10px;color:rgba(255,255,255,.4);}
+  .slide-ik .num{color:rgba(0,0,0,.35);}
+
+  /* table of contents */
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px;max-width:760px;}
+  .toc a{font-family:"Space Mono",monospace;font-size:11px;color:var(--cream);background:#1f1f1f;border:1px solid #333;padding:6px 10px;border-radius:20px;text-decoration:none;}
+  .toc a:hover{border-color:var(--orange);color:var(--orange);}
+
+  .nb{font-size:11px;color:#7a7a7a;font-family:"Space Mono",monospace;margin-top:10px;}
 </style>
 </head>
 <body>
-  <h1>DROP<span class="dot">.</span> — conceptos de reel</h1>
-  <div class="lede">4 ideas de reel (9:16) para <b>@drop.gigs</b>, pensadas para parar el scroll y ganar followers. Cada tira son los frames clave en orden. Estética fiel al landing: Anton, naranja, brutalista.</div>
-  <div class="rec"><b>Mi recomendación:</b> <b>01 (PAIN → FIX)</b> para conversión rápida de DJs, o <b>02 (MANIFIESTO)</b> si quieres puro impacto de marca y shareability. Dime el número y lo produzco como MP4 real (igual que el logo animado).</div>
+  <h1>DROP<span class="dot">.</span> — reels v2 · cta curiosidad</h1>
+  <div class="lede">5 piezas para <b>@drop.gigs</b> diseñadas para que la gente <b>comente preguntando qué es</b>, no para explicarles. Todas esconden el producto hasta el final. Estética fiel al landing: Anton + Space Mono, paleta cream/ink/orange.</div>
+  <div class="rec"><b>Cómo leer esto:</b> cada concepto tiene <b>(a)</b> los frames clave del reel/carrusel y <b>(b)</b> el copy listo del post — caption, primer comentario fijado y hashtags. Tono chileno tuteo. Cuando apruebes (todos o los que elijas) los produzco como MP4 vertical real / PNG cuadrado.</div>
 
-  <!-- ░░░░░░░░ CONCEPTO 1 ░░░░░░░░ -->
-  <div class="concept">
-    <div class="c-head"><span class="c-num">01</span><span class="c-name">PAIN → FIX</span><span class="c-tag">type-beat · 15-20s</span></div>
-    <div class="c-meta"><b>Ángulo:</b> el caos de ser DJ independiente (WhatsApp, cobros perdidos, sin agenda) → DROP. lo resuelve. Cortes rápidos al beat. <b>Hook en 1s.</b> Habla directo al dolor del DJ.</div>
-    <div class="strip">
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">— ERES DJ?</div><div class="anton big cr">TU CARRERA<br>ES UN <span class="o">CAOS</span>.</div></div></div><div class="f-label">HOOK</div><div class="f-t">0:00–0:02</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill" style="justify-content:flex-start;padding-top:20px;"><div class="kicker o" style="margin-bottom:10px;">CADA DÍA…</div><div class="card"><div class="cl">WHATSAPP</div><div class="cv cr">"¿cuánto cobras?" ×40</div></div><div class="card"><div class="cl">AGENDA</div><div class="cv o">doble booking 😵</div></div><div class="card"><div class="cl">COBRO</div><div class="cv cr">se te olvidó 💸</div></div></div></div><div class="f-label">DOLOR</div><div class="f-t">0:02–0:06</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton big cr glitch">DROP<span class="o">.</span></div></div></div><div class="f-label">DROP (strobe)</div><div class="f-t">0:06–0:08</div></div>
-      <div class="frame"><div class="phone ink grid-bg"><div class="fill" style="justify-content:flex-start;padding-top:18px;"><div class="kicker o" style="margin-bottom:8px;">UN SOLO LUGAR</div><div class="card"><div class="cl">CRM</div><div class="cv cr">5 contactos</div></div><div class="card"><div class="cl">BOOKINGS</div><div class="cv o">2 en proceso</div></div><div class="card"><div class="cl">PRESS KIT</div><div class="cv cr">/p/jayportu</div></div></div></div><div class="f-label">LA APP</div><div class="f-t">0:08–0:15</div></div>
-      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton med ik">EL DJ<br>EN CONTROL.</div><div class="handle ik" style="margin-top:12px;">@drop.gigs</div><div class="followbtn" style="background:var(--ink);color:var(--orange);">SEGUIR →</div></div></div><div class="f-label">CTA FOLLOW</div><div class="f-t">0:15–0:18</div></div>
-    </div>
-    <div class="audio">🎵 <b>Audio:</b> type-beat / techno duro en tendencia. Cortes sincronizados al kick. Texto que pega en cada beat.</div>
+  <div class="toc">
+    <a href="#c1">01 · CÓDIGO FILTRADO</a>
+    <a href="#c2">02 · NO ABRAS ESTO</a>
+    <a href="#c3">03 · TEST DE 3 SEG</a>
+    <a href="#c4">04 · MENSAJE EN CLAVE</a>
+    <a href="#c5">05 · CARRUSEL · 5 COSAS</a>
+    <a href="#c6">06 · YA HAY CASA</a>
   </div>
 
-  <!-- ░░░░░░░░ CONCEPTO 2 ░░░░░░░░ -->
-  <div class="concept">
-    <div class="c-head"><span class="c-num">02</span><span class="c-name">MANIFIESTO</span><span class="c-tag">poster flash · 12-15s</span></div>
-    <div class="c-meta"><b>Ángulo:</b> frases en Anton gigante que aparecen al beat sobre negro/naranja. Puro statement de marca. Muy <b>shareable</b> y guardable. Sin mostrar app casi — vende la actitud.</div>
+  <!-- ░░░░░░░░ CONCEPTO 1 · CÓDIGO FILTRADO ░░░░░░░░ -->
+  <div class="concept" id="c1">
+    <div class="c-head"><span class="c-num">01</span><span class="c-name">CÓDIGO FILTRADO</span><span class="c-tag">leak · 12-15s</span></div>
+    <div class="c-meta"><b>Ángulo:</b> estética hacker/leak. La cuenta "se filtra" un código de invite real. Aprovecha que la beta <b>de verdad</b> es por invitación. Genera comentarios pidiendo el código. <b>CTA:</b> "comenta DROP. y te paso uno".</div>
     <div class="strip">
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton med cr">¿TU CARRERA<br>EN MANOS DE<br>UN <span class="o">MANAGER</span>?</div></div></div><div class="f-label">HOOK</div><div class="f-t">0:00–0:03</div></div>
-      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton big ik">NO.</div></div></div><div class="f-label">GIRO</div><div class="f-t">0:03–0:04</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton med cr">TOMA EL<br><span class="o">CONTROL</span>.</div></div></div><div class="f-label">STATEMENT</div><div class="f-t">0:04–0:07</div></div>
-      <div class="frame"><div class="phone cream"><div class="fill"><div class="anton sm ik" style="line-height:1.15;">CRM · BOOKINGS<br>PRESS KIT · IA<br>MÉTRICAS</div><div class="pill ik">TODO EN UNO</div></div></div><div class="f-label">QUÉ ES</div><div class="f-t">0:07–0:11</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton big cr glitch">DROP<span class="o">.</span></div><div class="kicker cr" style="margin-top:8px;">THE DJ OS</div><div class="followbtn">SÍGUENOS · @drop.gigs</div></div></div><div class="f-label">CTA FOLLOW</div><div class="f-t">0:11–0:14</div></div>
+      <div class="frame"><div class="phone ink scan"><div class="fill"><div class="kicker o">— TRANSMISIÓN INTERNA</div><div class="anton med cr">NO DEBERÍA<br>ESTAR<br>MOSTRANDO<br><span class="o">ESTO</span>.</div></div></div><div class="f-label">HOOK</div><div class="f-t">0:00–0:02</div></div>
+      <div class="frame"><div class="phone ink scan"><div class="fill"><div class="kicker o">— BETA · ACCESO</div><div class="leak">INVITE: DROP_8X4K_•••</div><div class="leak-warn">⚠ NO COMPARTIR</div></div></div><div class="f-label">LEAK</div><div class="f-t">0:02–0:05</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o" style="margin-bottom:10px;">QUEDAN</div><div class="anton xxl cr">12</div><div class="kicker cr" style="margin-top:8px;">CUPOS · LATAM</div></div></div><div class="f-label">ESCASEZ</div><div class="f-t">0:05–0:08</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton big cr glitch">DROP<span class="o">.</span></div><div class="kicker cr" style="margin-top:8px;">THE DJ OS · BETA CERRADA</div></div></div><div class="f-label">REVELACIÓN</div><div class="f-t">0:08–0:11</div></div>
+      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton sm ik" style="line-height:1.05;">COMENTA</div><div class="anton med cr" style="background:var(--ink);padding:4px 10px;margin:6px 0;display:inline-block;">DROP.</div><div class="anton sm ik" style="line-height:1.05;">Y TE PASO<br>UNO.</div><div class="handle ik" style="margin-top:10px;">@drop.gigs</div><div class="handle ik" style="margin-top:3px;opacity:.7;font-size:9px;">→ DROPGIGS.COM</div></div></div><div class="f-label">CTA</div><div class="f-t">0:11–0:14</div></div>
     </div>
-    <div class="audio">🎵 <b>Audio:</b> beat tenso con build-up; el "NO." cae en un drop. Texto a pantalla completa, cero relleno.</div>
+    <div class="audio">🎵 <b>Audio:</b> ambient tenso + textura de "transmisión" (estática suave). Glitch en el "no debería estar mostrando esto". Cuando aparece el código → silencio + un kick seco.</div>
+
+    <div class="post">
+      <div class="post-h"><div class="dot-orange"></div><div class="lbl">POST · CAPTION</div></div>
+      <div class="post-block">
+        <div class="post-lbl">Caption</div>
+<div class="post-caption">no debería estar mostrando esto.
+
+DROP. es la app que estamos cerrando para DJs en LATAM.
+beta por invitación. 12 cupos disponibles.
+
+comenta <b>DROP.</b> y te paso un código antes de que la cierre.
+
+→ dropgigs.com</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Primer comentario fijado</div>
+        <div class="post-pinned">los que dejen "DROP." en los próximos comentarios reciben el invite por DM. el resto entra a lista de espera 🎧</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Hashtags</div>
+        <div class="post-tags">#dj #djlife #djchile #djlatam #pinchar #cabina #djsetup #electronicmusic #produccionmusical #djtools #djsoftware #djbeta</div>
+      </div>
+    </div>
   </div>
 
-  <!-- ░░░░░░░░ CONCEPTO 3 ░░░░░░░░ -->
-  <div class="concept">
-    <div class="c-head"><span class="c-num">03</span><span class="c-name">POV · DENTRO DE LA APP</span><span class="c-tag">screen-rec · 15-20s</span></div>
-    <div class="c-meta"><b>Ángulo:</b> formato nativo de IG, "POV: eres DJ independiente". Se siente como grabación de pantalla real navegando DROP. Auténtico, fresco, genera curiosidad y guardados. Muestra el producto de verdad.</div>
+  <!-- ░░░░░░░░ CONCEPTO 2 · NO ABRAS ESTO ░░░░░░░░ -->
+  <div class="concept" id="c2">
+    <div class="c-head"><span class="c-num">02</span><span class="c-name">NO ABRAS ESTO SI NO ERES DJ</span><span class="c-tag">hook negativo · 12-15s</span></div>
+    <div class="c-meta"><b>Ángulo:</b> hook negativo = más curiosidad. Frase de exclusión + 3 frames crípticos de la app sin contexto + "si sabes, sabes". <b>CTA:</b> comenta 🎧 si pinchas. Exclusión = pertenencia.</div>
     <div class="strip">
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">POV</div><div class="anton med cr">ERES DJ Y<br>DESCUBRES<br><span class="o">ESTO</span>…</div></div></div><div class="f-label">HOOK POV</div><div class="f-t">0:00–0:02</div></div>
-      <div class="frame"><div class="phone ink grid-bg"><div class="fill" style="justify-content:flex-start;padding-top:16px;"><div class="anton sm cr" style="align-self:flex-start;margin-left:8px;">BUENAS<br>NOCHES,<br>JAY<span class="o">.</span></div><div class="card" style="margin-top:8px;"><div class="cl">PIPELINE</div><div class="cv o">2 activos</div></div><div class="card"><div class="cl">SCORE</div><div class="cv cr">87</div></div></div></div><div class="f-label">DASHBOARD</div><div class="f-t">0:02–0:06</div></div>
-      <div class="frame"><div class="phone cream"><div class="fill"><div class="kicker ik">PRESS KIT PÚBLICO</div><div class="anton med ik">/p/jayportu</div><div class="card" style="background:#fff;border-color:#ddd;margin-top:8px;"><div class="cl">BIO · GÉNEROS</div><div class="cv ik">House · Techno</div></div></div></div><div class="f-label">PRESS KIT</div><div class="f-t">0:06–0:10</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill" style="justify-content:flex-start;padding-top:20px;"><div class="kicker o" style="margin-bottom:8px;">📩 NUEVO BOOKING</div><div class="card"><div class="cl">VENUE</div><div class="cv cr">Club La Feria</div></div><div class="card"><div class="cl">FEE AUTO</div><div class="cv o">$ cotizado</div></div></div></div><div class="f-label">BOOKING INBOX</div><div class="f-t">0:10–0:15</div></div>
-      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton med ik">¿TU TURNO?</div><div class="handle ik" style="margin-top:10px;">@drop.gigs</div><div class="followbtn" style="background:var(--ink);color:var(--orange);">SEGUIR PARA LA BETA</div></div></div><div class="f-label">CTA FOLLOW</div><div class="f-t">0:15–0:18</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton med cr">NO ABRAS<br>ESTO SI<br>NO ERES<br><span class="o">DJ</span>.</div></div></div><div class="f-label">HOOK</div><div class="f-t">0:00–0:02</div></div>
+      <div class="frame"><div class="phone ink grid-bg"><div class="fill" style="justify-content:flex-start;padding-top:60px;"><div class="anton xxl o">87</div><div class="kicker cr" style="margin-top:8px;">SCORE · SEMANA</div></div></div><div class="f-label">CRÍPTICO 1</div><div class="f-t">0:02–0:04</div></div>
+      <div class="frame"><div class="phone cream"><div class="fill"><div class="kicker ik">/p/_______</div><div class="anton sm ik" style="margin-top:6px;">PRESS KIT<br>LISTO EN<br>3 MIN.</div></div></div><div class="f-label">CRÍPTICO 2</div><div class="f-t">0:04–0:06</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">📩 BOOKING #04</div><div class="anton sm cr" style="margin-top:6px;">FEE<br>AUTOCOTIZADO</div><div class="pill o" style="margin-top:10px;">$ — — —</div></div></div><div class="f-label">CRÍPTICO 3</div><div class="f-t">0:06–0:08</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton big cr">SI SABES,<br><span class="o">SABES</span>.</div></div></div><div class="f-label">PUNCH</div><div class="f-t">0:08–0:11</div></div>
+      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton sm ik">¿ERES DJ?<br>COMENTA 🎧</div><div class="handle ik" style="margin-top:10px;">DROP. · @drop.gigs</div><div class="handle ik" style="margin-top:3px;opacity:.7;font-size:9px;">→ DROPGIGS.COM</div><div class="followbtn" style="background:var(--ink);color:var(--orange);">SEGUIR</div></div></div><div class="f-label">CTA</div><div class="f-t">0:11–0:14</div></div>
     </div>
-    <div class="audio">🎵 <b>Audio:</b> trend sound del momento + voz en off corta. Estética “real”, menos pulido = más confianza.</div>
+    <div class="audio">🎵 <b>Audio:</b> type-beat techno con kick marcado. Los 3 frames crípticos caen exactamente en 3 kicks. Silencio antes de "SI SABES, SABES" — entra con un drop.</div>
+
+    <div class="post">
+      <div class="post-h"><div class="dot-orange"></div><div class="lbl">POST · CAPTION</div></div>
+      <div class="post-block">
+        <div class="post-lbl">Caption</div>
+<div class="post-caption">no abras esto si no eres DJ.
+
+en serio. si no pinchas, esto no va a tener sentido para ti.
+
+pero si lo viste y entendiste — <b>comenta 🎧</b>.
+te quiero en la beta.
+
+→ dropgigs.com</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Primer comentario fijado</div>
+        <div class="post-pinned">solo dejo entrar a quien comenta 🎧 abajo. el DM lo abro yo manualmente, no es bot.</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Hashtags</div>
+        <div class="post-tags">#dj #djlife #djchile #djlatam #pinchar #djset #djsetup #cabina #residentdj #bookingdj #produccionmusical #electronicmusic</div>
+      </div>
+    </div>
   </div>
 
-  <!-- ░░░░░░░░ CONCEPTO 4 ░░░░░░░░ -->
-  <div class="concept">
-    <div class="c-head"><span class="c-num">04</span><span class="c-name">DOS MUNDOS · DJ ↔ BOOKER</span><span class="c-tag">split-screen · 15-18s</span></div>
-    <div class="c-meta"><b>Ángulo:</b> pantalla partida como el landing — DJ (negro) y booker (crema) — que se conectan en DROP. Explica el marketplace: los dos lados ganan. Ideal si quieres atraer DJs <b>y</b> bookers.</div>
+  <!-- ░░░░░░░░ CONCEPTO 3 · TEST DE 3 SEGUNDOS ░░░░░░░░ -->
+  <div class="concept" id="c3">
+    <div class="c-head"><span class="c-num">03</span><span class="c-name">TEST DE 3 SEGUNDOS</span><span class="c-tag">diagnóstico · 15-18s</span></div>
+    <div class="c-meta"><b>Ángulo:</b> 3 dolores secos al beat. Cero solución mostrada. "Si dijiste 2+, esto es para ti — comenta SI". Genera comentarios cortos en masa = el algoritmo lo dispara. <b>El más alto en alcance esperado.</b></div>
     <div class="strip">
-      <div class="frame"><div class="phone split"><div class="ink"><div class="kicker o">— DJ</div><div class="anton sm cr">TOMA EL<br>CONTROL</div></div><div class="cream"><div class="kicker ik">BOOKER —</div><div class="anton sm ik">ENCUENTRA<br>AL DJ</div></div></div><div class="f-label">HOOK SPLIT</div><div class="f-t">0:00–0:03</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill" style="justify-content:flex-start;padding-top:18px;"><div class="kicker o" style="margin-bottom:8px;">SI ERES DJ</div><div class="card"><div class="cl">PRESS KIT · CRM</div><div class="cv cr">/p/tu-nombre</div></div><div class="card"><div class="cl">BOOKINGS</div><div class="cv o">sin manager</div></div></div></div><div class="f-label">LADO DJ</div><div class="f-t">0:03–0:08</div></div>
-      <div class="frame"><div class="phone cream"><div class="fill" style="justify-content:flex-start;padding-top:18px;"><div class="kicker ik" style="margin-bottom:8px;">SI ERES BOOKER</div><div class="card" style="background:#fff;border-color:#ddd;"><div class="cl">DIRECTORIO LATAM</div><div class="cv ik">DJs verificados</div></div><div class="card" style="background:#fff;border-color:#ddd;"><div class="cl">CONTACTO</div><div class="cv ik" style="color:var(--orange)!important;">sin comisión</div></div></div></div><div class="f-label">LADO BOOKER</div><div class="f-t">0:08–0:13</div></div>
-      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">SE CONECTAN EN</div><div class="anton big cr glitch">DROP<span class="o">.</span></div></div></div><div class="f-label">UNIÓN</div><div class="f-t">0:13–0:15</div></div>
-      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton sm ik">EL ECOSISTEMA<br>DEL DJ EN LATAM</div><div class="followbtn" style="background:var(--ink);color:var(--orange);">@drop.gigs · SEGUIR</div></div></div><div class="f-label">CTA FOLLOW</div><div class="f-t">0:15–0:18</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">— TEST · 3 SEGUNDOS</div><div class="anton big cr">¿CUÁNTAS<br>TE PASAN?</div></div></div><div class="f-label">HOOK</div><div class="f-t">0:00–0:02</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton xxl o">1</div><div class="anton sm cr" style="margin-top:6px;">TE PIDEN<br>PRESS KIT<br>YA. NO<br>TIENES.</div></div></div><div class="f-label">DOLOR 1</div><div class="f-t">0:02–0:05</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton xxl o">2</div><div class="anton sm cr" style="margin-top:6px;">DOBLE<br>BOOKING<br>OTRA<br>VEZ.</div></div></div><div class="f-label">DOLOR 2</div><div class="f-t">0:05–0:08</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton xxl o">3</div><div class="anton sm cr" style="margin-top:6px;">EVENTO<br>POR DM Y<br>SE TE<br>PERDIÓ.</div></div></div><div class="f-label">DOLOR 3</div><div class="f-t">0:08–0:11</div></div>
+      <div class="frame"><div class="phone cream"><div class="fill"><div class="anton sm ik">SI DIJISTE<br><span class="o">2+</span><br>ESTO ES<br>PARA TI.</div></div></div><div class="f-label">FILTRO</div><div class="f-t">0:11–0:14</div></div>
+      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton med ik" style="line-height:1.05;">COMENTA</div><div class="anton big cr" style="background:var(--ink);padding:6px 18px;margin-top:8px;display:inline-block;">SI</div><div class="handle ik" style="margin-top:14px;">DROP. · @drop.gigs</div><div class="handle ik" style="margin-top:3px;opacity:.7;font-size:9px;">→ DROPGIGS.COM</div></div></div><div class="f-label">CTA</div><div class="f-t">0:14–0:17</div></div>
     </div>
-    <div class="audio">🎵 <b>Audio:</b> beat que “une” los dos lados en el drop final. Transición de negro↔crema marcada.</div>
+    <div class="audio">🎵 <b>Audio:</b> kick seco minimal. Cada número entra en un kick. Sin música melódica — solo percusión. El "SI" final cae en silencio.</div>
+
+    <div class="post">
+      <div class="post-h"><div class="dot-orange"></div><div class="lbl">POST · CAPTION</div></div>
+      <div class="post-block">
+        <div class="post-lbl">Caption</div>
+<div class="post-caption">test rápido para DJs 🎧
+
+1. te piden press kit ahora mismo. no tienes.
+2. doble booking otra vez.
+3. evento por DM y se te perdió en el chat.
+
+si te pasan 2 o 3 — <b>comenta SI</b>.
+te muestro lo que estamos haciendo.
+
+→ dropgigs.com</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Primer comentario fijado</div>
+        <div class="post-pinned">a todos los que digan SI les mando por DM acceso a la beta cerrada. no es spam — es DROP., lo armamos para esto exacto.</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Hashtags</div>
+        <div class="post-tags">#dj #djlife #djchile #djlatam #pinchar #cabina #bookingdj #pressKitDJ #djtips #djtools #residentdj #electronicmusic #produccionmusical</div>
+      </div>
+    </div>
   </div>
 
-  <div class="rec" style="margin-top:10px;">Cuando elijas un concepto lo <b>produzco como MP4 vertical real</b> (1080×1920) con tu fuente Anton y el strobe, listo para subir a <b>@drop.gigs</b>. También puedo hacer una mezcla (ej. "01 con el cierre de 02").</div>
+  <!-- ░░░░░░░░ CONCEPTO 4 · MENSAJE EN CLAVE ░░░░░░░░ -->
+  <div class="concept" id="c4">
+    <div class="c-head"><span class="c-num">04</span><span class="c-name">MENSAJE EN CLAVE</span><span class="c-tag">gamificación · 12-15s</span></div>
+    <div class="c-meta"><b>Ángulo:</b> letras tachadas que se revelan al beat. La gente <b>compite</b> por descifrar en comentarios. IG premia conversación, no me preguntes por qué — funciona.</div>
+    <div class="strip">
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">— DESCIFRA</div><div class="anton sm mono cr" style="font-family:'Space Mono';font-weight:700;letter-spacing:.1em;">L_ _PP<br>P_R_ DJS<br>Q__ F_LT_B_</div></div></div><div class="f-label">HOOK CIFRADO</div><div class="f-t">0:00–0:03</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">— REVELANDO…</div><div class="anton sm mono cr" style="font-family:'Space Mono';font-weight:700;letter-spacing:.1em;">L<span class="o">A</span> _PP<br>P<span class="o">A</span>R_ DJS<br>Q_<span class="o">E</span> F_LT_B_</div></div></div><div class="f-label">REVELACIÓN 1</div><div class="f-t">0:03–0:06</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">— REVELANDO…</div><div class="anton sm mono cr" style="font-family:'Space Mono';font-weight:700;letter-spacing:.1em;">L<span class="o">A</span> <span class="o">A</span>PP<br>P<span class="o">A</span>R<span class="o">A</span> DJS<br>QU<span class="o">E</span> F<span class="o">A</span>LT<span class="o">A</span>B<span class="o">A</span></div></div></div><div class="f-label">REVELACIÓN 2</div><div class="f-t">0:06–0:09</div></div>
+      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton med ik">LA APP<br>PARA DJS<br>QUE FALTABA.</div></div></div><div class="f-label">RESUELTO</div><div class="f-t">0:09–0:11</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton big cr glitch">DROP<span class="o">.</span></div><div class="kicker cr" style="margin-top:8px;">¿DESCIFRASTE?<br>RESPUESTA 👇</div><div class="handle cr" style="margin-top:12px;">@drop.gigs</div><div class="handle cr" style="margin-top:3px;opacity:.7;font-size:9px;">→ DROPGIGS.COM</div></div></div><div class="f-label">CTA</div><div class="f-t">0:11–0:14</div></div>
+    </div>
+    <div class="audio">🎵 <b>Audio:</b> beat tipo cipher/tech-house bajo. Cada letra que aparece = un tick metálico. El "LA APP PARA DJS…" cae en el drop.</div>
+
+    <div class="post">
+      <div class="post-h"><div class="dot-orange"></div><div class="lbl">POST · CAPTION</div></div>
+      <div class="post-block">
+        <div class="post-lbl">Caption</div>
+<div class="post-caption">L_ _PP P_R_ DJS Q__ F_LT_B_.
+
+¿lo descifras?
+deja tu respuesta abajo 👇
+
+el primero que la diga completa entra a la beta sin lista.
+
+→ dropgigs.com</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Primer comentario fijado</div>
+        <div class="post-pinned">pista: son 5 palabras. la última termina en "ba". 🎧</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Hashtags</div>
+        <div class="post-tags">#dj #djlife #djchile #djlatam #pinchar #cabina #djtools #djsoftware #djsetup #produccionmusical #electronicmusic #residentdj</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░░░░░░░ CONCEPTO 5 · CARRUSEL 5 COSAS ░░░░░░░░ -->
+  <div class="concept" id="c5">
+    <div class="c-head"><span class="c-num">05</span><span class="c-name">CARRUSEL · 5 COSAS QUE TU MANAGER NO TE DICE</span><span class="c-tag">post 1:1 · 6 slides</span></div>
+    <div class="c-meta"><b>Ángulo:</b> valor real primero (que se <b>guarde</b>) → soft pitch al final. Carrusel = más tiempo en feed. La gente guarda y comparte por las 5 primeras; el pitch llega gratis.</div>
+
+    <div class="car-strip">
+      <!-- slide 1 portada -->
+      <div class="slide">
+        <div class="square" style="background:var(--ink);"><div class="num">01 / 06</div>
+          <div style="text-align:center;"><div class="kicker o">— PARA DJS</div><div class="anton med cr" style="margin-top:6px;">5 COSAS<br>QUE TU<br><span class="o">MANAGER</span><br>NO TE DICE.</div></div>
+        </div>
+        <div class="f-label">PORTADA</div>
+      </div>
+      <!-- slide 2 -->
+      <div class="slide">
+        <div class="square slide-ik" style="background:var(--cream);color:var(--ink);"><div class="num">02 / 06</div>
+          <div style="text-align:left;"><div class="kicker ik">01</div><div class="anton sm ik" style="margin-top:6px;line-height:1.05;">SE QUEDA<br>CON UN %<br>DE CADA<br>BOOKING.<br>SIEMPRE.</div></div>
+        </div>
+        <div class="f-label">SLIDE 1</div>
+      </div>
+      <!-- slide 3 -->
+      <div class="slide">
+        <div class="square" style="background:var(--ink);"><div class="num">03 / 06</div>
+          <div style="text-align:left;"><div class="kicker o">02</div><div class="anton sm cr" style="margin-top:6px;line-height:1.05;">TU PRESS<br>KIT LO<br>HICISTE TÚ,<br>NO ÉL.</div></div>
+        </div>
+        <div class="f-label">SLIDE 2</div>
+      </div>
+      <!-- slide 4 -->
+      <div class="slide">
+        <div class="square slide-ik" style="background:var(--orange);color:var(--ink);"><div class="num" style="color:rgba(0,0,0,.4);">04 / 06</div>
+          <div style="text-align:left;"><div class="kicker ik">03</div><div class="anton sm ik" style="margin-top:6px;line-height:1.05;">LOS<br>VENUES<br>PREFIEREN<br>HABLAR<br>CONTIGO<br>DIRECTO.</div></div>
+        </div>
+        <div class="f-label">SLIDE 3</div>
+      </div>
+      <!-- slide 5 -->
+      <div class="slide">
+        <div class="square" style="background:var(--ink);"><div class="num">05 / 06</div>
+          <div style="text-align:left;"><div class="kicker o">04</div><div class="anton sm cr" style="margin-top:6px;line-height:1.05;">"OLVIDÓ"<br>3 OPORTUNI-<br>DADES<br>ESTE MES.<br>LO REVISÉ.</div></div>
+        </div>
+        <div class="f-label">SLIDE 4</div>
+      </div>
+      <!-- slide 6 -->
+      <div class="slide">
+        <div class="square slide-ik" style="background:var(--cream);color:var(--ink);"><div class="num">06 / 06</div>
+          <div style="text-align:left;"><div class="kicker ik">05</div><div class="anton sm ik" style="margin-top:6px;line-height:1.05;">NO<br>NECESITAS<br>UNO.<br>NECESITAS<br>UN <span class="o">OS</span>.</div></div>
+        </div>
+        <div class="f-label">SLIDE 5</div>
+      </div>
+      <!-- slide 7 cierre -->
+      <div class="slide">
+        <div class="square" style="background:var(--ink);"><div class="num">— FIN</div>
+          <div style="text-align:center;"><div class="anton big cr glitch">DROP<span class="o">.</span></div><div class="kicker cr" style="margin-top:8px;">THE DJ OS</div><div class="followbtn" style="margin-top:14px;">@drop.gigs</div><div class="kicker cr" style="margin-top:8px;color:var(--orange);">DROPGIGS.COM</div><div class="kicker cr" style="margin-top:6px;">GUARDA · COMENTA · COMPARTE</div></div>
+        </div>
+        <div class="f-label">CIERRE</div>
+      </div>
+    </div>
+    <div class="audio">📝 <b>Sin audio</b> — es post estático. Si lo subes como reel-carrusel: ambient suave bajo + sonido de "swipe" entre slides.</div>
+
+    <div class="post">
+      <div class="post-h"><div class="dot-orange"></div><div class="lbl">POST · CAPTION</div></div>
+      <div class="post-block">
+        <div class="post-lbl">Caption</div>
+<div class="post-caption">5 cosas que tu manager no te va a decir 🎧
+
+→ se queda con un %. de cada uno.
+→ tu press kit lo hiciste tú.
+→ los venues prefieren hablar contigo directo.
+→ "olvidó" 3 oportunidades este mes (lo revisé).
+→ no necesitas uno. necesitas un OS.
+
+<b>guarda este post</b> para cuando lo necesites discutir.
+comenta cuál te pegó más 👇
+
+→ dropgigs.com</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Primer comentario fijado</div>
+        <div class="post-pinned">PD: el OS del que hablo es DROP. — beta cerrada para DJs en LATAM. si quieres entrar, deja "DROP." abajo y te paso el invite.</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Hashtags</div>
+        <div class="post-tags">#dj #djlife #djchile #djlatam #pinchar #cabina #manager #bookingdj #djtips #djbusiness #residentdj #electronicmusic #produccionmusical #djtools</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░░░░░░░ CONCEPTO 6 · YA HAY CASA ░░░░░░░░ -->
+  <div class="concept" id="c6">
+    <div class="c-head"><span class="c-num">06</span><span class="c-name">YA HAY CASA · DROPGIGS.COM</span><span class="c-tag">anuncio sitio · 14-16s</span></div>
+    <div class="c-meta"><b>Ángulo:</b> reel-anuncio del lanzamiento del sitio. Empieza con curiosidad ("ya tenemos casa") y aterriza en el dominio gigante. Mantiene el lenguaje brand del resto. <b>CTA:</b> entrar al sitio y dejar email para invite.</div>
+    <div class="strip">
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o">— DROP.</div><div class="anton big cr">YA<br>TENEMOS<br><span class="o">CASA</span>.</div></div></div><div class="f-label">HOOK</div><div class="f-t">0:00–0:02</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="kicker o" style="margin-bottom:14px;">— ESCRIBE</div><div style="background:#1c1c1c;border:1px solid #333;border-radius:6px;padding:6px 8px;width:92%;font-family:'Space Mono',monospace;font-size:11px;color:var(--cream);text-align:left;letter-spacing:.03em;">https://<span class="o">dropgigs.co</span><span class="o">|</span></div><div class="kicker cr" style="margin-top:14px;opacity:.6;">CURSOR PARPADEANDO</div></div></div><div class="f-label">TYPING</div><div class="f-t">0:02–0:06</div></div>
+      <div class="frame"><div class="phone orange"><div class="fill"><div class="anton ik" style="font-size:36px;line-height:.92;letter-spacing:-.02em;">DROPGIGS<br>.COM</div></div></div><div class="f-label">REVEAL</div><div class="f-t">0:06–0:09</div></div>
+      <div class="frame"><div class="phone cream"><div class="fill" style="justify-content:flex-start;padding-top:22px;"><div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:14px 10px;width:92%;text-align:center;"><div class="anton med ik">DROP<span class="o">.</span></div><div class="kicker ik" style="margin-top:4px;">THE DJ OS</div><div style="background:var(--ink);color:var(--orange);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px 12px;border-radius:20px;margin-top:14px;display:inline-block;">PIDE TU INVITE →</div></div></div></div><div class="f-label">LANDING</div><div class="f-t">0:09–0:12</div></div>
+      <div class="frame"><div class="phone ink"><div class="fill"><div class="anton sm cr" style="line-height:1.1;">ENTRA<br>ANTES DE<br>QUE CIERRE<br>LA <span class="o">BETA</span>.</div><div class="anton med ik" style="background:var(--orange);padding:5px 12px;margin-top:12px;display:inline-block;">DROPGIGS.COM</div><div class="handle cr" style="margin-top:10px;">@drop.gigs</div></div></div><div class="f-label">CTA</div><div class="f-t">0:12–0:15</div></div>
+    </div>
+    <div class="audio">🎵 <b>Audio:</b> techno con build durante el typing del dominio. Sonido de teclado sincronizado por letra. El "DROPGIGS.COM" cae en el drop con un kick fuerte. Cierre con sample corto.</div>
+
+    <div class="post">
+      <div class="post-h"><div class="dot-orange"></div><div class="lbl">POST · CAPTION</div></div>
+      <div class="post-block">
+        <div class="post-lbl">Caption</div>
+<div class="post-caption">ya tenemos casa 🏠
+
+<b>dropgigs.com</b> — el sitio para los DJs que están en la beta y los que quieren entrar.
+
+déjame tu email ahí y te pongo en la lista.
+si se libera un cupo, te aviso a ti primero antes de que se cierre.
+
+→ dropgigs.com</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Primer comentario fijado</div>
+        <div class="post-pinned">link directo: dropgigs.com — la beta sigue siendo por invitación, pero ahora hay un lugar formal para sumarse y ver qué es DROP. 🎧</div>
+      </div>
+      <div class="post-block">
+        <div class="post-lbl">Hashtags</div>
+        <div class="post-tags">#dj #djlife #djchile #djlatam #pinchar #cabina #djtools #djsoftware #djsetup #residentdj #electronicmusic #produccionmusical #lanzamiento #djbeta</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rec" style="margin-top:10px;">
+    <b>Siguiente paso:</b> revisa los 6, dime cuáles apruebas (o si hay copy que cambiarías) y los produzco como entrega final:
+    <br>• Reels 01–04 + 06 → MP4 vertical 1080×1920 con Anton + audio sugerido.
+    <br>• Carrusel 05 → 7 PNG 1080×1080 listos para subir al feed.
+    <div class="nb">Sitio <b>dropgigs.com</b> agregado al CTA visual y al caption de los 6 conceptos. Tono chileno tuteo aplicado en todos los textos. Hashtags pensados mix LATAM + Chile.</div>
+  </div>
 </body>
 </html>
