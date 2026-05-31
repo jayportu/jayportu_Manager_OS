@@ -38,6 +38,11 @@ const AUTH_ERROR_COPY: Record<string, { title: string; body: string }> = {
     title: "Algo falló confirmando tu cuenta",
     body: "Intenta entrar con tu email y contraseña. Si no funciona, escríbele al admin.",
   },
+  // Sprint 24 — Login con Google bloqueado por beta gate
+  beta_required: {
+    title: "Tu email no está aprobado para la beta",
+    body: "DROP. está en beta cerrada. Solicita acceso en /beta — si te aprueban, recibes un invite por email y puedes entrar (con Google o con contraseña).",
+  },
 };
 
 export default async function LoginPage({ searchParams }: PageProps) {

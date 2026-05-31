@@ -19,18 +19,12 @@ export const GOOGLE_USERINFO_URL =
   "https://www.googleapis.com/oauth2/v2/userinfo";
 
 /**
- * Scopes que pedimos. Cubre Gmail + Calendar en un solo OAuth flow.
+ * Scopes que pedimos. Re-exportamos desde scopes.ts para que client
+ * components también puedan importarlos (este archivo es server-only).
  * Cuando se agregan nuevos scopes, el usuario tiene que RECONECTAR.
  */
-export const GOOGLE_SCOPES = [
-  "https://www.googleapis.com/auth/userinfo.email",
-  // Gmail
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/gmail.compose",
-  "https://www.googleapis.com/auth/gmail.send",
-  // Calendar
-  "https://www.googleapis.com/auth/calendar.events",
-];
+import { GOOGLE_SCOPES } from "./scopes";
+export { GOOGLE_SCOPES };
 
 // Backward compat
 export const GMAIL_SCOPES = GOOGLE_SCOPES;
