@@ -8,6 +8,7 @@ import { NpsModal } from "@/components/feedback/nps-modal";
 import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
 import { SubscriptionRequiredModal } from "@/components/subscription/subscription-required-modal";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { GoogleScopeBanner } from "@/components/gmail/google-scope-banner";
 import { getBetaState } from "@/lib/beta-status";
 import { consumeBetaInviteIfAny } from "@/lib/queries/beta-invite";
 import {
@@ -90,6 +91,8 @@ export default async function AppLayout({
           betaDaysRemaining={betaState.daysRemaining}
           trialDaysRemaining={trialDaysRemaining}
         />
+        {/* Sprint 24 — Banner proactivo: faltan scopes de Google */}
+        <GoogleScopeBanner />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
       {/* Menú mobile (drawer desplegable) — reemplaza BottomNav */}

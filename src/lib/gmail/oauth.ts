@@ -35,6 +35,36 @@ export const GOOGLE_SCOPES = [
 // Backward compat
 export const GMAIL_SCOPES = GOOGLE_SCOPES;
 
+/**
+ * Detecta si una conexión existente fue otorgada con menos scopes que
+ * los que la versión actual de la app requiere. Cuando agregamos un
+ * scope nuevo (ej: Calendar, Drive, Contacts) sin esto, el user no se
+ * entera hasta que intenta usar la feature y la API tira 403.
+ *
+ * Devuelve la lista de scopes faltantes. Vacío = la conexión está al día.
+ *
+ * @param grantedScopeStr - string con scopes separados por espacio,
+ *   tal como lo guarda gmail_connections.scope (proviene del response
+ *   de Google al exchange/refresh).
+ */
+export function getMissingScopes(grantedScopeStr: string | null | undefined): string[] {
+  if (!grantedScopeStr) return [...GOOGLE_SCOPES];
+  const granted = new Set(grantedScopeStr.split(/\s+/).filter(Boolean));
+  return GOOGLE_SCOPES.filter((s) => !granted.has(s));
+}
+
+/** Devuelve labels humanos para los scopes faltantes (para banner). */
+export function describeMissingScopes(missing: string[]): string[] {
+  const map: Record<string, string> = {
+    "https://www.googleapis.com/auth/userinfo.email": "tu email",
+    "https://www.googleapis.com/auth/gmail.readonly": "leer Gmail",
+    "https://www.googleapis.com/auth/gmail.compose": "componer borradores",
+    "https://www.googleapis.com/auth/gmail.send": "enviar Gmail",
+    "https://www.googleapis.com/auth/calendar.events": "Google Calendar",
+  };
+  return missing.map((s) => map[s] || s.split("/").pop() || s);
+}
+
 export function getRedirectUri(): string {
   const base =
     process.env.NEXT_PUBLIC_SITE_URL ||
