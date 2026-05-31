@@ -12,7 +12,7 @@ function err(e: unknown): { ok: false; error: string } {
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB (mismo límite del bucket)
+const MAX_BYTES = 10 * 1024 * 1024; // 10 MB (techo acordado para foto de perfil)
 const BUCKET = "avatars";
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
@@ -41,7 +41,7 @@ export async function uploadAvatarAction(
     if (file.size > MAX_BYTES) {
       return {
         ok: false,
-        error: `La imagen supera 5 MB (es ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
+        error: `La imagen supera 10 MB (es ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
       };
     }
     if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {

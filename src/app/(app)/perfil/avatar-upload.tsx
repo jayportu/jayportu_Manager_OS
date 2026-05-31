@@ -101,7 +101,7 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
               </Button>
             )}
           </div>
-          <p className="text-xs text-fg-subtle">JPG, PNG o WebP · máx. 5 MB</p>
+          <p className="text-xs text-fg-subtle">JPG, PNG o WebP · máx. 10 MB</p>
         </div>
 
         <input

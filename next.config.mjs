@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Server Actions default body limit es 1 MB → rompía subidas de avatar
+  // (foto de perfil) con error críptico para fotos del celular (2-4 MB).
+  // Subimos a 25 MB que cubre el caso más grande (press-kit PDF, 25 MB).
+  // La política real por feature la hace cada action:
+  //   - avatar:     10 MB (validado en src/app/(app)/perfil/avatar-actions.ts)
+  //   - press-kit:  25 MB (validado en src/app/(app)/configuracion/press-kit-actions.ts)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "25mb",
+    },
+  },
   // Redirects para mantener URLs viejas funcionando después de renames.
   async redirects() {
     return [
