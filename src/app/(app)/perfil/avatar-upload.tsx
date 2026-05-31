@@ -24,29 +24,59 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
+    // Validación client-side temprana — antes el Server Action rechazaba
+    // archivos >1MB con error críptico que crasheaba toda la app; ahora el
+    // techo es 10 MB y filtramos acá para dar mensaje claro de inmediato.
+    if (file.size > 10 * 1024 * 1024) {
+      setError(
+        `La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. Máximo permitido: 10 MB.`
+      );
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
     const formData = new FormData();
     formData.set("file", file);
     startTransition(async () => {
-      const res = await uploadAvatarAction(formData);
-      if (res.ok) {
-        setUrl(res.data.url);
-        router.refresh();
-      } else {
-        setError(res.error);
+      // try/catch defensivo: si el Server Action lanza un error no-controlado
+      // (ej. body limit del framework, network drop), evitamos que se vuelva
+      // un Application Error global que tira toda la página.
+      try {
+        const res = await uploadAvatarAction(formData);
+        if (res.ok) {
+          setUrl(res.data.url);
+          router.refresh();
+        } else {
+          setError(res.error);
+        }
+      } catch (e) {
+        setError(
+          e instanceof Error
+            ? `No se pudo subir la imagen: ${e.message}`
+            : "No se pudo subir la imagen. Intenta con una más liviana o vuelve a intentarlo."
+        );
+      } finally {
+        if (inputRef.current) inputRef.current.value = "";
       }
-      if (inputRef.current) inputRef.current.value = "";
     });
   }
 
   function handleRemove() {
     setError(null);
     startTransition(async () => {
-      const res = await deleteAvatarAction();
-      if (res.ok) {
-        setUrl("");
-        router.refresh();
-      } else {
-        setError(res.error);
+      try {
+        const res = await deleteAvatarAction();
+        if (res.ok) {
+          setUrl("");
+          router.refresh();
+        } else {
+          setError(res.error);
+        }
+      } catch (e) {
+        setError(
+          e instanceof Error
+            ? `No se pudo quitar la imagen: ${e.message}`
+            : "No se pudo quitar la imagen."
+        );
       }
     });
   }
