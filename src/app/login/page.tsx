@@ -43,6 +43,13 @@ const AUTH_ERROR_COPY: Record<string, { title: string; body: string }> = {
     title: "Tu email no está aprobado para la beta",
     body: "DROP. está en beta cerrada. Solicita acceso en /beta — si te aprueban, recibes un invite por email y puedes entrar (con Google o con contraseña).",
   },
+  // Sprint 24 — Supabase ↔ Google falló el exchange del código OAuth.
+  // Casi siempre es Client Secret mal pegado en Supabase o config de
+  // OAuth pendiente de propagar en Google Cloud.
+  server_error: {
+    title: "Google rechazó el intercambio de credenciales",
+    body: "Es un problema técnico de configuración entre DROP. y Google, no de tu cuenta. Intenta de nuevo en unos minutos. Si persiste, escríbele al admin.",
+  },
 };
 
 export default async function LoginPage({ searchParams }: PageProps) {
