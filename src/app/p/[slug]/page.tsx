@@ -10,7 +10,6 @@ import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
 import { BookingForm } from "./booking-form";
 import { SoundcloudEmbed, YoutubeEmbed } from "./embeds";
-import { PdfPressKit } from "./pdf-press-kit";
 import { TechRiderRender } from "./tech-rider-render";
 import { StagePlot } from "./stage-plot";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
@@ -64,23 +63,15 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     gigStats.lugaresDistintos > 0 ||
     gigStats.proximos.length > 0;
 
-  // Modo PDF: el DJ subió un press kit propio. Mostramos el PDF tal cual
-  // a pantalla completa, con botones flotantes mínimos para contacto.
-  if (profile.press_kit_mode === "pdf" && profile.press_kit_pdf_url) {
-    return (
-      <>
-        <TrackBeacon userId={profile.user_id} event="view" />
-        <PdfPressKit
-          pdfUrl={profile.press_kit_pdf_url}
-          pdfFilename={profile.press_kit_pdf_filename}
-          artistName={profile.artist_name || "DJ"}
-          userId={profile.user_id}
-          publicEmail={profile.public_email}
-          whatsapp={profile.whatsapp}
-        />
-      </>
-    );
-  }
+  // Nota (2026-06-01): Antes, si el DJ subía un PDF propio (press_kit_mode
+  // === "pdf"), `/p/[slug]` renderizaba SÓLO el PDF a pantalla completa,
+  // ocultando toda la info del perfil (bio, géneros, ciudad, redes,
+  // booking form). Reportado como mal UX: el visitante perdía el contexto.
+  // Ahora SIEMPRE mostramos el perfil generado, y si hay PDF, agregamos
+  // un botón "Ver press kit (PDF)" en el aside (abajo). El campo
+  // press_kit_mode queda en DB pero ya no controla el branch — lo
+  // mantenemos por backward compat hasta que se simplifique /configuracion.
+  const hasPdfPressKit = !!profile.press_kit_pdf_url;
 
   const wa = whatsappLink(profile.whatsapp);
   const email = profile.public_email;
@@ -577,6 +568,29 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   </TrackedLink>
                 )}
               </div>
+
+              {/* Botón "Ver press kit (PDF)" — solo si el DJ subió un PDF.
+                  Antes el PDF reemplazaba toda la página; ahora es un
+                  complemento opcional al perfil generado. Abre en pestaña
+                  nueva para no perder el contexto del perfil. */}
+              {hasPdfPressKit && (
+                <a
+                  href={profile.press_kit_pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block bg-ink text-cream border-2 border-ink p-5 hover:bg-cream hover:text-ink transition-colors"
+                >
+                  <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+                    — PRESS KIT
+                  </div>
+                  <div className="font-display text-2xl md:text-3xl leading-none mt-2 mb-3">
+                    Ver PDF<span className="text-orange">.</span>
+                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider opacity-70">
+                    ↗ El press kit que armé · abre en pestaña nueva
+                  </div>
+                </a>
+              )}
 
               {/* Form de booking — card naranja brutalist */}
               <div className="bg-orange border-2 border-ink p-5">
