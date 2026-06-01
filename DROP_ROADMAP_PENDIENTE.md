@@ -518,7 +518,23 @@ v=DMARC1; p=reject; pct=100; rua=mailto:hola@dropgigs.com; ruf=mailto:hola@dropg
 
 Esto le dice a Gmail/Outlook que **rechacen** (no cuarentinen) cualquier email spoofeado. Máximo nivel de protección anti-phishing del dominio.
 
-### 13.4 · Otras tareas que pueden quedar abiertas durante el ciclo beta
+### 13.4 · Rotar API keys con historial de compartido en chat
+
+Durante el setup de Resend (2026-05-30) la API key `gmail-send-as-hola`
+(`re_WnSV8qqT...`) se pegó en chat para destrabar el flow del Gmail
+Send-as. El user decidió no rotar (riesgo concreto muy bajo: Anthropic
+no expone transcripts y la key tiene scope sólo "Sending access"). Pero
+best-practice anti-leak dice rotar después de cualquier shared.
+
+**Plan al lanzar versión final**:
+1. Crear nueva key en resend.com/api-keys (mismo scope: Sending access).
+2. Update `RESEND_API_KEY` en Vercel env vars (Production + Preview).
+3. Update local `.env.local`.
+4. Redeploy Vercel para que tome la nueva.
+5. Revoke la key vieja (`gmail-send-as-hola`).
+6. Verificar con un test email que sigue funcionando.
+
+### 13.5 · Otras tareas que pueden quedar abiertas durante el ciclo beta
 
 A revisar antes del lanzamiento público:
 - **Rate limiting** en endpoints públicos (`/api/feedback`, `/api/track`, `/api/unsubscribe`) — el barrido de seguridad #6 cubre esto.
