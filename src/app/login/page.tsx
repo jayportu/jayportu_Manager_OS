@@ -110,7 +110,19 @@ export default async function LoginPage({ searchParams }: PageProps) {
           inviteArtistName={invite?.artist_name ?? null}
         />
 
-        <div className="text-center mt-6 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
+        {/* Soporte de contacto — captura usuarios bloqueados en el login */}
+        <div className="text-center mt-6 text-xs text-fg-muted leading-relaxed">
+          ¿Problemas para entrar?
+          <br />
+          <a
+            href="mailto:hola@dropgigs.com"
+            className="text-ink underline hover:text-orange transition-colors"
+          >
+            hola@dropgigs.com
+          </a>
+        </div>
+
+        <div className="text-center mt-4 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
           DROP. · THE DJ OS · v0.13
         </div>
       </div>

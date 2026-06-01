@@ -260,6 +260,22 @@ export function MobileMenu({
             </div>
           </div>
         </Link>
+
+        {/* Bloque contacto — mirror del sidebar desktop */}
+        <a
+          href="mailto:hola@dropgigs.com"
+          className="block shrink-0 mx-[14px] mb-[14px] px-[14px] py-[10px] border-t border-[#2a2a2a] group transition-opacity hover:opacity-100 opacity-80"
+        >
+          <div
+            className="font-mono text-[8px] text-[#666] group-hover:text-orange transition-colors"
+            style={{ letterSpacing: "0.08em" }}
+          >
+            <span className="text-orange">→</span>&nbsp; CONTACTO
+          </div>
+          <div className="text-cream font-mono text-[11px] mt-[3px] group-hover:text-orange transition-colors truncate">
+            hola@dropgigs.com
+          </div>
+        </a>
       </aside>
     </>
   );

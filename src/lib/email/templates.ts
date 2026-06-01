@@ -104,7 +104,7 @@ export function wrapEmail(opts: {
                 ${footerReason}
               </p>
               <p style="font-family:${FONT_SANS}; font-size:12px; color:${MUTED}; margin:8px 0 0 0;">
-                DROP<span style="color:${ORANGE};">.</span> — Santiago, Chile · <a href="https://dropgigs.com" style="color:${MUTED}; text-decoration:underline;">dropgigs.com</a>
+                DROP<span style="color:${ORANGE};">.</span> — Santiago, Chile · <a href="https://dropgigs.com" style="color:${MUTED}; text-decoration:underline;">dropgigs.com</a> · <a href="mailto:hola@dropgigs.com" style="color:${MUTED}; text-decoration:underline;">hola@dropgigs.com</a>
               </p>
             </td>
           </tr>

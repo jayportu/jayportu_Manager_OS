@@ -85,6 +85,14 @@ export default async function RootPage() {
       <footer className="bg-ink text-cream border-t-2 border-orange py-4 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · MADE IN SANTIAGO · 2026
+          {" · "}
+          <a
+            href="mailto:hola@dropgigs.com"
+            className="text-orange tracking-[0.15em] normal-case hover:underline"
+            style={{ textTransform: "none" }}
+          >
+            hola@dropgigs.com
+          </a>
         </div>
       </footer>
     </main>
