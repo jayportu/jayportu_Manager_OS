@@ -9,7 +9,7 @@
 --   - Los 9 DJs actuales de beta NO tienen row acá → siguen con el
 --     flow beta existente (lockout post 15 días, igual que antes).
 --   - Signups nuevos post-launch arrancan con una row status='trial'
---     auto-creada por la app, con trial_ends_at = now() + 7 días.
+--     auto-creada por la app, con trial_ends_at = now() + 15 días.
 --   - Cuando pagan → status='active'.
 --
 -- Schema diseñado para que un user tenga 0 o 1 subscription (unique on
@@ -26,7 +26,7 @@ create table if not exists public.subscriptions (
 
   -- Estado del ciclo de vida
   status                   text not null check (status in (
-                             'trial',        -- 7 días gratis, sin pagar
+                             'trial',        -- 15 días gratis, sin pagar
                              'pending',      -- esperando primer cobro confirmado
                              'active',       -- pagando OK (PAT o manual al día)
                              'past_due',     -- pago rechazado, en gracia (7 días)

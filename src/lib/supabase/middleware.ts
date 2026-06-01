@@ -16,6 +16,8 @@ const PUBLIC_PATHS = [
   "/b/", // Bloque B — vista tokenizada del booker sin login
   "/beta", // Sprint 23.5 — formulario solicitud beta
   "/api/beta", // Sprint 23.5 — submit del formulario beta
+  "/terms", // Security #7 — términos públicos (footer landing/login, Google OAuth, SERNAC)
+  "/privacy", // Security #7 — política privacidad pública (footer landing/login, Google OAuth, Ley 19.628)
   "/sitemap.xml", // Sprint 20 — sitemap dinámico
   "/robots.txt", // Sprint 20 — robots
   "/api/track", // tracking endpoint

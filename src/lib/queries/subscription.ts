@@ -5,7 +5,7 @@
  *   - beta_status='active' o 'expired' → sigue el flow beta clásico,
  *     este módulo NO crea row en subscriptions para ese user.
  *   - beta_status='none' (default de users nuevos post-launch) → este
- *     módulo se hace cargo: crea trial 7d, evalúa expiración, devuelve
+ *     módulo se hace cargo: crea trial 15d, evalúa expiración, devuelve
  *     estado de acceso.
  *
  * Inserts/updates van con service_role (createAdminClient) porque la
@@ -21,7 +21,7 @@ import type {
   SubscriptionStatus,
 } from "@/types/database";
 
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 15;
 export const PAST_DUE_GRACE_DAYS = 7;
 
 /** Estados de beta que mantienen el flow viejo y NO deben tener
@@ -35,7 +35,7 @@ export function isLegacyBetaUser(betaStatus: BetaStatus | null | undefined): boo
 
 /**
  * Asegura que el user tenga una row en subscriptions. Si no existe,
- * la crea con status='trial' por 7 días. Si existe, la devuelve tal cual.
+ * la crea con status='trial' por 15 días. Si existe, la devuelve tal cual.
  *
  * Idempotente: race-safe gracias al unique index on user_id.
  *

@@ -170,7 +170,7 @@ export default function TermsPage() {
         <Section title="Pagos y suscripciones">
           <p>
             Durante la beta cerrada el servicio es gratuito. Cuando lancemos la
-            versión pública, el modelo es: trial gratuito de 7 días, luego
+            versión pública, el modelo es: trial gratuito de 15 días, luego
             suscripción mensual procesada por MercadoPago. El precio actual y
             las condiciones específicas se muestran al momento de suscribirse.
           </p>

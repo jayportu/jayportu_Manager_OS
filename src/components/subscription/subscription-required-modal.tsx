@@ -101,7 +101,7 @@ const COPY: Record<
   trial_expired: {
     kicker: "TU TRIAL TERMINÓ",
     title: "Gracias por probar",
-    body: "Tus 7 días gratis llegaron al final. Para seguir usando DROP, suscríbete por $10.000 al mes. Sin contratos, cancelas cuando quieras.",
+    body: "Tus 15 días gratis llegaron al final. Para seguir usando DROP, suscríbete por $10.000 al mes. Sin contratos, cancelas cuando quieras.",
   },
   subscription_expired: {
     kicker: "SUSCRIPCIÓN VENCIDA",
