@@ -265,7 +265,15 @@ function EventRow({
   ev: CalendarEventRow;
   privateNote?: string;
 }) {
+  // Fix bug 2026-06-01: getDate() retornaba el día en UTC del server (Vercel),
+  // no en Santiago. Para eventos que cruzan medianoche (ej. 05-jun 21:00 CLT =
+  // 06-jun 01:00 UTC), el card mostraba el día siguiente. Forzamos timezone
+  // Santiago — igual que el mes abajo — para consistencia.
   const d = new Date(ev.start_at);
+  const dayInTz = d.toLocaleString("es-CL", {
+    day: "2-digit",
+    timeZone: "America/Santiago",
+  });
   const isShow = ev.type === "show";
   const hasAmount = ev.amount_clp !== null && ev.amount_clp > 0;
   const status: PaymentStatus = ev.payment_status;
@@ -281,7 +289,7 @@ function EventRow({
       <div className="flex items-start gap-4">
         <div className="flex flex-col items-center min-w-[44px]">
           <div className="font-display text-2xl leading-none text-orange">
-            {d.getDate().toString().padStart(2, "0")}
+            {dayInTz}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-widest text-fg-muted mt-0.5">
             {d.toLocaleString("es-CL", { month: "short", timeZone: "America/Santiago" })}
