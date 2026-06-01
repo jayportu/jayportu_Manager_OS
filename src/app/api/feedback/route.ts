@@ -51,8 +51,15 @@ export async function POST(req: Request) {
       ? body.screenshot_data_url
       : null;
 
-  // Subir screenshot si viene
-  let screenshotUrl = "";
+  // Subir screenshot si viene.
+  //
+  // Security 2026-06-01: el bucket feedback-screenshots ahora es PRIVADO
+  // (un bug report podría tener tokens/datos del CRM visibles en pantalla
+  // y antes la URL pública era accesible por cualquiera con el path).
+  // Guardamos sólo el storage path interno (ej. "USER/123.jpg") en
+  // screenshot_url. El admin/feedback genera signed URLs on-the-fly via
+  // listFeedbackReports() en src/lib/queries/beta.ts.
+  let screenshotPath = "";
   if (dataUrl && dataUrl.startsWith("data:image/")) {
     try {
       // data:image/jpeg;base64,XXXX...
@@ -73,10 +80,7 @@ export async function POST(req: Request) {
           .from(BUCKET)
           .upload(path, buf, { contentType: mime, upsert: false });
         if (!upErr) {
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from(BUCKET).getPublicUrl(path);
-          screenshotUrl = publicUrl;
+          screenshotPath = path;
         }
         // Si falla el upload (ej: bucket no existe) seguimos sin screenshot
       }
@@ -91,7 +95,7 @@ export async function POST(req: Request) {
       description,
       page_url: pageUrl,
       user_agent: userAgent,
-      screenshot_url: screenshotUrl,
+      screenshot_url: screenshotPath, // ahora guarda path interno, no URL pública
     });
     return NextResponse.json({ ok: true });
   } catch (e) {

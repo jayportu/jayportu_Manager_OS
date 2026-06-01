@@ -178,12 +178,37 @@ export async function createFeedbackReport(
 }
 
 /**
- * Lista todos los feedback con info del DJ que reportó (artist_name + email).
- * Solo admin. Hace JOIN manual con `dj_profile` y `auth.users`.
+ * Convierte un valor legacy de screenshot_url (URL pública vieja) o un path
+ * nuevo (interno tipo "USER/123.jpg") a un PATH normalizado para usar con
+ * Supabase Storage.
  *
- * Implementación N+1 por user_id (vía auth.admin.getUserById). Para 200
- * reports con ~15 distinct users esto es <1s. Si en el futuro escala,
- * cachear o paginar listUsers().
+ * Antes del 2026-06-01, el endpoint /api/feedback guardaba la URL pública
+ * tipo "https://xxx.supabase.co/storage/v1/object/public/feedback-screenshots
+ * /USER/123.jpg". Ahora guarda sólo el path "USER/123.jpg". Esta función
+ * maneja ambos casos para no romper registros viejos.
+ */
+function normalizeScreenshotPath(value: string): string | null {
+  if (!value) return null;
+  // Si parece URL pública vieja → extraer el path
+  const m = value.match(
+    /\/storage\/v1\/object\/public\/feedback-screenshots\/(.+)$/
+  );
+  if (m) return m[1];
+  // Si ya es path interno (no incluye protocolo), retornarlo tal cual
+  if (!value.startsWith("http")) return value;
+  // URL con otro formato no esperado → no podemos generar signed URL
+  return null;
+}
+
+/**
+ * Lista todos los feedback con info del DJ que reportó (artist_name + email)
+ * y signed URL de screenshot (60 min expiry). Solo admin.
+ *
+ * Hace JOIN manual con `dj_profile` y `auth.users` (N+1 por getUserById).
+ *
+ * Security: el bucket feedback-screenshots ahora es privado (2026-06-01).
+ * En lugar de URLs públicas que cualquiera con el link puede ver, generamos
+ * signed URLs que expiran en 1 hora y solo viajan al admin via esta query.
  */
 export async function listFeedbackReports(opts?: {
   status?: FeedbackStatus;
@@ -225,8 +250,29 @@ export async function listFeedbackReports(opts?: {
     })
   );
 
+  // Generar signed URLs para screenshots (paths nuevos + URLs viejas)
+  const screenshotMap = new Map<string, string>();
+  await Promise.all(
+    reports.map(async (r) => {
+      const path = normalizeScreenshotPath(r.screenshot_url);
+      if (!path) return;
+      try {
+        const { data: signed } = await admin.storage
+          .from("feedback-screenshots")
+          .createSignedUrl(path, 3600); // 1 hora
+        if (signed?.signedUrl) {
+          screenshotMap.set(r.id, signed.signedUrl);
+        }
+      } catch {
+        // ignorar — file borrado, bucket inaccesible, etc.
+      }
+    })
+  );
+
   return reports.map((r) => ({
     ...r,
+    // Sobrescribir screenshot_url con signed URL (o "" si no se pudo generar)
+    screenshot_url: screenshotMap.get(r.id) || "",
     artist_name: profileMap.get(r.user_id) || null,
     email: emailMap.get(r.user_id) || null,
   }));
