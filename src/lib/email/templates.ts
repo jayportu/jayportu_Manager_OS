@@ -34,8 +34,6 @@ const BORDER = "#E5E1D8";
 
 const FONT_SANS =
   "-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif";
-const FONT_DISPLAY =
-  "Impact,'Arial Black','Helvetica Neue',Helvetica,sans-serif";
 const FONT_MONO = "Consolas,'Courier New',monospace";
 
 /**
@@ -76,13 +74,17 @@ export function wrapEmail(opts: {
 
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="max-width:560px; width:100%; background:#ffffff; border:1px solid ${BORDER}; border-radius:6px;">
 
-          <!-- Header brandeado: ink + wordmark DROP. + tagline -->
+          <!-- Header brandeado: ink + wordmark PNG (con fallback texto) + tagline -->
           <tr>
             <td align="center" style="background:${INK}; padding:36px 24px 32px 24px; border-radius:6px 6px 0 0;">
-              <div style="font-family:${FONT_DISPLAY}; font-size:44px; font-weight:900; color:${CREAM}; letter-spacing:-1px; line-height:1;">
-                DROP<span style="color:${ORANGE};">.</span>
-              </div>
-              <div style="font-family:${FONT_MONO}; font-size:10px; color:${MUTED}; letter-spacing:0.3em; margin-top:12px; text-transform:uppercase;">
+              <a href="https://dropgigs.com" style="text-decoration:none; display:inline-block;">
+                <img src="https://dropgigs.com/brand/wordmark-light.png"
+                     alt="DROP."
+                     width="200"
+                     height="84"
+                     style="display:block; margin:0 auto; width:200px; height:auto; max-width:200px; border:0; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;" />
+              </a>
+              <div style="font-family:${FONT_MONO}; font-size:10px; color:${MUTED}; letter-spacing:0.3em; margin-top:14px; text-transform:uppercase;">
                 — The DJ OS —
               </div>
             </td>
