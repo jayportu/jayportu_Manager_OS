@@ -7,8 +7,19 @@
 
 import { NextResponse } from "next/server";
 import { logUsageEvent } from "@/lib/queries/beta";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+  // Rate limit 60/min por IP. Mismo razonamiento que /api/track.
+  const limit = rateLimit(req, {
+    key: "usage",
+    max: 60,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json({ ok: false }, { status: 429 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = (await req.json()) as Record<string, unknown>;

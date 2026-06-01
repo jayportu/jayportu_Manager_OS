@@ -12,23 +12,7 @@
 
 import { NextResponse } from "next/server";
 import { createBetaRequest } from "@/lib/queries/beta";
-
-// In-memory rate limit por IP (mejor que nada para Vercel serverless,
-// aunque cada instancia tiene su propio Map). Para producción seria
-// migrar a Upstash Redis o tabla rate_limits en Supabase.
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutos
-const RATE_LIMIT_MAX = 3;
-const rateLimitMap = new Map<string, number[]>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const past = rateLimitMap.get(ip) || [];
-  const recent = past.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (recent.length >= RATE_LIMIT_MAX) return false;
-  recent.push(now);
-  rateLimitMap.set(ip, recent);
-  return true;
-}
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
@@ -47,17 +31,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, id: "honeypot" });
   }
 
-  // Rate limit por IP
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown";
-  if (!checkRateLimit(ip)) {
+  // Rate limit por IP — 3 solicitudes cada 15 min (anti-spam fuerte)
+  const limit = rateLimit(req, {
+    key: "beta-signup",
+    max: 3,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!limit.ok) {
     return NextResponse.json(
       { ok: false, error: "Demasiadas solicitudes. Espera unos minutos." },
       { status: 429 }
     );
   }
+
+  // IP para guardar como audit trail en beta_requests
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
 
   // Validación de campos requeridos
   const artistName = typeof body.artist_name === "string" ? body.artist_name : "";

@@ -11,6 +11,7 @@
  */
 import { trackEvent } from "@/lib/queries/presskit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 import {
   PRESSKIT_EVENT_TYPES,
@@ -20,6 +21,17 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  // Rate limit por IP — 60/min. Volumen alto legítimo (varios eventos por
+  // visit), pero corta abuso obvio (script que mete 1000 eventos/seg).
+  const limit = rateLimit(request, {
+    key: "track",
+    max: 60,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
+
   let body: {
     user_id?: string;
     event?: string;

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * Endpoint para el header List-Unsubscribe (Gmail/Yahoo bulk sender
@@ -20,12 +21,33 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 
 export async function POST(request: NextRequest) {
+  // Rate limit estricto — raro que alguien legítimo haga POST one-click
+  // muchas veces; abuso típico es scripted.
+  const limit = rateLimit(request, {
+    key: "unsubscribe-post",
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) return new NextResponse(null, { status: 429 });
+
   const email = request.nextUrl.searchParams.get("email") || "unknown";
   console.log("[unsubscribe] POST one-click", { email });
   return new NextResponse(null, { status: 200 });
 }
 
 export async function GET(request: NextRequest) {
+  // Mismo rate limit para GET (clic desde mail client).
+  const limit = rateLimit(request, {
+    key: "unsubscribe-get",
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) {
+    return new NextResponse("Demasiados intentos. Esperá unos minutos.", {
+      status: 429,
+    });
+  }
+
   const email = request.nextUrl.searchParams.get("email") || "tu email";
   console.log("[unsubscribe] GET click", { email });
   return new NextResponse(
