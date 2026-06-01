@@ -451,7 +451,90 @@ Recibes este correo porque reportaste un bug en la beta. Si no quieres más, res
 }
 
 // ---------------------------------------------------------------------------
-// 5. Follow Updates (digest de updates de DJ a followers)
+// 5. Avatar Reminder (perfil incompleto sin foto)
+// ---------------------------------------------------------------------------
+
+/**
+ * Recordatorio para DJs beta que NO subieron foto de perfil.
+ * Sin foto, su card en /dj sale con iniciales — el directorio se ve
+ * menos profesional y los bookers no los identifican tan fácil.
+ *
+ * Tono: cordial, chileno tuteo, low pressure. CTA único a /perfil.
+ */
+export function avatarReminderEmailHtml(input: {
+  artistName: string;
+  profileUrl: string;
+  directoryUrl: string;
+}): string {
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">Hola ${escapeHtml(input.artistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Pasé revisando los perfiles de los DJs en la beta y vi que el tuyo todavía no tiene foto cargada.
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Sin foto, tu card en el <a href="${input.directoryUrl}" style="color:${INK}; text-decoration:underline;">directorio público</a> sale con tus iniciales en vez de tu cara. Los bookers que entran a buscar DJ se enganchan con quien identifican rápido — y la foto es lo primero que ven.
+              </p>
+              <p style="font-size:15px; margin:0 0 12px 0;">Subila en 30 segundos:</p>
+              <ol style="font-size:15px; margin:0 0 20px 20px; padding:0;">
+                <li style="margin:0 0 8px 0;">Abrí tu perfil en DROP.</li>
+                <li style="margin:0 0 8px 0;">Click en el círculo gris arriba (donde van las iniciales).</li>
+                <li style="margin:0 0 8px 0;">Elegí una foto cuadrada — JPG o PNG, hasta 10&nbsp;MB.</li>
+              </ol>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                ${ctaButton("Subir mi foto", input.profileUrl)}
+              </p>
+              <p style="font-size:13px; color:${MUTED}; margin:0 0 16px 0;">
+                Tip: usá una foto donde se te vea la cara claramente, sin filtros raros. Lo que pondrías en tu Instagram de perfil. La misma queda como avatar en toda la app + en tu press kit público.
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                Cualquier duda — o si algo no carga — respondes este correo y te ayudo directo.
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:${ORANGE};">.</span> Team
+              </p>`;
+
+  return wrapEmail({
+    title: "Tu perfil en DROP. está casi listo",
+    preheader: "Falta tu foto. Sin ella, tu card en el directorio sale con iniciales.",
+    content,
+    footerReason:
+      'Recibes este correo porque estás en la beta de DROP. y tu perfil aún no tiene foto. Si prefieres no recibir más mensajes, respondes "unsubscribe" y te quito de la lista.',
+  });
+}
+
+export function avatarReminderEmailText(input: {
+  artistName: string;
+  profileUrl: string;
+  directoryUrl: string;
+}): string {
+  return `Hola ${input.artistName},
+
+Pasé revisando los perfiles de los DJs en la beta y vi que el tuyo todavía no tiene foto cargada.
+
+Sin foto, tu card en el directorio público (${input.directoryUrl}) sale con tus iniciales en vez de tu cara. Los bookers que entran a buscar DJ se enganchan con quien identifican rápido — y la foto es lo primero que ven.
+
+Subila en 30 segundos:
+1. Abrí tu perfil en DROP.
+2. Click en el círculo gris arriba (donde van las iniciales).
+3. Elegí una foto cuadrada — JPG o PNG, hasta 10 MB.
+
+Subir mi foto: ${input.profileUrl}
+
+Tip: usá una foto donde se te vea la cara claramente, sin filtros raros. Lo que pondrías en tu Instagram de perfil. La misma queda como avatar en toda la app + en tu press kit público.
+
+Cualquier duda — o si algo no carga — respondes este correo y te ayudo directo.
+
+Saludos,
+DROP. Team
+
+--
+DROP. — The DJ OS — Santiago, Chile — dropgigs.com
+Recibes este correo porque estás en la beta y tu perfil aún no tiene foto. Si no quieres más, respondes "unsubscribe".`;
+}
+
+// ---------------------------------------------------------------------------
+// 6. Follow Updates (digest de updates de DJ a followers)
 // ---------------------------------------------------------------------------
 
 export interface FollowUpdate {
