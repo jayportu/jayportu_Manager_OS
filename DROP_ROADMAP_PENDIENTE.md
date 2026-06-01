@@ -457,4 +457,78 @@ Sistema de suscripción $10.000 CLP/mes vía MercadoPago, **paralelo al de beta*
 
 ---
 
+## 13 · Pre-lanzamiento final · Hardening de seguridad
+
+Tareas que **deben ejecutarse antes de salir en vivo con la versión final** (cuando el público objetivo crezca de la beta cerrada actual a usuarios abiertos). Hoy (beta cerrada, ~12 DJs activos) el riesgo es bajo y diferimos para no introducir breakage rushed.
+
+### 13.1 · Upgrade Next.js 14 → 15 (o 16)
+
+**Por qué**: `npm audit --production` (2026-06-01) reporta **1 HIGH** + **2 MODERATE** CVEs en Next 14.2.35 (que ya es la última versión 14.x — no hay patch dentro de la rama 14):
+
+| CVE | Descripción | Severidad |
+|---|---|---|
+| GHSA-9g9p-9gw9-jx7f | DoS via Image Optimizer remotePatterns | HIGH |
+| GHSA-h25m-26qc-wcjf | HTTP request deserialization DoS (RSC inseguros) | HIGH |
+| GHSA-ggv3-7p47-pfv8 | HTTP request smuggling en rewrites | HIGH |
+| GHSA-3x4c-7xq6-9pq8 | Unbounded next/image disk cache growth | HIGH |
+| GHSA-q4gf-8mx6-v5v3 | DoS con Server Components | HIGH |
+| GHSA-8h8q-6873-q5fj | DoS con Server Components (otro vector) | HIGH |
+| GHSA-3g8h-86w9-wvmq | Middleware / Proxy redirects cache-poisoned | HIGH |
+| GHSA-ffhc-5mcf-pf4q | XSS en App Router con CSP nonces | HIGH |
+| GHSA-vfv6-92ff-j949 | Cache poisoning via colisiones en RSC cache-busting | HIGH |
+| GHSA-gx5p-jg67-6x7h | XSS en beforeInteractive scripts con input untrusted | HIGH |
+| GHSA-h64f-5h5j-jqjh | DoS en Image Optimization API | HIGH |
+| GHSA-c4j6-fc7j-m34r | SSRF en apps usando WebSocket upgrades | HIGH |
+| GHSA-wfc6-r584-vfw7 | Cache poisoning en RSC responses | HIGH |
+| GHSA-36qx-fr4f-26g5 | Middleware bypass en Pages Router con i18n | HIGH |
+
+Riesgo real **bajo en beta cerrada con poco tráfico**, pero **medio-alto en producción pública** con escala creciente. La mayoría son DoS o cache poisoning que requieren tráfico/exposure pública para impactar.
+
+**Por qué postergamos hoy**:
+- Pasar 14 → 15 es **breaking change**. App Router cambió varias things entre majors (middleware, route handler params, async cookies/headers, etc.). Necesita testing dedicado.
+- Hacer el upgrade en una sesión de seguridad rushed sin testing puede romper más de lo que arregla.
+
+**Plan al ejecutar**:
+1. Crear branch dedicada `chore/next-15-upgrade`.
+2. `npm install next@15` (probar primero 15.x.X latest disponible al momento).
+3. `npm run build` local → ir fixeando errores TS uno a uno.
+4. Smoke test manual: login + dashboard + /dj + /p/[slug] + admin/feedback + /calendario + form de booking.
+5. Re-correr `node scripts/screenshot_responsive.mjs` para verificar visual.
+6. Re-correr `node scripts/audit_rls.mjs` (probable que las policies sigan iguales pero confirmar).
+7. PR a `main`, deploy a preview, validar en `dropgigs-git-chore-next-15-upgrade-jay-manager-os.vercel.app`.
+8. Una vez green, merge a main.
+
+**Postcss (MODERATE)** se arregla solo al actualizar Next.
+
+### 13.2 · uuid (transitivo de mercadopago)
+
+**Issue**: el SDK `mercadopago@3.0.0` depende de `uuid` con CVE GHSA-w5hq-g745-h8pq (missing buffer bounds check en v3/v5/v6 cuando `buf` es proveído).
+
+**Riesgo real**: bajo. Usamos el SDK MP para preapproval, payment y customer — esos endpoints internamente NO exponen un vector con `uuid.v3/v5/v6 + buf` controlado por el atacante.
+
+**Acción al hacer 13.1**: ver si el SDK MP tiene versión nueva sin esa transitiva (revisar `npm view mercadopago@latest`). Si no, aceptar el riesgo y dejarlo documentado.
+
+### 13.3 · DMARC `p=quarantine` → `p=reject` (cuando haya reputación)
+
+Hoy DMARC está en `p=quarantine; pct=100; rua=mailto:hola@dropgigs.com` (commit pre-2026-06-01). Cuando dropgigs.com tenga ~6 meses de envíos limpios (todos con SPF+DKIM+DMARC PASS, sin reportes negativos en `rua`), considerar subir a:
+
+```
+v=DMARC1; p=reject; pct=100; rua=mailto:hola@dropgigs.com; ruf=mailto:hola@dropgigs.com
+```
+
+Esto le dice a Gmail/Outlook que **rechacen** (no cuarentinen) cualquier email spoofeado. Máximo nivel de protección anti-phishing del dominio.
+
+### 13.4 · Otras tareas que pueden quedar abiertas durante el ciclo beta
+
+A revisar antes del lanzamiento público:
+- **Rate limiting** en endpoints públicos (`/api/feedback`, `/api/track`, `/api/unsubscribe`) — el barrido de seguridad #6 cubre esto.
+- **Páginas `/privacy` y `/terms`** — necesarias para Google OAuth consent screen + GDPR-like en Chile (#7).
+- **CSP headers** estrictos para defensa en profundidad.
+- **Sentry o similar** para monitoring de errores en producción.
+- **Backups verification** — Supabase hace snapshots automáticos en el plan paid; verificar que estén activos cuando se upgrade del plan free.
+- **2FA disponible** para usuarios (Supabase soporta TOTP nativo).
+- **Dependabot / Renovate** activo en GitHub para auto-update de deps con CVEs.
+
+---
+
 *Documento vivo. Actualizar conforme se cierren sprints o se tomen decisiones.*
