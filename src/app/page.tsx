@@ -121,9 +121,9 @@ function DjSide() {
           className="mt-5"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-            fontSize: "clamp(56px, 8vw, 104px)",
-            lineHeight: 0.82,
-            letterSpacing: "-0.005em",
+            fontSize: "clamp(48px, 6.5vw, 84px)",
+            lineHeight: 0.95,
+            letterSpacing: 0,
           }}
         >
           TOMA EL<br />
@@ -201,9 +201,9 @@ function BookerSide() {
           className="mt-5"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-            fontSize: "clamp(56px, 8vw, 104px)",
-            lineHeight: 0.82,
-            letterSpacing: "-0.005em",
+            fontSize: "clamp(48px, 6.5vw, 84px)",
+            lineHeight: 0.95,
+            letterSpacing: 0,
           }}
         >
           ENCUENTRA<br />
