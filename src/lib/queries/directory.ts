@@ -19,6 +19,9 @@ export interface PublicDjProfile {
   city: string;
   country: string;
   logo_url: string;
+  /** Foto de perfil cuadrada (subida desde /perfil). Preferida para el card del directorio (aspect-square). */
+  avatar_url: string;
+  /** Imagen hero rectangular del press kit. Fallback si no hay avatar_url. */
   hero_image_url: string;
   public_slug: string;
   available_from: string | null;
@@ -63,7 +66,7 @@ export async function listPublicDjs(
   let q = admin
     .from("dj_profile")
     .select(
-      "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, hero_image_url, public_slug, available_from, available_until, available_note, onboarding_completed_at, hidden_from_directory"
+      "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, onboarding_completed_at, hidden_from_directory"
     )
     .eq("hidden_from_directory", false)
     .not("onboarding_completed_at", "is", null)
@@ -99,6 +102,7 @@ export async function listPublicDjs(
       city: row.city ?? "",
       country: row.country ?? "",
       logo_url: row.logo_url ?? "",
+      avatar_url: row.avatar_url ?? "",
       hero_image_url: row.hero_image_url ?? "",
       public_slug: row.public_slug ?? "",
       available_from: row.available_from ?? null,

@@ -323,10 +323,13 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
       className="border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1"
     >
       <div className="bg-ink aspect-square flex items-center justify-center relative overflow-hidden">
-        {dj.hero_image_url ? (
+        {/* Preferimos avatar_url (cuadrado, foto de perfil) para el card
+            aspect-square. Caemos al hero_image_url solo si no hay avatar.
+            Al final, placeholder con iniciales en Anton. */}
+        {dj.avatar_url || dj.hero_image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={dj.hero_image_url}
+            src={dj.avatar_url || dj.hero_image_url}
             alt={dj.artist_name}
             className="absolute inset-0 w-full h-full object-cover"
           />
