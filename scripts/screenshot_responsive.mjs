@@ -38,9 +38,14 @@ const PAGES = [
   { name: "3-login", path: "/login", label: "Login (/login)" },
   { name: "4-directory", path: "/dj", label: "Directorio público (/dj)" },
   {
-    name: "5-presskit",
+    name: "5-presskit-generated",
     path: "/p/jay-bdba324d",
-    label: "Press kit Belixza (/p/jay-bdba324d)",
+    label: "Press kit Belixza (modo generated · /p/jay-bdba324d)",
+  },
+  {
+    name: "6-presskit-with-pdf",
+    path: "/p/jay-portu",
+    label: "Press kit Jay Portu (con botón Ver PDF · /p/jay-portu)",
   },
 ];
 
