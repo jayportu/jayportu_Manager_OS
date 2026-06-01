@@ -276,7 +276,15 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
         </div>
       </footer>
 
-      {/* JSON-LD para SEO */}
+      {/* JSON-LD para SEO.
+          Security: usamos dangerouslySetInnerHTML porque <script> es la
+          única forma de inyectar JSON-LD. El JSON viene de user data
+          (artist_name, city, country del DJ); JSON.stringify NO escapa
+          "</script>" por default, así que un artist_name malicioso
+          podría romper el contexto HTML. Reemplazamos "<" por "<"
+          en el output JSON — sigue siendo JSON válido y previene el
+          escape del <script>. Fix bug legacy: URL apunta a dropgigs.com
+          (no drop.dj). */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -294,7 +302,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
                 "@type": "Person",
                 name: d.artist_name,
                 jobTitle: "DJ",
-                url: `https://drop.dj/p/${d.public_slug}`,
+                url: `https://dropgigs.com/p/${d.public_slug}`,
                 address: {
                   "@type": "PostalAddress",
                   addressLocality: d.city,
@@ -302,7 +310,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
                 },
               },
             })),
-          }),
+          }).replace(/</g, "\\u003c"),
         }}
       />
     </div>
