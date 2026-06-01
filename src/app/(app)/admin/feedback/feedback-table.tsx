@@ -6,14 +6,14 @@ import {
   FEEDBACK_STATUSES,
   FEEDBACK_STATUS_LABELS,
   FEEDBACK_KIND_LABELS,
-  type FeedbackReport,
+  type FeedbackReportWithUser,
   type FeedbackStatus,
 } from "@/types/database";
 import { SelectNative } from "@/components/ui/select-native";
 import { updateFeedbackAction } from "./actions";
 
 interface Props {
-  initialReports: FeedbackReport[];
+  initialReports: FeedbackReportWithUser[];
 }
 
 export function FeedbackTable({ initialReports }: Props) {
@@ -22,23 +22,55 @@ export function FeedbackTable({ initialReports }: Props) {
   const [filter, setFilter] = useState<FeedbackStatus | "all">("all");
   const [isPending, startTransition] = useTransition();
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Borradores locales de admin_notes editados pero aún no guardados.
+  // Se envían junto al cambio de status (incluido cuando se marca "resuelto"
+  // y el server dispara el email de fix-followup usando estas notas como
+  // fixSummary).
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
 
   const filtered =
     filter === "all" ? reports : reports.filter((r) => r.status === filter);
 
-  function handleStatusChange(r: FeedbackReport, status: FeedbackStatus) {
+  function notesFor(r: FeedbackReportWithUser): string {
+    return noteDrafts[r.id] ?? r.admin_notes ?? "";
+  }
+
+  function handleStatusChange(r: FeedbackReportWithUser, status: FeedbackStatus) {
+    const adminNotes = notesFor(r);
+    const willSendEmail = status === "resolved" && r.status !== "resolved";
+
+    if (willSendEmail && r.email) {
+      const noteLine = adminNotes.trim()
+        ? `\n\nResumen del fix:\n"${adminNotes.trim()}"`
+        : "\n\n(Sin resumen — se usará texto genérico)";
+      const ok = confirm(
+        `Marcar como "Resuelto" y mandar email a ${r.artist_name || r.email} (${r.email})?${noteLine}`
+      );
+      if (!ok) return;
+    }
+
     startTransition(async () => {
-      const res = await updateFeedbackAction(r.id, status);
+      const res = await updateFeedbackAction(r.id, status, adminNotes);
       if (res.ok) {
         setReports((rs) =>
-          rs.map((x) => (x.id === r.id ? { ...x, status } : x))
+          rs.map((x) =>
+            x.id === r.id ? { ...x, status, admin_notes: adminNotes } : x
+          )
         );
+        // Limpiar el draft ahora que está persistido
+        setNoteDrafts((n) => {
+          const next = { ...n };
+          delete next[r.id];
+          return next;
+        });
         router.refresh();
+      } else {
+        alert(`Error: ${res.error}`);
       }
     });
   }
 
-  function kindBadge(k: FeedbackReport["kind"]) {
+  function kindBadge(k: FeedbackReportWithUser["kind"]) {
     const bg = {
       bug: "bg-danger text-white border-danger",
       idea: "bg-info text-white border-info",
@@ -86,11 +118,11 @@ export function FeedbackTable({ initialReports }: Props) {
         )}
         {filtered.map((r) => {
           const isExp = expanded === r.id;
+          const draft = noteDrafts[r.id];
+          const hasUnsavedNote =
+            draft !== undefined && draft !== (r.admin_notes || "");
           return (
-            <div
-              key={r.id}
-              className="border-b border-ink/10 px-4 py-3"
-            >
+            <div key={r.id} className="border-b border-ink/10 px-4 py-3">
               <div className="flex items-start gap-3">
                 <div className="shrink-0 pt-1">{kindBadge(r.kind)}</div>
                 <div className="flex-1 min-w-0">
@@ -102,12 +134,22 @@ export function FeedbackTable({ initialReports }: Props) {
                   >
                     {r.description}
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-2 items-center font-mono text-[10px] text-fg-muted">
-                    <span>{new Date(r.created_at).toLocaleString("es-CL", { timeZone: "America/Santiago" })}</span>
+                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center font-mono text-[10px] text-fg-muted">
+                    <span>
+                      {new Date(r.created_at).toLocaleString("es-CL", {
+                        timeZone: "America/Santiago",
+                      })}
+                    </span>
                     {r.page_url && <span>· URL: {r.page_url}</span>}
-                    {r.user_id && (
-                      <span className="text-fg-subtle">
-                        user: {r.user_id.slice(0, 8)}…
+                    {(r.artist_name || r.email) && (
+                      <span className="text-fg">
+                        ·{" "}
+                        <span className="font-semibold text-ink">
+                          {r.artist_name || "—"}
+                        </span>
+                        {r.email && (
+                          <span className="text-fg-muted"> · {r.email}</span>
+                        )}
                       </span>
                     )}
                   </div>
@@ -124,6 +166,31 @@ export function FeedbackTable({ initialReports }: Props) {
                   {isExp && r.user_agent && (
                     <div className="mt-2 text-[10px] font-mono text-fg-subtle break-all">
                       UA: {r.user_agent}
+                    </div>
+                  )}
+
+                  {isExp && (
+                    <div className="mt-3 space-y-1.5">
+                      <label className="block font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
+                        Resumen del fix (admin notes)
+                      </label>
+                      <textarea
+                        value={notesFor(r)}
+                        onChange={(e) =>
+                          setNoteDrafts((n) => ({
+                            ...n,
+                            [r.id]: e.target.value,
+                          }))
+                        }
+                        rows={2}
+                        placeholder="Si lo marcás como 'Resuelto', este texto va al email que el DJ recibe (ej: 'Ya está arreglado. Ahora el calendario muestra siempre la hora chilena, así que tu show 05-jun 21:00 ya aparece bajo el card 05 JUN.'). Si lo dejas vacío, se manda un texto genérico cordial."
+                        className="w-full text-xs px-2.5 py-2 border-2 border-ink bg-cream/30 font-sans leading-relaxed focus:bg-white focus:outline-none focus:ring-0"
+                      />
+                      {hasUnsavedNote && (
+                        <div className="font-mono text-[10px] text-warning">
+                          ↑ Nota editada — se guarda al cambiar el estado.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

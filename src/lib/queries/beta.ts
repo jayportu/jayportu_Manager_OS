@@ -4,12 +4,18 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email/resend";
+import {
+  bugFixFollowupEmailHtml,
+  bugFixFollowupEmailText,
+} from "@/lib/email/templates";
 import type {
   BetaRequest,
   BetaRequestInsert,
   BetaRequestStatus,
   FeedbackReport,
   FeedbackReportInsert,
+  FeedbackReportWithUser,
   FeedbackStatus,
   NpsResponse,
   NpsResponseInsert,
@@ -171,11 +177,18 @@ export async function createFeedbackReport(
   return data as FeedbackReport;
 }
 
-/** Lista todos los feedback — solo admin. */
+/**
+ * Lista todos los feedback con info del DJ que reportó (artist_name + email).
+ * Solo admin. Hace JOIN manual con `dj_profile` y `auth.users`.
+ *
+ * Implementación N+1 por user_id (vía auth.admin.getUserById). Para 200
+ * reports con ~15 distinct users esto es <1s. Si en el futuro escala,
+ * cachear o paginar listUsers().
+ */
 export async function listFeedbackReports(opts?: {
   status?: FeedbackStatus;
   limit?: number;
-}): Promise<FeedbackReport[]> {
+}): Promise<FeedbackReportWithUser[]> {
   const admin = createAdminClient();
   let q = admin
     .from("feedback_reports")
@@ -185,15 +198,82 @@ export async function listFeedbackReports(opts?: {
   if (opts?.limit) q = q.limit(opts.limit);
   const { data, error } = await q;
   if (error) return [];
-  return data as FeedbackReport[];
+  const reports = (data || []) as FeedbackReport[];
+  if (reports.length === 0) return [];
+
+  // Batch fetch dj_profile.artist_name por todos los user_ids únicos
+  const userIds = Array.from(new Set(reports.map((r) => r.user_id)));
+  const { data: profiles } = await admin
+    .from("dj_profile")
+    .select("user_id, artist_name")
+    .in("user_id", userIds);
+  const profileMap = new Map<string, string>();
+  for (const p of (profiles || []) as { user_id: string; artist_name: string }[]) {
+    profileMap.set(p.user_id, p.artist_name);
+  }
+
+  // Fetch emails de auth.users (N queries — no hay batch en la API admin)
+  const emailMap = new Map<string, string>();
+  await Promise.all(
+    userIds.map(async (uid) => {
+      try {
+        const { data: u } = await admin.auth.admin.getUserById(uid);
+        if (u?.user?.email) emailMap.set(uid, u.user.email);
+      } catch {
+        // ignorar — algún user borrado, no rompemos la lista
+      }
+    })
+  );
+
+  return reports.map((r) => ({
+    ...r,
+    artist_name: profileMap.get(r.user_id) || null,
+    email: emailMap.get(r.user_id) || null,
+  }));
 }
 
+/**
+ * Genera un "bug title" corto a partir de la descripción libre del feedback:
+ * primer línea, recortada a 60 chars con ellipsis. Usada como subject del
+ * email automático que se manda al marcar como "resuelto".
+ */
+function bugTitleFromDescription(desc: string): string {
+  const first = (desc || "").split("\n")[0].trim();
+  if (first.length === 0) return "el reporte";
+  if (first.length <= 60) return first;
+  return first.slice(0, 57).trim() + "...";
+}
+
+/**
+ * Actualiza el status del feedback. Si el nuevo status es "resolved" y el
+ * anterior NO era "resolved", manda un email automático al DJ que reportó
+ * usando el template `bugFixFollowupEmailHtml` (cierra el loop: agradece +
+ * confirma el fix + invita a verificar). El email no es bloqueante: si falla,
+ * se loguea pero el status update se mantiene.
+ *
+ * `adminNotes` (opcional) se usa como `fixSummary` del email. Si está vacío,
+ * se usa un texto default cordial.
+ */
 export async function updateFeedbackStatus(
   id: string,
   status: FeedbackStatus,
   adminNotes?: string
 ): Promise<FeedbackReport> {
   const admin = createAdminClient();
+
+  // 1. Leer el reporte actual ANTES del update (necesitamos previous status
+  //    + user_id + description + page_url para el email).
+  const { data: prevData, error: prevErr } = await admin
+    .from("feedback_reports")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (prevErr || !prevData) {
+    throw new Error(prevErr?.message || "Reporte no encontrado");
+  }
+  const previous = prevData as FeedbackReport;
+
+  // 2. Aplicar el update.
   const patch: Record<string, unknown> = { status };
   if (adminNotes !== undefined) patch.admin_notes = adminNotes.slice(0, 1000);
   const { data, error } = await admin
@@ -203,7 +283,74 @@ export async function updateFeedbackStatus(
     .select("*")
     .single();
   if (error) throw new Error(error.message);
-  return data as FeedbackReport;
+  const updated = data as FeedbackReport;
+
+  // 3. Si recién pasa a "resolved" (no si ya estaba), mandar email de cierre
+  //    de loop. NO bloqueante: si falla email, el update sigue válido.
+  const justResolved =
+    status === "resolved" && previous.status !== "resolved";
+  if (justResolved) {
+    try {
+      const { data: userResp } = await admin.auth.admin.getUserById(
+        updated.user_id
+      );
+      const email = userResp?.user?.email;
+      if (email) {
+        const { data: profileData } = await admin
+          .from("dj_profile")
+          .select("artist_name")
+          .eq("user_id", updated.user_id)
+          .maybeSingle();
+        const artistName =
+          (profileData as { artist_name: string } | null)?.artist_name || "DJ";
+
+        const bugTitle = bugTitleFromDescription(updated.description);
+        const fixSummary =
+          (adminNotes && adminNotes.trim().length > 0
+            ? adminNotes.trim()
+            : "Ya está arreglado. Gracias por reportar — tu feedback hace mejor a DROP. para todos.");
+        const checkPoints = updated.page_url
+          ? [{ label: "El lugar donde reportaste", url: updated.page_url }]
+          : [];
+        const dashboardUrl =
+          (process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com") +
+          "/dashboard";
+
+        const html = bugFixFollowupEmailHtml({
+          artistName,
+          bugTitle,
+          fixSummary,
+          checkPoints,
+          dashboardUrl,
+        });
+        const text = bugFixFollowupEmailText({
+          artistName,
+          bugTitle,
+          fixSummary,
+          checkPoints,
+          dashboardUrl,
+        });
+
+        await sendEmail({
+          to: email,
+          subject: `Tu reporte: ${bugTitle}`,
+          html,
+          text,
+          replyTo: process.env.RESEND_REPLY_TO || "hola@dropgigs.com",
+        });
+      }
+    } catch (e) {
+      // Log pero NO throw: el status update ya pasó. Si el email falla
+      // (Resend caído, user borrado, etc), el admin puede reintentar
+      // manualmente desde el script send_bug_fix_followup.mjs.
+      console.error(
+        "[updateFeedbackStatus] Fallo al mandar email de fix-followup:",
+        e instanceof Error ? e.message : e
+      );
+    }
+  }
+
+  return updated;
 }
 
 // ════════════════════════════════════════════════════════════

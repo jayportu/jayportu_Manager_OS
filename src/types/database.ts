@@ -1165,6 +1165,18 @@ export interface FeedbackReport {
   updated_at: string;
 }
 
+/**
+ * Variante enriquecida con info del DJ que reportó (artist_name + email).
+ * Se construye en backend uniendo `feedback_reports` ⨝ `dj_profile` ⨝
+ * `auth.users`. Útil para el admin: mostrar "Belixza (mrbelixza@gmail.com)"
+ * en lugar de un UUID anónimo, y para el envío automático de email al
+ * marcar el reporte como resuelto.
+ */
+export interface FeedbackReportWithUser extends FeedbackReport {
+  artist_name: string | null;
+  email: string | null;
+}
+
 export type FeedbackReportInsert = {
   kind: FeedbackKind;
   description: string;
