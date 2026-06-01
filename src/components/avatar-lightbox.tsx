@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { X } from "lucide-react";
 
 interface AvatarLightboxProps {
@@ -50,11 +51,17 @@ export function AvatarLightbox({
         aria-label="Ver foto a tamaño real"
         className={`group relative cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-ink rounded-full ${className ?? ""}`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        {/* next/image fill → retina automática (1x/2x/3x srcset) + WebP/AVIF
+            si el browser lo soporta. Sin esto, el thumbnail (72-112px) tiraba
+            del JPEG original de 4 MB y se veía con bordes pixelados en Mac
+            Retina / iPhone. El parent button ya tiene `relative` para fill. */}
+        <Image
           src={src}
           alt={alt}
+          fill
+          sizes="(max-width: 640px) 96px, 128px"
           className={imgClassName ?? DEFAULT_IMG_CLASS}
+          quality={90}
         />
       </button>
 

@@ -11,6 +11,22 @@ const nextConfig = {
       bodySizeLimit: "25mb",
     },
   },
+  // Habilita <Image> con fuentes externas. Sin esto, Next bloquea remote
+  // URLs por seguridad. Los avatares de los DJs se sirven desde Supabase
+  // Storage; habilitamos ese path específicamente. Next genera variantes
+  // WebP/AVIF y responsive srcset automáticamente para cada <Image>, lo
+  // que elimina el problema de "fotos de 4 MB downscaleadas en bruto a
+  // 280px y se ven feas".
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+    formats: ["image/avif", "image/webp"],
+  },
   // Redirects para mantener URLs viejas funcionando después de renames.
   async redirects() {
     return [

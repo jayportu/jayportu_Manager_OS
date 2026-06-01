@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import {
   listPublicDjs,
@@ -325,13 +326,17 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
       <div className="bg-ink aspect-square flex items-center justify-center relative overflow-hidden">
         {/* Preferimos avatar_url (cuadrado, foto de perfil) para el card
             aspect-square. Caemos al hero_image_url solo si no hay avatar.
-            Al final, placeholder con iniciales en Anton. */}
+            Al final, placeholder con iniciales en Anton.
+            <Image fill> + sizes da retina automática + WebP/AVIF — evita
+            servir el JPEG original de 4 MB en un card de 280px. */}
         {dj.avatar_url || dj.hero_image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={dj.avatar_url || dj.hero_image_url}
             alt={dj.artist_name}
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
+            className="object-cover"
+            quality={85}
           />
         ) : (
           <span
