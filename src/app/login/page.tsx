@@ -125,6 +125,15 @@ export default async function LoginPage({ searchParams }: PageProps) {
         <div className="text-center mt-4 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
           DROP. · THE DJ OS · v0.13
         </div>
+        <div className="text-center mt-2 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
+          <a href="/privacy" className="hover:text-orange transition-colors">
+            Privacidad
+          </a>
+          {" · "}
+          <a href="/terms" className="hover:text-orange transition-colors">
+            Términos
+          </a>
+        </div>
       </div>
     </div>
   );

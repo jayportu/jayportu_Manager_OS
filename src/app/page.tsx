@@ -94,6 +94,11 @@ export default async function RootPage() {
             hola@dropgigs.com
           </a>
         </div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-fg-subtle mt-2">
+          <a href="/privacy" className="hover:text-orange transition-colors">Privacidad</a>
+          {" · "}
+          <a href="/terms" className="hover:text-orange transition-colors">Términos</a>
+        </div>
       </footer>
     </main>
   );
