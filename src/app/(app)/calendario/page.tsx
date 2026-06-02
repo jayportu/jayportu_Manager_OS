@@ -341,7 +341,11 @@ function EventRow({
           )}
         </div>
 
-        {/* Sprint 24 — Editor general (todos los tipos) + Sprint 19 finance + Sprint 21 tracklist (solo shows) */}
+        {/* Sprint 24 — Editor general (todos los tipos) + Sprint 19 finance
+            (también todos: bug fix 2026-06-02, antes estaba gateado a `isShow`
+            pero el sync re-clasificaba shows a "otro" y la usuaria perdía
+            acceso a editar el fee) + Sprint 21 tracklist (solo shows, único
+            caso donde el tipo importa para la UX). */}
         <div className="flex flex-col gap-1 shrink-0">
           <EventEditDialog
             eventId={ev.id}
@@ -355,26 +359,24 @@ function EventRow({
               all_day: ev.all_day,
             }}
           />
+          <FinanceEditDialog
+            eventId={ev.id}
+            title={ev.title}
+            current={{
+              amount_clp: ev.amount_clp,
+              payment_status: ev.payment_status,
+              document_type: ev.document_type,
+            }}
+          />
           {isShow && (
-            <>
-              <FinanceEditDialog
-                eventId={ev.id}
-                title={ev.title}
-                current={{
-                  amount_clp: ev.amount_clp,
-                  payment_status: ev.payment_status,
-                  document_type: ev.document_type,
-                }}
-              />
-              <Link
-                href={`/calendario/${ev.id}/tracklist`}
-                className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
-                title="Editar tracklist del set"
-              >
-                <ListMusic className="w-3 h-3" />
-                Tracklist
-              </Link>
-            </>
+            <Link
+              href={`/calendario/${ev.id}/tracklist`}
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              title="Editar tracklist del set"
+            >
+              <ListMusic className="w-3 h-3" />
+              Tracklist
+            </Link>
           )}
         </div>
       </div>

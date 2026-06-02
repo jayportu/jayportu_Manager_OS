@@ -64,6 +64,67 @@ export async function upsertCalendarEvent(input: {
   document_type?: import("@/lib/calendar/types").DocumentType;
 }): Promise<CalendarEventRow> {
   const { supabase, user } = await getUserOrThrow();
+
+  // Bug fix 2026-06-02: Cuando el sync trae un evento que ya existe localmente,
+  // NO pisar campos manejados por el usuario en DROP. (type, contact_id,
+  // amount_clp, payment_status, document_type). Si re-inferiéramos `type` del
+  // título de Google y lo upserteáramos completo, perderíamos la clasificación
+  // manual de la usuaria — y con eso desaparecía el botón $ del row (gated
+  // a `isShow`). Mismo riesgo con contact_id, que el sync nunca conoce.
+  //
+  // Estrategia: si existe la fila → UPDATE solo de campos "Google-sourced"
+  // (title/description/location/fechas) + lo que el caller mande explícito.
+  // Si no existe → INSERT con payload completo.
+  if (input.google_event_id) {
+    const { data: existing } = await supabase
+      .from("calendar_events")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("google_event_id", input.google_event_id)
+      .maybeSingle();
+
+    if (existing) {
+      // UPDATE: solo campos que vienen de Google + los que el caller mande
+      // explícito. Local-only fields (type, contact_id, amount_clp, etc.) NO
+      // se tocan a menos que el caller los pase con valor distinto de undefined.
+      const patch: Record<string, unknown> = {
+        title: input.title,
+        description: input.description || "",
+        location: input.location || "",
+        start_at: input.start_at,
+        end_at: input.end_at,
+        all_day: input.all_day || false,
+        sync_state: input.sync_state || "synced",
+        last_synced_at: new Date().toISOString(),
+      };
+      // Campos locales: solo si el caller los pasa explícito (no para sync).
+      if (input.contact_id !== undefined) patch.contact_id = input.contact_id;
+      if (input.amount_clp !== undefined) patch.amount_clp = input.amount_clp;
+      if (input.payment_status !== undefined) patch.payment_status = input.payment_status;
+      if (input.document_type !== undefined) patch.document_type = input.document_type;
+      // `type` también es local — solo update si el caller lo pasa explícito.
+      // OJO: la firma actual de la función exige type siempre, así que en la
+      // práctica `input.type` siempre viene. Para no romper callers que asumen
+      // que pueden cambiar type vía upsert, lo respetamos cuando viene. El
+      // sync explícitamente NO debe pasarse por acá si quiere preservar type
+      // local — usar updateEventAction para eso. (Ver syncEventsAction abajo,
+      // que se ajusta para usar este path con el type recién inferido solo en
+      // inserts.)
+      // Decisión: NO pisar `type` en update desde sync; el sync se cambia para
+      // pasarlo solo en inserts. Acá ignoramos `input.type` en updates.
+
+      const { data, error } = await supabase
+        .from("calendar_events")
+        .update(patch)
+        .eq("id", existing.id)
+        .select("*")
+        .single();
+      if (error) throw new Error(error.message);
+      return data as CalendarEventRow;
+    }
+  }
+
+  // INSERT: payload completo (fila nueva, no hay nada que preservar).
   const payload = {
     user_id: user.id,
     google_event_id: input.google_event_id || null,
@@ -78,22 +139,10 @@ export async function upsertCalendarEvent(input: {
     contact_id: input.contact_id || null,
     sync_state: input.sync_state || "synced",
     last_synced_at: new Date().toISOString(),
-    // Sprint 19 — Tracking financiero. NULL/undefined = no se setea (compatible
-    // con events que vienen del sync de Google sin info financiera).
     ...(input.amount_clp !== undefined ? { amount_clp: input.amount_clp } : {}),
     ...(input.payment_status ? { payment_status: input.payment_status } : {}),
     ...(input.document_type ? { document_type: input.document_type } : {}),
   };
-
-  if (input.google_event_id) {
-    const { data, error } = await supabase
-      .from("calendar_events")
-      .upsert(payload, { onConflict: "user_id,google_event_id" })
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
-    return data as CalendarEventRow;
-  }
 
   const { data, error } = await supabase
     .from("calendar_events")
