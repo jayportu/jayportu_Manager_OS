@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Sparkles,
   Settings,
+  Building2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/crm", label: "CRM", icon: Users },
   { href: "/descubrir", label: "Descubrir", icon: Compass },
+  { href: "/lugares", label: "Lugares", icon: Building2 },
   { href: "/campanas", label: "Campañas", icon: Megaphone },
   { href: "/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/press-kit", label: "Press kit", icon: FileImage },

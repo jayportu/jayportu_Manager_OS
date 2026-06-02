@@ -161,6 +161,133 @@ export async function getBookerCredibility(
   };
 }
 
+// ════════════════════════════════════════════════════════════════════
+// Fase 3 booker — Directorio de lugares + "me gustaría tocar"
+// ════════════════════════════════════════════════════════════════════
+
+export interface DirectoryVenue {
+  user_id: string;
+  full_name: string;
+  booker_type: string;
+  city: string;
+  country: string;
+  bio: string;
+  website_url: string;
+  instagram_url: string;
+  accepts_pitches: boolean;
+  /** El DJ logueado ya marcó "me gustaría tocar acá". */
+  interested: boolean;
+}
+
+/**
+ * Lugares del directorio que el DJ explora: bookers con in_directory=true
+ * Y verified_at no nulo. Se lee con service_role (RLS de booker_accounts
+ * es select-own). Incluye flag de interés del DJ logueado.
+ */
+export async function listDirectoryVenues(): Promise<DirectoryVenue[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data: venues } = await admin
+    .from("booker_accounts")
+    .select(
+      "user_id, full_name, booker_type, city, country, bio, website_url, instagram_url, accepts_pitches"
+    )
+    .eq("in_directory", true)
+    .not("verified_at", "is", null)
+    .order("verified_at", { ascending: false });
+
+  type VenueRow = Omit<DirectoryVenue, "interested">;
+  const list = (venues ?? []) as VenueRow[];
+  if (list.length === 0) return [];
+
+  // Qué lugares ya marcó el DJ (RLS le deja ver sus propias filas)
+  const { data: interests } = await supabase
+    .from("venue_interest")
+    .select("booker_user_id")
+    .eq("dj_user_id", user.id);
+  const interestedSet = new Set(
+    ((interests ?? []) as Array<{ booker_user_id: string }>).map(
+      (i) => i.booker_user_id
+    )
+  );
+
+  return list.map((v) => ({ ...v, interested: interestedSet.has(v.user_id) }));
+}
+
+export interface InterestedDj {
+  dj_user_id: string;
+  artist_name: string;
+  city: string;
+  genres: string[];
+  public_slug: string;
+  avatar_url: string;
+  created_at: string;
+}
+
+/**
+ * DJs que marcaron "me gustaría tocar acá" sobre el booker logueado.
+ * RLS deja al booker ver venue_interest donde booker_user_id=auth.uid().
+ * Los perfiles de DJ se leen con service_role (datos públicos del directorio).
+ */
+export async function listInterestedDjs(): Promise<InterestedDj[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data: rows } = await supabase
+    .from("venue_interest")
+    .select("dj_user_id, created_at")
+    .eq("booker_user_id", user.id)
+    .order("created_at", { ascending: false });
+  const list = (rows ?? []) as Array<{ dj_user_id: string; created_at: string }>;
+  if (list.length === 0) return [];
+
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data: profiles } = await admin
+    .from("dj_profile")
+    .select("user_id, artist_name, city, genres, public_slug, avatar_url")
+    .in(
+      "user_id",
+      list.map((r) => r.dj_user_id)
+    );
+  type Prof = {
+    user_id: string;
+    artist_name: string;
+    city: string;
+    genres: string[];
+    public_slug: string;
+    avatar_url: string;
+  };
+  const byId = new Map<string, Prof>(
+    ((profiles ?? []) as Prof[]).map((p) => [p.user_id, p])
+  );
+
+  return list
+    .map((r): InterestedDj | null => {
+      const p = byId.get(r.dj_user_id);
+      if (!p) return null;
+      return {
+        dj_user_id: r.dj_user_id,
+        artist_name: p.artist_name || "",
+        city: p.city || "",
+        genres: p.genres ?? [],
+        public_slug: p.public_slug || "",
+        avatar_url: p.avatar_url || "",
+        created_at: r.created_at,
+      };
+    })
+    .filter((x): x is InterestedDj => x !== null);
+}
+
 /**
  * Bookings del booker logueado.
  *
