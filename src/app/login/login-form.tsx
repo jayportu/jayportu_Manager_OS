@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { GOOGLE_SCOPES } from "@/lib/gmail/scopes";
+import { TOS_VERSION } from "@/lib/legal";
 
 interface Props {
   inviteEmail: string | null;
@@ -63,6 +64,8 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  // Aceptación de Términos — obligatoria al crear cuenta (click-wrap).
+  const [tosAccepted, setTosAccepted] = useState(false);
 
   /**
    * Login/signup con Google en un solo botón. Pedimos TODOS los scopes
@@ -145,11 +148,25 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
         setLoading(false);
         return;
       }
+      // Aceptación de Términos obligatoria al crear cuenta. La metadata
+      // tos_accepted/tos_version la consume el trigger handle_new_user
+      // (migration 0031) para registrar tos_accepted_at en dj_profile.
+      if (!tosAccepted) {
+        setError(
+          "Tienes que aceptar los Términos de servicio y la Política de privacidad para crear tu cuenta."
+        );
+        setLoading(false);
+        return;
+      }
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            tos_accepted: "true",
+            tos_version: TOS_VERSION,
+          },
         },
       });
       if (error) {
@@ -262,7 +279,43 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
           </div>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        {mode === "signup" && (
+          <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={tosAccepted}
+              onChange={(e) => setTosAccepted(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-orange cursor-pointer"
+            />
+            <span>
+              He leído y acepto los{" "}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink underline hover:text-orange transition-colors"
+              >
+                Términos de servicio
+              </a>{" "}
+              y la{" "}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink underline hover:text-orange transition-colors"
+              >
+                Política de privacidad
+              </a>
+              .
+            </span>
+          </label>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading || (mode === "signup" && !tosAccepted)}
+        >
           {loading
             ? "Procesando…"
             : mode === "login"

@@ -54,6 +54,9 @@ export interface DjProfile {
   account_status_reason: string | null;
   account_status_changed_at: string | null;
   account_status_changed_by: string | null;
+  /** Migration 0031 — aceptación de Términos (click-wrap) */
+  tos_accepted_at: string | null;
+  tos_version: string | null;
   created_at: string;
   updated_at: string;
 }

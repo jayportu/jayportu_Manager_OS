@@ -3,6 +3,8 @@
 import { updateMyProfile } from "@/lib/queries/dj-profile";
 import { upsertPlatformAccount } from "@/lib/queries/platform-accounts";
 import { revalidatePath } from "next/cache";
+import { TOS_VERSION } from "@/lib/legal";
+import type { DjProfileUpdate } from "@/types/database";
 
 export interface IdentityInput {
   artist_name: string;
@@ -67,10 +69,22 @@ export async function saveSocials(input: SocialsInput) {
   }
 }
 
-export async function completeOnboarding() {
-  await updateMyProfile({
+/**
+ * Cierra el onboarding. Si el user todavía no tiene aceptación de
+ * Términos registrada (caso típico: signup con Google OAuth, que no
+ * pasa por el checkbox del form de email/password), `acceptTos=true`
+ * registra tos_accepted_at + versión acá. El wizard exige el checkbox
+ * antes de llamar con acceptTos cuando la aceptación falta.
+ */
+export async function completeOnboarding(acceptTos = false) {
+  const patch: DjProfileUpdate = {
     onboarding_completed_at: new Date().toISOString(),
-  });
+  };
+  if (acceptTos) {
+    patch.tos_accepted_at = new Date().toISOString();
+    patch.tos_version = TOS_VERSION;
+  }
+  await updateMyProfile(patch);
   revalidatePath("/dashboard");
   revalidatePath("/welcome");
 }

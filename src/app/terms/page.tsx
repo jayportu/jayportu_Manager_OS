@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { TOS_VERSION_LABEL } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Términos · DROP.",
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
     "Términos de servicio de DROP. — condiciones de uso de la plataforma.",
 };
 
-const LAST_UPDATED = "2 de junio de 2026";
+const LAST_UPDATED = TOS_VERSION_LABEL;
 
 export default function TermsPage() {
   return (

@@ -22,6 +22,7 @@ export default async function WelcomePage() {
         youtube_url: profile.youtube_url || "",
         soundcloud_username: extractSoundcloudUsername(profile.soundcloud_url),
       }}
+      tosAlreadyAccepted={!!profile.tos_accepted_at}
     />
   );
 }

@@ -46,11 +46,16 @@ type Step = 1 | 2 | 3;
 interface WelcomeWizardProps {
   initialIdentity: IdentityInput;
   initialSocials: SocialsInput;
+  /** Si el user ya aceptó los Términos en el signup (email/password),
+   *  no le pedimos el checkbox de nuevo. Si entró por Google OAuth llega
+   *  en false y se lo pedimos en el último paso. */
+  tosAlreadyAccepted: boolean;
 }
 
 export function WelcomeWizard({
   initialIdentity,
   initialSocials,
+  tosAlreadyAccepted,
 }: WelcomeWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
@@ -58,6 +63,7 @@ export function WelcomeWizard({
   const [socials, setSocials] = useState<SocialsInput>(initialSocials);
   const [genreInput, setGenreInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [tosChecked, setTosChecked] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function nextStep() {
@@ -94,9 +100,17 @@ export function WelcomeWizard({
         }
       });
     } else {
+      // Paso final: si todavía no aceptó los Términos (ej. signup con
+      // Google OAuth), exigir el checkbox antes de cerrar el onboarding.
+      if (!tosAlreadyAccepted && !tosChecked) {
+        setError(
+          "Tienes que aceptar los Términos de servicio y la Política de privacidad para continuar."
+        );
+        return;
+      }
       startTransition(async () => {
         try {
-          await completeOnboarding();
+          await completeOnboarding(!tosAlreadyAccepted);
           router.refresh();
           router.push("/dashboard");
         } catch (e) {
@@ -168,7 +182,14 @@ export function WelcomeWizard({
           {step === 2 && (
             <StepSocials socials={socials} setSocials={setSocials} />
           )}
-          {step === 3 && <StepDone artistName={identity.artist_name} />}
+          {step === 3 && (
+            <StepDone
+              artistName={identity.artist_name}
+              needsTos={!tosAlreadyAccepted}
+              tosChecked={tosChecked}
+              setTosChecked={setTosChecked}
+            />
+          )}
 
           {error && (
             <div className="mt-4 text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
@@ -191,7 +212,10 @@ export function WelcomeWizard({
             <Button
               type="button"
               onClick={nextStep}
-              disabled={isPending}
+              disabled={
+                isPending ||
+                (step === 3 && !tosAlreadyAccepted && !tosChecked)
+              }
               className="flex-1"
             >
               {isPending
@@ -429,7 +453,17 @@ function StepSocials({
   );
 }
 
-function StepDone({ artistName }: { artistName: string }) {
+function StepDone({
+  artistName,
+  needsTos,
+  tosChecked,
+  setTosChecked,
+}: {
+  artistName: string;
+  needsTos: boolean;
+  tosChecked: boolean;
+  setTosChecked: (v: boolean) => void;
+}) {
   const sections = [
     {
       icon: Users,
@@ -485,6 +519,38 @@ function StepDone({ artistName }: { artistName: string }) {
           );
         })}
       </div>
+
+      {needsTos && (
+        <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none border-t border-border pt-4">
+          <input
+            type="checkbox"
+            checked={tosChecked}
+            onChange={(e) => setTosChecked(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-accent cursor-pointer"
+          />
+          <span>
+            He leído y acepto los{" "}
+            <a
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg underline hover:text-accent transition-colors"
+            >
+              Términos de servicio
+            </a>{" "}
+            y la{" "}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg underline hover:text-accent transition-colors"
+            >
+              Política de privacidad
+            </a>
+            .
+          </span>
+        </label>
+      )}
 
       <p className="text-[11px] text-fg-subtle text-center">
         Puedes ajustar todo más adelante en /configuracion.
