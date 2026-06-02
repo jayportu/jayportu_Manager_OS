@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "Términos de servicio de DROP. — condiciones de uso de la plataforma.",
 };
 
-const LAST_UPDATED = "1 de junio de 2026";
+const LAST_UPDATED = "2 de junio de 2026";
 
 export default function TermsPage() {
   return (
@@ -62,14 +62,34 @@ export default function TermsPage() {
           </p>
           <p>
             La operamos desde Santiago, Chile. Al crear una cuenta y usar la
-            app aceptas estos términos. Si no estás de acuerdo, no podés usar
+            app aceptas estos términos. Si no estás de acuerdo, no puedes usar
             el servicio.
+          </p>
+        </Section>
+
+        <Section title="Datos del proveedor">
+          <p>
+            DROP. es operado actualmente por{" "}
+            <strong>Jaime Andrés Portugueis Portugueis</strong>, RUT
+            15.314.349-8, persona natural, con domicilio en Ricardo Lyon 1717,
+            depto 902, Providencia, Santiago, Chile. Cuando se constituya{" "}
+            <strong>DROP SpA</strong>, este bloque será reemplazado y los
+            usuarios serán notificados por email.
+          </p>
+          <p>
+            Contacto:{" "}
+            <a
+              href="mailto:hola@dropgigs.com"
+              className="text-ink underline hover:text-orange transition-colors"
+            >
+              hola@dropgigs.com
+            </a>
           </p>
         </Section>
 
         <Section title="Tu cuenta">
           <p>
-            Para usar DROP. tenés que crear una cuenta con tu email real. Sos
+            Para usar DROP. tienes que crear una cuenta con tu email real. Eres
             responsable de mantener segura tu contraseña y de toda la actividad
             que ocurra desde tu cuenta. Si detectas un acceso sospechoso
             avísanos a{" "}
@@ -88,7 +108,7 @@ export default function TermsPage() {
           </p>
         </Section>
 
-        <Section title="Lo que podes hacer">
+        <Section title="Lo que puedes hacer">
           <ul className="list-disc pl-6 space-y-2">
             <li>
               Usar la app para gestionar tu carrera como DJ: tu información,
@@ -101,7 +121,7 @@ export default function TermsPage() {
             </li>
             <li>
               Conectar integraciones (Gmail, Calendar, redes sociales para
-              métricas) si decidís autorizarlas.
+              métricas) si decides autorizarlas.
             </li>
             <li>
               Pedirnos ayuda técnica o feedback. Tu input define qué
@@ -110,7 +130,7 @@ export default function TermsPage() {
           </ul>
         </Section>
 
-        <Section title="Lo que NO podes hacer">
+        <Section title="Lo que NO puedes hacer">
           <ul className="list-disc pl-6 space-y-2">
             <li>
               Usar la app para actividades ilegales o que violen derechos de
@@ -118,7 +138,7 @@ export default function TermsPage() {
             </li>
             <li>
               Subir contenido (foto, bio, tracklist, etc.) que no te pertenece
-              o sobre el que no tenés derechos.
+              o sobre el que no tienes derechos.
             </li>
             <li>
               Hacer scraping masivo del directorio público, bypassear rate
@@ -140,9 +160,9 @@ export default function TermsPage() {
 
         <Section title="Contenido tuyo">
           <p>
-            Vos sos dueño del contenido que subís a DROP.: tu bio, tu foto, tu
-            música, tus tracklists, tus contactos. Nosotros no reclamamos
-            ningún derecho de propiedad.
+            Tú eres dueño del contenido que subes a DROP.: tu bio, tu foto, tu
+            música, tus tracklists, tus contactos. No reclamamos ningún derecho
+            de propiedad.
           </p>
           <p>
             Lo único que pedimos es una licencia limitada para mostrar tu
@@ -161,25 +181,103 @@ export default function TermsPage() {
           </p>
           <p>
             Nos reservamos el derecho de modificar funcionalidades, agregar o
-            quitar features, y cambiar planes de precios. Si los cambios son
-            materiales (ej. eliminamos algo que estabas usando), te avisamos con
-            al menos 30 días de anticipación.
+            quitar features. Si los cambios son materiales (ej. eliminamos algo
+            que estabas usando), te avisamos con al menos 30 días de
+            anticipación por email.
           </p>
         </Section>
 
         <Section title="Pagos y suscripciones">
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-2">
+            Precio
+          </h3>
           <p>
-            Durante la beta cerrada el servicio es gratuito. Cuando lancemos la
-            versión pública, el modelo es: trial gratuito de 15 días, luego
-            suscripción mensual procesada por MercadoPago. El precio actual y
-            las condiciones específicas se muestran al momento de suscribirse.
+            El precio de la suscripción DROP. Pro es de{" "}
+            <strong>$9.990 CLP mensuales, IVA incluido</strong>. Mientras
+            estemos en beta cerrada el servicio es gratuito.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Trial gratuito
+          </h3>
+          <p>
+            Cuando lancemos la versión pública, los usuarios nuevos arrancan
+            con un <strong>trial gratuito de 15 días</strong>. Al final del
+            trial, si no cancelas, se activa automáticamente la suscripción
+            mensual.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Método de pago
+          </h3>
+          <p>
+            Los pagos se procesan vía <strong>MercadoPago Chile</strong>. Al
+            suscribirte autorizas a MercadoPago a guardar tu medio de pago
+            para los cobros recurrentes. DROP. nunca almacena directamente tu
+            información de tarjeta.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Renovación automática
+          </h3>
+          <p>
+            La suscripción <strong>se renueva automáticamente cada mes</strong>{" "}
+            hasta que decidas cancelar. Te enviamos email de confirmación de
+            cada cobro con la boleta o factura electrónica correspondiente.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Boleta o factura electrónica
+          </h3>
+          <p>
+            Por cada cobro emitimos <strong>boleta electrónica</strong> (si
+            eres persona natural sin giro) o <strong>factura electrónica</strong>{" "}
+            (si tienes RUT empresa). El documento se envía al email registrado
+            y queda disponible para descarga en tu cuenta.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Derecho a retracto
+          </h3>
+          <p>
+            Tienes <strong>derecho a retracto</strong> dentro de los{" "}
+            <strong>10 días posteriores al primer cobro</strong>, según el
+            Art. 3 bis de la Ley 19.496. Para ejercerlo, escríbenos a{" "}
+            <a
+              href="mailto:hola@dropgigs.com"
+              className="text-ink underline hover:text-orange transition-colors"
+            >
+              hola@dropgigs.com
+            </a>{" "}
+            — te devolvemos el monto completo del primer cobro y cerramos tu
+            suscripción.
           </p>
           <p>
-            Podes cancelar tu suscripción en cualquier momento desde{" "}
-            <code className="font-mono text-[13px]">/configuracion/suscripcion</code>.
-            La cancelación toma efecto al final del período pagado — no
-            reembolsamos meses ya cobrados, pero seguís teniendo acceso hasta el
-            fin del ciclo.
+            Pasados esos 10 días, <strong>no se reembolsan meses ya cobrados</strong>,
+            pero puedes cancelar en cualquier momento desde{" "}
+            <code className="font-mono text-[13px]">/configuracion/suscripcion</code>{" "}
+            y mantener acceso hasta el fin del período pagado.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Cambios de precio
+          </h3>
+          <p>
+            Si en el futuro modificamos el precio, te avisamos con{" "}
+            <strong>al menos 30 días de anticipación</strong> por email. Si
+            no estás de acuerdo con el nuevo precio, puedes cancelar antes de
+            la próxima renovación sin penalidad.
+          </p>
+
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-muted mt-4">
+            Fallo de cobro
+          </h3>
+          <p>
+            Si un cobro mensual falla (tarjeta vencida, sin fondos, etc.), te
+            avisamos por email y mantenemos tu acceso por un{" "}
+            <strong>período de gracia de 7 días</strong> para que actualices
+            tu medio de pago. Pasado ese plazo sin regularizar, la cuenta pasa
+            a &ldquo;vencida&rdquo; y se bloquea el acceso hasta que reactives.
           </p>
         </Section>
 
@@ -209,8 +307,8 @@ export default function TermsPage() {
 
         <Section title="Terminación">
           <p>
-            Podes terminar tu uso de DROP. en cualquier momento borrando tu
-            cuenta (pedinos a{" "}
+            Puedes terminar tu uso de DROP. en cualquier momento borrando tu
+            cuenta (pídenos a{" "}
             <a
               href="mailto:hola@dropgigs.com"
               className="text-ink underline hover:text-orange transition-colors"
@@ -221,15 +319,16 @@ export default function TermsPage() {
           </p>
           <p>
             Nosotros podemos suspender o terminar tu cuenta si violas estos
-            términos, usás la app de manera abusiva, o por requerimiento legal.
+            términos, usas la app de manera abusiva, o por requerimiento legal.
             En ese caso intentamos darte aviso previo cuando sea razonable.
           </p>
         </Section>
 
         <Section title="Ley aplicable">
           <p>
-            Estos términos se rigen por las leyes de Chile. Cualquier disputa se
-            resolverá en los tribunales de Santiago, Chile.
+            Estos términos se rigen por las <strong>leyes de Chile</strong>.
+            Cualquier disputa se resolverá en los{" "}
+            <strong>tribunales ordinarios de Santiago, Chile</strong>.
           </p>
         </Section>
 
@@ -238,14 +337,14 @@ export default function TermsPage() {
             Si actualizamos los términos vas a recibir un email + el aviso de
             la nueva fecha &ldquo;última actualización&rdquo; arriba. Si los cambios son
             materiales, te pedimos aceptar la nueva versión antes de seguir
-            usando la app. Si no aceptás, podés cerrar tu cuenta sin
+            usando la app. Si no aceptas, puedes cerrar tu cuenta sin
             penalidad.
           </p>
         </Section>
 
         <div className="mt-12 pt-6 border-t-2 border-ink">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg-muted">
-            ¿Tenes dudas?{" "}
+            ¿Tienes dudas?{" "}
             <a
               href="mailto:hola@dropgigs.com"
               className="text-orange hover:underline"
