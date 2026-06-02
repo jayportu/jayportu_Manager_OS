@@ -125,7 +125,9 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
         return;
       }
       router.refresh();
-      router.push("/dashboard");
+      // Ruteamos a "/" y dejamos que RootPage decida DJ→/dashboard vs
+      // booker→/booker/requests según el tipo de cuenta.
+      router.push("/");
     } else {
       // Sprint S20 — Beta cerrada. Si no llegó con invite, refusamos signup
       // en el cliente como UX hint (la defensa real está en el trigger DB

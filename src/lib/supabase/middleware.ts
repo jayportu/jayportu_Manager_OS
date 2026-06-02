@@ -106,10 +106,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Si hay user y está en /login → redirige a /dashboard
+  // Si hay user y está en /login → redirige a "/" y RootPage decide el
+  // destino según tipo de cuenta (DJ→/dashboard, booker→/booker/requests).
   if (user && (pathname === "/login" || pathname === "/signup")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/";
     return NextResponse.redirect(url);
   }
 

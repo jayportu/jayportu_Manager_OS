@@ -22,7 +22,9 @@ import { GOOGLE_SCOPES } from "@/lib/gmail/scopes";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  // Default "/" → RootPage rutea por tipo (DJ→/dashboard, booker→/booker/requests).
+  // El signup booker pasa next=/booker/requests explícito; lo respetamos.
+  const next = searchParams.get("next") ?? "/";
   // Supabase puede mandar error directo en la URL (ej. link expirado)
   const errorParam = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");

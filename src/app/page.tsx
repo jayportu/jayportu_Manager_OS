@@ -47,7 +47,11 @@ export default async function RootPage() {
     ]);
 
     if (dj) redirect("/dashboard");
-    if (booker) redirect("/booker/requests");
+    // Booker: por la row de booker_accounts O por account_type en metadata.
+    // El row se crea lazy en el layout /booker (ensureBookerAccount), así que
+    // un booker recién logueado puede no tenerlo todavía — el metadata sí.
+    const accountType = user.user_metadata?.account_type;
+    if (booker || accountType === "booker") redirect("/booker/requests");
     // Edge case: user creado en auth.users pero sin perfil. Va al wizard.
     redirect("/welcome");
   }
