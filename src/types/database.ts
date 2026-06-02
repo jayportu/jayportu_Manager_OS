@@ -68,6 +68,19 @@ export interface DjProfile {
 export const ACCOUNT_STATUSES = ["active", "suspended", "banned"] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
 
+/** Bloque B — Tipos de booker. Fuente única (signup + perfil). */
+export const BOOKER_TYPES = [
+  { value: "venue", label: "Venue / Club / Bar" },
+  { value: "productora", label: "Productora de eventos" },
+  { value: "agencia", label: "Agencia de booking" },
+  { value: "evento_privado", label: "Evento privado" },
+  { value: "casamiento", label: "Casamiento / Matrimonio" },
+  { value: "corporativo", label: "Evento corporativo" },
+  { value: "festival", label: "Festival" },
+  { value: "otro", label: "Otro" },
+] as const;
+export type BookerType = (typeof BOOKER_TYPES)[number]["value"];
+
 export type DjProfileUpdate = Omit<
   Partial<DjProfile>,
   "user_id" | "created_at" | "updated_at"

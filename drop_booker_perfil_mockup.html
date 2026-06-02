@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfil de Booker v2 — Concepto · DROP.</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F4EFE6; --paper:#FBF8F2; --ink:#17120D; --orange:#FF5500;
+    --muted:#6b6256; --subtle:#9c9486; --line:#e3dccd;
+    --green:#1f9d55; --green-bg:#e8f5ec; --amber:#b7791f; --amber-bg:#fdf3e0;
+    --blue:#2b6cb0; --blue-bg:#e6f0fa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--cream);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.5;padding:0 0 80px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  header{background:var(--ink);color:var(--cream);border-bottom:3px solid var(--orange);padding:28px 0}
+  .brand{font-family:'Anton',Impact,sans-serif;font-size:34px;line-height:.9}
+  .brand .dot{color:var(--orange)}
+  .kick{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange);margin-bottom:6px}
+  h1.title{font-family:'Anton',Impact,sans-serif;font-size:clamp(34px,5vw,52px);line-height:.95;letter-spacing:-.01em;margin-top:14px}
+  h1.title .dot{color:var(--orange)}
+  .sub{color:#bcae9b;max-width:680px;margin-top:12px;font-size:15px}
+
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px}
+  .legend .item{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  .swatch{width:14px;height:14px;border:2px solid}
+  .sw-priv{background:#fff;border-color:var(--ink)}
+  .sw-dj{background:var(--orange);border-color:var(--ink)}
+  .sw-dir{background:var(--blue);border-color:var(--ink)}
+
+  /* two-sided flow banner */
+  .flow{background:var(--paper);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);margin-top:30px;padding:18px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}
+  .flow .node{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:2px solid var(--ink);padding:8px 14px;background:#fff}
+  .flow .node.on{background:var(--orange);color:#fff}
+  .flow .node.new{background:var(--blue);color:#fff}
+  .flow .arr{font-size:20px;color:var(--muted)}
+  .flow .lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-top:3px;font-weight:400}
+
+  .sectionhead{margin:54px 0 18px}
+  .sectionhead .k{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange)}
+  .sectionhead h2{font-family:'Anton',Impact,sans-serif;font-size:30px;line-height:1;margin-top:6px}
+  .sectionhead p{color:var(--muted);font-size:14px;margin-top:8px;max-width:760px}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--paper);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink)}
+  .card .head{background:var(--ink);color:var(--cream);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .head .t{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+  .card .head .route{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#bcae9b}
+  .card .body{padding:20px 18px}
+
+  .field{padding:11px 0;border-bottom:1px dashed var(--line);display:flex;align-items:flex-start;gap:10px}
+  .field:last-child{border-bottom:none}
+  .field .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);width:118px;flex-shrink:0;padding-top:3px}
+  .field .lbl .req{color:var(--orange);font-weight:700}
+  .field .val{flex:1;font-size:15px;font-weight:500}
+  .field .val .ph{color:var(--subtle);font-weight:400;font-style:italic}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border:1.5px solid var(--ink);white-space:nowrap;margin-top:2px;display:inline-block}
+  .tag.priv{background:#fff}
+  .tag.dj{background:var(--orange);color:#fff;border-color:var(--ink)}
+  .tag.dir{background:var(--blue);color:#fff;border-color:var(--ink)}
+  .tag.new{background:var(--amber-bg);color:var(--amber);border-color:var(--amber)}
+
+  .pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:3px 9px;border:2px solid var(--ink);background:#fff;text-transform:uppercase;letter-spacing:.04em}
+  .pill.orange{background:var(--orange);color:#fff}
+  .pill.blue{background:var(--blue);color:#fff}
+
+  .toggle{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+  .switch{width:38px;height:21px;background:var(--orange);border:2px solid var(--ink);border-radius:0;position:relative;flex-shrink:0}
+  .switch::after{content:"";position:absolute;top:1px;right:1px;width:15px;height:15px;background:#fff;border:1px solid var(--ink)}
+  .switch.off{background:#cfc7b8}
+  .switch.off::after{right:auto;left:1px}
+
+  .djcard{border:2px solid var(--ink);background:#fff}
+  .djcard .top{display:flex;gap:14px;padding:16px;border-bottom:2px solid var(--ink);align-items:center}
+  .avatar{width:52px;height:52px;border:2px solid var(--ink);background:var(--orange);color:#fff;font-family:'Anton',sans-serif;font-size:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .djcard .name{font-family:'Anton',sans-serif;font-size:22px;line-height:1}
+  .djcard .meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+  .verified{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;background:var(--green-bg);border:1.5px solid var(--green);padding:2px 7px;margin-top:7px}
+  .djcard .stats{display:flex;border-bottom:2px solid var(--ink)}
+  .djcard .stat{flex:1;padding:12px;text-align:center;border-right:1px solid var(--line)}
+  .djcard .stat:last-child{border-right:none}
+  .djcard .stat .n{font-family:'Anton',sans-serif;font-size:24px;line-height:1}
+  .djcard .stat .l{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+  .djcard .links{padding:13px 16px;display:flex;gap:14px;flex-wrap:wrap}
+  .djcard .links a{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--orange);text-transform:uppercase;letter-spacing:.04em}
+  .wsplock{padding:12px 16px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .wsplock .ic{font-size:15px}
+
+  .note{font-size:12.5px;color:var(--muted);margin-top:14px;padding:12px 14px;background:#fff;border-left:3px solid var(--orange)}
+  .note.green{border-color:var(--green)}
+  .note.blue{border-color:var(--blue)}
+  .note b{color:var(--ink)}
+
+  .reqctx{background:var(--cream);border:2px dashed var(--subtle);padding:14px;margin-bottom:14px}
+  .reqctx .h{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+  .reqctx .l{font-size:13px;display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted var(--line)}
+  .reqctx .l span:first-child{color:var(--muted)}
+
+  /* directory grid */
+  .dirgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:880px){.dirgrid{grid-template-columns:1fr}}
+  .venue{background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);display:flex;flex-direction:column}
+  .venue .vtop{padding:14px;border-bottom:2px solid var(--ink)}
+  .venue .vname{font-family:'Anton',sans-serif;font-size:19px;line-height:1;display:flex;align-items:center;gap:6px}
+  .venue .vmeta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+  .venue .vbio{padding:12px 14px;font-size:13px;color:#46403a;flex:1}
+  .venue .vfoot{display:flex;border-top:2px solid var(--ink)}
+  .venue .vfoot a{flex:1;text-align:center;padding:11px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-decoration:none;color:var(--ink)}
+  .venue .vfoot a.primary{background:var(--orange);color:#fff;border-left:2px solid var(--ink)}
+  .venue .vfoot a.star{background:var(--ink);color:var(--cream);border-left:2px solid var(--ink)}
+  .vcheck{color:var(--green);font-size:14px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .filters .f{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:2px solid var(--ink);padding:5px 10px;background:#fff}
+  .filters .f.active{background:var(--ink);color:var(--cream)}
+
+  /* verification ladder */
+  .vsteps{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:880px){.vsteps{grid-template-columns:1fr}}
+  .vstep{background:var(--paper);border:2px solid var(--ink);padding:16px}
+  .vstep .vh{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .vstep .badge{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border:1.5px solid}
+  .vstep .b-active{background:#fff;border-color:var(--ink);color:var(--ink)}
+  .vstep .b-ver{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+  .vstep p{font-size:13px;color:var(--muted)}
+
+  /* token bar */
+  .tokenbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--ink);color:var(--cream);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--orange);padding:13px 16px;margin-bottom:16px}
+  .tokenbar .tk-left{font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .tokenbar .tk-left b{color:var(--orange);font-family:'Anton',sans-serif;font-size:20px;letter-spacing:.02em}
+  .tokenbar .coin{font-size:17px}
+  .tokenbar .tk-sub{color:#bcae9b;font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
+  .tokenbar .tk-buy{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);background:var(--orange);border:2px solid var(--cream);padding:7px 13px;text-decoration:none;white-space:nowrap}
+  /* connection flow */
+  .conn-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  @media(max-width:880px){.conn-grid{grid-template-columns:1fr}}
+  .flowcol{background:var(--paper);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:18px}
+  .flowcol .ch{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .badge2{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border:1.5px solid var(--ink);text-transform:uppercase}
+  .badge-exist{background:var(--orange);color:#fff}
+  .badge-new{background:var(--blue);color:#fff}
+  .fstep{display:flex;gap:10px;padding:7px 0}
+  .fstep .fn{width:22px;height:22px;border:2px solid var(--ink);background:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .fstep .ft{font-size:13.5px;padding-top:2px}
+  .fstep .ft small{color:var(--muted);font-size:11.5px}
+  .fconn{height:10px;border-left:2px dashed var(--subtle);margin-left:10px}
+  .fmatch{background:var(--green-bg);border:2px solid var(--green);padding:10px 12px;margin-top:10px;font-size:13px;font-weight:700}
+  .fbranch{border-left:3px solid var(--blue);padding-left:12px;margin:10px 0;background:#fff}
+  .fbranch .bh{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--blue);margin:8px 0 2px}
+  .decisions{margin-top:18px}
+  .dec{background:var(--paper);border:2px solid var(--ink);padding:13px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+  .dec .num{font-family:'Anton',sans-serif;font-size:20px;color:var(--green);line-height:1;flex-shrink:0;width:22px}
+  .dec .q{font-weight:700;font-size:13.5px}
+  .dec .a{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .dec .a b{color:var(--ink)}
+  .ck{color:var(--green);font-weight:700}
+
+  .footer{text-align:center;margin-top:50px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--subtle)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">DROP<span class="dot">.</span></div>
+    <div class="kick" style="margin-top:14px">— Concepto v2 · Perfil de Booker + Directorio de Lugares</div>
+    <h1 class="title">Perfil de Booker<span class="dot">.</span></h1>
+    <p class="sub">El booker llena un perfil. Ese perfil hace 3 cosas: <b style="color:#fff">(1)</b> le da credibilidad cuando le escribe a un DJ, <b style="color:#fff">(2)</b> alimenta un <b style="color:#fff">directorio de lugares</b> que los DJs pueden explorar y contactar, y <b style="color:#fff">(3)</b> mantiene su contacto directo (WhatsApp) protegido hasta que el DJ acepta.</p>
+
+    <div class="legend">
+      <div class="item"><span class="swatch sw-priv"></span> Privado (solo el booker)</div>
+      <div class="item"><span class="swatch sw-dj"></span> Visible al DJ en el request</div>
+      <div class="item"><span class="swatch sw-dir"></span> Alimenta el directorio de lugares</div>
+    </div>
+
+    <div class="flow">
+      <div class="node on">Bookers<span class="lbl">encuentran DJs · ya existe (/dj)</span></div>
+      <div class="arr">⇄</div>
+      <div class="node new">DJs<span class="lbl">encuentran lugares · NUEVO</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- A + B -->
+  <div class="sectionhead">
+    <div class="k">— Las dos caras del mismo perfil</div>
+    <h2>Lo que el booker edita → lo que el DJ ve</h2>
+    <p>Izquierda: la página <span class="mono">/booker/perfil</span> (por construir). Los campos con <span style="color:var(--orange);font-weight:700">*</span> son obligatorios al crear cuenta. Derecha: la ficha que aparece para el DJ al recibir un request.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: PROFILE -->
+    <div class="card">
+      <div class="head">
+        <span class="t">⚙ Perfil del booker · edita él</span>
+        <span class="route">/booker/perfil</span>
+      </div>
+      <div class="body">
+        <div class="field">
+          <div class="lbl">Nombre / Org <span class="req">*</span></div>
+          <div class="val">Club Subterráneo <span class="tag dj">visible al DJ</span> <span class="tag dir">directorio</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">Tipo <span class="req">*</span></div>
+          <div class="val">Venue / Club / Bar <span class="tag dj">visible al DJ</span> <span class="tag dir">directorio</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">Ciudad · País <span class="req">*</span></div>
+          <div class="val">Santiago, Chile <span class="tag dj">visible al DJ</span> <span class="tag dir">directorio</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">Sitio / IG <span class="req">*</span></div>
+          <div class="val">@clubsubterraneo · clubsub.cl <span class="tag dj">visible al DJ</span> <span class="tag dir">directorio</span> <span class="tag new">nuevo</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">Sobre el lugar <span class="req">*</span></div>
+          <div class="val">"Club de 400 personas, techno y house. ~3 eventos/semana." <span class="tag dj">visible al DJ</span> <span class="tag dir">directorio</span> <span class="tag new">nuevo</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">Email <span class="req">*</span></div>
+          <div class="val">hola@clubsub.cl <span class="tag priv">privado</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">WhatsApp <span class="req">*</span></div>
+          <div class="val">+56 9 1234 5678 <span class="tag priv">se revela al DJ al aceptar</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">En directorio</div>
+          <div class="val"><span class="toggle"><span class="switch"></span> Aparecer como lugar para DJs</span> <span class="tag new">nuevo</span></div>
+        </div>
+        <div class="field">
+          <div class="lbl">Pitches de DJs</div>
+          <div class="val"><span class="toggle"><span class="switch off"></span> Aceptar pitches directos</span> <span class="tag new">nuevo</span>
+            <div style="font-size:11px;color:var(--subtle);margin-top:4px;font-weight:400">Si está apagado, los DJs solo pueden marcar "me gustaría tocar acá" — tú bookeas a quien quieras de esa lista.</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="lbl">Newsletter</div>
+          <div class="val">Activado ✓ <span class="tag priv">privado</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: DJ VIEW ON REQUEST -->
+    <div class="card">
+      <div class="head">
+        <span class="t">👁 Lo que ve el DJ en un request</span>
+        <span class="route">/press-kit/bookings/[id]</span>
+      </div>
+      <div class="body">
+        <div class="reqctx">
+          <div class="h">— Request recibido</div>
+          <div class="l"><span>Evento</span><span>Fiesta aniversario</span></div>
+          <div class="l"><span>Fecha</span><span>14 mar 2026</span></div>
+          <div class="l"><span>Cotización</span><span>$450.000</span></div>
+        </div>
+
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">— Quién te escribe</div>
+
+        <div class="djcard">
+          <div class="top">
+            <div class="avatar">C</div>
+            <div>
+              <div class="name">Club Subterráneo</div>
+              <div class="meta">Venue · Santiago, CL</div>
+              <span class="verified">✓ Verificado por DROP.</span>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="n">12</div><div class="l">Requests<br>enviados</div></div>
+            <div class="stat"><div class="n">8</div><div class="l">DJs<br>contratados</div></div>
+            <div class="stat"><div class="n">'24</div><div class="l">Miembro<br>desde</div></div>
+          </div>
+          <div class="links">
+            <a href="#">@clubsubterraneo →</a>
+            <a href="#">clubsub.cl →</a>
+          </div>
+          <div class="wsplock"><span class="ic">🔒</span> WhatsApp se revela cuando <b style="color:var(--ink)">aceptas</b> el request</div>
+        </div>
+
+        <div class="note green">
+          <b>Decisión 1 resuelta:</b> el WhatsApp queda oculto hasta que el DJ acepta. Antes de eso, toda la conversación pasa por DROP. — así el contacto no se va de la app antes de cerrar.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: DIRECTORY OF VENUES -->
+  <div class="sectionhead">
+    <div class="k">— Lo nuevo · el otro lado del marketplace</div>
+    <h2>Directorio de lugares · lo que el DJ explora y contacta</h2>
+    <p>Se alimenta de los perfiles de booker que activaron "aparecer como lugar" y están verificados. El DJ filtra por tipo/ciudad, ve la ficha y contacta — todo dentro de DROP.</p>
+  </div>
+
+  <div class="tokenbar">
+    <div class="tk-left"><span class="coin">🪙</span> <b>7 / 10</b> tokens de pitch este mes <span class="tk-sub">· renueva el 1 · solo Pro al lanzar (gratis en beta)</span></div>
+    <a class="tk-buy" href="#">Comprar más tokens →</a>
+  </div>
+
+  <div class="filters">
+    <span class="f active">Todos</span>
+    <span class="f">Venues / Clubs</span>
+    <span class="f">Productoras</span>
+    <span class="f">Festivales</span>
+    <span class="f">Santiago</span>
+    <span class="f">Valparaíso</span>
+  </div>
+
+  <div class="dirgrid">
+    <div class="venue">
+      <div class="vtop">
+        <div class="vname">Club Subterráneo <span class="vcheck">✓</span></div>
+        <div class="vmeta">Venue · Santiago</div>
+      </div>
+      <div class="vbio">Club de 400 personas, techno y house. ~3 eventos/semana. Buscan residentes.</div>
+      <div class="vfoot"><a href="#">Ver perfil</a><a href="#" class="primary">Pitch · 🪙1</a></div>
+    </div>
+    <div class="venue">
+      <div class="vtop">
+        <div class="vname">Productora Norte <span class="vcheck">✓</span></div>
+        <div class="vmeta">Productora · Santiago</div>
+      </div>
+      <div class="vbio">Eventos corporativos y privados premium. Arman 6-8 eventos al mes en hoteles y rooftops.</div>
+      <div class="vfoot"><a href="#">Ver perfil</a><a href="#" class="primary">Pitch · 🪙1</a></div>
+    </div>
+    <div class="venue">
+      <div class="vtop">
+        <div class="vname">Fest Andino <span class="vcheck">✓</span></div>
+        <div class="vmeta">Festival · Valparaíso</div>
+      </div>
+      <div class="vbio">Festival anual de música electrónica al aire libre. Line-up de 30+ artistas cada enero. <b>Bookea directo — no recibe pitches.</b></div>
+      <div class="vfoot"><a href="#">Ver perfil</a><a href="#" class="star">⭐ Me gustaría tocar</a></div>
+    </div>
+  </div>
+
+  <div class="note blue">
+    <b>"Contactar" se queda en DROP.:</b> el DJ le manda un mensaje/intro al lugar dentro de la app (no se expone email ni WhatsApp). Mismo principio que la decisión 1 — el contacto directo recién se abre cuando ambas partes quieren cerrar. <br><span style="color:var(--subtle);font-size:11px">Nota: este es un flujo nuevo (DJ → lugar) que hoy no existe; el actual es solo lugar → DJ.</span>
+  </div>
+
+  <!-- HOW THEY CONNECT -->
+  <div class="sectionhead">
+    <div class="k">— El corazón del marketplace</div>
+    <h2>Cómo se conectan · las dos direcciones</h2>
+    <p>El contacto vive dentro de DROP. hasta que se cierra el trato — ahí recién se abre el WhatsApp. Da igual quién dio el primer paso: los dos caminos terminan en un gig.</p>
+  </div>
+  <div class="conn-grid">
+
+    <div class="flowcol">
+      <div class="ch">Booker → DJ <span class="badge2 badge-exist">ya existe</span></div>
+      <div class="fstep"><div class="fn">1</div><div class="ft">El booker encuentra al DJ <small>(directorio /dj o link del press kit)</small></div></div>
+      <div class="fconn"></div>
+      <div class="fstep"><div class="fn">2</div><div class="ft">Manda un request <small>(form en el press kit: evento, fecha, presupuesto)</small></div></div>
+      <div class="fconn"></div>
+      <div class="fstep"><div class="fn">3</div><div class="ft">El DJ lo recibe + ve la ficha del booker <small>· 👁 el booker ve "leído"</small></div></div>
+      <div class="fconn"></div>
+      <div class="fstep"><div class="fn">4</div><div class="ft">Cotiza → contraoferta → acuerdo</div></div>
+      <div class="fmatch">✅ Agendado · 🔓 se abren los WhatsApps de ambos</div>
+    </div>
+
+    <div class="flowcol">
+      <div class="ch">DJ → Lugar <span class="badge2 badge-new">nuevo</span></div>
+      <div class="fstep"><div class="fn">1</div><div class="ft">El DJ explora el directorio de lugares</div></div>
+      <div class="fbranch">
+        <div class="bh">Si el lugar acepta pitches 🟢</div>
+        <div class="fstep"><div class="fn">2</div><div class="ft">Manda un pitch · cuesta <b>🪙1 token</b> <small>(press kit + PDF si subió + disponibilidad + mensaje corto). Se devuelve si no lo ven en 14 días.</small></div></div>
+        <div class="fstep"><div class="fn">3</div><div class="ft">El lugar lo ve <small>· 👁 el DJ ve "visto" · el token se consume</small> → interesado → conversación</div></div>
+      </div>
+      <div class="fbranch" style="border-color:var(--ink)">
+        <div class="bh" style="color:var(--ink)">Si el lugar NO acepta pitches 🔴</div>
+        <div class="fstep"><div class="fn">2</div><div class="ft">El DJ marca <b>⭐ "me gustaría tocar acá"</b></div></div>
+        <div class="fstep"><div class="fn">3</div><div class="ft">El lugar ve la lista de DJs interesados <small>y los contacta él, si quiere</small></div></div>
+      </div>
+      <div class="fmatch">✅ El lugar abre conversación · 🔓 contacto directo</div>
+    </div>
+
+  </div>
+
+  <div class="note blue">
+    <b>Sistema de tokens (decisión cerrada):</b> cada pitch completo cuesta <b>🪙1 token</b>. El DJ tiene <b>10 tokens/mes renovables</b> (en beta: todos gratis · al lanzar: incluidos en Pro $9.990). Si necesita más, <b>compra packs</b>. El token <b>se devuelve si el lugar no lo ve en 14 días</b> (pagas por atención, no por mandar al vacío). Marcar <b>⭐ "me gustaría tocar acá"</b> y recibir requests: <b>gratis e ilimitado</b>. Doble beneficio: frena el spam <b>y</b> monetiza.
+  </div>
+
+  <!-- VERIFICATION -->
+  <div class="sectionhead">
+    <div class="k">— Tu pregunta 2</div>
+    <h2>Cómo se verifica un booker</h2>
+    <p>Dos niveles. Solo los verificados aparecen en el directorio de lugares — así el badge significa algo real y el DJ confía.</p>
+  </div>
+  <div class="vsteps">
+    <div class="vstep">
+      <div class="vh"><span class="badge b-active">cuenta activa</span></div>
+      <p><b style="color:var(--ink)">Email confirmado</b> (automático). Cualquiera que se registra y confirma su email. Puede usar el portal, mandar requests. <b style="color:var(--ink)">No</b> aparece en el directorio todavía. Sin badge.</p>
+    </div>
+    <div class="vstep">
+      <div class="vh"><span class="badge b-ver">✓ verificado por drop.</span></div>
+      <p><b style="color:var(--ink)">Revisión manual</b> de un admin (tú / Fer): mira el IG/sitio, confirma que el lugar existe y es serio, y le da el badge. Recién ahí aparece en el directorio. En beta el volumen es bajo → manual es 100% viable.</p>
+    </div>
+  </div>
+
+  <!-- DECISIONS RESOLVED -->
+  <div class="sectionhead">
+    <div class="k">— Cerrado contigo</div>
+    <h2>Decisiones resueltas</h2>
+  </div>
+  <div class="decisions">
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">1 · WhatsApp visible al DJ</div><div class="a">Oculto hasta que el DJ <b>acepta</b> el request. Antes, todo por DROP. — para que el contacto no se vaya de la app.</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">2 · Cómo se verifica</div><div class="a">2 niveles: <b>cuenta activa</b> (email confirmado, automático) y <b>✓ verificado por DROP.</b> (revisión manual del admin). Solo verificados van al directorio.</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">3 · Campos nuevos (sitio/IG + bio)</div><div class="a">Sí. Y <b>alimentan el directorio de lugares</b> para DJs. Requiere migración (sumar columnas a booker_accounts + flag "en directorio").</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">4 · Stats reales en la ficha</div><div class="a">Sí: requests enviados · DJs contratados · miembro desde. Salen de data que ya existe.</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">5 · Campos obligatorios al signup</div><div class="a">Sí: nombre, tipo, ciudad, país, sitio/IG, sobre el lugar, email, WhatsApp. Newsletter opcional.</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">6 · Contacto DJ → Lugar (2 niveles)</div><div class="a">El lugar elige: <b>aceptar pitches</b> (recibe mensaje completo) o no. Si no, el DJ igual puede marcar <b>⭐ "me gustaría tocar acá"</b> y el lugar ve esa lista. Nunca hay spam; el DJ motivado siempre se asoma.</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">7 · Avisos de "visto"</div><div class="a">Ambos lados ven cuándo el otro <b>vio</b> su request/pitch. No obliga a responder, pero mata el "agujero negro". Simétrico con el "leído" que ya existe.</div></div></div>
+    <div class="dec"><div class="num ck">✓</div><div><div class="q">8 · Monetización de pitches · sistema de tokens</div><div class="a">Cada pitch = <b>🪙1 token</b>. <b>10 tokens/mes renovables</b> (no se acumulan). Beta: todos gratis · al lanzar: incluidos en Pro + comprar packs. <b>Devolución</b> si no lo ven en 14 días. "Me gustaría tocar" + recibir requests: gratis siempre.</div></div></div>
+  </div>
+
+  <div class="footer">DROP. · THE DJ OS · Mockup conceptual v2 · perfil de booker + directorio de lugares · flow booker sigue cerrado</div>
+
+</div>
+</body>
+</html>

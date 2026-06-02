@@ -20,8 +20,31 @@ export interface BookerAccount {
   country: string;
   whatsapp: string;
   newsletter_optin: boolean;
+  /** Migration 0032 — perfil de booker (fase 1) */
+  website_url: string;
+  instagram_url: string;
+  bio: string;
+  in_directory: boolean;
+  accepts_pitches: boolean;
+  verified_at: string | null;
+  verified_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/** Lee el booker_account del user logueado (sin lazy-create). */
+export async function getMyBookerAccount(): Promise<BookerAccount | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from("booker_accounts")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  return (data as BookerAccount) ?? null;
 }
 
 /**

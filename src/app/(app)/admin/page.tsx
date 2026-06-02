@@ -58,6 +58,12 @@ export default async function AdminPage() {
             Solicitudes Beta →
           </a>
           <a
+            href="/admin/bookers"
+            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+          >
+            Bookers →
+          </a>
+          <a
             href="/admin/feedback"
             className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
           >

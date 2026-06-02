@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ComingSoonBadge } from "@/components/coming-soon";
-import { LogOut, Heart, Calendar, Inbox, Search } from "lucide-react";
+import { LogOut, Heart, Calendar, Inbox, Search, User } from "lucide-react";
 
 interface NavItem {
   href: string;
@@ -20,6 +20,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: "/booker/requests", label: "Mis requests", icon: Inbox },
   { href: "/booker/seguidos", label: "Seguidos", icon: Heart },
+  { href: "/booker/perfil", label: "Mi perfil", icon: User },
   { href: "/booker/calendario", label: "Calendario", icon: Calendar, comingSoon: true },
   { href: "/booker/buscar", label: "Buscar DJs", icon: Search, comingSoon: true },
 ];
