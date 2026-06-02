@@ -99,6 +99,69 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
 }
 
 /**
+ * Fase 2 booker — Ficha de credibilidad del booker que el DJ ve al
+ * recibir un request. Se lee con service_role porque el DJ no puede leer
+ * el booker_accounts de otro user vía RLS. Solo expone datos que el
+ * booker eligió compartir + stats agregadas.
+ */
+export interface BookerCredibility {
+  full_name: string;
+  booker_type: string;
+  city: string;
+  country: string;
+  website_url: string;
+  instagram_url: string;
+  bio: string;
+  verified: boolean;
+  member_since_year: string;
+  requests_sent: number;
+  djs_booked: number;
+}
+
+export async function getBookerCredibility(
+  bookerUserId: string
+): Promise<BookerCredibility | null> {
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+
+  const { data: acct } = await admin
+    .from("booker_accounts")
+    .select(
+      "full_name, booker_type, city, country, website_url, instagram_url, bio, verified_at, created_at"
+    )
+    .eq("user_id", bookerUserId)
+    .maybeSingle();
+  if (!acct) return null;
+
+  // Stats agregadas sobre los bookings de este booker
+  const { data: reqs } = await admin
+    .from("booking_form_submissions")
+    .select("user_id, status")
+    .eq("booker_user_id", bookerUserId);
+  const rows = (reqs ?? []) as Array<{ user_id: string; status: string }>;
+  const requestsSent = rows.length;
+  const djsBooked = new Set(
+    rows.filter((r) => r.status === "agendado").map((r) => r.user_id)
+  ).size;
+
+  return {
+    full_name: (acct.full_name as string) || "",
+    booker_type: (acct.booker_type as string) || "otro",
+    city: (acct.city as string) || "",
+    country: (acct.country as string) || "",
+    website_url: (acct.website_url as string) || "",
+    instagram_url: (acct.instagram_url as string) || "",
+    bio: (acct.bio as string) || "",
+    verified: !!acct.verified_at,
+    member_since_year: acct.created_at
+      ? new Date(acct.created_at as string).getFullYear().toString()
+      : "",
+    requests_sent: requestsSent,
+    djs_booked: djsBooked,
+  };
+}
+
+/**
  * Bookings del booker logueado.
  *
  * Match por DOS vías:

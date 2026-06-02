@@ -1,4 +1,5 @@
 import { listBookings } from "@/lib/queries/presskit";
+import { getBookerCredibility } from "@/lib/queries/booker";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -7,6 +8,7 @@ import { BOOKING_STATUS_LABELS } from "@/types/database";
 import { BookingActions } from "./booking-actions";
 import { CounterofferResponse } from "./counteroffer-response";
 import { BookingTimeline } from "@/components/booking/booking-timeline";
+import { BookerCredibilityCard } from "@/components/booking/booker-credibility-card";
 import { dateTime, shortDate, whatsappLink } from "@/lib/format";
 
 interface PageProps {
@@ -21,6 +23,11 @@ export default async function BookingDetailPage({ params }: PageProps) {
 
   const wa = whatsappLink(booking.phone);
   const mailto = booking.email ? `mailto:${booking.email}` : null;
+
+  // Fase 2 booker — ficha de credibilidad si el request vino de un booker con cuenta
+  const bookerCredibility = booking.booker_user_id
+    ? await getBookerCredibility(booking.booker_user_id)
+    : null;
 
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto">
@@ -39,6 +46,9 @@ export default async function BookingDetailPage({ params }: PageProps) {
         Recibido {dateTime(booking.created_at)} · Estado:{" "}
         <span className="text-fg">{BOOKING_STATUS_LABELS[booking.status]}</span>
       </p>
+
+      {/* Fase 2 booker — Quién te escribe (solo si vino de un booker con cuenta) */}
+      {bookerCredibility && <BookerCredibilityCard data={bookerCredibility} />}
 
       {/* Datos */}
       <Card className="p-6 mb-5 space-y-4">
