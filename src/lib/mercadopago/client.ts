@@ -11,7 +11,7 @@ import "server-only";
  * expone al cliente para el SDK de tokenización de tarjeta — esa va
  * por separado en src/lib/mercadopago/public.ts.
  *
- * Plan único de DROP. — $10.000 CLP / mes, mensual recurrente.
+ * Plan único de DROP. — $9.990 CLP / mes, mensual recurrente.
  */
 
 import {
@@ -75,7 +75,7 @@ export function isMpTestMode(): boolean {
  * Si en el futuro hay tiers, esto se vuelve un objeto por plan.
  */
 export const MP_PLAN = {
-  amountClp: 10_000,
+  amountClp: 9_990,
   currency: "CLP" as const,
   frequency: 1,
   frequencyType: "months" as const,

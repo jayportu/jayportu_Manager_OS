@@ -1,7 +1,7 @@
 -- ════════════════════════════════════════════════════════════════════
 -- Migration 0028 — Sprint S19 · Suscripciones MercadoPago
 -- ────────────────────────────────────────────────────────────────────
--- Sistema de suscripción $10.000 CLP/mes para DJs vía MercadoPago.
+-- Sistema de suscripción $9.990 CLP/mes para DJs vía MercadoPago.
 -- Soporta PAT (recurrente automático) y modo manual mes-a-mes como
 -- fallback cuando la tarjeta no permite recurrencia.
 --
@@ -58,7 +58,7 @@ create table if not exists public.subscriptions (
   cancellation_reason      text,
 
   -- Metadata
-  amount_clp               int not null default 10000,    -- por si cambia el precio
+  amount_clp               int not null default 9990,     -- por si cambia el precio
   created_at               timestamptz not null default now(),
   updated_at               timestamptz not null default now()
 );

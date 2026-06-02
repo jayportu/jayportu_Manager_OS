@@ -243,7 +243,7 @@ export function CheckoutForm({ userEmail }: Props) {
           {status === "subscribing" && "Activando suscripción…"}
           {status === "success" && "¡Listo! Redirigiendo…"}
           {(status === "idle" || status === "error" || status === "needs_manual") &&
-            "Confirmar pago · $10.000 CLP →"}
+            "Confirmar pago · $9.990 CLP →"}
         </button>
 
         <p className="text-[10px] text-fg-subtle text-center font-mono uppercase tracking-wider">

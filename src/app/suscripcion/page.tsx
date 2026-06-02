@@ -57,7 +57,7 @@ export default async function SuscripcionPage() {
             fontSize: "56px",
           }}
         >
-          $10.000<span className="text-orange">.</span>
+          $9.990<span className="text-orange">.</span>
         </h1>
         <p className="text-fg-muted mb-6 max-w-md">
           Por mes. Pagas con tarjeta. Cancelas cuando quieras desde tu

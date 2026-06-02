@@ -70,7 +70,7 @@ export async function getOrCreateSubscription(
       payment_mode: "auto",
       trial_started_at: now.toISOString(),
       trial_ends_at: trialEnd.toISOString(),
-      amount_clp: 10_000,
+      amount_clp: 9_990,
     })
     .select("*")
     .single();

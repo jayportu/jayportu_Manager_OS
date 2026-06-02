@@ -63,7 +63,7 @@ export function SubscriptionRequiredModal({ reason }: Props) {
               lineHeight: 0.95,
             }}
           >
-            DROP. Pro · $10.000 / mes
+            DROP. Pro · $9.990 / mes
           </div>
           <p className="text-xs text-fg-muted mt-1">
             Pago con tarjeta · cancela cuando quieras
@@ -101,7 +101,7 @@ const COPY: Record<
   trial_expired: {
     kicker: "TU TRIAL TERMINÓ",
     title: "Gracias por probar",
-    body: "Tus 15 días gratis llegaron al final. Para seguir usando DROP, suscríbete por $10.000 al mes. Sin contratos, cancelas cuando quieras.",
+    body: "Tus 15 días gratis llegaron al final. Para seguir usando DROP, suscríbete por $9.990 al mes. Sin contratos, cancelas cuando quieras.",
   },
   subscription_expired: {
     kicker: "SUSCRIPCIÓN VENCIDA",
