@@ -55,10 +55,10 @@ export default function PrivacyPage() {
 
         <Section title="Quiénes somos">
           <p>
-            DROP. es un sistema operativo para DJs independientes operado
-            actualmente por <strong>Jaime Andrés Portugueis Portugueis</strong>{" "}
-            (RUT 15.314.349-8) desde Santiago, Chile. Cuando se constituya{" "}
-            <strong>DROP SpA</strong>, esta política será actualizada.
+            DROP. es un sistema operativo para DJs independientes: CRM de
+            contactos, calendario de gigs, press kit público, integraciones
+            con Gmail y Calendar, y herramientas de crecimiento. Operamos
+            desde Santiago, Chile.
           </p>
           <p>
             Esta política describe qué datos personales recolectamos, para qué
@@ -327,6 +327,21 @@ export default function PrivacyPage() {
             Los registros de facturación (boletas/facturas electrónicas) se
             conservan por el plazo legal exigido por el SII (6 años) incluso si
             cierras tu cuenta.
+          </p>
+        </Section>
+
+        <Section title="Responsable del tratamiento">
+          <p>
+            El responsable del tratamiento de datos personales recolectados por
+            DROP. es el mismo identificado como proveedor en nuestros{" "}
+            <Link
+              href="/terms"
+              className="text-ink underline hover:text-orange transition-colors"
+            >
+              Términos de servicio
+            </Link>
+            . Cualquier solicitud relacionada con tus datos puede dirigirse al
+            contacto de privacidad arriba indicado.
           </p>
         </Section>
 
