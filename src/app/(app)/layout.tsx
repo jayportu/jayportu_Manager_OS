@@ -42,9 +42,19 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("dj_profile")
-    .select("onboarding_completed_at, is_admin, artist_name, avatar_url, beta_status, beta_approved_at")
+    .select("onboarding_completed_at, is_admin, artist_name, avatar_url, beta_status, beta_approved_at, account_status")
     .eq("user_id", user.id)
     .maybeSingle();
+
+  // Migration 0030 — Moderación de cuentas: un user suspendido o baneado
+  // (y NO admin) no entra a la app. Máxima prioridad, antes que onboarding.
+  if (
+    !profile?.is_admin &&
+    (profile?.account_status === "suspended" ||
+      profile?.account_status === "banned")
+  ) {
+    redirect("/cuenta-suspendida");
+  }
 
   if (!profile?.onboarding_completed_at) redirect("/welcome");
 

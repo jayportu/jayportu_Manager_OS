@@ -15,6 +15,7 @@ import {
 } from "@/lib/queries/admin";
 import { relativeTime, dateTime, shortDate } from "@/lib/format";
 import { DeletePendingUserButton } from "./delete-pending-user-button";
+import { AccountStatusControl } from "./account-status-control";
 
 export const dynamic = "force-dynamic";
 
@@ -208,7 +209,21 @@ export default async function AdminPage() {
                           {u.snapshots_count}
                         </td>
                         <td className="px-3 py-2.5">
-                          {isOnboarded ? (
+                          {u.account_status === "banned" ? (
+                            <span
+                              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-danger/15 border border-danger/40 text-danger"
+                              title={u.account_status_reason || undefined}
+                            >
+                              baneado
+                            </span>
+                          ) : u.account_status === "suspended" ? (
+                            <span
+                              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning"
+                              title={u.account_status_reason || undefined}
+                            >
+                              suspendido
+                            </span>
+                          ) : isOnboarded ? (
                             <span
                               className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success/15 border border-success/30 text-success"
                               title={`Completó el wizard ${dateTime(u.onboarding_completed_at!)}`}
@@ -222,13 +237,19 @@ export default async function AdminPage() {
                           )}
                         </td>
                         <td className="px-3 py-2.5 text-right">
-                          {!isOnboarded && !u.is_admin ? (
+                          {u.is_admin ? (
+                            <span className="text-fg-subtle text-xs">—</span>
+                          ) : isOnboarded ? (
+                            <AccountStatusControl
+                              userId={u.user_id}
+                              artistName={u.artist_name}
+                              status={u.account_status}
+                            />
+                          ) : (
                             <DeletePendingUserButton
                               userId={u.user_id}
                               email={u.email}
                             />
-                          ) : (
-                            <span className="text-fg-subtle text-xs">—</span>
                           )}
                         </td>
                       </tr>

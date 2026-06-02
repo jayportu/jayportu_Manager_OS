@@ -13,6 +13,7 @@ import {
   needsBetaRequestEmailHtml,
   needsBetaRequestEmailText,
 } from "@/lib/email/templates";
+import type { AccountStatus } from "@/types/database";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -129,6 +130,90 @@ export async function notifyAndDeleteUserAction(
       ok: true,
       data: { email, email_sent: emailSent, email_error: emailError },
     };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}
+
+/**
+ * Migration 0030 — Cambiar el estado de moderación de una cuenta.
+ *
+ * Permite a un admin (Jaime / Fer) suspender (temporal), banear
+ * (permanente) o reactivar a un usuario. El gating de acceso lo aplica
+ * (app)/layout.tsx: un user 'suspended'|'banned' es redirigido a
+ * /cuenta-suspendida.
+ *
+ * El UPDATE va con service_role (createAdminClient) — el trigger DB
+ * protect_account_status() bloquea cambios de estado desde cualquier
+ * otro rol, así un user no puede auto-reactivarse.
+ *
+ * Salvaguardas:
+ *   - No puedes cambiar tu propio estado (evita auto-ban accidental).
+ *   - No puedes suspender/banear a otro admin.
+ *   - Reason obligatorio para suspender/banear (queda en el audit trail).
+ */
+export async function setAccountStatusAction(
+  userId: string,
+  status: AccountStatus,
+  reason: string
+): Promise<Result<{ status: AccountStatus }>> {
+  try {
+    const { userId: adminId } = await assertAdmin();
+
+    if (userId === adminId) {
+      return { ok: false, error: "No puedes cambiar tu propio estado de cuenta." };
+    }
+    if (!["active", "suspended", "banned"].includes(status)) {
+      return { ok: false, error: "Estado inválido." };
+    }
+    const cleanReason = reason.trim().slice(0, 500);
+    if ((status === "suspended" || status === "banned") && cleanReason.length === 0) {
+      return {
+        ok: false,
+        error: "Tienes que indicar un motivo para suspender o banear.",
+      };
+    }
+
+    const admin = createAdminClient();
+
+    // Cargar el target para validar que existe y no es admin
+    const { data: target, error: tErr } = await admin
+      .from("dj_profile")
+      .select("user_id, is_admin, artist_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (tErr) return { ok: false, error: `dj_profile: ${tErr.message}` };
+    if (!target) return { ok: false, error: "Usuario no encontrado." };
+    if (target.is_admin) {
+      return { ok: false, error: "No puedes suspender ni banear a un admin." };
+    }
+
+    const { error: upErr } = await admin
+      .from("dj_profile")
+      .update({
+        account_status: status,
+        account_status_reason: status === "active" ? null : cleanReason,
+        account_status_changed_at: new Date().toISOString(),
+        account_status_changed_by: adminId,
+      })
+      .eq("user_id", userId);
+    if (upErr) return { ok: false, error: `Update falló: ${upErr.message}` };
+
+    // Audit trail best-effort en usage_events (bajo el user_id del admin)
+    await admin.from("usage_events").insert({
+      user_id: adminId,
+      event:
+        status === "active"
+          ? "admin_account_reactivated"
+          : status === "suspended"
+            ? "admin_account_suspended"
+            : "admin_account_banned",
+      page: "/admin",
+      metadata: { target_user_id: userId, reason: cleanReason || null },
+    });
+
+    revalidatePath("/admin");
+    return { ok: true, data: { status } };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
   }

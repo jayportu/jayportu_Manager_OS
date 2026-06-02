@@ -9,6 +9,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
+import type { AccountStatus } from "@/types/database";
 
 /**
  * Verifica que el user logueado tenga is_admin=true.
@@ -61,6 +62,9 @@ export interface AdminUserRow {
   last_sign_in_at: string | null;
   is_admin: boolean;
   onboarding_completed_at: string | null;
+  account_status: AccountStatus;
+  account_status_reason: string | null;
+  account_status_changed_at: string | null;
   contacts_count: number;
   posts_count: number;
   snapshots_count: number;
@@ -109,7 +113,7 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
   const { data: profiles, error: pErr } = await admin
     .from("dj_profile")
     .select(
-      "user_id, artist_name, city, created_at, is_admin, onboarding_completed_at"
+      "user_id, artist_name, city, created_at, is_admin, onboarding_completed_at, account_status, account_status_reason, account_status_changed_at"
     )
     .order("created_at", { ascending: false });
   if (pErr) throw new Error(`dj_profile: ${pErr.message}`);
@@ -135,6 +139,9 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
       last_sign_in_at: auth?.last_sign_in_at ?? null,
       is_admin: p.is_admin === true,
       onboarding_completed_at: p.onboarding_completed_at,
+      account_status: (p.account_status as AccountStatus) ?? "active",
+      account_status_reason: p.account_status_reason ?? null,
+      account_status_changed_at: p.account_status_changed_at ?? null,
       contacts_count: c.contacts,
       posts_count: c.posts,
       snapshots_count: c.snapshots,

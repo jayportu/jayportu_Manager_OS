@@ -49,9 +49,21 @@ export interface DjProfile {
   beta_status: BetaStatus;
   beta_approved_at: string | null;
   beta_request_id: string | null;
+  /** Migration 0030 — moderación de cuentas (suspender / banear) */
+  account_status: AccountStatus;
+  account_status_reason: string | null;
+  account_status_changed_at: string | null;
+  account_status_changed_by: string | null;
   created_at: string;
   updated_at: string;
 }
+
+/** Migration 0030 — estado de moderación de la cuenta.
+ *  'active'    → acceso normal (default)
+ *  'suspended' → bloqueo temporal reversible
+ *  'banned'    → cuenta cerrada permanentemente */
+export const ACCOUNT_STATUSES = ["active", "suspended", "banned"] as const;
+export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
 
 export type DjProfileUpdate = Omit<
   Partial<DjProfile>,
