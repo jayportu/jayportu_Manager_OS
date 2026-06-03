@@ -587,4 +587,34 @@ Partir por **Capa A** (vitrina con embeds) — barata, sin dependencias, valor i
 
 ---
 
+## 15 · Descubrir · locales cerrados / renombrados / otro rubro — 2026-06-03
+
+**Origen:** feedback de usuario — en "Descubrir" salen locales que ya cerraron, cambiaron de nombre o de rubro.
+
+**Causa raíz:** "Descubrir" no tiene base propia; consulta **en vivo a OpenStreetMap** (Overpass API). OSM es comunitario y queda desactualizado.
+
+**Lo ya hecho (commit `3f75962`, deployado):** se agregó `isVenueClosed()` que filtra locales que OSM marca como cerrados (prefijos `disused:`/`was:`/`abandoned:`, `disused=yes`, `opening_hours=closed`, `end_date`, nombres con "cerrado").
+
+**⚠️ Hallazgo al probarlo contra datos reales (clave):** corriendo la consulta real de Santiago, el filtro nuevo cazó **0** locales cerrados (67 clubes / 348 bares), y una búsqueda directa de tags `disused:`/`was:`/`abandoned:` también dio **0**. Conclusión: **en Chile OSM prácticamente no registra los cierres** — cuando un local cierra, o nadie actualiza OSM (sigue tagueado como activo, sin señal) o lo borran. El filtro deployado es una red de seguridad correcta (sirve en ciudades mejor mapeadas o si alguien sí taguea), pero **NO resuelve la queja**: los locales muertos no traen ninguna marca que leer. Además el filtro corre solo al **importar** una búsqueda nueva (no re-limpia leads ya guardados).
+
+### Las 2 soluciones reales
+
+**Opción A — Crowdsource (gratis, recomendada para partir)**
+- Cada DJ reporta "🚫 Cerró" sobre un local; cuando varios coinciden sobre el mismo `source_id` de OSM, desaparece para todos.
+- **UX:** separar dos acciones en `lead-actions.tsx` → **Descartar** (X, solo tu lista, como hoy) vs **🚫 Cerró** (suma al contador compartido + te lo descarta). Badge "⚠️ N DJs reportaron que cerró" cuando otros lo ven.
+- **Lógica:** umbral ~2 reportes (somos pocos DJs en beta, se ajusta). **Admin (Jaime/Fer) mata con 1 click** (cuenta como cierre inmediato). En búsquedas nuevas se filtran los `source_id` marcados → nunca reaparecen. En listas guardadas: badge + se esconde del filtro "Nuevos".
+- **Construir:** 1 tabla `venue_closure_reports` (source, source_id, reported_by, created_at, `UNIQUE(source, source_id, reported_by)`) + tocar `lead-actions.tsx` y `discovered-leads.ts` + la action de guardar OSM.
+- **Esfuerzo:** ~medio día. **Egress:** cero (tabla chica, sin imágenes).
+- **Límites honestos:** arranca lento (el 1er DJ igual ve el muerto; mejora con el uso). Solo aplica a leads de OSM (los manuales son personales, ahí "Cerró" solo descarta para ese user).
+
+**Opción B — Google Places (definitiva, pagada)**
+- Cruzar cada local con `business_status: OPERATIONAL / CLOSED_TEMPORARILY / CLOSED_PERMANENTLY` — la verdad real de si sigue abierto.
+- **Costo:** key de Google con billing (~US$17/1.000 consultas Place Details). Para acotar el gasto, correrlo **solo al promover** un lead al CRM, no en cada búsqueda.
+- **Esfuerzo:** ~1-2 días.
+
+### Recomendación
+Partir por **Opción A** (crowdsource, gratis) — convive con el filtro ya deployado (uno saca lo que OSM marca, otro lo que la comunidad marca). Dejar **Opción B** (Google Places acotado a promoción) para cuando duela de verdad con volumen de usuarios.
+
+---
+
 *Documento vivo. Actualizar conforme se cierren sprints o se tomen decisiones.*
