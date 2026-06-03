@@ -14,41 +14,11 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { GOOGLE_SCOPES } from "@/lib/gmail/scopes";
 import { TOS_VERSION } from "@/lib/legal";
+import { translateSupabaseError } from "@/lib/auth-errors";
 
 interface Props {
   inviteEmail: string | null;
   inviteArtistName: string | null;
-}
-
-/**
- * Mapea errores comunes de Supabase Auth a mensajes en chileno.
- * Si no matchea ninguno, devuelve el mensaje original.
- */
-function translateSupabaseError(message: string, status?: number): string {
-  const m = message.toLowerCase();
-  if (status === 429 || m.includes("rate limit") || m.includes("too many requests")) {
-    return "Demasiados intentos seguidos. Espera unos minutos e intenta de nuevo, o avísale al admin.";
-  }
-  if (m.includes("at least 6") || m.includes("password should")) {
-    return "La contraseña debe tener mínimo 6 caracteres.";
-  }
-  if (m.includes("invalid login credentials") || m.includes("invalid_credentials")) {
-    return "Email o contraseña incorrectos. ¿Es tu primera vez? Crea cuenta abajo.";
-  }
-  if (m.includes("email not confirmed")) {
-    return "Aún no confirmas tu email. Revisa tu bandeja de entrada (también spam).";
-  }
-  if (m.includes("user already registered") || m.includes("already registered")) {
-    return "Este email ya tiene cuenta. Usa 'Iniciar sesión' arriba.";
-  }
-  if (m.includes("invalid email") || m.includes("email address")) {
-    return "El email no tiene formato válido.";
-  }
-  if (m.includes("network") || m.includes("fetch")) {
-    return "Problema de conexión. Revisa tu internet e intenta de nuevo.";
-  }
-  // Fallback: devolvemos el mensaje pero con contexto
-  return `${message}. Si persiste, escríbele al admin.`;
 }
 
 export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
@@ -268,6 +238,16 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
               mode === "login" ? "current-password" : "new-password"
             }
           />
+          {mode === "login" && (
+            <div className="text-right">
+              <a
+                href="/auth/forgot-password"
+                className="text-[12px] text-accent hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+          )}
         </div>
 
         {error && (

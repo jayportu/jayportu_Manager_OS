@@ -25,6 +25,11 @@ export async function GET(request: Request) {
   // Default "/" → RootPage rutea por tipo (DJ→/dashboard, booker→/booker/requests).
   // El signup booker pasa next=/booker/requests explícito; lo respetamos.
   const next = searchParams.get("next") ?? "/";
+  // Reset de contraseña: resetPasswordForEmail manda el link de recovery
+  // con next=/auth/reset-password. Detectarlo nos deja dar mensajes de
+  // error específicos del reset (link expirado → pedir uno nuevo) en vez
+  // del copy de confirmación de cuenta que muestra /login.
+  const isRecovery = next.startsWith("/auth/reset-password");
   // Supabase puede mandar error directo en la URL (ej. link expirado)
   const errorParam = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
@@ -34,6 +39,11 @@ export async function GET(request: Request) {
       error: errorParam,
       description: errorDescription,
     });
+    if (isRecovery) {
+      return NextResponse.redirect(
+        `${origin}/auth/forgot-password?error=expired`
+      );
+    }
     // Si el error viene del flow OAuth Google y trae signature del
     // trigger beta_signup, redirigimos a /login con copy específico.
     if (errorDescription && /beta/i.test(errorDescription)) {
@@ -48,6 +58,11 @@ export async function GET(request: Request) {
 
   if (!code) {
     console.error("[auth/callback] sin code en URL");
+    if (isRecovery) {
+      return NextResponse.redirect(
+        `${origin}/auth/forgot-password?error=expired`
+      );
+    }
     return NextResponse.redirect(`${origin}/login?auth_error=missing_code`);
   }
 
@@ -61,6 +76,11 @@ export async function GET(request: Request) {
       error_status: error.status,
       error_code: error.code,
     });
+    if (isRecovery) {
+      return NextResponse.redirect(
+        `${origin}/auth/forgot-password?error=expired`
+      );
+    }
     // Trigger DB enforce_beta_signup_trigger lanza este mensaje cuando
     // un DJ se intenta loguear con Google pero su email no está
     // aprobado en beta_requests. Lo capturamos acá para redirigir bien.

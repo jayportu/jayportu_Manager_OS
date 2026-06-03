@@ -13,6 +13,7 @@ import { PressKitSection } from "./press-kit-section";
 import { AvailabilitySection } from "./availability-section";
 import { TechRiderSection } from "./tech-rider-section";
 import { AutoPostSection } from "./auto-post-section";
+import { ChangePasswordSection } from "./change-password-section";
 
 export default async function ConfiguracionPage() {
   const profile = await getMyProfile();
@@ -140,6 +141,15 @@ export default async function ConfiguracionPage() {
           de setup y check de modelo descargado.
         </p>
         <OllamaSetup />
+      </div>
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <h2 className="text-lg font-semibold mb-2">Contraseña</h2>
+        <p className="text-sm text-fg-muted mb-4">
+          Cambia tu contraseña cuando quieras. Si entraste con Google, acá
+          puedes fijar una contraseña propia para entrar también sin Google.
+        </p>
+        <ChangePasswordSection />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
