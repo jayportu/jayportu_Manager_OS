@@ -40,7 +40,7 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
       // un Application Error global que tira toda la página.
       try {
         // Comprimir antes de subir: la foto del celular (2-10 MB) se
-        // redimensiona a 512px WebP (~50-100 KB) en el browser. Esto baja
+        // redimensiona a 1024px WebP (~150-300 KB) en el browser. Esto baja
         // el egress de Supabase (Vercel baja un original liviano una sola
         // vez) y el peso del zoom a tamaño real. Si falla, sube el original.
         const toUpload = await compressAvatar(file);
@@ -153,10 +153,10 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
 }
 
 // ─── Compresión client-side ───────────────────────────────────────────────
-// El avatar se muestra como máximo a ~112px (lightbox trigger) y se sirve por
-// next/image, así que no tiene sentido guardar la foto original de varios MB.
-// Redimensionamos a 512px (cubre retina con margen) y reencodeamos a WebP.
-const AVATAR_MAX_DIM = 512;
+// El avatar se sirve por next/image en las miniaturas, así que no tiene sentido
+// guardar la foto original de varios MB. Redimensionamos a 1024px (mantiene
+// nítido el zoom "a tamaño real" del lightbox en desktop) y reencodeamos a WebP.
+const AVATAR_MAX_DIM = 1024;
 const AVATAR_QUALITY = 0.82;
 
 /**
