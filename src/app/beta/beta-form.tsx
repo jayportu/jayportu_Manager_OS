@@ -84,18 +84,18 @@ export function BetaForm() {
           GRACIAS<span className="text-orange">.</span>
         </h2>
         <p className="text-sm leading-relaxed">
-          Recibí tu solicitud. Te respondo en 24-48hrs. Si quedas
+          Recibimos tu solicitud. Te respondemos en 24-48hrs. Si quedas
           aprobado te llega un email con el link mágico para entrar.
         </p>
         <p className="text-xs text-fg-muted mt-4">
-          Mientras tanto, sígueme en{" "}
+          Mientras tanto, síguenos en{" "}
           <a
-            href="https://instagram.com/jay_portu"
+            href="https://instagram.com/drop.gigs"
             target="_blank"
             rel="noopener noreferrer"
             className="text-orange hover:underline"
           >
-            @jay_portu
+            @drop.gigs
           </a>{" "}
           para updates de la beta.
         </p>
@@ -129,7 +129,7 @@ export function BetaForm() {
           maxLength={120}
           value={form.artist_name}
           onChange={(e) => update("artist_name", e.target.value)}
-          placeholder="ej: Jay Portu"
+          placeholder="ej: Lucía Vega"
         />
       </div>
 
@@ -190,7 +190,7 @@ export function BetaForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="motivation" className="text-xs uppercase tracking-wider">
-          ¿Por qué quieres entrar a DROP?
+          ¿Qué problemáticas enfrentas hoy como DJ?
         </Label>
         <Textarea
           id="motivation"
@@ -198,7 +198,7 @@ export function BetaForm() {
           maxLength={600}
           value={form.motivation}
           onChange={(e) => update("motivation", e.target.value)}
-          placeholder="Cuéntame qué problema te resuelve hoy esta app…"
+          placeholder="Cuéntanos qué te complica hoy y qué esperarías que una app te solucione…"
         />
         <div className="text-[10px] text-fg-subtle">
           {form.motivation.length}/600
@@ -239,8 +239,7 @@ export function BetaForm() {
       </Button>
 
       <p className="text-[11px] text-fg-muted">
-        Te respondemos en 24-48hrs. Solo aceptamos DJs activos
-        (mínimo 1 toque en los últimos 6 meses).
+        Te respondemos en 24-48hrs.
       </p>
     </form>
   );

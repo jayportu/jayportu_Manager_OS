@@ -12,7 +12,7 @@ import { BetaForm } from "./beta-form";
 export const metadata: Metadata = {
   title: "Beta — DROP.",
   description:
-    "DROP es el sistema operativo para DJs independientes. CRM, calendario con $, growth, tracklists, press kit. Solicita acceso a la beta cerrada de 15 días.",
+    "DROP es el sistema operativo para DJs independientes. CRM, calendario con $, growth, tracklists, press kit. Solicita acceso a la beta de 15 días.",
 };
 
 export default function BetaPage() {
@@ -22,7 +22,7 @@ export default function BetaPage() {
         <Logo variant="horizontal" tone="light" size={120} />
         <div className="ml-auto flex items-center gap-4">
           <span className="hidden md:inline font-mono text-[10px] uppercase tracking-[0.15em] text-fg-muted">
-            Beta cerrada · acceso anticipado
+            Beta · acceso anticipado
           </span>
           <a
             href="/login"
@@ -47,14 +47,14 @@ export default function BetaPage() {
             <p className="text-base md:text-lg leading-relaxed max-w-md">
               DROP es el sistema operativo para DJs independientes.
               CRM, calendario con $, growth, tracklists, press kit.
-              Todo en uno. Hoy en beta cerrada con 15 días gratis.
+              Todo en uno. Hoy en beta con 15 días gratis.
             </p>
             <ul className="mt-7 space-y-2 text-sm">
               {[
                 "15 días sin restricciones",
-                "Soporte directo conmigo (Jay Portu)",
-                "Tu feedback decide el roadmap",
-                "Si te queda, prioridad en el lanzamiento abierto",
+                "Soporte directo con el equipo DROP.",
+                "Tu feedback nos ayuda a mejorar la plataforma",
+                "Si quieres seguir, tendrás prioridad y un descuento inicial en el lanzamiento",
               ].map((bullet) => (
                 <li
                   key={bullet}
@@ -66,7 +66,7 @@ export default function BetaPage() {
               ))}
             </ul>
             <div className="mt-10 text-xs text-fg-muted font-mono uppercase tracking-wider">
-              drop.dj · Santiago, Chile
+              dropgigs.com · Santiago, Chile
             </div>
           </div>
 
