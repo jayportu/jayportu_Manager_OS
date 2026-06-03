@@ -34,13 +34,18 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
       if (inputRef.current) inputRef.current.value = "";
       return;
     }
-    const formData = new FormData();
-    formData.set("file", file);
     startTransition(async () => {
       // try/catch defensivo: si el Server Action lanza un error no-controlado
       // (ej. body limit del framework, network drop), evitamos que se vuelva
       // un Application Error global que tira toda la página.
       try {
+        // Comprimir antes de subir: la foto del celular (2-10 MB) se
+        // redimensiona a 512px WebP (~50-100 KB) en el browser. Esto baja
+        // el egress de Supabase (Vercel baja un original liviano una sola
+        // vez) y el peso del zoom a tamaño real. Si falla, sube el original.
+        const toUpload = await compressAvatar(file);
+        const formData = new FormData();
+        formData.set("file", toUpload);
         const res = await uploadAvatarAction(formData);
         if (res.ok) {
           setUrl(res.data.url);
@@ -145,4 +150,59 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
       {error && <p className="text-sm text-danger">{error}</p>}
     </div>
   );
+}
+
+// ─── Compresión client-side ───────────────────────────────────────────────
+// El avatar se muestra como máximo a ~112px (lightbox trigger) y se sirve por
+// next/image, así que no tiene sentido guardar la foto original de varios MB.
+// Redimensionamos a 512px (cubre retina con margen) y reencodeamos a WebP.
+const AVATAR_MAX_DIM = 512;
+const AVATAR_QUALITY = 0.82;
+
+/**
+ * Redimensiona y reencodea la imagen a WebP en el browser. Devuelve un File
+ * listo para subir. Robusto: ante cualquier fallo (decode, canvas, toBlob no
+ * soportado) o si comprimir no reduce el peso, devuelve el archivo original
+ * — el Server Action valida tipo/tamaño igual.
+ */
+async function compressAvatar(file: File): Promise<File> {
+  if (typeof document === "undefined" || !file.type.startsWith("image/")) {
+    return file;
+  }
+  try {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("read fail"));
+      reader.readAsDataURL(file);
+    });
+
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new window.Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("decode fail"));
+      el.src = dataUrl;
+    });
+
+    const scale = Math.min(1, AVATAR_MAX_DIM / Math.max(img.width, img.height));
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob((b) => resolve(b), "image/webp", AVATAR_QUALITY)
+    );
+    // toBlob puede no soportar WebP (Safari viejo) → blob null; o la imagen ya
+    // era más liviana que el reencode. En ambos casos: original.
+    if (!blob || blob.size === 0 || blob.size >= file.size) return file;
+
+    return new File([blob], "avatar.webp", { type: "image/webp" });
+  } catch {
+    return file;
+  }
 }

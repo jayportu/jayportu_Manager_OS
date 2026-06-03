@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { listInterestedDjs } from "@/lib/queries/booker";
 import { relativeTime } from "@/lib/format";
 import { Star, ArrowRight } from "lucide-react";
@@ -61,10 +62,11 @@ export default async function InteresadosPage() {
                 className="border-2 border-ink bg-white p-4 flex items-center gap-3"
               >
                 {dj.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={dj.avatar_url}
                     alt={dj.artist_name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 object-cover border-2 border-ink shrink-0"
                   />
                 ) : (

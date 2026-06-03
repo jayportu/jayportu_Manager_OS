@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   listReceivedPitches,
   markReceivedPitchesViewed,
@@ -65,10 +66,11 @@ export default async function PitchesPage() {
               <article key={p.id} className="border-2 border-ink bg-white p-5">
                 <div className="flex items-start gap-3">
                   {p.avatar_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={p.avatar_url}
                       alt={p.artist_name}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 object-cover border-2 border-ink shrink-0"
                     />
                   ) : (

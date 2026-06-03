@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   listMyFavorites,
   listFollowFeed,
@@ -111,12 +112,15 @@ export default async function BookerSeguidosPage() {
                 className="group border-2 border-ink bg-white overflow-hidden hover:bg-cream/40 transition-colors"
               >
                 {dj.hero_image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={dj.hero_image_url}
-                    alt={dj.artist_name}
-                    className="w-full aspect-[4/3] object-cover border-b-2 border-ink"
-                  />
+                  <div className="relative w-full aspect-[4/3] border-b-2 border-ink">
+                    <Image
+                      src={dj.hero_image_url}
+                      alt={dj.artist_name}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 320px"
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="w-full aspect-[4/3] bg-ink text-orange flex items-center justify-center border-b-2 border-ink">
                     <span
@@ -170,10 +174,11 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
       {/* Avatar */}
       <div className="w-[56px] h-[56px] rounded-full overflow-hidden bg-ink flex items-center justify-center shrink-0">
         {update.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={update.avatar_url}
             alt={update.artist_name}
+            width={56}
+            height={56}
             className="w-full h-full object-cover"
           />
         ) : (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -220,10 +221,13 @@ export function MobileMenu({
           </div>
           <div className="flex items-center gap-[10px]">
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              // next/image → optimizado a 38px + cacheado en CDN de Vercel
+              // (mismo motivo que el sidebar: bajar egress de Supabase).
+              <Image
                 src={avatarUrl}
                 alt={displayName}
+                width={38}
+                height={38}
                 className="w-[38px] h-[38px] object-cover shrink-0"
               />
             ) : (

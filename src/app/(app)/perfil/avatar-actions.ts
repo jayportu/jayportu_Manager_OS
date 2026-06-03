@@ -71,7 +71,11 @@ export async function uploadAvatarAction(
       .from(BUCKET)
       .upload(path, arrayBuffer, {
         contentType: file.type,
-        cacheControl: "3600",
+        // 1 año: el path lleva timestamp único ({user_id}/{Date.now()}.ext),
+        // así que la URL cambia en cada subida y no hay riesgo de servir una
+        // foto vieja. Cachear largo deja que el CDN de Vercel y el navegador
+        // eviten re-bajar el archivo → menos egress de Supabase.
+        cacheControl: "31536000",
         upsert: false,
       });
     if (upErr) {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ComingSoonBadge } from "@/components/coming-soon";
@@ -234,10 +235,14 @@ export function Sidebar({
           className="flex items-center gap-[10px] -m-1 p-1 transition-colors hover:bg-[#202020]"
         >
           {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            // next/image → Vercel optimiza a 38px y cachea en su CDN, así
+            // Supabase Storage solo sirve el original una vez (no en cada
+            // navegación). Clave para no reventar el egress del plan free.
+            <Image
               src={avatarUrl}
               alt={displayName}
+              width={38}
+              height={38}
               className="w-[38px] h-[38px] object-cover shrink-0"
             />
           ) : (
