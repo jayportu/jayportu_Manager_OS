@@ -547,4 +547,44 @@ A revisar antes del lanzamiento público:
 
 ---
 
+## 14 · Pestaña para DJs productores (Spotify / Beatport / plataformas) — propuesta 2026-06-03
+
+**Origen:** feedback de usuario (DJ productor) — pide una sección dedicada a quienes producen, donde ver su música en Spotify (by artist), Beatport y demás plataformas, en vez de solo links sueltos.
+
+**Estado hoy en el código:**
+- `dj_profile` **NO distingue** DJ de productor (no hay `is_producer` ni `artist_type`). Solo `artist_name` + `genres[]`.
+- De plataformas, el perfil solo guarda links de texto: `spotify_url`, `soundcloud_url`, `youtube_url`, `instagram_url`, `website`. **No existe** Beatport, Bandcamp, Apple Music, Mixcloud, Tidal.
+- El press kit público (`/p/[slug]`) ya **embebe** SoundCloud y YouTube; Spotify es solo link clickeable.
+- Ya hay precedente de "sync de plataformas": `platform-accounts-section.tsx` scrapea seguidores de SoundCloud/YouTube (HTML público) + la pestaña Growth guarda snapshots. Hay dónde colgar esto.
+- `productor_musical` existe, pero solo como **tipo de contacto del CRM**, no como atributo del DJ logueado.
+
+### Las 3 capas (de menor a mayor dificultad)
+
+**Capa A — Tab "Productor" con embeds (recomendado partir por acá)**
+- Flag `is_producer` (o `artist_type`) en `dj_profile` + campos URL/ID por plataforma.
+- Sección en el editor de perfil + tab nuevo en el press kit público (`#productor` / `#releases`), visible solo si `is_producer`.
+- Reproductores embebidos: Spotify (artist embed), Beatport (embed de track/chart), SoundCloud, Bandcamp.
+- **Esfuerzo:** bajo (~1 sprint). **Trabas:** ninguna — sin API keys, sin OAuth.
+- **Egress:** OK, los embeds cargan desde Spotify/Beatport, no desde Supabase (no revienta el free-tier — ver `supabase_egress_lesson_drop.md`).
+
+**Capa B — Stats reales de Spotify**
+- Spotify Web API (gratis, OAuth client-credentials — **sin** login del DJ) para traer seguidores, popularidad, top tracks y últimos lanzamientos. Refresco diario enganchado al cron que ya existe.
+- **Esfuerzo:** medio. **Trabas:** los "oyentes mensuales" **NO** están en la API pública (solo en la web del artista → scraping frágil). Seguidores / top-tracks / releases sí están.
+- ⚠️ **DECISIÓN CONSCIENTE:** "Spotify auto-sync" está hoy en la lista **"Descartado explícito"** (sección 1, línea ~120). Esta capa lo reabre. La Capa A **NO** es eso (es embed/link, sin sync). Si se hace la Capa B, hay que sacar Spotify de la lista de descartados a propósito.
+
+**Capa C — Beatport / Apple Music (depende de terceros)**
+- Beatport **no tiene API abierta** para developers (gated/partner). Solo embed o scraping → posiciones en charts y releases salen frágiles.
+- Apple Music API existe pero exige membresía de Apple Developer (~US$99/año) + MusicKit/JWT.
+- **Esfuerzo:** alto y con dependencia externa. Dejarlo como "según lo que permitan ellos", no comprometido.
+
+### Qué implica concretamente
+- **Schema:** migración con `is_producer boolean` + columnas `beatport_url`, `bandcamp_url`, `apple_music_url`, `mixcloud_url`, etc. (y `spotify_artist_id` si se hace Capa B).
+- **UI:** sección en `/perfil` (editor) + tab condicional en `/p/[slug]` (público) + componentes de embed.
+- **Sin riesgo de egress** mientras sean embeds/links.
+
+### Recomendación
+Partir por **Capa A** (vitrina con embeds) — barata, sin dependencias, valor inmediato para productores. Capa B (Spotify stats) como fase 2 *si* se decide reabrir el auto-sync. Capa C, oportunista.
+
+---
+
 *Documento vivo. Actualizar conforme se cierren sprints o se tomen decisiones.*
