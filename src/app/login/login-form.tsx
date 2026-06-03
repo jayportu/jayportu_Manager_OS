@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { GOOGLE_SCOPES } from "@/lib/gmail/scopes";
 import { TOS_VERSION } from "@/lib/legal";
 import { translateSupabaseError } from "@/lib/auth-errors";
 
@@ -38,12 +37,12 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
   const [tosAccepted, setTosAccepted] = useState(false);
 
   /**
-   * Login/signup con Google en un solo botón. Pedimos TODOS los scopes
-   * (Gmail + Calendar) desde el principio para que el user otorgue una
-   * sola vez y la conexión Gmail/Calendar quede lista en /auth/callback.
-   *
-   * access_type=offline + prompt=consent → Google entrega refresh_token
-   * cada vez (sin esto, solo lo da en la primera autorización).
+   * Login/signup con Google. Pide SOLO email/perfil (permisos NO sensibles)
+   * para que NO aparezca la pantalla "Google no verificó esta app" ni se
+   * consuma el tope de 100 usuarios de OAuth. La conexión Gmail/Calendar
+   * (permisos sensibles/restringidos) es opcional y se hace aparte desde
+   * Configuración → Conectar Google (/api/gmail/auth, que pide los scopes
+   * completos con access_type=offline + prompt=consent).
    *
    * El beta gate lo enforza el trigger DB enforce_beta_signup: si el
    * email de Google no está en beta_requests.status='approved', el
@@ -57,12 +56,8 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        scopes: GOOGLE_SCOPES.join(" "),
+        scopes: "email profile",
         redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
       },
     });
     if (error) {
@@ -175,8 +170,8 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
           : "Crea tu cuenta y empieza a gestionar tu carrera como DJ."}
       </p>
 
-      {/* Sprint 24 — Continuar con Google. Login + signup en un click,
-          y deja Gmail/Calendar conectados de regalo. */}
+      {/* Continuar con Google — login/signup en un click (solo email/perfil,
+          sin advertencia). Gmail/Calendar se conecta aparte desde Configuración. */}
       <button
         type="button"
         onClick={handleGoogleSignIn}
