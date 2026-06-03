@@ -28,6 +28,7 @@ const PUBLIC_PATHS = [
   "/api/beta/expire-cron", // Sprint 23.5 cron (protegido con CRON_SECRET)
   "/api/follow-updates/cron", // Sprint RA-3 cron (protegido con CRON_SECRET)
   "/api/unsubscribe", // List-Unsubscribe header target (Gmail bulk sender req)
+  "/api/resend/webhook", // Webhook de Resend (verifica firma Svix adentro)
   "/sw.js", // service worker debe ser servido sin auth gate
   "/manifest.json", // manifest PWA público
   // /api/gmail/callback NO es público — el callback verifica sesión adentro.
