@@ -190,6 +190,80 @@ export function classifyVenueByName(name: string): VenueFilterResult {
   };
 }
 
+/**
+ * Prefijos de "ciclo de vida" de OSM: cuando un lugar deja de operar, los
+ * mapeadores suelen renombrar la clave del tag (ej. amenity → disused:amenity).
+ * Si un elemento todavía trae el amenity activo PERO además carga uno de estos
+ * prefijos, es un local muerto que se filtró mal.
+ * Ref: https://wiki.openstreetmap.org/wiki/Lifecycle_prefix
+ */
+export const OSM_LIFECYCLE_PREFIXES = [
+  "disused:",
+  "abandoned:",
+  "was:",
+  "removed:",
+  "razed:",
+  "demolished:",
+  "destroyed:",
+  "closed:",
+];
+
+/**
+ * Palabras en el nombre que delatan que el local ya cerró. Conservador a
+ * propósito (solo cierres explícitos) para no descartar nombres legítimos.
+ */
+const NAME_CLOSED_KEYWORDS = [
+  "cerrado",
+  "cerrada",
+  "clausurad",
+  "permanently closed",
+  "closed permanently",
+];
+
+export interface VenueClosedResult {
+  closed: boolean;
+  reason?: string;
+}
+
+/**
+ * Detecta si los tags OSM indican que el local está cerrado / en desuso.
+ * OSM marca esto de forma inconsistente, así que cubrimos los casos más
+ * comunes. No es exhaustivo: si OSM simplemente no se actualizó, no hay señal
+ * que leer (eso se resuelve con verificación contra una fuente con estado de
+ * negocio, ej. Google Places — pendiente de roadmap).
+ */
+export function isVenueClosed(
+  tags: Record<string, string>
+): VenueClosedResult {
+  // 1. Claves con prefijo de ciclo de vida (disused:*, was:*, etc.)
+  for (const key of Object.keys(tags)) {
+    const prefix = OSM_LIFECYCLE_PREFIXES.find((p) => key.startsWith(p));
+    if (prefix) return { closed: true, reason: key };
+  }
+  // 2. Flags directas disused=yes / abandoned=yes
+  if (/^(yes|1|true)$/i.test(tags["disused"] || "")) {
+    return { closed: true, reason: "disused=yes" };
+  }
+  if (/^(yes|1|true)$/i.test(tags["abandoned"] || "")) {
+    return { closed: true, reason: "abandoned=yes" };
+  }
+  // 3. opening_hours marcado como cerrado permanente
+  const oh = (tags["opening_hours"] || "").toLowerCase().trim();
+  if (oh === "closed" || oh === "off") {
+    return { closed: true, reason: "opening_hours=closed" };
+  }
+  // 4. end_date presente (el lugar dejó de existir en esa fecha)
+  if (tags["end_date"]) {
+    return { closed: true, reason: `end_date=${tags["end_date"]}` };
+  }
+  // 5. Nombre con marca explícita de cierre
+  const name = (tags["name"] || "").toLowerCase();
+  const nameHit = NAME_CLOSED_KEYWORDS.find((kw) => name.includes(kw));
+  if (nameHit) return { closed: true, reason: `nombre~"${nameHit}"` };
+
+  return { closed: false };
+}
+
 export async function runOverpassQuery(
   ql: string,
   signal?: AbortSignal

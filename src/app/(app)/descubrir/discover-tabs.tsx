@@ -20,6 +20,7 @@ import {
   findPreset,
   normalizeOverpassElement,
   classifyVenueByName,
+  isVenueClosed,
 } from "@/lib/overpass";
 import { CONTACT_TYPES, CONTACT_TYPE_LABELS, type ContactType } from "@/types/database";
 import Link from "next/link";
@@ -76,6 +77,19 @@ export function DiscoverTabs({ presets }: Props) {
       const blocked: Array<{ name: string; reason: string }> = [];
 
       for (const n of allNormalized) {
+        const tags =
+          (n.raw_data as { tags?: Record<string, string> }).tags || {};
+
+        // Filtra locales que OSM marca como cerrados / en desuso
+        const closure = isVenueClosed(tags);
+        if (closure.closed) {
+          blocked.push({
+            name: n.name,
+            reason: `cerrado · ${closure.reason}`,
+          });
+          continue;
+        }
+
         const classification = classifyVenueByName(n.name);
         if (classification.blacklisted) {
           blocked.push({
@@ -111,7 +125,7 @@ export function DiscoverTabs({ presets }: Props) {
         if (r.ok) {
           const blockedSummary =
             blocked.length > 0
-              ? ` · ${blocked.length} filtrados por nombre (${blocked
+              ? ` · ${blocked.length} filtrados (cerrados / no aptos: ${blocked
                   .slice(0, 3)
                   .map((b) => b.name)
                   .join(", ")}${blocked.length > 3 ? "…" : ""})`
