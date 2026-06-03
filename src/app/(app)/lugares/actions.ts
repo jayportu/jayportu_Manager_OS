@@ -2,12 +2,13 @@
 
 /**
  * Fase 3 booker — "⭐ me gustaría tocar acá".
- * El DJ logueado marca/desmarca interés sobre un lugar. RLS de
- * venue_interest deja insert/delete solo de filas propias (dj_user_id).
+ * Fase 4a booker — pitch DJ→Lugar (cuesta 🪙1 token).
  */
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { getPitchTokenBalance } from "@/lib/queries/booker";
 
 type Result =
   | { ok: true; interested: boolean }
@@ -48,4 +49,68 @@ export async function toggleVenueInterestAction(
   if (error) return { ok: false, error: error.message };
   revalidatePath("/lugares");
   return { ok: true, interested: true };
+}
+
+type PitchResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Fase 4a — El DJ manda un pitch a un lugar que acepta pitches. Consume
+ * 🪙1 token (validado contra el balance computado). El lugar debe tener
+ * accepts_pitches=true. Un pitch por (dj, lugar) — unique en DB.
+ */
+export async function sendPitchAction(
+  bookerUserId: string,
+  message: string,
+  availability: string
+): Promise<PitchResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sesión expirada." };
+  if (!bookerUserId) return { ok: false, error: "Lugar inválido." };
+
+  const msg = message.trim().slice(0, 600);
+  if (msg.length < 10)
+    return { ok: false, error: "Escribe un mensaje (mín. 10 caracteres)." };
+
+  // El lugar debe aceptar pitches (lectura service_role: RLS es select-own)
+  const admin = createAdminClient();
+  const { data: venue } = await admin
+    .from("booker_accounts")
+    .select("accepts_pitches, verified_at, in_directory")
+    .eq("user_id", bookerUserId)
+    .maybeSingle();
+  if (!venue || !venue.accepts_pitches || !venue.verified_at || !venue.in_directory) {
+    return { ok: false, error: "Este lugar no está recibiendo pitches." };
+  }
+
+  // ¿Ya pitcheó a este lugar?
+  const { data: existing } = await supabase
+    .from("venue_pitches")
+    .select("id")
+    .eq("dj_user_id", user.id)
+    .eq("booker_user_id", bookerUserId)
+    .maybeSingle();
+  if (existing) return { ok: false, error: "Ya le mandaste un pitch a este lugar." };
+
+  // Token disponible
+  const balance = await getPitchTokenBalance();
+  if (balance.available <= 0) {
+    return {
+      ok: false,
+      error: "Te quedaste sin tokens de pitch este mes. Renuevan el 1.",
+    };
+  }
+
+  const { error } = await supabase.from("venue_pitches").insert({
+    dj_user_id: user.id,
+    booker_user_id: bookerUserId,
+    message: msg,
+    availability: availability.trim().slice(0, 200),
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/lugares");
+  return { ok: true };
 }

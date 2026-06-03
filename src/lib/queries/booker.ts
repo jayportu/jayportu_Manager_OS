@@ -165,6 +165,15 @@ export async function getBookerCredibility(
 // Fase 3 booker — Directorio de lugares + "me gustaría tocar"
 // ════════════════════════════════════════════════════════════════════
 
+/** Fase 4a — cupo mensual de tokens de pitch. En beta todos lo reciben;
+ *  al lanzar será beneficio Pro. No se acumula (resetea cada mes). */
+export const MONTHLY_PITCH_TOKENS = 10;
+/** Días que un pitch sin ver cuenta contra el cupo. Pasados estos, el
+ *  token se "devuelve" (deja de contar). */
+export const PITCH_REFUND_DAYS = 14;
+
+export type PitchStatus = "none" | "pending" | "viewed";
+
 export interface DirectoryVenue {
   user_id: string;
   full_name: string;
@@ -177,6 +186,52 @@ export interface DirectoryVenue {
   accepts_pitches: boolean;
   /** El DJ logueado ya marcó "me gustaría tocar acá". */
   interested: boolean;
+  /** Estado del pitch del DJ logueado hacia este lugar. */
+  pitch_status: PitchStatus;
+}
+
+export interface PitchTokenBalance {
+  allowance: number;
+  used: number;
+  available: number;
+}
+
+/**
+ * Balance de tokens de pitch del DJ logueado. COMPUTADO (no contador):
+ * cuenta los pitches del mes actual que están vistos O pendientes dentro
+ * de la ventana de 14 días. Los pitches no vistos >14 días no cuentan →
+ * token devuelto automáticamente, sin cron.
+ */
+export async function getPitchTokenBalance(): Promise<PitchTokenBalance> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return { allowance: MONTHLY_PITCH_TOKENS, used: 0, available: 0 };
+
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+
+  const { data } = await supabase
+    .from("venue_pitches")
+    .select("created_at, viewed_at")
+    .eq("dj_user_id", user.id)
+    .gte("created_at", monthStart.toISOString());
+
+  const refundCutoff = Date.now() - PITCH_REFUND_DAYS * 24 * 60 * 60 * 1000;
+  const used = ((data ?? []) as Array<{ created_at: string; viewed_at: string | null }>)
+    .filter(
+      (p) =>
+        p.viewed_at !== null || new Date(p.created_at).getTime() > refundCutoff
+    ).length;
+
+  return {
+    allowance: MONTHLY_PITCH_TOKENS,
+    used,
+    available: Math.max(0, MONTHLY_PITCH_TOKENS - used),
+  };
 }
 
 /**
@@ -217,7 +272,22 @@ export async function listDirectoryVenues(): Promise<DirectoryVenue[]> {
     )
   );
 
-  return list.map((v) => ({ ...v, interested: interestedSet.has(v.user_id) }));
+  // Pitches del DJ hacia estos lugares → estado pending/viewed
+  const { data: pitches } = await supabase
+    .from("venue_pitches")
+    .select("booker_user_id, viewed_at")
+    .eq("dj_user_id", user.id);
+  const pitchByBooker = new Map<string, PitchStatus>(
+    ((pitches ?? []) as Array<{ booker_user_id: string; viewed_at: string | null }>).map(
+      (p) => [p.booker_user_id, p.viewed_at ? "viewed" : "pending"]
+    )
+  );
+
+  return list.map((v) => ({
+    ...v,
+    interested: interestedSet.has(v.user_id),
+    pitch_status: pitchByBooker.get(v.user_id) ?? ("none" as PitchStatus),
+  }));
 }
 
 export interface InterestedDj {
@@ -286,6 +356,107 @@ export async function listInterestedDjs(): Promise<InterestedDj[]> {
       };
     })
     .filter((x): x is InterestedDj => x !== null);
+}
+
+export interface ReceivedPitch {
+  id: string;
+  dj_user_id: string;
+  artist_name: string;
+  city: string;
+  genres: string[];
+  public_slug: string;
+  avatar_url: string;
+  message: string;
+  availability: string;
+  created_at: string;
+  viewed_at: string | null;
+}
+
+/**
+ * Pitches recibidos por el booker logueado, con el perfil del DJ.
+ * RLS deja al booker ver venue_pitches donde booker_user_id=auth.uid().
+ * Perfiles de DJ vía service_role (data pública del directorio).
+ */
+export async function listReceivedPitches(): Promise<ReceivedPitch[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data: rows } = await supabase
+    .from("venue_pitches")
+    .select("id, dj_user_id, message, availability, created_at, viewed_at")
+    .eq("booker_user_id", user.id)
+    .order("created_at", { ascending: false });
+  const list = (rows ?? []) as Array<{
+    id: string;
+    dj_user_id: string;
+    message: string;
+    availability: string;
+    created_at: string;
+    viewed_at: string | null;
+  }>;
+  if (list.length === 0) return [];
+
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data: profiles } = await admin
+    .from("dj_profile")
+    .select("user_id, artist_name, city, genres, public_slug, avatar_url")
+    .in(
+      "user_id",
+      list.map((r) => r.dj_user_id)
+    );
+  type Prof = {
+    user_id: string;
+    artist_name: string;
+    city: string;
+    genres: string[];
+    public_slug: string;
+    avatar_url: string;
+  };
+  const byId = new Map<string, Prof>(
+    ((profiles ?? []) as Prof[]).map((p) => [p.user_id, p])
+  );
+
+  return list
+    .map((r): ReceivedPitch | null => {
+      const p = byId.get(r.dj_user_id);
+      if (!p) return null;
+      return {
+        id: r.id,
+        dj_user_id: r.dj_user_id,
+        artist_name: p.artist_name || "",
+        city: p.city || "",
+        genres: p.genres ?? [],
+        public_slug: p.public_slug || "",
+        avatar_url: p.avatar_url || "",
+        message: r.message,
+        availability: r.availability,
+        created_at: r.created_at,
+        viewed_at: r.viewed_at,
+      };
+    })
+    .filter((x): x is ReceivedPitch => x !== null);
+}
+
+/**
+ * Marca como vistos los pitches recibidos del booker logueado (set
+ * viewed_at a los que estaban null). El DJ ve "visto" + se consume el
+ * token. Se llama al cargar /booker/pitches.
+ */
+export async function markReceivedPitchesViewed(): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase
+    .from("venue_pitches")
+    .update({ viewed_at: new Date().toISOString() })
+    .eq("booker_user_id", user.id)
+    .is("viewed_at", null);
 }
 
 /**
