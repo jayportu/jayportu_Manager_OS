@@ -134,8 +134,12 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
               sin comisión.
             </p>
             {availableCount > 0 && (
-              <div className="mt-4 inline-flex items-center gap-2 border-2 border-ink bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider">
-                ★ {availableCount} {availableCount === 1 ? "disponible" : "disponibles"} ahora
+              <div
+                className="mt-4 inline-flex items-center gap-2 border-2 border-ink bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider"
+                title="DJs con disponibilidad abierta para tocar en estas fechas. Usa el filtro «Solo disponibles» para verlos."
+              >
+                ★ {availableCount}{" "}
+                {availableCount === 1 ? "disponible" : "disponibles"} para tocar
               </div>
             )}
           </div>
@@ -327,10 +331,8 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     .toUpperCase();
 
   return (
-    <Link
-      href={`/p/${dj.public_slug}`}
-      className="border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1"
-    >
+    <div className="group border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
+      <Link href={`/p/${dj.public_slug}`} className="flex flex-col">
       <div className="bg-ink aspect-square flex items-center justify-center relative overflow-hidden">
         {/* Preferimos avatar_url (cuadrado, foto de perfil) para el card
             aspect-square. Caemos al hero_image_url solo si no hay avatar.
@@ -389,24 +391,30 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
           {dj.city || "—"}
           {dj.country ? ` · ${dj.country.toUpperCase()}` : ""}
         </div>
-        {dj.genres.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1">
-            {dj.genres.slice(0, 2).map((g) => (
-              <span
-                key={g}
-                className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream"
-              >
-                {g}
-              </span>
-            ))}
-            {dj.genres.length > 2 && (
-              <span className="font-mono text-[9px] text-fg-muted">
-                +{dj.genres.length - 2}
-              </span>
-            )}
-          </div>
-        )}
       </div>
-    </Link>
+      </Link>
+      {/* Géneros: links propios al listado filtrado, FUERA del <Link> del card
+          (no se puede anidar <a> dentro de <a>). Más grandes + hover naranja
+          para que se note que son clickeables. Href en minúscula para que
+          calce con los chips del filtro de arriba. */}
+      {dj.genres.length > 0 && (
+        <div className="px-3 pb-3 -mt-0.5 flex flex-wrap gap-1.5">
+          {dj.genres.slice(0, 3).map((g) => (
+            <Link
+              key={g}
+              href={`/dj?genres=${encodeURIComponent(g.toLowerCase())}`}
+              className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1 border border-ink bg-cream hover:bg-orange hover:text-ink transition-colors"
+            >
+              {g}
+            </Link>
+          ))}
+          {dj.genres.length > 3 && (
+            <span className="font-mono text-[10px] text-fg-muted self-center">
+              +{dj.genres.length - 3}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

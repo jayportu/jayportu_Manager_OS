@@ -114,9 +114,10 @@ export function whatsappLink(whatsapp: string, text?: string): string | null {
   return text ? `${url}?text=${encodeURIComponent(text)}` : url;
 }
 
-/** Normalizar URL: agrega https:// si falta */
+/** Normalizar URL: trim + agrega https:// si falta. "" si queda vacío. */
 export function normalizeUrl(url: string): string {
-  if (!url) return "";
-  if (/^https?:\/\//i.test(url)) return url;
-  return `https://${url}`;
+  const trimmed = (url ?? "").trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
 }

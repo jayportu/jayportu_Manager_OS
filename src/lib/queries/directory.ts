@@ -80,10 +80,10 @@ export async function listPublicDjs(
     const s = params.search.trim();
     q = q.or(`artist_name.ilike.%${s}%,city.ilike.%${s}%,tagline.ilike.%${s}%`);
   }
-  if (params.genres && params.genres.length > 0) {
-    // overlaps: al menos uno coincide
-    q = q.overlaps("genres", params.genres);
-  }
+  // Nota: el filtro de géneros se aplica DESPUÉS del query (case-insensitive),
+  // no acá. Los chips de `listPublicGenres()` vienen en minúscula y el
+  // `.overlaps` de Postgres es exacto + case-sensitive → no calzaba contra
+  // géneros guardados con mayúsculas (ej. "Tech House") y devolvía 0 DJs.
 
   const { data, error } = await q.limit(params.limit ?? 200);
   if (error) {
@@ -115,10 +115,20 @@ export async function listPublicDjs(
     })
   );
 
-  // Filtro "solo disponibles" (después del map porque depende de fechas vs today).
-  const filtered = params.onlyAvailable
-    ? result.filter((d) => d.is_available_now)
-    : result;
+  // Filtros post-query (después del map):
+  // - géneros: case-insensitive (los chips vienen en minúscula; los géneros
+  //   guardados pueden tener mayúsculas/espacios → comparamos normalizado).
+  // - disponibilidad: depende de fechas vs today, calculada en el map.
+  let filtered = result;
+  if (params.genres && params.genres.length > 0) {
+    const wanted = params.genres.map((g) => g.trim().toLowerCase());
+    filtered = filtered.filter((d) =>
+      d.genres.some((g) => wanted.includes(g.trim().toLowerCase()))
+    );
+  }
+  if (params.onlyAvailable) {
+    filtered = filtered.filter((d) => d.is_available_now);
+  }
 
   // Sort: disponibles primero, después alfabético.
   if (params.sort === "name") {

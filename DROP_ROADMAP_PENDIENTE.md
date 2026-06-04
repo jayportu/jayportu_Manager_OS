@@ -7,7 +7,93 @@
 
 ---
 
+## 🚀 PLAN DE TRABAJO ACTUAL — Sprints por fase (2026-06-04)
+
+> **Pivote estratégico (2026-06-04):** el foco pasa a ser el **lado booker** (la
+> demanda). En un marketplace de 2 lados lo difícil es conseguir bookers, no DJs.
+> DROP = "LinkedIn / IMDb de la música electrónica local". Valor para el booker:
+> **ahorrar tiempo + bajar el riesgo** (hoy busca por IG, pide press kits por DM,
+> escucha sets sueltos, pregunta disponibilidad por WhatsApp). La oferta (DJs) ya
+> existe; el juego es habilitar y seducir a los bookers.
+>
+> Las fases reordenan el roadmap viejo: S20/S20.5 (marketplace + fee) se adelantan
+> a Fases 0-1; S18.5/S19 (contratos/pagos) bajan a Fase 4; S22/S24/Productor pasan
+> a Fase 5. El detalle de cada sprint sigue abajo como referencia.
+>
+> Etiquetas: 🔴 bug · 🆕 nuevo · ♻️ ya construido (reusar) · 📋 ya estaba en roadmap
+
+### FASE 0 · Arreglar la vitrina · ~2-4 días
+**Objetivo:** que `/dj` y el perfil público sean impecables con los DJs actuales.
+Es la primera impresión de cualquier booker que se invite.
+
+- [x] 🔴 Filtro de géneros case-insensitive (`directory.ts` usa `.overlaps` exacto vs chips en minúscula → 0 resultados). ✅ 2026-06-04 — verificado: house→11, tech house→9, minimal→9, afro house→3. Falta push.
+- [x] 🔴 Tech rider / hospitality duplicado en `/p/[slug]` (notas legacy + estructurado se renderizan juntas). ✅ 2026-06-04 — saqué el bloque legacy de la rama con rider estructurado; verificado en 13 perfiles (estructurados limpios, legacy-only conserva fallback). Falta push.
+- [x] 🆕 `/dj`: géneros más destacables + clic en género → listado filtrado. ✅ 2026-06-04 — card reestructurada (div + Link foto/nombre + chips de género como Links propios a /dj?genres=, hover naranja, hasta 3). Verificado: chip "HOUSE" → 11 DJs. Falta push.
+- [x] 🆕 Botón "Ver press kit" aparte y llamativo (hoy se confunde con "Contactar"). ✅ 2026-06-04 — la card ink del PDF ahora dice "Ver press kit." (antes "Ver PDF.") → queda claro que es el press kit. Falta push.
+- [x] 🆕 Botón de YouTube como botón real + tooltip en "X disponibles ahora". ✅ 2026-06-04 — fallback YouTube ahora es botón ink "▶ Ver canal en YouTube" (6 perfiles lo usan); badge "X disponibles para tocar" + tooltip explicativo. Falta push.
+- [x] 🆕 Perfil público: pantones del "Contáctame" + orden de las casillas del form. ✅ 2026-06-04 — card sobria (blanca + acentos naranjos, antes 100% naranja); orden "datos del gig primero" (Nombre → Fecha → Tipo → Venue → Email → WhatsApp → Mensaje); bonus: arreglado voseo "Contame" → "Cuéntame". Verificado con screenshot. Falta push.
+- [x] 🆕 Normalizar URLs (SoundCloud/YouTube/web) al guardar → mata el error de SoundCloud. ✅ 2026-06-04 — normalizeUrl (trim+https) en saveProfileAction (5 campos) + embed SoundCloud defensivo (repara doble-paste, degrada a link si la data es basura). Verificado en 11 perfiles. Data prod limpiada con `scripts/clean_profile_urls.mjs --apply` (3 doble-paste arreglados: Fer Canezza, Cristian Lens, Belixza). Falta push del código.
+  - [ ] ⚠️ MANUAL: conseguir el handle real de SoundCloud de **Pablo Rocha**, **Milo Varas** y **NICO VILLEGAS** (hoy tienen su nombre con espacios; degradan a link). Cuando lo tengas, corregir en su perfil.
+- [x] 🆕 Calidad de imagen: hero ~1600-2000px / q0.9, todo por `next/image` (nítido sin reventar egress). ✅ 2026-06-04 — compresión del avatar 1024→1600px / 0.82→0.9 en avatar-upload.tsx. Egress OK (miniaturas por next/image cacheadas; original se baja 1 vez). **Caveat:** aplica a uploads NUEVOS; los avatares ya subidos quedaron en 1024 → re-subir foto para ganar nitidez. No verificable en preview (es lógica de upload). Falta push.
+- [x] ⚪ Stats del sidebar ("Contactos / Gigs") hoy en "—". ✅ 2026-06-04 — layout cuenta contacts (total) + calendar_events type=show del mes (count head:true, RLS-scoped) y los pasa al Sidebar. Verificado logueado: muestra 0/0 para user vacío (antes "—"). Falta push.
+
+### FASE 1 · Perfil "mejor que Instagram" + confiabilidad · ~1 semana
+**Objetivo:** que cada ficha de DJ baje el riesgo del booker.
+
+- [ ] ♻️ Ya está: foto, géneros, ciudad, SoundCloud, YouTube, press kit, clubs (gig stats), disponibilidad
+- [ ] 🆕 Perfil verificado / ranking de confiabilidad: badges identidad ✓ · redes ✓ · sets ✓ · historial ✓ · respuesta rápida *(lo más nuevo y potente)*
+- [ ] 🆕 Fee aproximado (📋 cotizador S20.5, toggle por DJ)
+- [ ] 🆕 Marcas/clubs con los que trabajó (RA-9 lite)
+- [ ] 🆕 Sets/mixes destacados (varios + Mixcloud) — RA-8
+- [ ] 🆕 Alias / sello / proyecto b2b — RA-10
+- [ ] 📋 DROP Picks (RA-2A): curaduría admin destacando DJs en `/dj`
+
+### FASE 2 · Reabrir el lado booker · Founding Bookers · ~1 semana
+**Objetivo:** traer los primeros bookers, a mano y curados. El backend ya existe casi entero.
+
+- [ ] ♻️ Ya en prod: perfil booker, ficha de credibilidad, directorio de lugares, pitches+tokens
+- [ ] 🆕 Construir `/booker/buscar` (hoy es stub "Próximamente"): filtra por género, ciudad, disponibilidad, fee + escucha sets en un solo lugar *(la propuesta de valor exacta)*
+- [ ] 🆕 Reabrir signup booker (decidir: campos obligatorios, verificación de email, anti-spam)
+- [ ] 🆕 Programa Founding Bookers: invitación VIP (♻️ reusa infra de invites beta), gratis por X tiempo, acceso anticipado, badge "Founding", perfil verificado
+
+### FASE 3 · Smart Match · el gancho de pago · ~1-2 semanas
+**Objetivo:** feature exclusiva del booker que justifica suscripción.
+
+- [ ] 🆕 Booker describe ("Melodic house para sunset en rooftop") → DROP recomienda DJs
+- [ ] 🆕 v1: filtros estructurados (género + ciudad + disponibilidad + fee) · v2: IA semántica
+- [ ] ♻️ Conecta con la infra Ollama existente → de paso arregla que el tab "IA" hoy no usa IA
+- [ ] 📋 Es la versión booker-initiated de "Para ti" (RA-2B)
+
+### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas
+**Objetivo:** del match al cierre con plata y contrato, dentro de DROP.
+
+- [ ] 📋 S18.5 Contratos (firma electrónica simple, click-wrap + hash)
+- [ ] 📋 S19 Pagos MercadoPago — ♻️ code-complete, falta **activar en prod** (5 pasos, ver sección 12)
+- [ ] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4)
+
+### FASE 5 · Loops de crecimiento y retención · paralelo, con tracción
+- [ ] 🆕 RA-5 Analytics del press kit (data ya capturada)
+- [ ] 🆕 RA-6 Anuncio instantáneo de fecha a seguidores (push+mail)
+- [ ] 🆕 RA-7 Página de evento + RSVP (loop fan→seguidor→lead)
+- [ ] 📋 S22 Ads tracker · S24 música personal · tab Productor (sección 14) · Descubrir locales cerrados (sección 15)
+- [ ] 🆕 LinkedIn / contenido para bookers — *track de marketing, no código*
+
+### FASE 6 · Hardening pre-lanzamiento público · gate antes de abrir
+**Objetivo:** abrir a bookers = más exposición → blindar antes.
+
+- [ ] 📋 Sección 13 completa: Next 14→15, rate limiting, CSP, `/privacy` + `/terms`, Sentry, 2FA, DMARC `reject`, rotar keys
+
+### Backlog / deuda menor (no bloquea)
+- [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
+- [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
+
+**Siguiente paso:** Fase 0 → bug de géneros.
+
+---
+
 ## 🎯 CÓMO RETOMAR — Resumen de sesión 2026-05-29
+
+> ⤴️ **Superado por el PLAN DE TRABAJO ACTUAL de arriba (2026-06-04).** Se mantiene como historial de la sesión de mayo.
 
 **Estado al cierre**: todo lo de las sesiones de mayo está deployado a `main`.
 
