@@ -1,4 +1,4 @@
-import { Mail, Archive, Trash2, RotateCcw } from "lucide-react";
+import { Mail, Archive, Trash2, RotateCcw, Paperclip } from "lucide-react";
 import { assertAdmin } from "@/lib/queries/admin";
 import { getInbox, getInboundEmail } from "@/lib/queries/inbox";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -190,6 +190,22 @@ export default async function CorreoPage({
                   <p className="text-sm text-fg-muted">(Sin contenido)</p>
                 )}
               </div>
+
+              {selected.attachments && selected.attachments.length > 0 && (
+                <div className="py-3 border-t border-border/60 flex flex-wrap gap-2">
+                  {selected.attachments.map((a) => (
+                    <a
+                      key={a.id}
+                      href={`/api/correo/attachment/${selected.resend_id}/${a.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                    >
+                      <Paperclip className="w-3.5 h-3.5" /> {a.filename}
+                    </a>
+                  ))}
+                </div>
+              )}
 
               {/* Responder (solo correos recibidos) */}
               {canReply && (

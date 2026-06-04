@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { PenSquare, X, Send } from "lucide-react";
+import { PenSquare, X, Send, Paperclip } from "lucide-react";
 import { sendNew } from "./actions";
 
 function SubmitBtn() {
@@ -70,6 +70,10 @@ function ComposeModal({ onClose }: { onClose: () => void }) {
             placeholder="Escribe tu mensaje…"
             className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-ink resize-y bg-transparent"
           />
+          <label className="flex items-center gap-2 text-xs text-fg-muted">
+            <Paperclip className="w-3.5 h-3.5" />
+            <input type="file" name="files" multiple className="text-xs" />
+          </label>
           <div className="flex items-center gap-3">
             {state?.ok && (
               <span className="text-sm font-medium" style={{ color: "#1e9e5a" }}>

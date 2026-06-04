@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { Send } from "lucide-react";
+import { Send, Paperclip } from "lucide-react";
 import { sendReply } from "./actions";
 
 function SubmitButton() {
@@ -54,6 +54,10 @@ export function ReplyForm({
         placeholder="Escribe tu respuesta…"
         className="w-full text-sm bg-transparent outline-none resize-y"
       />
+      <label className="flex items-center gap-2 text-xs text-fg-muted mt-1">
+        <Paperclip className="w-3.5 h-3.5" />
+        <input type="file" name="files" multiple className="text-xs" />
+      </label>
       <div className="flex items-center gap-3 mt-2">
         {state?.ok && (
           <span className="text-sm font-medium" style={{ color: "#1e9e5a" }}>

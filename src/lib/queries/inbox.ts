@@ -5,8 +5,15 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export interface InboundAttachment {
+  id: string;
+  filename: string;
+  content_type?: string;
+}
+
 export interface InboundEmail {
   id: string;
+  resend_id: string | null;
   from_email: string;
   from_name: string | null;
   to_email: string;
@@ -20,6 +27,7 @@ export interface InboundEmail {
   starred: boolean;
   read_at: string | null;
   received_at: string;
+  attachments: InboundAttachment[] | null;
 }
 
 export async function getInbox(folder = "inbox"): Promise<InboundEmail[]> {

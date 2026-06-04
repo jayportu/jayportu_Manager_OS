@@ -132,6 +132,7 @@ export async function POST(req: Request) {
         html_body: html,
         thread_key: threadKey,
         folder: "inbox",
+        attachments: Array.isArray(data.attachments) ? data.attachments : [],
         received_at: evt.created_at ?? new Date().toISOString(),
       },
       { onConflict: "resend_id" }

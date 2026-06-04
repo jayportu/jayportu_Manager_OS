@@ -33,6 +33,20 @@ async function storeSent(to: string, subject: string, text: string): Promise<voi
   });
 }
 
+/** Lee los archivos del form ("files") y los pasa a base64 para Resend. */
+async function filesToAttachments(
+  formData: FormData
+): Promise<{ filename: string; content: string }[]> {
+  const out: { filename: string; content: string }[] = [];
+  for (const f of formData.getAll("files")) {
+    if (f instanceof File && f.size > 0) {
+      const buf = Buffer.from(await f.arrayBuffer());
+      out.push({ filename: f.name, content: buf.toString("base64") });
+    }
+  }
+  return out;
+}
+
 export async function archiveEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
@@ -85,6 +99,7 @@ export async function sendReply(
   const subject = /^re:/i.test(subjectRaw) ? subjectRaw : `Re: ${subjectRaw}`;
   const bodyHtml = escapeHtml(text).replace(/\n/g, "<br/>");
   const html = `<div style="font-family:-apple-system,Segoe UI,Inter,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.55; color:#0A0A0A;">${bodyHtml}${SIG_HTML}</div>`;
+  const attachments = await filesToAttachments(formData);
 
   const res = await sendEmail({
     to,
@@ -92,6 +107,7 @@ export async function sendReply(
     html,
     text: text + SIG_TEXT,
     replyTo: "hola@dropgigs.com",
+    attachments: attachments.length ? attachments : undefined,
   });
   if (!res.ok) {
     console.error("[inbox-reply] sendEmail falló", res.error);
@@ -122,12 +138,14 @@ export async function sendNew(
   const bodyHtml = escapeHtml(text).replace(/\n/g, "<br/>");
   const html = `<div style="font-family:-apple-system,Segoe UI,Inter,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.55; color:#0A0A0A;">${bodyHtml}${SIG_HTML}</div>`;
 
+  const attachments = await filesToAttachments(formData);
   const res = await sendEmail({
     to,
     subject,
     html,
     text: text + SIG_TEXT,
     replyTo: "hola@dropgigs.com",
+    attachments: attachments.length ? attachments : undefined,
   });
   if (!res.ok) {
     console.error("[inbox-compose] sendEmail falló", res.error);

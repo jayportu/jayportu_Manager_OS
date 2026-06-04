@@ -36,6 +36,8 @@ export interface SendEmailInput {
   text?: string;
   /** Optional reply-to (ej. tu email personal) */
   replyTo?: string;
+  /** Adjuntos: contenido en base64 (single send, no batch). */
+  attachments?: { filename: string; content: string }[];
 }
 
 /**
@@ -77,6 +79,7 @@ export async function sendEmail(
       html: input.html,
       text: input.text,
       replyTo: input.replyTo,
+      attachments: input.attachments,
       headers: buildAntiSpamHeaders(),
     });
     if (res.error) {
