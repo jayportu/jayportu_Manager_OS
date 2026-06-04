@@ -45,6 +45,27 @@ function verifySvix(
   });
 }
 
+/** El webhook de inbound trae solo metadata; el cuerpo se pide aparte. */
+async function fetchInboundBody(
+  emailId: string
+): Promise<Record<string, unknown> | null> {
+  try {
+    const res = await fetch(
+      `https://api.resend.com/emails/receiving/${emailId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY ?? ""}`,
+          "User-Agent": "drop-inbound-webhook",
+        },
+      }
+    );
+    if (!res.ok) return null;
+    return (await res.json()) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   const payload = await req.text();
   const secret = process.env.RESEND_WEBHOOK_SECRET;
@@ -73,12 +94,59 @@ export async function POST(req: Request) {
   }
 
   const type = evt.type ?? "";
-  // Solo eventos de email saliente; ignorar contact.* / domain.*
+  const data = evt.data ?? {};
+  const admin = createAdminClient();
+
+  // ── INBOUND: correo entrante a hola@dropgigs.com ──────────────────
+  if (type === "email.received") {
+    const emailId = typeof data.email_id === "string" ? data.email_id : null;
+    if (!emailId) return NextResponse.json({ ok: true, skipped: "sin email_id" });
+    const body = await fetchInboundBody(emailId);
+    const fromRaw = typeof data.from === "string" ? data.from : "";
+    const fm = /<([^>]+)>/.exec(fromRaw);
+    const fromEmail = (fm ? fm[1] : fromRaw).trim();
+    const fromName = fm
+      ? fromRaw.replace(/<[^>]+>/, "").trim().replace(/^"|"$/g, "") || null
+      : null;
+    const toArr = data.to;
+    const toEmail = Array.isArray(toArr)
+      ? String(toArr[0] ?? "")
+      : String(toArr ?? "");
+    const subject = typeof data.subject === "string" ? data.subject : "";
+    const text = typeof body?.text === "string" ? body.text : "";
+    const html = typeof body?.html === "string" ? body.html : null;
+    const threadKey = subject
+      .toLowerCase()
+      .replace(/^((re|fwd|fw):\s*)+/i, "")
+      .trim();
+
+    const res = await admin.from("inbound_emails").upsert(
+      {
+        resend_id: emailId,
+        from_email: fromEmail,
+        from_name: fromName,
+        to_email: toEmail,
+        subject,
+        snippet: text.slice(0, 140),
+        text_body: text,
+        html_body: html,
+        thread_key: threadKey,
+        folder: "inbox",
+        received_at: evt.created_at ?? new Date().toISOString(),
+      },
+      { onConflict: "resend_id" }
+    );
+    if (res.error) {
+      console.error("[resend-webhook] inbound insert", res.error.message);
+      return NextResponse.json({ ok: false }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true, inbound: true });
+  }
+
+  // ── DELIVERY: eventos de envío saliente ───────────────────────────
   if (!type.startsWith("email.")) {
     return NextResponse.json({ ok: true, ignored: type });
   }
-
-  const data = evt.data ?? {};
   const emailId = typeof data.email_id === "string" ? data.email_id : null;
   if (!emailId) {
     return NextResponse.json({ ok: true, skipped: "sin email_id" });
@@ -91,8 +159,6 @@ export async function POST(req: Request) {
       ? to
       : "";
   const occurredAt = evt.created_at ?? new Date().toISOString();
-
-  const admin = createAdminClient();
 
   const ev = await admin.from("email_events").insert({
     resend_id: emailId,
