@@ -1,10 +1,11 @@
-import { Mail, Archive, Send } from "lucide-react";
+import { Mail, Archive } from "lucide-react";
 import { assertAdmin } from "@/lib/queries/admin";
 import { getInbox, getInboundEmail } from "@/lib/queries/inbox";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { relativeTime, dateTime } from "@/lib/format";
 import { AutoRefresh } from "../email-campaigns/auto-refresh";
-import { archiveEmail, replyToEmail } from "./actions";
+import { archiveEmail } from "./actions";
+import { ReplyForm } from "./reply-form";
 
 export const dynamic = "force-dynamic";
 
@@ -151,30 +152,11 @@ export default async function CorreoPage({
               </div>
 
               {/* Responder */}
-              <form action={replyToEmail} className="border border-border rounded-lg p-3 mt-2">
-                <input type="hidden" name="id" value={selected.id} />
-                <input type="hidden" name="to" value={selected.from_email} />
-                <input type="hidden" name="subject" value={selected.subject ?? ""} />
-                <div className="font-mono text-[11px] text-fg-muted border-b border-border pb-2 mb-2">
-                  De: <span className="text-ink font-semibold">hola@dropgigs.com</span> · Para:{" "}
-                  {selected.from_email}
-                </div>
-                <textarea
-                  name="text"
-                  required
-                  rows={4}
-                  placeholder="Escribe tu respuesta…"
-                  className="w-full text-sm bg-transparent outline-none resize-y"
-                />
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-ink bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-                  >
-                    <Send className="w-3.5 h-3.5" /> Enviar
-                  </button>
-                </div>
-              </form>
+              <ReplyForm
+                id={selected.id}
+                to={selected.from_email}
+                subject={selected.subject ?? ""}
+              />
             </div>
           )}
         </div>
