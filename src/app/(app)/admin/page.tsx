@@ -82,6 +82,12 @@ export default async function AdminPage() {
             Campañas →
           </a>
           <a
+            href="/admin/correo"
+            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+          >
+            Correo →
+          </a>
+          <a
             href="/admin/beta-reminder"
             className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
           >
