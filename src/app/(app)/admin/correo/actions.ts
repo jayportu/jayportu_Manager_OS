@@ -35,10 +35,10 @@ export interface ReplyState {
   error?: string;
 }
 
-// Firma DROP. que se agrega a cada respuesta
-const SIG_TEXT = "\n\n—\nDROP. Team\nhola@dropgigs.com · dropgigs.com";
-const SIG_HTML =
-  '<br/><br/><div style="color:#7A7670;font-size:13px;border-top:1px solid #E5E1D8;padding-top:8px;margin-top:10px;">DROP<span style="color:#FF5C00;">.</span> Team<br/>hola@dropgigs.com · <a href="https://dropgigs.com" style="color:#7A7670;">dropgigs.com</a></div>';
+// Firma DROP. oficial (tarjeta cream + franja naranja + wordmark + links)
+const SIG_TEXT =
+  "\n\n--\nEquipo DROP. · The DJ OS\n→ dropgigs.com\n→ hola@dropgigs.com\n→ @drop.gigs";
+const SIG_HTML = `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;margin-top:20px;"><tr><td bgcolor="#F4EFE7" style="background-color:#F4EFE7;border:2px solid #0A0A0A;padding:0;"><table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;"><tr><td bgcolor="#FF5C00" width="6" style="background-color:#FF5C00;width:6px;font-size:1px;line-height:1px;">&nbsp;</td><td style="padding:18px 22px;font-family:'Helvetica Neue',Arial,sans-serif;color:#0A0A0A;"><table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;"><tr><td style="vertical-align:middle;padding-right:18px;"><img src="https://dropgigs.com/brand/wordmark-dark.png" alt="DROP." width="120" height="50" style="display:block;width:120px;height:50px;border:0;outline:none;text-decoration:none;"></td><td style="border-left:2px solid #0A0A0A;padding-left:18px;vertical-align:middle;"><div style="font-size:13px;font-weight:700;line-height:1.4;color:#0A0A0A;">Equipo DROP.</div><div style="font-size:12px;font-weight:400;line-height:1.4;color:#6B6B6B;padding-bottom:8px;">The DJ OS</div><div style="font-size:12px;line-height:1.9;color:#0A0A0A;"><a href="https://dropgigs.com" style="color:#0A0A0A;text-decoration:none;"><span style="color:#FF5C00;font-weight:700;">&rarr;</span>&nbsp;dropgigs.com</a><br><a href="mailto:hola@dropgigs.com" style="color:#0A0A0A;text-decoration:none;"><span style="color:#FF5C00;font-weight:700;">&rarr;</span>&nbsp;hola@dropgigs.com</a><br><a href="https://instagram.com/drop.gigs" style="color:#0A0A0A;text-decoration:none;"><span style="color:#FF5C00;font-weight:700;">&rarr;</span>&nbsp;@drop.gigs</a></div></td></tr></table></td></tr></table></td></tr></table>`;
 
 export async function sendReply(
   _prev: ReplyState | null,
