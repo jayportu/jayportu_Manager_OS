@@ -1,12 +1,19 @@
 /**
  * Sprint 20 — Directorio público de DJs (`/dj`).
  *
- * Estas queries usan service_role (admin client) porque `/dj` no requiere
- * auth. RLS no aplica para queries server-side. Filtramos manualmente
- * `hidden_from_directory = false` y `onboarding_completed_at IS NOT NULL`
- * para no exponer perfiles incompletos.
+ * Usa service_role (admin client) porque `/dj` no requiere auth. RLS no aplica
+ * para queries server-side; filtramos manualmente hidden_from_directory=false +
+ * onboarding_completed_at IS NOT NULL para no exponer perfiles incompletos.
+ *
+ * EGRESS (2026-06-04): para no pegarle a la DB en CADA carga de /dj — sobre
+ * todo cuando bots crawlean las variantes ?genres=/?city= — la lectura base
+ * (todos los DJs públicos) se cachea con `unstable_cache` (5 min) y TODO el
+ * filtrado (género, ciudad, búsqueda, disponibilidad) se hace en memoria. Las
+ * tres funciones públicas comparten esa única lectura cacheada → máx 1 query
+ * a la DB cada 5 min sin importar cuántas URLs filtradas se carguen.
  */
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { DjProfile } from "@/types/database";
 
@@ -56,44 +63,31 @@ function calcIsAvailable(
 }
 
 /**
- * Lista todos los DJs públicos del directorio.
- * Filtros server-side. Ordenado por disponibilidad por default.
+ * Lectura base CACHEADA: todos los DJs públicos del directorio, sin filtros de
+ * params. revalidate 300s → la DB se consulta como máximo cada 5 min. El
+ * `is_available_now` NO se cachea acá (depende de today) — se recalcula por
+ * request en `listPublicDjs`.
  */
-export async function listPublicDjs(
-  params: ListDirectoryParams = {}
-): Promise<PublicDjProfile[]> {
-  const admin = createAdminClient();
-  let q = admin
-    .from("dj_profile")
-    .select(
-      "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, onboarding_completed_at, hidden_from_directory"
-    )
-    .eq("hidden_from_directory", false)
-    .not("onboarding_completed_at", "is", null)
-    .not("public_slug", "is", null)
-    .not("artist_name", "is", null);
+const getPublicDjsBase = unstable_cache(
+  async (): Promise<PublicDjProfile[]> => {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("dj_profile")
+      .select(
+        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, onboarding_completed_at, hidden_from_directory"
+      )
+      .eq("hidden_from_directory", false)
+      .not("onboarding_completed_at", "is", null)
+      .not("public_slug", "is", null)
+      .not("artist_name", "is", null)
+      .limit(500);
 
-  // Filtros
-  if (params.city) q = q.ilike("city", `%${params.city}%`);
-  if (params.country) q = q.ilike("country", `%${params.country}%`);
-  if (params.search && params.search.trim().length > 0) {
-    const s = params.search.trim();
-    q = q.or(`artist_name.ilike.%${s}%,city.ilike.%${s}%,tagline.ilike.%${s}%`);
-  }
-  // Nota: el filtro de géneros se aplica DESPUÉS del query (case-insensitive),
-  // no acá. Los chips de `listPublicGenres()` vienen en minúscula y el
-  // `.overlaps` de Postgres es exacto + case-sensitive → no calzaba contra
-  // géneros guardados con mayúsculas (ej. "Tech House") y devolvía 0 DJs.
+    if (error) {
+      console.error("getPublicDjsBase error:", error);
+      return [];
+    }
 
-  const { data, error } = await q.limit(params.limit ?? 200);
-  if (error) {
-    console.error("listPublicDjs error:", error);
-    return [];
-  }
-
-  // Map + calcular disponibilidad
-  const result: PublicDjProfile[] = (data ?? []).map(
-    (row: Partial<DjProfile>) => ({
+    return (data ?? []).map((row: Partial<DjProfile>) => ({
       user_id: row.user_id as string,
       artist_name: row.artist_name ?? "",
       tagline: row.tagline ?? "",
@@ -108,59 +102,83 @@ export async function listPublicDjs(
       available_from: row.available_from ?? null,
       available_until: row.available_until ?? null,
       available_note: row.available_note ?? "",
-      is_available_now: calcIsAvailable(
-        row.available_from ?? null,
-        row.available_until ?? null
-      ),
-    })
-  );
+      is_available_now: false, // recalculado por request (depende de today)
+    }));
+  },
+  ["public-djs-base"],
+  { revalidate: 300, tags: ["public-djs"] }
+);
 
-  // Filtros post-query (después del map):
-  // - géneros: case-insensitive (los chips vienen en minúscula; los géneros
-  //   guardados pueden tener mayúsculas/espacios → comparamos normalizado).
-  // - disponibilidad: depende de fechas vs today, calculada en el map.
-  let filtered = result;
+/**
+ * Lista los DJs públicos aplicando filtros EN MEMORIA sobre la lectura base
+ * cacheada. Ordenado por disponibilidad por default.
+ */
+export async function listPublicDjs(
+  params: ListDirectoryParams = {}
+): Promise<PublicDjProfile[]> {
+  const base = await getPublicDjsBase();
+
+  // Recalcular disponibilidad fresca (depende de today, no se cachea).
+  let result = base.map((d) => ({
+    ...d,
+    is_available_now: calcIsAvailable(d.available_from, d.available_until),
+  }));
+
+  // Filtros en memoria. Dataset chico y la lectura ya viene cacheada.
+  // Géneros case-insensitive: los chips de listPublicGenres vienen en minúscula
+  // y los géneros guardados pueden tener mayúsculas/espacios.
+  if (params.city) {
+    const c = params.city.toLowerCase();
+    result = result.filter((d) => d.city.toLowerCase().includes(c));
+  }
+  if (params.country) {
+    const c = params.country.toLowerCase();
+    result = result.filter((d) => d.country.toLowerCase().includes(c));
+  }
+  if (params.search && params.search.trim().length > 0) {
+    const s = params.search.trim().toLowerCase();
+    result = result.filter(
+      (d) =>
+        d.artist_name.toLowerCase().includes(s) ||
+        d.city.toLowerCase().includes(s) ||
+        d.tagline.toLowerCase().includes(s)
+    );
+  }
   if (params.genres && params.genres.length > 0) {
     const wanted = params.genres.map((g) => g.trim().toLowerCase());
-    filtered = filtered.filter((d) =>
+    result = result.filter((d) =>
       d.genres.some((g) => wanted.includes(g.trim().toLowerCase()))
     );
   }
   if (params.onlyAvailable) {
-    filtered = filtered.filter((d) => d.is_available_now);
+    result = result.filter((d) => d.is_available_now);
   }
 
   // Sort: disponibles primero, después alfabético.
   if (params.sort === "name") {
-    filtered.sort((a, b) => a.artist_name.localeCompare(b.artist_name));
+    result.sort((a, b) => a.artist_name.localeCompare(b.artist_name));
   } else {
-    filtered.sort((a, b) => {
+    result.sort((a, b) => {
       if (a.is_available_now && !b.is_available_now) return -1;
       if (!a.is_available_now && b.is_available_now) return 1;
       return a.artist_name.localeCompare(b.artist_name);
     });
   }
 
-  return filtered;
+  return result.slice(0, params.limit ?? 200);
 }
 
 /**
- * Lista los géneros únicos usados por todos los DJs públicos. Para
- * autocompletar el filtro en /dj.
+ * Géneros únicos usados por los DJs públicos (para los chips del filtro).
+ * Derivado de la MISMA lectura base cacheada (sin query extra a la DB).
  */
 export async function listPublicGenres(): Promise<
   { genre: string; count: number }[]
 > {
-  const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("dj_profile")
-    .select("genres")
-    .eq("hidden_from_directory", false)
-    .not("onboarding_completed_at", "is", null);
-  if (error) return [];
+  const base = await getPublicDjsBase();
   const counts = new Map<string, number>();
-  for (const row of (data ?? []) as { genres: string[] | null }[]) {
-    for (const g of row.genres ?? []) {
+  for (const d of base) {
+    for (const g of d.genres) {
       const k = g.trim().toLowerCase();
       if (k.length === 0) continue;
       counts.set(k, (counts.get(k) ?? 0) + 1);
@@ -172,21 +190,16 @@ export async function listPublicGenres(): Promise<
 }
 
 /**
- * Lista las ciudades únicas con conteo. Para autocompletar filtro.
+ * Ciudades únicas con conteo (para el filtro). Derivado de la misma lectura
+ * base cacheada (sin query extra a la DB).
  */
 export async function listPublicCities(): Promise<
   { city: string; count: number }[]
 > {
-  const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("dj_profile")
-    .select("city")
-    .eq("hidden_from_directory", false)
-    .not("onboarding_completed_at", "is", null);
-  if (error) return [];
+  const base = await getPublicDjsBase();
   const counts = new Map<string, number>();
-  for (const row of (data ?? []) as { city: string | null }[]) {
-    const c = (row.city ?? "").trim();
+  for (const d of base) {
+    const c = (d.city ?? "").trim();
     if (c.length === 0) continue;
     counts.set(c, (counts.get(c) ?? 0) + 1);
   }

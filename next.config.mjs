@@ -26,6 +26,11 @@ const nextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
+    // Egress: Vercel cachea cada variante optimizada al menos este tiempo
+    // antes de re-bajar el original desde Supabase Storage. Default era 60s →
+    // re-fetch frecuente. 31 días corta drásticamente el egress de Storage
+    // (las fotos usan path con timestamp único, así que cache largo es seguro).
+    minimumCacheTTL: 2678400,
   },
   // Redirects para mantener URLs viejas funcionando después de renames.
   async redirects() {
