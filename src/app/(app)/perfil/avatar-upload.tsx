@@ -153,11 +153,16 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
 }
 
 // ─── Compresión client-side ───────────────────────────────────────────────
-// El avatar se sirve por next/image en las miniaturas, así que no tiene sentido
-// guardar la foto original de varios MB. Redimensionamos a 1024px (mantiene
-// nítido el zoom "a tamaño real" del lightbox en desktop) y reencodeamos a WebP.
-const AVATAR_MAX_DIM = 1024;
-const AVATAR_QUALITY = 0.82;
+// El avatar se sirve por next/image en las miniaturas (sidebar, card /dj, hero),
+// así que esas vistas las optimiza y cachea Vercel: NO depende del tamaño del
+// original. Lo que SÍ depende del original es el lightbox "a tamaño real", que
+// con 1024px se veía blando en pantallas retina. Subimos a 1600px / 0.9 para
+// que el zoom se vea nítido. El egress no se resiente: next/image baja el
+// original de Storage UNA sola vez y sirve el resto desde su CDN; el lightbox
+// crudo se abre rara vez. (Aplica a uploads NUEVOS; los avatares ya subidos
+// quedaron en 1024 — hay que re-subir la foto para ganar la nitidez.)
+const AVATAR_MAX_DIM = 1600;
+const AVATAR_QUALITY = 0.9;
 
 /**
  * Redimensiona y reencodea la imagen a WebP en el browser. Devuelve un File

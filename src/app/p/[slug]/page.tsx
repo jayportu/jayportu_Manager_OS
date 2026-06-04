@@ -414,34 +414,10 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   items={riderItems}
                   hospitalityNote={profile.hospitality}
                 />
-
-                {/* Notas legacy del perfil. Visibles mientras el DJ no
-                    haya migrado al editor estructurado (puede vaciarlas
-                    desde Configuración cuando termine). */}
-                {(profile.tech_rider_ideal || profile.tech_rider_alt) && (
-                  <div className="mt-4 grid md:grid-cols-2 gap-4">
-                    {profile.tech_rider_ideal && (
-                      <div className="p-4 border-2 border-ink bg-white">
-                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
-                          NOTAS · IDEAL
-                        </div>
-                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                          {profile.tech_rider_ideal}
-                        </div>
-                      </div>
-                    )}
-                    {profile.tech_rider_alt && (
-                      <div className="p-4 border-2 border-ink bg-white">
-                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
-                          NOTAS · ALTERNATIVO
-                        </div>
-                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                          {profile.tech_rider_alt}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Las notas legacy (tech_rider_ideal/alt) NO se muestran acá
+                    cuando hay rider estructurado: serían duplicación de lo que
+                    ya muestra TechRiderRender. El DJ las sigue viendo en
+                    Configuración como recordatorio para migrarlas/limpiarlas. */}
               </section>
             ) : (
               (profile.tech_rider_ideal || profile.tech_rider_alt) && (
@@ -584,27 +560,28 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     — PRESS KIT
                   </div>
                   <div className="font-display text-2xl md:text-3xl leading-none mt-2 mb-3">
-                    Ver PDF<span className="text-orange">.</span>
+                    Ver press kit<span className="text-orange">.</span>
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-wider opacity-70">
-                    ↗ El press kit que armé · abre en pestaña nueva
+                    ↗ Mi press kit en PDF · abre en pestaña nueva
                   </div>
                 </a>
               )}
 
-              {/* Form de booking — card naranja brutalist */}
-              <div className="bg-orange border-2 border-ink p-5">
-                <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
+              {/* Form de booking — card clara con acentos naranjos (más
+                  sobria que el bloque 100% naranja anterior). */}
+              <div className="bg-white border-2 border-ink p-5">
+                <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
                   — RESERVAR
                 </div>
                 <h2 className="font-display text-3xl md:text-4xl leading-none mt-2 mb-4">
-                  Contáctame<span className="text-ink">.</span>
+                  Contáctame<span className="text-orange">.</span>
                 </h2>
                 <BookingForm
                   userId={profile.user_id}
                   artistName={profile.artist_name}
                 />
-                <p className="mt-3 font-mono text-[10px] text-center uppercase tracking-wider text-ink">
+                <p className="mt-3 font-mono text-[10px] text-center uppercase tracking-wider text-fg-muted">
                   — RESPONDO EN MENOS DE 24H
                 </p>
               </div>

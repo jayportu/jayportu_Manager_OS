@@ -2,6 +2,7 @@
 
 import type { PresskitEventType } from "@/types/database";
 import { useEffect, useState } from "react";
+import { normalizeUrl } from "@/lib/format";
 
 /**
  * SoundCloud embed iframe.
@@ -17,9 +18,6 @@ export function SoundcloudEmbed({
   onClickEvent: PresskitEventType;
 }) {
   const [tracked, setTracked] = useState(false);
-  const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
-    url
-  )}&color=%23e8b923&inverse=true&auto_play=false&show_user=true&hide_related=true`;
 
   useEffect(() => {
     // Trackeamos cuando se renderiza (intención de escuchar)
@@ -32,6 +30,30 @@ export function SoundcloudEmbed({
       keepalive: true,
     }).catch(() => {});
   }, [tracked, userId, onClickEvent]);
+
+  // Mucha data vieja tiene URLs rotas (sin protocolo, share link pegado dos
+  // veces, o un nombre con espacios en vez de handle). cleanSoundcloud repara
+  // lo reparable y separa "embebible" (player) de "clickeable" (link).
+  const { embed, link } = cleanSoundcloud(url);
+
+  if (!embed) {
+    // Degradación elegante: link simple en vez de un player con "error".
+    if (!link) return null;
+    return (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+      >
+        <span className="text-sm text-fg-muted">Ver en SoundCloud →</span>
+      </a>
+    );
+  }
+
+  const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
+    embed
+  )}&color=%23e8b923&inverse=true&auto_play=false&show_user=true&hide_related=true`;
 
   return (
     <div className="rounded-lg overflow-hidden border border-border bg-bg-panel">
@@ -46,6 +68,40 @@ export function SoundcloudEmbed({
       />
     </div>
   );
+}
+
+/**
+ * Limpia una URL de SoundCloud guardada (a menudo sucia).
+ * - "soundcloud.com/https://soundcloud.com/foo" (pegado doble) → última URL
+ * - sin protocolo → normalizeUrl
+ * Devuelve { embed, link }:
+ *   - link: URL clickeable si el host es soundcloud (aunque tenga espacios).
+ *   - embed: igual a link PERO solo si el path no tiene espacios y no es vacío
+ *     (el player muestra "error" con un path inválido como "/NICO VILLEGAS").
+ */
+function cleanSoundcloud(raw: string): {
+  embed: string | null;
+  link: string | null;
+} {
+  let s = (raw ?? "").trim();
+  if (!s) return { embed: null, link: null };
+  // Doble-paste: si hay un "http" más adentro, quedarse con la última URL.
+  const lastHttp = s.lastIndexOf("http");
+  if (lastHttp > 0) s = s.slice(lastHttp);
+  s = normalizeUrl(s);
+  let u: URL;
+  try {
+    u = new URL(s);
+  } catch {
+    return { embed: null, link: null };
+  }
+  if (!/(^|\.)soundcloud\.com$/i.test(u.hostname)) {
+    return { embed: null, link: null };
+  }
+  const link = u.toString();
+  const path = decodeURIComponent(u.pathname).replace(/^\/+|\/+$/g, "");
+  const embed = path.length > 0 && !/\s/.test(path) ? link : null;
+  return { embed, link };
 }
 
 /**
@@ -74,7 +130,8 @@ export function YoutubeEmbed({
     }).catch(() => {});
   }, [tracked, userId, onClickEvent]);
 
-  const videoId = extractYouTubeVideoId(url);
+  const safeUrl = normalizeUrl(url);
+  const videoId = extractYouTubeVideoId(safeUrl);
 
   if (videoId) {
     return (
@@ -92,15 +149,17 @@ export function YoutubeEmbed({
     );
   }
 
-  // Fallback: link al canal
+  // Fallback (URL de canal/playlist sin video embebible): botón claro en vez
+  // de un link de texto, para que se note que es accionable.
+  if (!safeUrl) return null;
   return (
     <a
-      href={url}
+      href={safeUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+      className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-ink bg-ink text-cream font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-orange hover:text-ink transition-colors"
     >
-      <span className="text-sm text-fg-muted">Ver en YouTube →</span>
+      <span aria-hidden="true">▶</span> Ver canal en YouTube
     </a>
   );
 }

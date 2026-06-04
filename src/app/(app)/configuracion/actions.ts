@@ -1,6 +1,7 @@
 "use server";
 
 import { updateMyProfile } from "@/lib/queries/dj-profile";
+import { normalizeUrl } from "@/lib/format";
 import {
   addRiderItem,
   updateRiderItem,
@@ -18,7 +19,22 @@ export async function saveProfileAction(
   patch: DjProfileUpdate
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    await updateMyProfile(patch);
+    // Normalizar URLs de redes/web antes de guardar: trim + https:// si falta.
+    // Sin esto, una URL pegada sin protocolo (ej. "soundcloud.com/foo") rompe
+    // el embed del player y deja los links públicos como rutas relativas.
+    const normalized: DjProfileUpdate = { ...patch };
+    if (typeof normalized.instagram_url === "string")
+      normalized.instagram_url = normalizeUrl(normalized.instagram_url);
+    if (typeof normalized.soundcloud_url === "string")
+      normalized.soundcloud_url = normalizeUrl(normalized.soundcloud_url);
+    if (typeof normalized.youtube_url === "string")
+      normalized.youtube_url = normalizeUrl(normalized.youtube_url);
+    if (typeof normalized.spotify_url === "string")
+      normalized.spotify_url = normalizeUrl(normalized.spotify_url);
+    if (typeof normalized.website === "string")
+      normalized.website = normalizeUrl(normalized.website);
+
+    await updateMyProfile(normalized);
     // Revalidar el dashboard, la config Y el press kit público para que
     // refleje cambios de bio, contacto, etc. instantáneamente.
     revalidatePath("/dashboard");

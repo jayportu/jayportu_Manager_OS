@@ -87,6 +87,8 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
 
   return (
     <form onSubmit={handleSubmit} onFocus={handleFocus} className="space-y-4">
+      {/* Orden "datos del gig primero": Nombre → Fecha → Tipo → Venue →
+          Email → WhatsApp → Mensaje. Así el DJ ve al toque cuándo/qué/dónde. */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nombre *</Label>
@@ -99,27 +101,17 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="event_date">Fecha (si la tienes)</Label>
           <Input
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={(e) => update("email", e.target.value)}
-            placeholder="tu@email.com"
+            id="event_date"
+            type="date"
+            value={form.event_date}
+            onChange={(e) => update("event_date", e.target.value)}
           />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="phone">WhatsApp / Teléfono</Label>
-          <Input
-            id="phone"
-            value={form.phone}
-            onChange={(e) => update("phone", e.target.value)}
-            placeholder="+56 9 ..."
-          />
-        </div>
         <div className="space-y-2">
           <Label htmlFor="event_type">Tipo de evento</Label>
           <Input
@@ -127,18 +119,6 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
             value={form.event_type}
             onChange={(e) => update("event_type", e.target.value)}
             placeholder="Club, rooftop, evento privado…"
-          />
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="event_date">Fecha (si la tienes)</Label>
-          <Input
-            id="event_date"
-            type="date"
-            value={form.event_date}
-            onChange={(e) => update("event_date", e.target.value)}
           />
         </div>
         <div className="space-y-2">
@@ -152,6 +132,28 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
         </div>
       </div>
 
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            placeholder="tu@email.com"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="phone">WhatsApp / Teléfono</Label>
+          <Input
+            id="phone"
+            value={form.phone}
+            onChange={(e) => update("phone", e.target.value)}
+            placeholder="+56 9 ..."
+          />
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="message">Mensaje</Label>
         <Textarea
@@ -159,7 +161,7 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
           rows={4}
           value={form.message}
           onChange={(e) => update("message", e.target.value)}
-          placeholder="Contame brevemente el evento."
+          placeholder="Cuéntame brevemente el evento."
         />
       </div>
 

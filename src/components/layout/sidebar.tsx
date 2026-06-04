@@ -59,6 +59,10 @@ interface SidebarProps {
   isAdmin?: boolean;
   artistName?: string | null;
   avatarUrl?: string | null;
+  /** Total de contactos del CRM. undefined → "—". */
+  contactCount?: number;
+  /** Gigs (shows) agendados en el mes actual. undefined → "—". */
+  gigsThisMonth?: number;
 }
 
 export function Sidebar({
@@ -66,6 +70,8 @@ export function Sidebar({
   isAdmin = false,
   artistName,
   avatarUrl,
+  contactCount,
+  gigsThisMonth,
 }: SidebarProps) {
   const pathname = usePathname();
   const displayName = artistName && artistName.trim().length > 0
@@ -287,7 +293,7 @@ export function Sidebar({
                 marginTop: "2px",
               }}
             >
-              —
+              {contactCount ?? "—"}
             </div>
           </div>
           <div>
@@ -303,7 +309,7 @@ export function Sidebar({
                 marginTop: "2px",
               }}
             >
-              —
+              {gigsThisMonth ?? "—"}
             </div>
           </div>
         </div>
