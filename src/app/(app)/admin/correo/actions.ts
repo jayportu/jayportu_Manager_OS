@@ -16,6 +16,23 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
+/** Guarda una copia del correo enviado en la carpeta "Enviados". */
+async function storeSent(to: string, subject: string, text: string): Promise<void> {
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+  await admin.from("inbound_emails").insert({
+    from_email: "hola@dropgigs.com",
+    from_name: "Equipo DROP.",
+    to_email: to,
+    subject,
+    snippet: text.slice(0, 140),
+    text_body: text,
+    folder: "sent",
+    read_at: now,
+    received_at: now,
+  });
+}
+
 export async function archiveEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
@@ -27,6 +44,20 @@ export async function toggleStar(id: string, starred: boolean): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
   await admin.from("inbound_emails").update({ starred }).eq("id", id);
+  revalidatePath("/admin/correo");
+}
+
+export async function deleteEmail(id: string): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  await admin.from("inbound_emails").update({ folder: "trash" }).eq("id", id);
+  revalidatePath("/admin/correo");
+}
+
+export async function restoreEmail(id: string): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  await admin.from("inbound_emails").update({ folder: "inbox" }).eq("id", id);
   revalidatePath("/admin/correo");
 }
 
@@ -72,6 +103,37 @@ export async function sendReply(
     .from("inbound_emails")
     .update({ read_at: new Date().toISOString() })
     .eq("id", id);
+  await storeSent(to, subject, text);
+  revalidatePath("/admin/correo");
+  return { ok: true };
+}
+
+/** Redactar y enviar un correo nuevo desde hola@dropgigs.com. */
+export async function sendNew(
+  _prev: ReplyState | null,
+  formData: FormData
+): Promise<ReplyState> {
+  await assertAdmin();
+  const to = String(formData.get("to") ?? "").trim();
+  const subject = String(formData.get("subject") ?? "").trim() || "(sin asunto)";
+  const text = String(formData.get("text") ?? "").trim();
+  if (!to || !text) return { ok: false, error: "Falta destinatario o mensaje." };
+
+  const bodyHtml = escapeHtml(text).replace(/\n/g, "<br/>");
+  const html = `<div style="font-family:-apple-system,Segoe UI,Inter,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.55; color:#0A0A0A;">${bodyHtml}${SIG_HTML}</div>`;
+
+  const res = await sendEmail({
+    to,
+    subject,
+    html,
+    text: text + SIG_TEXT,
+    replyTo: "hola@dropgigs.com",
+  });
+  if (!res.ok) {
+    console.error("[inbox-compose] sendEmail falló", res.error);
+    return { ok: false, error: res.error || "No se pudo enviar." };
+  }
+  await storeSent(to, subject, text);
   revalidatePath("/admin/correo");
   return { ok: true };
 }

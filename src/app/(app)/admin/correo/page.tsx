@@ -1,17 +1,20 @@
-import { Mail, Archive } from "lucide-react";
+import { Mail, Archive, Trash2, RotateCcw } from "lucide-react";
 import { assertAdmin } from "@/lib/queries/admin";
 import { getInbox, getInboundEmail } from "@/lib/queries/inbox";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { relativeTime, dateTime } from "@/lib/format";
 import { AutoRefresh } from "../email-campaigns/auto-refresh";
-import { archiveEmail } from "./actions";
+import { archiveEmail, deleteEmail, restoreEmail } from "./actions";
 import { ReplyForm } from "./reply-form";
+import { Compose } from "./compose";
 
 export const dynamic = "force-dynamic";
 
 const FOLDERS = [
   { key: "inbox", label: "Recibidos" },
+  { key: "sent", label: "Enviados" },
   { key: "archived", label: "Archivados" },
+  { key: "trash", label: "Papelera" },
 ];
 
 export default async function CorreoPage({
@@ -21,7 +24,12 @@ export default async function CorreoPage({
 }) {
   await assertAdmin();
   const sp = await searchParams;
-  const folder = sp.folder === "archived" ? "archived" : "inbox";
+  const folder = ["inbox", "sent", "archived", "trash"].includes(sp.folder ?? "")
+    ? (sp.folder as string)
+    : "inbox";
+  const isSent = folder === "sent";
+  const isTrash = folder === "trash";
+  const canReply = folder === "inbox" || folder === "archived";
   const list = await getInbox(folder);
   const selected = sp.id ? await getInboundEmail(sp.id) : null;
 
@@ -50,6 +58,9 @@ export default async function CorreoPage({
           style={{ color: "#1e7a45", background: "#e8f5ee", border: "1px solid #bfe3cf" }}>
           <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1e9e5a" }} /> En vivo
         </span>
+        <div className="ml-auto">
+          <Compose />
+        </div>
       </div>
 
       {/* Carpetas */}
@@ -71,9 +82,7 @@ export default async function CorreoPage({
         {/* Lista */}
         <div className="border border-border rounded-lg bg-card overflow-hidden">
           {list.length === 0 ? (
-            <p className="text-sm text-fg-muted p-5">
-              Sin correos en {folder === "inbox" ? "Recibidos" : "Archivados"}.
-            </p>
+            <p className="text-sm text-fg-muted p-5">Sin correos en esta carpeta.</p>
           ) : (
             list.map((m) => (
               <a
@@ -88,7 +97,7 @@ export default async function CorreoPage({
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "#FF5C00" }} />
                   )}
                   <span className={`text-sm truncate ${!m.read_at ? "font-bold" : ""}`}>
-                    {m.from_name || m.from_email}
+                    {isSent ? `Para: ${m.to_email}` : m.from_name || m.from_email}
                   </span>
                   <span className="ml-auto font-mono text-[10px] text-fg-muted shrink-0">
                     {relativeTime(m.received_at)}
@@ -112,24 +121,55 @@ export default async function CorreoPage({
               <div className="flex items-start gap-3 pb-4 border-b border-border">
                 <div>
                   <div className="text-lg font-bold">{selected.subject || "(sin asunto)"}</div>
-                  <div className="text-sm text-fg-muted mt-1">
-                    <span className="font-semibold text-ink">
-                      {selected.from_name || selected.from_email}
-                    </span>{" "}
-                    &lt;{selected.from_email}&gt;
-                  </div>
+                  {isSent ? (
+                    <div className="text-sm text-fg-muted mt-1">
+                      Para:{" "}
+                      <span className="font-semibold text-ink">{selected.to_email}</span>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-fg-muted mt-1">
+                      <span className="font-semibold text-ink">
+                        {selected.from_name || selected.from_email}
+                      </span>{" "}
+                      &lt;{selected.from_email}&gt;
+                    </div>
+                  )}
                   <div className="font-mono text-[10px] text-fg-muted mt-0.5">
-                    para {selected.to_email} · {dateTime(selected.received_at)}
+                    {isSent ? "enviado" : `para ${selected.to_email}`} ·{" "}
+                    {dateTime(selected.received_at)}
                   </div>
                 </div>
-                <form action={archiveEmail.bind(null, selected.id)} className="ml-auto">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
-                  >
-                    <Archive className="w-3.5 h-3.5" /> Archivar
-                  </button>
-                </form>
+                <div className="ml-auto flex items-center gap-2">
+                  {!isTrash && !isSent && (
+                    <form action={archiveEmail.bind(null, selected.id)}>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                      >
+                        <Archive className="w-3.5 h-3.5" /> Archivar
+                      </button>
+                    </form>
+                  )}
+                  {isTrash ? (
+                    <form action={restoreEmail.bind(null, selected.id)}>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" /> Restaurar
+                      </button>
+                    </form>
+                  ) : (
+                    <form action={deleteEmail.bind(null, selected.id)}>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                      </button>
+                    </form>
+                  )}
+                </div>
               </div>
 
               {/* Cuerpo */}
@@ -151,12 +191,14 @@ export default async function CorreoPage({
                 )}
               </div>
 
-              {/* Responder */}
-              <ReplyForm
-                id={selected.id}
-                to={selected.from_email}
-                subject={selected.subject ?? ""}
-              />
+              {/* Responder (solo correos recibidos) */}
+              {canReply && (
+                <ReplyForm
+                  id={selected.id}
+                  to={selected.from_email}
+                  subject={selected.subject ?? ""}
+                />
+              )}
             </div>
           )}
         </div>
