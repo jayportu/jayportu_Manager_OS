@@ -44,9 +44,9 @@ Es la primera impresión de cualquier booker que se invite.
 - [x] 🆕 **Perfil verificado (1A)** — badge "✓ Verificado por DROP." curado por admin (toggle en /admin, trigger anti auto-verificación). ✅ 2026-06-05 en prod (PR #3, migración 0038 aplicada). jay-portu verificado de ejemplo.
 - [ ] 🆕 Ranking de confiabilidad granular (1F): badges separados identidad ✓ · redes ✓ · sets ✓ · historial ✓ · respuesta rápida *(construye sobre 1A)*
 - [ ] 🆕 Fee aproximado (📋 cotizador S20.5, toggle por DJ)
-- [ ] 🆕 Marcas/clubs con los que trabajó (RA-9 lite)
+- [x] 🆕 Marcas/clubs con los que trabajó (RA-9 lite). ✅ 2026-06-05 — `brands_worked` editable en /perfil + sección "— HAN CONFIADO" (chips brutalist) en /p/[slug]. Migración 0040.
 - [x] 🆕 Sets/mixes destacados (varios + Mixcloud) — RA-8. ✅ 2026-06-05 — `featured_sets` (hasta 4) en /perfil + sección "Sets destacados" en /p/[slug] con dispatcher SetEmbed (SoundCloud/Mixcloud/YouTube auto-detectado). Migración 0039 en prod. Verificado las 3 plataformas.
-- [ ] 🆕 Alias / sello / proyecto b2b — RA-10
+- [x] 🆕 Alias / sello / proyecto b2b — RA-10. ✅ 2026-06-05 — `aliases` + `record_label` en /perfil; en /p/[slug]: "AKA …" bajo el nombre + chip "Sello · …". Migración 0040.
 - [ ] 📋 DROP Picks (RA-2A): curaduría admin destacando DJs en `/dj`
 
 ### FASE 2 · Reabrir el lado booker · Founding Bookers · ~1 semana

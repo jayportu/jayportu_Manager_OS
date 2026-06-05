@@ -35,6 +35,8 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   const [form, setForm] = useState<DjProfile>(initialProfile);
   const [genreInput, setGenreInput] = useState("");
   const [setUrlInput, setSetUrlInput] = useState("");
+  const [aliasInput, setAliasInput] = useState("");
+  const [brandInput, setBrandInput] = useState("");
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   function update<K extends keyof DjProfileUpdate>(
@@ -69,6 +71,30 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     update("featured_sets", (form.featured_sets ?? []).filter((x) => x !== u));
   }
 
+  function addAlias(v: string) {
+    const t = v.trim();
+    const cur = form.aliases ?? [];
+    if (!t || cur.includes(t) || cur.length >= 6) return;
+    update("aliases", [...cur, t]);
+    setAliasInput("");
+  }
+
+  function removeAlias(v: string) {
+    update("aliases", (form.aliases ?? []).filter((x) => x !== v));
+  }
+
+  function addBrand(v: string) {
+    const t = v.trim();
+    const cur = form.brands_worked ?? [];
+    if (!t || cur.includes(t) || cur.length >= 12) return;
+    update("brands_worked", [...cur, t]);
+    setBrandInput("");
+  }
+
+  function removeBrand(v: string) {
+    update("brands_worked", (form.brands_worked ?? []).filter((x) => x !== v));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
@@ -86,6 +112,9 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       spotify_url: form.spotify_url,
       website: form.website,
       featured_sets: form.featured_sets,
+      brands_worked: form.brands_worked,
+      aliases: form.aliases,
+      record_label: form.record_label,
       public_email: form.public_email,
       whatsapp: form.whatsapp,
       // tech_rider_ideal / tech_rider_alt / hospitality: legacy fields,
@@ -348,6 +377,117 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             </Button>
           </div>
         )}
+      </Card>
+
+      {/* Trayectoria & identidad (Fase 1 · 1C + 1D) */}
+      <Card className="p-6 space-y-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          Trayectoria & identidad
+        </h2>
+
+        {/* Alias / proyectos */}
+        <div className="space-y-2">
+          <Label>Alias / proyectos (b2b, otros nombres)</Label>
+          {(form.aliases ?? []).length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {(form.aliases ?? []).map((a) => (
+                <span
+                  key={a}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border text-sm"
+                >
+                  {a}
+                  <button
+                    type="button"
+                    onClick={() => removeAlias(a)}
+                    className="hover:text-fg"
+                    aria-label={`Quitar ${a}`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              value={aliasInput}
+              onChange={(e) => setAliasInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addAlias(aliasInput);
+                }
+              }}
+              placeholder="Ej: SOMBRA · JAY b2b FER"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => addAlias(aliasInput)}
+            >
+              Agregar
+            </Button>
+          </div>
+        </div>
+
+        {/* Sello */}
+        <div className="space-y-2">
+          <Label htmlFor="record_label">Sello / label</Label>
+          <Input
+            id="record_label"
+            value={form.record_label ?? ""}
+            onChange={(e) => update("record_label", e.target.value)}
+            placeholder="Ej: Cordillera Records"
+          />
+        </div>
+
+        {/* Marcas / clubs */}
+        <div className="space-y-2">
+          <Label>Marcas y clubs con los que trabajaste</Label>
+          <p className="text-xs text-fg-muted">
+            Aparecen como sellos de confianza en tu press kit.
+          </p>
+          {(form.brands_worked ?? []).length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {(form.brands_worked ?? []).map((b) => (
+                <span
+                  key={b}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border text-sm"
+                >
+                  {b}
+                  <button
+                    type="button"
+                    onClick={() => removeBrand(b)}
+                    className="hover:text-fg"
+                    aria-label={`Quitar ${b}`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              value={brandInput}
+              onChange={(e) => setBrandInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addBrand(brandInput);
+                }
+              }}
+              placeholder="Ej: Club La Feria · Corona · Lollapalooza"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => addBrand(brandInput)}
+            >
+              Agregar
+            </Button>
+          </div>
+        </div>
       </Card>
 
       {/* Contacto público */}
