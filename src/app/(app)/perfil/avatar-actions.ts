@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { updateMyProfile } from "@/lib/queries/dj-profile";
 
@@ -92,6 +92,7 @@ export async function uploadAvatarAction(
     revalidatePath("/configuracion");
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
+    revalidateTag("public-djs");
     return { ok: true, data: { url: publicUrl } };
   } catch (e) {
     return err(e);
@@ -128,6 +129,7 @@ export async function deleteAvatarAction(): Promise<Result> {
     revalidatePath("/configuracion");
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
+    revalidateTag("public-djs");
     return { ok: true, data: undefined };
   } catch (e) {
     return err(e);

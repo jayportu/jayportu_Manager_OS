@@ -85,7 +85,11 @@ const getPublicDjsBase = unstable_cache(
       .not("onboarding_completed_at", "is", null)
       .not("public_slug", "is", null)
       .not("artist_name", "is", null)
-      .limit(500);
+      // Orden estable para que el tope sea determinista (no orden natural de PG)
+      // y subimos el cap a 2000 — el filtrado/orden real se hace en memoria.
+      // (La campaña apunta a ~861 DJs; cuando se acerque a 2000, paginar.)
+      .order("created_at", { ascending: false })
+      .limit(2000);
 
     if (error) {
       console.error("getPublicDjsBase error:", error);

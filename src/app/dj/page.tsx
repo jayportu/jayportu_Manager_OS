@@ -79,6 +79,10 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
   const availableCount = djs.filter((d) => d.is_available_now).length;
   // La fila "DROP PICKS" solo en la vista sin filtros (tipo destacados de portada).
   const showPicks = !hasFilters && dropPicks.length > 0;
+  // Fix B3: si mostramos la fila de picks, los sacamos de la grilla para que
+  // no aparezcan dos veces (destacados arriba + resto abajo).
+  const pickIds = new Set(dropPicks.map((p) => p.user_id));
+  const gridDjs = showPicks ? djs.filter((d) => !pickIds.has(d.user_id)) : djs;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -267,10 +271,10 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
 
         {/* Resultados */}
         <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-          — {djs.length} {djs.length === 1 ? "RESULTADO" : "RESULTADOS"}
+          — {gridDjs.length} {gridDjs.length === 1 ? "RESULTADO" : "RESULTADOS"}
         </div>
 
-        {djs.length === 0 ? (
+        {gridDjs.length === 0 ? (
           <div className="border-2 border-ink bg-white p-10 text-center">
             <p className="text-sm text-fg-muted">
               No hay DJs que coincidan con los filtros. Intenta con menos
@@ -279,7 +283,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {djs.map((d) => (
+            {gridDjs.map((d) => (
               <DjCard key={d.user_id} dj={d} />
             ))}
           </div>

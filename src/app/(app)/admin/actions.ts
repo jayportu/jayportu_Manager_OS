@@ -5,7 +5,7 @@
  * beta-requests/beta-reminder/feedback que tienen su propio archivo).
  */
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { assertAdmin } from "@/lib/queries/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, isResendConfigured } from "@/lib/email/resend";
@@ -41,6 +41,7 @@ export async function setDjVerifiedAction(
     revalidatePath("/admin");
     revalidatePath("/dj");
     revalidatePath("/p/[slug]", "page");
+    revalidateTag("public-djs");
     return { ok: true, verified };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
@@ -81,6 +82,7 @@ export async function setDjVerificationAction(
     revalidatePath("/admin");
     revalidatePath("/dj");
     revalidatePath("/p/[slug]", "page");
+    revalidateTag("public-djs");
     return { ok: true, verifications: next };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
@@ -105,6 +107,8 @@ export async function setDjDropPickAction(
     if (error) return { ok: false, error: error.message };
     revalidatePath("/admin");
     revalidatePath("/dj");
+    revalidatePath("/p/[slug]", "page");
+    revalidateTag("public-djs");
     return { ok: true, isPick: on };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
