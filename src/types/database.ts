@@ -33,6 +33,9 @@ export interface DjProfile {
   public_slug: string;
   onboarding_completed_at: string | null;
   is_admin: boolean;
+  /** Verificación manual por admin (Fase 1 · 1A). null = no verificado. */
+  verified_at: string | null;
+  verified_by: string | null;
   press_kit_mode: "generated" | "pdf";
   press_kit_pdf_url: string;
   press_kit_pdf_filename: string;

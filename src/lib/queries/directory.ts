@@ -36,6 +36,8 @@ export interface PublicDjProfile {
   available_note: string;
   /** Calculado server-side a partir de las fechas y today */
   is_available_now: boolean;
+  /** Verificado por admin (Fase 1 · 1A). */
+  is_verified: boolean;
 }
 
 export interface ListDirectoryParams {
@@ -74,7 +76,7 @@ const getPublicDjsBase = unstable_cache(
     const { data, error } = await admin
       .from("dj_profile")
       .select(
-        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, onboarding_completed_at, hidden_from_directory"
+        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, onboarding_completed_at, hidden_from_directory"
       )
       .eq("hidden_from_directory", false)
       .not("onboarding_completed_at", "is", null)
@@ -103,6 +105,7 @@ const getPublicDjsBase = unstable_cache(
       available_until: row.available_until ?? null,
       available_note: row.available_note ?? "",
       is_available_now: false, // recalculado por request (depende de today)
+      is_verified: !!row.verified_at,
     }));
   },
   ["public-djs-base"],

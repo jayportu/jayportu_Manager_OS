@@ -16,6 +16,7 @@ import {
 import { relativeTime, dateTime, shortDate } from "@/lib/format";
 import { DeletePendingUserButton } from "./delete-pending-user-button";
 import { AccountStatusControl } from "./account-status-control";
+import { VerifyDjButton } from "./verify-dj-button";
 
 export const dynamic = "force-dynamic";
 
@@ -258,11 +259,18 @@ export default async function AdminPage() {
                           {u.is_admin ? (
                             <span className="text-fg-subtle text-xs">—</span>
                           ) : isOnboarded ? (
-                            <AccountStatusControl
-                              userId={u.user_id}
-                              artistName={u.artist_name}
-                              status={u.account_status}
-                            />
+                            <div className="inline-flex flex-col items-end gap-1.5">
+                              <VerifyDjButton
+                                djUserId={u.user_id}
+                                verified={!!u.verified_at}
+                                name={u.artist_name || u.email}
+                              />
+                              <AccountStatusControl
+                                userId={u.user_id}
+                                artistName={u.artist_name}
+                                status={u.account_status}
+                              />
+                            </div>
                           ) : (
                             <DeletePendingUserButton
                               userId={u.user_id}

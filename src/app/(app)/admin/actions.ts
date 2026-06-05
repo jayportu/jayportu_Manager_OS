@@ -17,6 +17,36 @@ import type { AccountStatus } from "@/types/database";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
+/**
+ * Fase 1 · 1A — Verificación manual de DJs desde el backoffice (estilo RA).
+ * Solo admin. El UPDATE va con service_role (createAdminClient); el trigger
+ * protect_dj_verification() (migration 0038) impide que un DJ se auto-verifique
+ * vía su propio update de perfil.
+ */
+export async function setDjVerifiedAction(
+  djUserId: string,
+  verified: boolean
+): Promise<{ ok: true; verified: boolean } | { ok: false; error: string }> {
+  try {
+    const { userId: adminId } = await assertAdmin();
+    const admin = createAdminClient();
+    const { error } = await admin
+      .from("dj_profile")
+      .update({
+        verified_at: verified ? new Date().toISOString() : null,
+        verified_by: verified ? adminId : null,
+      })
+      .eq("user_id", djUserId);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/admin");
+    revalidatePath("/dj");
+    revalidatePath("/p/[slug]", "page");
+    return { ok: true, verified };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}
+
 function getBetaUrl(): string {
   // Sprint S20 — dropgigs.com es el dominio canónico de aquí en adelante.
   // Si la env var no está seteada en local, caemos al dominio público real
