@@ -26,6 +26,11 @@ export const metadata: Metadata = {
     description:
       "Sistema operativo para DJs · CRM, press kit, bookings, IA. Bookers: directorio LATAM.",
     type: "website",
+    url: "/",
+    siteName: "DROP.",
+    images: [
+      { url: "/og.png", width: 1200, height: 630, alt: "DROP. — The DJ OS" },
+    ],
   },
 };
 
