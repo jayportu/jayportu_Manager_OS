@@ -387,6 +387,11 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
         >
           {dj.artist_name}
         </div>
+        {dj.is_verified && (
+          <span className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-ink text-orange">
+            ✓ Verificado
+          </span>
+        )}
         <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
           {dj.city || "—"}
           {dj.country ? ` · ${dj.country.toUpperCase()}` : ""}

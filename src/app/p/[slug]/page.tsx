@@ -147,6 +147,13 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             ))}
           </h1>
 
+          {/* Badge verificado (Fase 1 · 1A) — señal de confianza para el booker */}
+          {profile.verified_at && (
+            <div className="mt-4 inline-flex items-center gap-1.5 border-2 border-orange bg-orange text-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
+              ✓ Verificado por DROP.
+            </div>
+          )}
+
           {/* Tagline */}
           {profile.tagline && (
             <p className="mt-5 text-base md:text-lg max-w-2xl text-cream/80">
