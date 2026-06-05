@@ -209,23 +209,26 @@ export function Sidebar({
           );
         })}
 
-        {isAdmin && (
-          <>
-            <div className="my-[10px] mx-[22px] border-t-2 border-dashed border-[#2a2a2a]" />
-            <Link
-              href="/admin"
-              className={cn(
-                "mx-[22px] px-3 py-[7px] border border-orange font-mono text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2",
-                pathname.startsWith("/admin")
-                  ? "bg-orange text-ink"
-                  : "text-orange hover:bg-orange hover:text-ink"
-              )}
-            >
-              + ADMIN · BACKSTAGE
-            </Link>
-          </>
-        )}
       </nav>
+
+      {/* Admin · Backstage — bloque FIJO (shrink-0), siempre visible. Antes
+          vivía dentro del <nav> scrolleable y en pantallas bajas quedaba al
+          fondo del scroll, tapado por la card de artista. */}
+      {isAdmin && (
+        <div className="relative z-10 shrink-0 px-[14px] pt-[12px]">
+          <Link
+            href="/admin"
+            className={cn(
+              "flex items-center justify-center gap-2 px-3 py-[8px] border border-orange font-mono text-[10px] font-bold uppercase tracking-[0.1em]",
+              pathname.startsWith("/admin")
+                ? "bg-orange text-ink"
+                : "text-orange hover:bg-orange hover:text-ink"
+            )}
+          >
+            + ADMIN · BACKSTAGE
+          </Link>
+        </div>
+      )}
 
       {/* User card — siempre visible al pie del sidebar */}
       <div className="relative z-10 shrink-0 m-[14px] p-[14px] bg-[#161616] border border-[#2a2a2a]">
