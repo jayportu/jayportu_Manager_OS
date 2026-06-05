@@ -8,6 +8,7 @@ import {
   getDropPicks,
 } from "@/lib/queries/directory";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
+import { isSupabaseStorageUrl } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +80,10 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
   const availableCount = djs.filter((d) => d.is_available_now).length;
   // La fila "DROP PICKS" solo en la vista sin filtros (tipo destacados de portada).
   const showPicks = !hasFilters && dropPicks.length > 0;
+  // Fix B3: si mostramos la fila de picks, los sacamos de la grilla para que
+  // no aparezcan dos veces (destacados arriba + resto abajo).
+  const pickIds = new Set(dropPicks.map((p) => p.user_id));
+  const gridDjs = showPicks ? djs.filter((d) => !pickIds.has(d.user_id)) : djs;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -267,10 +272,10 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
 
         {/* Resultados */}
         <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-          — {djs.length} {djs.length === 1 ? "RESULTADO" : "RESULTADOS"}
+          — {gridDjs.length} {gridDjs.length === 1 ? "RESULTADO" : "RESULTADOS"}
         </div>
 
-        {djs.length === 0 ? (
+        {gridDjs.length === 0 ? (
           <div className="border-2 border-ink bg-white p-10 text-center">
             <p className="text-sm text-fg-muted">
               No hay DJs que coincidan con los filtros. Intenta con menos
@@ -279,7 +284,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {djs.map((d) => (
+            {gridDjs.map((d) => (
               <DjCard key={d.user_id} dj={d} />
             ))}
           </div>
@@ -356,6 +361,11 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     .join("")
     .toUpperCase();
 
+  // Fix B9: solo URLs de Supabase Storage van a next/image (otras rompen el
+  // render). Si no hay una válida, cae al placeholder de iniciales.
+  const cardImg =
+    [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
+
   return (
     <div className="group border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
       <Link href={`/p/${dj.public_slug}`} className="flex flex-col">
@@ -365,9 +375,9 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             Al final, placeholder con iniciales en Anton.
             <Image fill> + sizes da retina automática + WebP/AVIF — evita
             servir el JPEG original de 4 MB en un card de 280px. */}
-        {dj.avatar_url || dj.hero_image_url ? (
+        {cardImg ? (
           <Image
-            src={dj.avatar_url || dj.hero_image_url}
+            src={cardImg}
             alt={dj.artist_name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"

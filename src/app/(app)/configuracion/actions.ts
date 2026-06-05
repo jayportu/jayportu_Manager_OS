@@ -8,7 +8,7 @@ import {
   deleteRiderItem,
 } from "@/lib/queries/tech-rider";
 import { assertBetaActive } from "@/lib/queries/beta-guard";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type {
   DjProfileUpdate,
   TechRiderItem,
@@ -34,6 +34,21 @@ export async function saveProfileAction(
     if (typeof normalized.website === "string")
       normalized.website = normalizeUrl(normalized.website);
 
+    // Fee: descartar valores <= 0 (evita "Desde $0") y corregir rango invertido.
+    if (typeof normalized.fee_min === "number" && normalized.fee_min <= 0)
+      normalized.fee_min = null;
+    if (typeof normalized.fee_max === "number" && normalized.fee_max <= 0)
+      normalized.fee_max = null;
+    if (
+      typeof normalized.fee_min === "number" &&
+      typeof normalized.fee_max === "number" &&
+      normalized.fee_min > normalized.fee_max
+    ) {
+      const tmp = normalized.fee_min;
+      normalized.fee_min = normalized.fee_max;
+      normalized.fee_max = tmp;
+    }
+
     await updateMyProfile(normalized);
     // Revalidar el dashboard, la config Y el press kit público para que
     // refleje cambios de bio, contacto, etc. instantáneamente.
@@ -41,6 +56,7 @@ export async function saveProfileAction(
     revalidatePath("/configuracion");
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
+    revalidateTag("public-djs");
     return { ok: true };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Error desconocido";
@@ -63,6 +79,7 @@ export async function updateAvailabilityAction(patch: {
     revalidatePath("/configuracion");
     revalidatePath("/dj");
     revalidatePath("/p/[slug]", "page");
+    revalidateTag("public-djs");
     return { ok: true };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Error desconocido";

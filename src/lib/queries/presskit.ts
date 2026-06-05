@@ -17,7 +17,13 @@ export async function getProfileBySlug(slug: string): Promise<DjProfile | null> 
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("dj_profile")
-    .select("*")
+    // Fix B8: select ACOTADO a columnas públicas (no `*`). Esta página es
+    // pública y usa service_role (saltea RLS), así que no traemos columnas
+    // sensibles (is_admin, verified_by, beta_status, account_status*,
+    // auto_post_webhook_url, etc.) aunque hoy no se filtren al cliente.
+    .select(
+      "user_id, public_slug, artist_name, tagline, bio_short, bio_long, genres, city, country, avatar_url, hero_image_url, logo_url, instagram_url, soundcloud_url, youtube_url, spotify_url, website, public_email, whatsapp, tech_rider_ideal, tech_rider_alt, hospitality, press_kit_pdf_url, featured_sets, brands_worked, aliases, record_label, show_fee, fee_min, fee_max, verified_at, verifications, available_from, available_until, available_note"
+    )
     .eq("public_slug", slug)
     .single();
   if (error) {

@@ -16,7 +16,7 @@ import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { FollowNotifyToggle } from "@/components/booker/follow-notify-toggle";
-import { whatsappLink, normalizeUrl } from "@/lib/format";
+import { whatsappLink, normalizeUrl, isSupabaseStorageUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -98,6 +98,17 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     gigStats.showsPasados >= 3 && "Historial de shows",
   ].filter(Boolean) as string[];
 
+  const hasFeaturedSets = (profile.featured_sets?.length ?? 0) > 0;
+  // Disponibilidad con ventana de fechas (consistente con /dj, no solo
+  // available_from presente). Fix B5.
+  const isAvailableNow = (() => {
+    if (!profile.available_from) return false;
+    const today = new Date().toISOString().slice(0, 10);
+    if (today < profile.available_from) return false;
+    if (profile.available_until && today > profile.available_until) return false;
+    return true;
+  })();
+
   const wa = whatsappLink(profile.whatsapp);
   const email = profile.public_email;
   const ig = profile.instagram_url;
@@ -141,7 +152,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               — PRESS KIT · VOL. 01
             </div>
             <div className="flex items-center gap-2">
-              {profile.available_from && (
+              {isAvailableNow && (
                 <span className="font-mono text-[10px] md:text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-orange text-ink border-2 border-orange">
                   ● DISPONIBLE
                 </span>
@@ -152,7 +163,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
           </div>
 
           {/* Foto de perfil (click → tamaño real) */}
-          {profile.avatar_url && (
+          {isSupabaseStorageUrl(profile.avatar_url) && (
             <AvatarLightbox
               src={profile.avatar_url}
               alt={artistName}
@@ -239,7 +250,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
           >
             — BIO
           </a>
-          {(sc || yt || sp) && (
+          {(sc || yt || sp || web || hasFeaturedSets) && (
             <a
               href="#musica"
               className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 border-r-2 border-ink hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
@@ -402,7 +413,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             )}
 
             {/* ── MÚSICA ── */}
-            {(sc || yt || sp || web) && (
+            {(sc || yt || sp || web || hasFeaturedSets) && (
               <section id="musica" className="mb-10 scroll-mt-20">
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
                   — MÚSICA
