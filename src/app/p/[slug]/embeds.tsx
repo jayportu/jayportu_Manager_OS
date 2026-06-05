@@ -178,3 +178,102 @@ function extractYouTubeVideoId(url: string): string | null {
   }
   return null;
 }
+
+/**
+ * Mixcloud embed. Arma el widget a partir del path del show/mix.
+ */
+export function MixcloudEmbed({
+  url,
+  userId,
+  onClickEvent,
+}: {
+  url: string;
+  userId: string;
+  onClickEvent: PresskitEventType;
+}) {
+  const [tracked, setTracked] = useState(false);
+  useEffect(() => {
+    if (tracked) return;
+    setTracked(true);
+    void fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, event: onClickEvent }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [tracked, userId, onClickEvent]);
+
+  const feed = mixcloudFeed(url);
+  if (!feed) {
+    const link = normalizeUrl(url);
+    return link ? (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+      >
+        <span className="text-sm text-fg-muted">Escuchar en Mixcloud →</span>
+      </a>
+    ) : null;
+  }
+  const embedUrl = `https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=1&feed=${encodeURIComponent(
+    feed
+  )}`;
+  return (
+    <div className="rounded-lg overflow-hidden border border-border bg-bg-panel">
+      <iframe
+        width="100%"
+        height="120"
+        frameBorder="0"
+        allow="autoplay"
+        src={embedUrl}
+        title="Mixcloud player"
+      />
+    </div>
+  );
+}
+
+function mixcloudFeed(url: string): string | null {
+  try {
+    const u = new URL(normalizeUrl(url));
+    if (!/(^|\.)mixcloud\.com$/i.test(u.hostname)) return null;
+    const path = u.pathname;
+    if (!path || path === "/") return null;
+    return path;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Set destacado (Fase 1 · 1B): detecta la plataforma por la URL y embebe
+ * SoundCloud / Mixcloud / YouTube. Fallback a link si no la reconoce.
+ */
+export function SetEmbed({ url, userId }: { url: string; userId: string }) {
+  const u = normalizeUrl(url);
+  if (!u) return null;
+  if (/soundcloud\.com/i.test(u)) {
+    return (
+      <SoundcloudEmbed url={u} userId={userId} onClickEvent="click_soundcloud" />
+    );
+  }
+  if (/mixcloud\.com/i.test(u)) {
+    return (
+      <MixcloudEmbed url={u} userId={userId} onClickEvent="click_soundcloud" />
+    );
+  }
+  if (/youtu\.?be/i.test(u)) {
+    return <YoutubeEmbed url={u} userId={userId} onClickEvent="click_youtube" />;
+  }
+  return (
+    <a
+      href={u}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+    >
+      <span className="text-sm text-fg-muted">Escuchar set →</span>
+    </a>
+  );
+}

@@ -22,6 +22,8 @@ export interface DjProfile {
   youtube_url: string;
   spotify_url: string;
   website: string;
+  /** Sets/mixes destacados (varios). URLs SoundCloud/Mixcloud/YouTube. Fase 1 · 1B. */
+  featured_sets: string[];
   public_email: string;
   whatsapp: string;
   logo_url: string;
