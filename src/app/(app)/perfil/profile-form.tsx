@@ -115,6 +115,9 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       brands_worked: form.brands_worked,
       aliases: form.aliases,
       record_label: form.record_label,
+      show_fee: form.show_fee,
+      fee_min: form.fee_min,
+      fee_max: form.fee_max,
       public_email: form.public_email,
       whatsapp: form.whatsapp,
       // tech_rider_ideal / tech_rider_alt / hospitality: legacy fields,
@@ -488,6 +491,66 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             </Button>
           </div>
         </div>
+      </Card>
+
+      {/* Tarifa referencial (Fase 1 · 1E) */}
+      <Card className="p-6 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+              Tarifa referencial
+            </h2>
+            <p className="text-sm text-fg-muted mt-1">
+              {form.show_fee
+                ? "Visible en tu press kit. Ayuda al booker a estimar antes de escribir."
+                : "Oculta. Actívala solo si quieres mostrar un rango de fee."}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => update("show_fee", !form.show_fee)}
+            aria-label="Mostrar fee"
+            className={`shrink-0 w-14 h-7 border-2 border-ink relative transition-colors ${
+              form.show_fee ? "bg-orange" : "bg-cream"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 w-5 h-5 bg-ink transition-all ${
+                form.show_fee ? "left-7" : "left-0.5"
+              }`}
+            />
+          </button>
+        </div>
+        {form.show_fee && (
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="fee_min">Desde (CLP)</Label>
+              <Input
+                id="fee_min"
+                type="number"
+                inputMode="numeric"
+                value={form.fee_min ?? ""}
+                onChange={(e) =>
+                  update("fee_min", e.target.value ? Number(e.target.value) : null)
+                }
+                placeholder="300000"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fee_max">Hasta (CLP, opcional)</Label>
+              <Input
+                id="fee_max"
+                type="number"
+                inputMode="numeric"
+                value={form.fee_max ?? ""}
+                onChange={(e) =>
+                  update("fee_max", e.target.value ? Number(e.target.value) : null)
+                }
+                placeholder="800000"
+              />
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Contacto público */}

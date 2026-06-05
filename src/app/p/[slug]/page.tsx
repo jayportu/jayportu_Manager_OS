@@ -73,6 +73,22 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   // mantenemos por backward compat hasta que se simplifique /configuracion.
   const hasPdfPressKit = !!profile.press_kit_pdf_url;
 
+  // Fee referencial opt-in (Fase 1 · 1E). Solo si el DJ lo activó + hay rango.
+  const feeLabel = (() => {
+    if (!profile.show_fee) return null;
+    const { fee_min: min, fee_max: max } = profile;
+    if (min == null && max == null) return null;
+    const fmt = (n: number) =>
+      new Intl.NumberFormat("es-CL", {
+        style: "currency",
+        currency: "CLP",
+        maximumFractionDigits: 0,
+      }).format(n);
+    if (min != null && max != null) return `${fmt(min)} – ${fmt(max)}`;
+    if (min != null) return `Desde ${fmt(min)}`;
+    return `Hasta ${fmt(max as number)}`;
+  })();
+
   const wa = whatsappLink(profile.whatsapp);
   const email = profile.public_email;
   const ig = profile.instagram_url;
@@ -522,7 +538,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               {/* Sprint RA-1 — Información de reserva destacada (estilo RA).
                   Si el DJ tiene email/whatsapp, se muestran como texto claro
                   antes de los botones de acción. */}
-              {(email || profile.whatsapp) && (
+              {(email || profile.whatsapp || feeLabel) && (
                 <div className="bg-white border-2 border-ink p-4 mb-4">
                   <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
                     — INFORMACIÓN DE RESERVA
@@ -557,6 +573,14 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                         >
                           +{profile.whatsapp.replace(/[^0-9]/g, "")}
                         </TrackedLink>
+                      </div>
+                    )}
+                    {feeLabel && (
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+                          Fee ref.
+                        </span>
+                        <span className="font-medium text-ink">{feeLabel}</span>
                       </div>
                     )}
                   </div>

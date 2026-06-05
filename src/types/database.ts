@@ -30,6 +30,10 @@ export interface DjProfile {
   aliases: string[];
   /** Sello / record label. Fase 1 · 1D. */
   record_label: string;
+  /** Fee referencial opt-in. Fase 1 · 1E. show_fee gobierna visibilidad; rango en CLP. */
+  show_fee: boolean;
+  fee_min: number | null;
+  fee_max: number | null;
   public_email: string;
   whatsapp: string;
   logo_url: string;
