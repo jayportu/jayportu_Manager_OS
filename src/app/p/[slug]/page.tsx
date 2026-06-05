@@ -89,6 +89,15 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     return `Hasta ${fmt(max as number)}`;
   })();
 
+  // Confiabilidad granular (Fase 1 · 1F). Manuales (admin) + historial (auto).
+  const verifications = profile.verifications ?? [];
+  const trustChecks = [
+    verifications.includes("identity") && "Identidad verificada",
+    verifications.includes("socials") && "Redes verificadas",
+    verifications.includes("sets") && "Sets verificados",
+    gigStats.showsPasados >= 3 && "Historial de shows",
+  ].filter(Boolean) as string[];
+
   const wa = whatsappLink(profile.whatsapp);
   const email = profile.public_email;
   const ig = profile.instagram_url;
@@ -538,6 +547,25 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               {/* Sprint RA-1 — Información de reserva destacada (estilo RA).
                   Si el DJ tiene email/whatsapp, se muestran como texto claro
                   antes de los botones de acción. */}
+              {/* Confiabilidad (Fase 1 · 1F) — checklist de confianza arriba */}
+              {trustChecks.length > 0 && (
+                <div className="bg-white border-2 border-ink p-4 mb-4">
+                  <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
+                    — CONFIABILIDAD
+                  </div>
+                  <ul className="space-y-1.5">
+                    {trustChecks.map((c) => (
+                      <li
+                        key={c}
+                        className="flex items-center gap-2 text-sm font-medium text-ink"
+                      >
+                        <span className="text-orange font-bold">✓</span> {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {(email || profile.whatsapp || feeLabel) && (
                 <div className="bg-white border-2 border-ink p-4 mb-4">
                   <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">

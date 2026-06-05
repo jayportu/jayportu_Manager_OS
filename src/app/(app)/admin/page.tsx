@@ -17,6 +17,7 @@ import { relativeTime, dateTime, shortDate } from "@/lib/format";
 import { DeletePendingUserButton } from "./delete-pending-user-button";
 import { AccountStatusControl } from "./account-status-control";
 import { VerifyDjButton } from "./verify-dj-button";
+import { DjVerificationChips } from "./dj-verification-chips";
 
 export const dynamic = "force-dynamic";
 
@@ -264,6 +265,10 @@ export default async function AdminPage() {
                                 djUserId={u.user_id}
                                 verified={!!u.verified_at}
                                 name={u.artist_name || u.email}
+                              />
+                              <DjVerificationChips
+                                djUserId={u.user_id}
+                                verifications={u.verifications}
                               />
                               <AccountStatusControl
                                 userId={u.user_id}
