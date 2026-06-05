@@ -26,6 +26,27 @@ export const metadata: Metadata = {
   title: "DROP. — The DJ OS",
   description:
     "DROP. Manager OS para DJs: CRM, press kit público, growth tracking, calendario y plantillas. El sistema operativo del DJ.",
+  // metadataBase: necesario para que las URLs de OG/twitter resuelvan a
+  // absolutas (Instagram/WhatsApp las exigen así). Default OG para todo el sitio.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com"
+  ),
+  openGraph: {
+    title: "DROP. — The DJ OS",
+    description:
+      "El sistema operativo para DJs independientes. CRM, press kit, bookings, IA. Bookers: directorio de DJs en LATAM.",
+    type: "website",
+    siteName: "DROP.",
+    images: [
+      { url: "/og.png", width: 1200, height: 630, alt: "DROP. — The DJ OS" },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DROP. — The DJ OS",
+    description: "El sistema operativo para DJs independientes.",
+    images: ["/og.png"],
+  },
   manifest: "/manifest.json",
   applicationName: "DROP",
   appleWebApp: {
