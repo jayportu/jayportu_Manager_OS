@@ -47,6 +47,46 @@ export async function setDjVerifiedAction(
   }
 }
 
+/**
+ * Fase 1 · 1F — Otorga/quita un chequeo de confiabilidad granular
+ * ('identity' | 'socials' | 'sets'). Mismo blindaje que 1A (service_role +
+ * trigger protect_dj_verification). El chequeo 'history' NO va acá: es
+ * automático (se calcula de los gigs).
+ */
+export async function setDjVerificationAction(
+  djUserId: string,
+  key: "identity" | "socials" | "sets",
+  on: boolean
+): Promise<
+  { ok: true; verifications: string[] } | { ok: false; error: string }
+> {
+  try {
+    await assertAdmin();
+    const admin = createAdminClient();
+    const { data: prof, error: readErr } = await admin
+      .from("dj_profile")
+      .select("verifications")
+      .eq("user_id", djUserId)
+      .maybeSingle();
+    if (readErr) return { ok: false, error: readErr.message };
+    const current: string[] = (prof?.verifications as string[] | null) ?? [];
+    const next = on
+      ? Array.from(new Set([...current, key]))
+      : current.filter((k) => k !== key);
+    const { error } = await admin
+      .from("dj_profile")
+      .update({ verifications: next })
+      .eq("user_id", djUserId);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/admin");
+    revalidatePath("/dj");
+    revalidatePath("/p/[slug]", "page");
+    return { ok: true, verifications: next };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}
+
 function getBetaUrl(): string {
   // Sprint S20 — dropgigs.com es el dominio canónico de aquí en adelante.
   // Si la env var no está seteada en local, caemos al dominio público real

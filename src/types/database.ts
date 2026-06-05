@@ -48,6 +48,8 @@ export interface DjProfile {
   /** Verificación manual por admin (Fase 1 · 1A). null = no verificado. */
   verified_at: string | null;
   verified_by: string | null;
+  /** Chequeos de confiabilidad granular otorgados por admin: 'identity' | 'socials' | 'sets'. Fase 1 · 1F. */
+  verifications: string[];
   press_kit_mode: "generated" | "pdf";
   press_kit_pdf_url: string;
   press_kit_pdf_filename: string;
