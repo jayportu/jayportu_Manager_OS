@@ -38,6 +38,9 @@ export interface PublicDjProfile {
   is_available_now: boolean;
   /** Verificado por admin (Fase 1 · 1A). */
   is_verified: boolean;
+  /** DROP Pick destacado (RA-2A) + prioridad de orden. */
+  is_drop_pick: boolean;
+  drop_pick_priority: number;
 }
 
 export interface ListDirectoryParams {
@@ -76,7 +79,7 @@ const getPublicDjsBase = unstable_cache(
     const { data, error } = await admin
       .from("dj_profile")
       .select(
-        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, onboarding_completed_at, hidden_from_directory"
+        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, onboarding_completed_at, hidden_from_directory"
       )
       .eq("hidden_from_directory", false)
       .not("onboarding_completed_at", "is", null)
@@ -106,6 +109,8 @@ const getPublicDjsBase = unstable_cache(
       available_note: row.available_note ?? "",
       is_available_now: false, // recalculado por request (depende de today)
       is_verified: !!row.verified_at,
+      is_drop_pick: !!row.is_drop_pick,
+      drop_pick_priority: row.drop_pick_priority ?? 0,
     }));
   },
   ["public-djs-base"],
@@ -169,6 +174,28 @@ export async function listPublicDjs(
   }
 
   return result.slice(0, params.limit ?? 200);
+}
+
+/**
+ * DROP Picks (RA-2A): DJs destacados por admin, ordenados por prioridad
+ * (mayor primero). Para la fila "DROP PICKS" arriba de /dj. Deriva de la
+ * misma lectura base cacheada.
+ */
+export async function getDropPicks(limit = 8): Promise<PublicDjProfile[]> {
+  const base = await getPublicDjsBase();
+  return base
+    .filter((d) => d.is_drop_pick)
+    .map((d) => ({
+      ...d,
+      is_available_now: calcIsAvailable(d.available_from, d.available_until),
+    }))
+    .sort((a, b) => {
+      if (b.drop_pick_priority !== a.drop_pick_priority) {
+        return b.drop_pick_priority - a.drop_pick_priority;
+      }
+      return a.artist_name.localeCompare(b.artist_name);
+    })
+    .slice(0, limit);
 }
 
 /**

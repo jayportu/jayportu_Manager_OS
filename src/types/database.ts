@@ -50,6 +50,9 @@ export interface DjProfile {
   verified_by: string | null;
   /** Chequeos de confiabilidad granular otorgados por admin: 'identity' | 'socials' | 'sets'. Fase 1 · 1F. */
   verifications: string[];
+  /** DROP Picks (RA-2A): destacado curado por admin + prioridad de orden. */
+  is_drop_pick: boolean;
+  drop_pick_priority: number;
   press_kit_mode: "generated" | "pdf";
   press_kit_pdf_url: string;
   press_kit_pdf_filename: string;

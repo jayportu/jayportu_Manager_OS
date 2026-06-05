@@ -87,6 +87,30 @@ export async function setDjVerificationAction(
   }
 }
 
+/**
+ * Fase 1 · RA-2A — Marca/desmarca un DJ como DROP Pick (destacado en /dj).
+ * Solo admin (service_role); protegido por el trigger protect_dj_verification.
+ */
+export async function setDjDropPickAction(
+  djUserId: string,
+  on: boolean
+): Promise<{ ok: true; isPick: boolean } | { ok: false; error: string }> {
+  try {
+    await assertAdmin();
+    const admin = createAdminClient();
+    const { error } = await admin
+      .from("dj_profile")
+      .update({ is_drop_pick: on })
+      .eq("user_id", djUserId);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/admin");
+    revalidatePath("/dj");
+    return { ok: true, isPick: on };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}
+
 function getBetaUrl(): string {
   // Sprint S20 — dropgigs.com es el dominio canónico de aquí en adelante.
   // Si la env var no está seteada en local, caemos al dominio público real

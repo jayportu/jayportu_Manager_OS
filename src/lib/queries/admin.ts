@@ -63,6 +63,7 @@ export interface AdminUserRow {
   is_admin: boolean;
   verified_at: string | null;
   verifications: string[];
+  is_drop_pick: boolean;
   onboarding_completed_at: string | null;
   account_status: AccountStatus;
   account_status_reason: string | null;
@@ -115,7 +116,7 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
   const { data: profiles, error: pErr } = await admin
     .from("dj_profile")
     .select(
-      "user_id, artist_name, city, created_at, is_admin, verified_at, verifications, onboarding_completed_at, account_status, account_status_reason, account_status_changed_at"
+      "user_id, artist_name, city, created_at, is_admin, verified_at, verifications, is_drop_pick, onboarding_completed_at, account_status, account_status_reason, account_status_changed_at"
     )
     .order("created_at", { ascending: false });
   if (pErr) throw new Error(`dj_profile: ${pErr.message}`);
@@ -142,6 +143,7 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
       is_admin: p.is_admin === true,
       verified_at: p.verified_at ?? null,
       verifications: (p.verifications as string[] | null) ?? [],
+      is_drop_pick: p.is_drop_pick === true,
       onboarding_completed_at: p.onboarding_completed_at,
       account_status: (p.account_status as AccountStatus) ?? "active",
       account_status_reason: p.account_status_reason ?? null,

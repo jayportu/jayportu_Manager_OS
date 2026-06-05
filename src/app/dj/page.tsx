@@ -5,6 +5,7 @@ import {
   listPublicDjs,
   listPublicGenres,
   listPublicCities,
+  getDropPicks,
 } from "@/lib/queries/directory";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 
@@ -56,7 +57,14 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
     .map((g) => g.trim().toLowerCase())
     .filter((g) => g.length > 0);
 
-  const [djs, allGenres, allCities] = await Promise.all([
+  const hasFilters = !!(
+    sp.q ||
+    sp.city ||
+    activeGenres.length > 0 ||
+    sp.avail === "1"
+  );
+
+  const [djs, allGenres, allCities, dropPicks] = await Promise.all([
     listPublicDjs({
       search: sp.q,
       city: sp.city,
@@ -65,9 +73,12 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
     }),
     listPublicGenres(),
     listPublicCities(),
+    getDropPicks(),
   ]);
 
   const availableCount = djs.filter((d) => d.is_available_now).length;
+  // La fila "DROP PICKS" solo en la vista sin filtros (tipo destacados de portada).
+  const showPicks = !hasFilters && dropPicks.length > 0;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -239,6 +250,21 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
           )}
         </form>
 
+        {/* DROP PICKS — fila destacada curada por admin (RA-2A). Solo sin filtros. */}
+        {showPicks && (
+          <section className="mb-8">
+            <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3 flex items-center gap-2">
+              <span>★ DROP PICKS</span>
+              <span className="flex-1 h-px bg-ink/20" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {dropPicks.map((d) => (
+                <DjCard key={`pick-${d.user_id}`} dj={d} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Resultados */}
         <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
           — {djs.length} {djs.length === 1 ? "RESULTADO" : "RESULTADOS"}
@@ -387,6 +413,11 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
         >
           {dj.artist_name}
         </div>
+        {dj.is_drop_pick && (
+          <span className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-orange text-ink">
+            ★ Pick
+          </span>
+        )}
         {dj.is_verified && (
           <span className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-ink text-orange">
             ✓ Verificado
