@@ -40,14 +40,14 @@ Es la primera impresión de cualquier booker que se invite.
 ### FASE 1 · Perfil "mejor que Instagram" + confiabilidad · ~1 semana
 **Objetivo:** que cada ficha de DJ baje el riesgo del booker.
 
-- [ ] ♻️ Ya está: foto, géneros, ciudad, SoundCloud, YouTube, press kit, clubs (gig stats), disponibilidad
+- [x] ♻️ *(Ya existía antes de esta fase — no es tarea)*: foto, géneros, ciudad, SoundCloud, YouTube, press kit, clubs (gig stats), disponibilidad
 - [x] 🆕 **Perfil verificado (1A)** — badge "✓ Verificado por DROP." curado por admin (toggle en /admin, trigger anti auto-verificación). ✅ 2026-06-05 en prod (PR #3, migración 0038 aplicada). jay-portu verificado de ejemplo.
 - [x] 🆕 Ranking de confiabilidad granular (1F). ✅ 2026-06-05 — `verifications text[]` (identity/socials/sets, manuales vía chips en /admin) + historial AUTO (≥3 shows); bloque "— CONFIABILIDAD" en /p/[slug]. Migración 0042 (extiende el trigger anti auto-verificación). **"Respuesta rápida" diferida** (sin data de bookings aún). Trigger verificado: write directo por pg (sin service_role) se revierte solo.
 - [x] 🆕 Fee aproximado (toggle por DJ). ✅ 2026-06-05 — `show_fee` + `fee_min/fee_max` (CLP); card "Tarifa referencial" con toggle en /perfil; "Fee ref. $X – $Y" en el bloque de reserva de /p/[slug] (solo si el DJ lo activa). Migración 0041. *(Cotizador interactivo completo = S20.5, futuro.)*
 - [x] 🆕 Marcas/clubs con los que trabajó (RA-9 lite). ✅ 2026-06-05 — `brands_worked` editable en /perfil + sección "— HAN CONFIADO" (chips brutalist) en /p/[slug]. Migración 0040.
 - [x] 🆕 Sets/mixes destacados (varios + Mixcloud) — RA-8. ✅ 2026-06-05 — `featured_sets` (hasta 4) en /perfil + sección "Sets destacados" en /p/[slug] con dispatcher SetEmbed (SoundCloud/Mixcloud/YouTube auto-detectado). Migración 0039 en prod. Verificado las 3 plataformas.
 - [x] 🆕 Alias / sello / proyecto b2b — RA-10. ✅ 2026-06-05 — `aliases` + `record_label` en /perfil; en /p/[slug]: "AKA …" bajo el nombre + chip "Sello · …". Migración 0040.
-- [ ] 📋 DROP Picks (RA-2A): curaduría admin destacando DJs en `/dj`
+- [x] 📋 DROP Picks (RA-2A): curaduría admin destacando DJs en `/dj`. ✅ 2026-06-05 — `is_drop_pick` + `drop_pick_priority` (migración 0043, protegidos por el trigger); ⭐ toggle en /admin; fila "★ DROP PICKS" arriba de /dj (solo sin filtros) + badge "★ PICK" en cards. Verificado.
 
 ### FASE 2 · Reabrir el lado booker · Founding Bookers · ~1 semana
 **Objetivo:** traer los primeros bookers, a mano y curados. El backend ya existe casi entero.

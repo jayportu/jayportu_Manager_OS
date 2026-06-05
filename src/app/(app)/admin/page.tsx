@@ -18,6 +18,7 @@ import { DeletePendingUserButton } from "./delete-pending-user-button";
 import { AccountStatusControl } from "./account-status-control";
 import { VerifyDjButton } from "./verify-dj-button";
 import { DjVerificationChips } from "./dj-verification-chips";
+import { DropPickButton } from "./drop-pick-button";
 
 export const dynamic = "force-dynamic";
 
@@ -269,6 +270,11 @@ export default async function AdminPage() {
                               <DjVerificationChips
                                 djUserId={u.user_id}
                                 verifications={u.verifications}
+                              />
+                              <DropPickButton
+                                djUserId={u.user_id}
+                                isPick={u.is_drop_pick}
+                                name={u.artist_name || u.email}
                               />
                               <AccountStatusControl
                                 userId={u.user_id}
