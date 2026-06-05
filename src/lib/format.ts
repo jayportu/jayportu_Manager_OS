@@ -121,3 +121,21 @@ export function normalizeUrl(url: string): string {
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
 }
+
+/**
+ * ¿La URL es de Supabase Storage público? Solo esas se pueden pasar a
+ * `next/image` (es el único host en remotePatterns de next.config). Una URL de
+ * otro host rompe el render en runtime → usamos esto para caer al placeholder.
+ */
+export function isSupabaseStorageUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return (
+      /\.supabase\.co$/i.test(u.hostname) &&
+      u.pathname.startsWith("/storage/v1/object/public/")
+    );
+  } catch {
+    return false;
+  }
+}

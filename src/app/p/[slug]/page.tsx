@@ -16,7 +16,7 @@ import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { FollowNotifyToggle } from "@/components/booker/follow-notify-toggle";
-import { whatsappLink, normalizeUrl } from "@/lib/format";
+import { whatsappLink, normalizeUrl, isSupabaseStorageUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -163,7 +163,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
           </div>
 
           {/* Foto de perfil (click → tamaño real) */}
-          {profile.avatar_url && (
+          {isSupabaseStorageUrl(profile.avatar_url) && (
             <AvatarLightbox
               src={profile.avatar_url}
               alt={artistName}

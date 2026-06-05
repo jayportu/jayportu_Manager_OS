@@ -8,6 +8,7 @@ import {
   getDropPicks,
 } from "@/lib/queries/directory";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
+import { isSupabaseStorageUrl } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -360,6 +361,11 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     .join("")
     .toUpperCase();
 
+  // Fix B9: solo URLs de Supabase Storage van a next/image (otras rompen el
+  // render). Si no hay una válida, cae al placeholder de iniciales.
+  const cardImg =
+    [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
+
   return (
     <div className="group border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
       <Link href={`/p/${dj.public_slug}`} className="flex flex-col">
@@ -369,9 +375,9 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             Al final, placeholder con iniciales en Anton.
             <Image fill> + sizes da retina automática + WebP/AVIF — evita
             servir el JPEG original de 4 MB en un card de 280px. */}
-        {dj.avatar_url || dj.hero_image_url ? (
+        {cardImg ? (
           <Image
-            src={dj.avatar_url || dj.hero_image_url}
+            src={cardImg}
             alt={dj.artist_name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
