@@ -161,6 +161,13 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             </p>
           )}
 
+          {/* Alias / proyectos (Fase 1 · 1D) */}
+          {profile.aliases && profile.aliases.length > 0 && (
+            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-cream/60">
+              AKA {profile.aliases.join(" · ")}
+            </p>
+          )}
+
           {/* Géneros + ciudad como labels outline cream */}
           <div className="mt-6 flex flex-wrap gap-1.5">
             {profile.genres.slice(0, 4).map((g) => (
@@ -175,6 +182,11 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               <span className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream">
                 {profile.city}
                 {profile.country ? ` · ${profile.country}` : ""}
+              </span>
+            )}
+            {profile.record_label && (
+              <span className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream">
+                Sello · {profile.record_label}
               </span>
             )}
           </div>
@@ -243,6 +255,25 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 <p className="text-base leading-relaxed mt-3 whitespace-pre-wrap">
                   {profile.bio_long || profile.bio_short}
                 </p>
+              </section>
+            )}
+
+            {/* Han confiado — marcas/clubs (Fase 1 · 1C, social proof) */}
+            {profile.brands_worked && profile.brands_worked.length > 0 && (
+              <section className="mb-10">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                  — HAN CONFIADO
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile.brands_worked.map((b) => (
+                    <span
+                      key={b}
+                      className="font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 border-ink bg-white"
+                    >
+                      {b}
+                    </span>
+                  ))}
+                </div>
               </section>
             )}
 

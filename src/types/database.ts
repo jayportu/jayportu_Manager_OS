@@ -24,6 +24,12 @@ export interface DjProfile {
   website: string;
   /** Sets/mixes destacados (varios). URLs SoundCloud/Mixcloud/YouTube. Fase 1 · 1B. */
   featured_sets: string[];
+  /** Marcas/clubs con los que trabajó (social proof). Fase 1 · 1C. */
+  brands_worked: string[];
+  /** Otros nombres / proyectos b2b. Fase 1 · 1D. */
+  aliases: string[];
+  /** Sello / record label. Fase 1 · 1D. */
+  record_label: string;
   public_email: string;
   whatsapp: string;
   logo_url: string;
