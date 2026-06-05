@@ -18,7 +18,10 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   .wrap{position:absolute;inset:0;padding:84px;display:flex;flex-direction:column;justify-content:center;}
   .kicker{font-family:'Courier New',monospace;font-size:22px;font-weight:700;letter-spacing:0.34em;
     color:#FF5C00;text-transform:uppercase;margin-bottom:30px;}
-  .logo{height:150px;width:auto;display:block;}
+  /* width explícito + height:auto mantiene la proporción del wordmark (512x214);
+     align-self:flex-start evita que el flex-column lo estire a todo el ancho
+     (eso lo dejaba "achatado"). */
+  .logo{width:560px;height:auto;display:block;align-self:flex-start;}
   .headline{font-size:46px;font-weight:800;color:#F4EFE7;line-height:1.05;letter-spacing:-0.01em;
     max-width:920px;margin-top:40px;}
   .headline .o{color:#FF5C00;}
