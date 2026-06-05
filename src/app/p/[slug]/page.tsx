@@ -9,7 +9,7 @@ export const revalidate = 60;
 import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
 import { BookingForm } from "./booking-form";
-import { SoundcloudEmbed, YoutubeEmbed } from "./embeds";
+import { SoundcloudEmbed, YoutubeEmbed, SetEmbed } from "./embeds";
 import { TechRiderRender } from "./tech-rider-render";
 import { StagePlot } from "./stage-plot";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
@@ -351,6 +351,22 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
                   — MÚSICA
                 </div>
+
+                {/* Sets destacados (Fase 1 · 1B) — primero, son los curados */}
+                {profile.featured_sets && profile.featured_sets.length > 0 && (
+                  <div className="mb-6 space-y-3">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+                      Sets destacados
+                    </div>
+                    {profile.featured_sets.map((setUrl) => (
+                      <SetEmbed
+                        key={setUrl}
+                        url={setUrl}
+                        userId={profile.user_id}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {sc && (
                   <div className="mb-6">

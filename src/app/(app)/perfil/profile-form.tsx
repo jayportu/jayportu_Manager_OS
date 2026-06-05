@@ -34,6 +34,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   const [isPending, startTransition] = useTransition();
   const [form, setForm] = useState<DjProfile>(initialProfile);
   const [genreInput, setGenreInput] = useState("");
+  const [setUrlInput, setSetUrlInput] = useState("");
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   function update<K extends keyof DjProfileUpdate>(
@@ -55,6 +56,19 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     update("genres", form.genres.filter((x) => x !== g));
   }
 
+  function addSet(u: string) {
+    const trimmed = u.trim();
+    if (!trimmed) return;
+    const current = form.featured_sets ?? [];
+    if (current.includes(trimmed) || current.length >= 4) return;
+    update("featured_sets", [...current, trimmed]);
+    setSetUrlInput("");
+  }
+
+  function removeSet(u: string) {
+    update("featured_sets", (form.featured_sets ?? []).filter((x) => x !== u));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
@@ -71,6 +85,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       youtube_url: form.youtube_url,
       spotify_url: form.spotify_url,
       website: form.website,
+      featured_sets: form.featured_sets,
       public_email: form.public_email,
       whatsapp: form.whatsapp,
       // tech_rider_ideal / tech_rider_alt / hospitality: legacy fields,
@@ -280,6 +295,59 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             />
           </div>
         </div>
+      </Card>
+
+      {/* Sets destacados (Fase 1 · 1B) */}
+      <Card className="p-6 space-y-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          Sets destacados
+        </h2>
+        <p className="text-sm text-fg-muted">
+          Hasta 4 sets o mixes para mostrar en tu press kit (SoundCloud,
+          Mixcloud o YouTube). Se embeben solos según la plataforma.
+        </p>
+        {(form.featured_sets ?? []).length > 0 && (
+          <div className="space-y-2">
+            {(form.featured_sets ?? []).map((s) => (
+              <div
+                key={s}
+                className="flex items-center gap-2 border border-border px-3 py-2 text-sm"
+              >
+                <span className="flex-1 truncate text-fg-muted">{s}</span>
+                <button
+                  type="button"
+                  onClick={() => removeSet(s)}
+                  className="hover:text-fg shrink-0"
+                  aria-label={`Quitar ${s}`}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {(form.featured_sets ?? []).length < 4 && (
+          <div className="flex gap-2">
+            <Input
+              value={setUrlInput}
+              onChange={(e) => setSetUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addSet(setUrlInput);
+                }
+              }}
+              placeholder="Pega la URL del set y Enter"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => addSet(setUrlInput)}
+            >
+              Agregar
+            </Button>
+          </div>
+        )}
       </Card>
 
       {/* Contacto público */}
