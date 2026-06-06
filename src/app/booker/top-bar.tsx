@@ -18,13 +18,13 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
+  { href: "/booker/buscar", label: "Buscar DJs", icon: Search },
   { href: "/booker/requests", label: "Mis requests", icon: Inbox },
   { href: "/booker/seguidos", label: "Seguidos", icon: Heart },
   { href: "/booker/pitches", label: "Pitches", icon: Send },
   { href: "/booker/interesados", label: "DJs interesados", icon: Star },
   { href: "/booker/perfil", label: "Mi perfil", icon: User },
   { href: "/booker/calendario", label: "Calendario", icon: Calendar, comingSoon: true },
-  { href: "/booker/buscar", label: "Buscar DJs", icon: Search, comingSoon: true },
 ];
 
 interface Props {
