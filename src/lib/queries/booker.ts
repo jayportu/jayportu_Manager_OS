@@ -87,6 +87,7 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
       booker_type:
         typeof meta.booker_type === "string" ? meta.booker_type : "otro",
       city: typeof meta.city === "string" ? meta.city : "",
+      country: typeof meta.country === "string" ? meta.country : "",
     })
     .select("*")
     .single();

@@ -11,12 +11,18 @@
  *   - Después del email confirm, /booker/layout asegura el booker_account
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  COUNTRIES,
+  DEFAULT_COUNTRY,
+  COUNTRY_API_BY_ES,
+  fetchCities,
+} from "@/lib/geo/countries";
 
 const BOOKER_TYPES = [
   { value: "venue", label: "Venue / Club / Bar" },
@@ -53,10 +59,30 @@ export function BookerSignupForm() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [bookerType, setBookerType] = useState("otro");
+  const [country, setCountry] = useState(DEFAULT_COUNTRY);
   const [city, setCity] = useState("");
+  const [cities, setCities] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  // Ciudades dependientes del país elegido. Si la API falla, queda [] y el
+  // input degrada a texto libre (sigue siendo obligatorio).
+  useEffect(() => {
+    let cancelled = false;
+    setCities([]);
+    setLoadingCities(true);
+    fetchCities(COUNTRY_API_BY_ES[country] ?? country).then((list) => {
+      if (!cancelled) {
+        setCities(list);
+        setLoadingCities(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [country]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +100,7 @@ export function BookerSignupForm() {
           full_name: fullName.trim(),
           booker_type: bookerType,
           city: city.trim(),
+          country,
         },
       },
     });
@@ -151,33 +178,61 @@ export function BookerSignupForm() {
         />
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="booker-type">¿Qué tipo de booker? (opcional)</Label>
+        <select
+          id="booker-type"
+          value={bookerType}
+          onChange={(e) => setBookerType(e.target.value)}
+          className="w-full border-2 border-ink bg-cream px-3 py-2 text-sm font-mono"
+        >
+          {BOOKER_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="booker-type">¿Qué tipo de booker?</Label>
+          <Label htmlFor="country">País</Label>
           <select
-            id="booker-type"
-            value={bookerType}
-            onChange={(e) => setBookerType(e.target.value)}
+            id="country"
+            value={country}
+            onChange={(e) => {
+              setCountry(e.target.value);
+              setCity(""); // las ciudades cambian con el país
+            }}
+            required
             className="w-full border-2 border-ink bg-cream px-3 py-2 text-sm font-mono"
           >
-            {BOOKER_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {COUNTRIES.map((c) => (
+              <option key={c.es} value={c.es}>
+                {c.es}
               </option>
             ))}
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="city">Ciudad (opcional)</Label>
+          <Label htmlFor="city">Ciudad</Label>
           <Input
             id="city"
             type="text"
-            placeholder="Santiago"
+            list="city-options"
+            placeholder={loadingCities ? "Cargando…" : "Tu ciudad"}
             value={city}
             onChange={(e) => setCity(e.target.value)}
+            required
+            minLength={2}
             maxLength={60}
             autoComplete="address-level2"
           />
+          <datalist id="city-options">
+            {cities.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
         </div>
       </div>
 
