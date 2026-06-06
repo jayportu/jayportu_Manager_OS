@@ -161,8 +161,20 @@ export async function POST(req: Request) {
       : "";
   const occurredAt = evt.created_at ?? new Date().toISOString();
 
+  // Resolver la campaña desde el envío ya registrado. El dashboard filtra
+  // email_events / email_sends por campaign_id; sin esto los eventos del
+  // webhook quedan huérfanos (campaign_id NULL) e invisibles para la UI,
+  // congelando los conteos en el último backfill.
+  const { data: sendRow } = await admin
+    .from("email_sends")
+    .select("campaign_id")
+    .eq("resend_id", emailId)
+    .maybeSingle();
+  const campaignId = sendRow?.campaign_id ?? null;
+
   const ev = await admin.from("email_events").insert({
     resend_id: emailId,
+    campaign_id: campaignId,
     event_type: shortType,
     occurred_at: occurredAt,
     payload: evt,
@@ -170,6 +182,7 @@ export async function POST(req: Request) {
   const snd = await admin.from("email_sends").upsert(
     {
       resend_id: emailId,
+      campaign_id: campaignId,
       to_email: toEmail,
       last_event: shortType,
       last_event_at: occurredAt,
