@@ -41,6 +41,12 @@ export interface PublicDjProfile {
   /** DROP Pick destacado (RA-2A) + prioridad de orden. */
   is_drop_pick: boolean;
   drop_pick_priority: number;
+  /** Tarifa referencial (Fase 1 · 1E). Solo relevante si show_fee. CLP. */
+  show_fee: boolean;
+  fee_min: number | null;
+  fee_max: number | null;
+  /** Sets destacados (Fase 1 · 1B). URLs SoundCloud/Mixcloud/YouTube. */
+  featured_sets: string[];
 }
 
 export interface ListDirectoryParams {
@@ -51,6 +57,8 @@ export interface ListDirectoryParams {
   genres?: string[];
   /** Si true, solo DJs disponibles HOY. */
   onlyAvailable?: boolean;
+  /** Presupuesto del booker (CLP): excluye DJs cuyo fee_min publicado lo supera. */
+  budget?: number;
   /** Sort: 'available' (disponibles primero) o 'name' (alfabético). */
   sort?: "available" | "name";
   limit?: number;
@@ -79,7 +87,7 @@ const getPublicDjsBase = unstable_cache(
     const { data, error } = await admin
       .from("dj_profile")
       .select(
-        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, onboarding_completed_at, hidden_from_directory"
+        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, show_fee, fee_min, fee_max, featured_sets, onboarding_completed_at, hidden_from_directory"
       )
       .eq("hidden_from_directory", false)
       .not("onboarding_completed_at", "is", null)
@@ -115,6 +123,10 @@ const getPublicDjsBase = unstable_cache(
       is_verified: !!row.verified_at,
       is_drop_pick: !!row.is_drop_pick,
       drop_pick_priority: row.drop_pick_priority ?? 0,
+      show_fee: !!row.show_fee,
+      fee_min: row.fee_min ?? null,
+      fee_max: row.fee_max ?? null,
+      featured_sets: row.featured_sets ?? [],
     }));
   },
   ["public-djs-base"],
@@ -164,6 +176,14 @@ export async function listPublicDjs(
   }
   if (params.onlyAvailable) {
     result = result.filter((d) => d.is_available_now);
+  }
+  if (typeof params.budget === "number" && params.budget > 0) {
+    const b = params.budget;
+    // Excluye solo a los que claramente se pasan: publican tarifa y su mínimo
+    // supera el presupuesto. Los que no publican tarifa (o calzan) se quedan.
+    result = result.filter(
+      (d) => !(d.show_fee && d.fee_min != null && d.fee_min > b)
+    );
   }
 
   // Sort: disponibles primero, después alfabético.
