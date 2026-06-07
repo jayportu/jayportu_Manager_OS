@@ -256,13 +256,12 @@ function formatUpdate(u: FeedUpdate): { title: string; detail: string } {
     available_until?: string | null;
     available_note?: string;
   };
-  const fmt = (iso?: string | null) =>
-    iso
-      ? new Date(iso).toLocaleDateString("es-CL", {
-          day: "numeric",
-          month: "long",
-        })
-      : "";
+  const fmt = (iso?: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return ""; // evita "Invalid Date"
+    return d.toLocaleDateString("es-CL", { day: "numeric", month: "long" });
+  };
   const range = [fmt(p.available_from), fmt(p.available_until)]
     .filter(Boolean)
     .join(" → ");

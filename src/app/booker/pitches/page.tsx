@@ -32,7 +32,7 @@ export default async function PitchesPage() {
         </h1>
         <p className="text-sm text-fg-muted mt-2 max-w-xl">
           DJs que te mandaron un pitch para tocar en tu lugar. Lee su
-          propuesta, mira su press kit y contáctalos si te interesa.
+          propuesta y abre su press kit (ahí está su contacto) si te interesa.
         </p>
       </div>
 
