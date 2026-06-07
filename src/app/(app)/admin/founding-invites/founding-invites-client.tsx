@@ -57,10 +57,12 @@ export function FoundingInvitesClient({
         return;
       }
       setMsg({
-        type: "ok",
+        // Si el email NO se envió, lo marcamos como error (rojo) — la invitación
+        // quedó creada pero hay que mandar el link a mano.
+        type: res.data.emailSent ? "ok" : "err",
         text: res.data.emailSent
           ? `Invitación enviada a ${res.data.email}.`
-          : `Invitación creada (${res.data.emailError ?? "email no enviado"}). Copia el link.`,
+          : `⚠ Invitación creada pero el email NO se envió (${res.data.emailError ?? "?"}). Copia el link y mándalo a mano.`,
         link: res.data.inviteUrl,
       });
       setEmail("");

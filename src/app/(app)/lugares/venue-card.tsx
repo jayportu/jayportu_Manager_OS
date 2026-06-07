@@ -162,7 +162,10 @@ export function VenueCard({
           <button
             type="button"
             onClick={() => (noTokens ? setErr("Sin tokens de pitch este mes. Renuevan el 1.") : setShowForm(true))}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-b border-border text-fg hover:bg-bg-subtle font-mono text-[11px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
+            title={noTokens ? "Sin tokens este mes (renuevan el 1)" : undefined}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 border-b border-border text-fg hover:bg-bg-subtle font-mono text-[11px] font-bold uppercase tracking-wider transition-colors ${
+              noTokens ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             <Send className="w-3.5 h-3.5" /> Pitch · 🪙1
           </button>

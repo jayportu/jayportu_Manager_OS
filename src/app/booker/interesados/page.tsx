@@ -30,8 +30,9 @@ export default async function InteresadosPage() {
           QUIEREN TOCAR<span className="text-orange">.</span>
         </h1>
         <p className="text-sm text-fg-muted mt-2 max-w-xl">
-          DJs que marcaron tu lugar como uno donde les gustaría tocar. Mira su
-          press kit y contáctalos cuando armes tu próximo evento.
+          DJs que marcaron tu lugar como uno donde les gustaría tocar. Abre su
+          press kit — ahí tienes su contacto y su música — cuando armes tu
+          próximo evento.
         </p>
       </div>
 
