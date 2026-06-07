@@ -116,6 +116,13 @@ export function BetaRequestsTable({ initialRequests }: Props) {
 
   function handleStatusChange(r: BetaRequest, newStatus: BetaRequestStatus) {
     if (newStatus === r.status) return;
+    // 'approved' debe pasar por approveBetaRequestAction (genera token + manda
+    // el email). El <select> usaba setBetaRequestStatusAction, que cambiaba el
+    // estado SIN invitar → el DJ nunca recibía el acceso.
+    if (newStatus === "approved") {
+      handleApprove(r);
+      return;
+    }
     startTransition(async () => {
       const res = await setBetaRequestStatusAction(r.id, newStatus);
       if (res.ok) {

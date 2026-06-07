@@ -11,7 +11,6 @@ import Link from "next/link";
 import { ThreadList } from "./thread-list";
 import { ConnectGmailButton } from "./connect-button";
 import { DisconnectForm } from "./disconnect-form";
-import { dateTime } from "@/lib/format";
 
 interface PageProps {
   searchParams: Promise<{
@@ -159,10 +158,7 @@ export default async function GmailPage({ searchParams }: PageProps) {
           </Button>
         </form>
         <p className="text-[10px] text-fg-subtle mt-2">
-          Última sincronización:{" "}
-          {connection.last_sync_at
-            ? dateTime(connection.last_sync_at)
-            : "nunca"}
+          Los hilos se leen en vivo desde Gmail al abrir.
         </p>
       </Card>
 

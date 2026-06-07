@@ -577,7 +577,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 </div>
               )}
 
-              {(email || profile.whatsapp || feeLabel) && (
+              {(email || profile.whatsapp || feeLabel || profile.available_note) && (
                 <div className="bg-white border-2 border-ink p-4 mb-4">
                   <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
                     — INFORMACIÓN DE RESERVA
@@ -620,6 +620,16 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                           Fee ref.
                         </span>
                         <span className="font-medium text-ink">{feeLabel}</span>
+                      </div>
+                    )}
+                    {profile.available_note && (
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+                          Agenda
+                        </span>
+                        <span className="font-medium text-ink">
+                          {profile.available_note}
+                        </span>
                       </div>
                     )}
                   </div>

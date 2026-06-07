@@ -70,7 +70,7 @@ export default async function GrowthPage() {
       {/* ═══ Hero brutalist ═══ */}
       <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — GROWTH · ÚLTIMOS 30 DÍAS
+          — GROWTH · DESDE TU ÚLTIMA ACTUALIZACIÓN
         </div>
         <div className="mt-2 flex flex-wrap items-end gap-4 justify-between">
           <h1 className="font-display text-4xl md:text-6xl leading-none">

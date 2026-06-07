@@ -202,7 +202,11 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {djs.map((d) => (
-            <BuscarCard key={d.user_id} dj={d} />
+            <BuscarCard
+              key={d.user_id}
+              dj={d}
+              filters={{ q: sp.q, city: sp.city, avail: sp.avail, budget: sp.budget }}
+            />
           ))}
         </div>
       )}

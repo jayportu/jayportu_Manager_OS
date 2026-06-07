@@ -27,7 +27,9 @@ interface PageProps {
 
 export default async function CampanasPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-  const campaigns = await listCampaigns({ status: sp.status });
+  // Default real a 'active' para que la lista calce con el chip resaltado
+  // (antes: chip "Activas" resaltado pero la lista traía todos los estados).
+  const campaigns = await listCampaigns({ status: sp.status ?? "active" });
 
   // KPIs por campaña
   const stats = await Promise.all(
