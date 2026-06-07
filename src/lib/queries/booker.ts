@@ -114,6 +114,7 @@ export interface BookerCredibility {
   instagram_url: string;
   bio: string;
   verified: boolean;
+  is_founding: boolean;
   member_since_year: string;
   requests_sent: number;
   djs_booked: number;
@@ -128,7 +129,7 @@ export async function getBookerCredibility(
   const { data: acct } = await admin
     .from("booker_accounts")
     .select(
-      "full_name, booker_type, city, country, website_url, instagram_url, bio, verified_at, created_at"
+      "full_name, booker_type, city, country, website_url, instagram_url, bio, verified_at, is_founding, created_at"
     )
     .eq("user_id", bookerUserId)
     .maybeSingle();
@@ -154,6 +155,7 @@ export async function getBookerCredibility(
     instagram_url: (acct.instagram_url as string) || "",
     bio: (acct.bio as string) || "",
     verified: !!acct.verified_at,
+    is_founding: !!acct.is_founding,
     member_since_year: acct.created_at
       ? new Date(acct.created_at as string).getFullYear().toString()
       : "",

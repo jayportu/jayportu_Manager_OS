@@ -39,6 +39,7 @@ const PUBLIC_PATHS = [
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const INVITE_COOKIE = "dropbeta_invite_token";
+const FOUNDING_COOKIE = "dropfounding_invite_token"; // Fase 2 · Founding Bookers
 // 7 días: cubre el caso "user abre invite, hace signup, tarda en confirmar
 // el email (5-15min normal), o lo abre en otro dispositivo después del trabajo".
 // Antes eran 30 min y se perdía la activación silenciosamente.
@@ -84,6 +85,21 @@ export async function updateSession(request: NextRequest) {
     const inviteParam = request.nextUrl.searchParams.get("invite");
     if (inviteParam && UUID_RE.test(inviteParam)) {
       supabaseResponse.cookies.set(INVITE_COOKIE, inviteParam, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        maxAge: INVITE_TTL,
+        path: "/",
+      });
+    }
+  }
+
+  // Fase 2 — Founding Bookers: /signup/booker?founding=<UUID> guarda el token
+  // en cookie HttpOnly. Lo consume /booker/layout vía consumeFoundingInviteIfAny.
+  if (pathname === "/signup/booker") {
+    const foundingParam = request.nextUrl.searchParams.get("founding");
+    if (foundingParam && UUID_RE.test(foundingParam)) {
+      supabaseResponse.cookies.set(FOUNDING_COOKIE, foundingParam, {
         httpOnly: true,
         secure: true,
         sameSite: "lax",

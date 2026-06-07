@@ -22,6 +22,7 @@ interface BookerRow {
   in_directory: boolean;
   accepts_pitches: boolean;
   verified_at: string | null;
+  is_founding: boolean;
   created_at: string;
 }
 
@@ -32,7 +33,7 @@ export default async function AdminBookersPage() {
   const { data } = await admin
     .from("booker_accounts")
     .select(
-      "user_id, full_name, email, booker_type, city, country, in_directory, accepts_pitches, verified_at, created_at"
+      "user_id, full_name, email, booker_type, city, country, in_directory, accepts_pitches, verified_at, is_founding, created_at"
     )
     .order("created_at", { ascending: false });
   const bookers = (data as BookerRow[]) ?? [];
@@ -105,15 +106,22 @@ export default async function AdminBookersPage() {
                     <td className="px-3 py-2.5">{b.in_directory ? "Sí" : "—"}</td>
                     <td className="px-3 py-2.5">{b.accepts_pitches ? "Sí" : "—"}</td>
                     <td className="px-3 py-2.5">
-                      {b.verified_at ? (
-                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success/15 border border-success/30 text-success">
-                          verificado
-                        </span>
-                      ) : (
-                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-warning">
-                          sin verificar
-                        </span>
-                      )}
+                      <div className="flex flex-wrap items-center gap-1">
+                        {b.is_founding && (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange/20 border border-orange/50 text-orange font-bold">
+                            ★ founding
+                          </span>
+                        )}
+                        {b.verified_at ? (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success/15 border border-success/30 text-success">
+                            verificado
+                          </span>
+                        ) : (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-warning">
+                            sin verificar
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       <VerifyBookerButton

@@ -128,6 +128,77 @@ export function ctaButton(label: string, url: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// 0. Founding Booker Invite (Fase 2)
+// ---------------------------------------------------------------------------
+
+export function foundingInviteEmailHtml(input: {
+  fullName: string;
+  inviteUrl: string;
+}): string {
+  const name = input.fullName?.trim() || "hola";
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">
+                Hola ${escapeHtml(name)},
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Te queremos invitar como <strong>Founding Booker</strong> de DROP., el lugar donde encuentras y contactas DJs directo — sin intermediarios ni comisión. Estamos abriendo el lado booker a un grupo chico y elegido, y queremos que seas parte.
+              </p>
+              <p style="font-size:15px; margin:0 0 12px 0;">Como Founding Booker tienes:</p>
+              <ul style="font-size:15px; margin:0 0 20px 0; padding:0 0 0 20px;">
+                <li style="margin:0 0 8px 0;"><strong>Cuenta verificada</strong> desde el día uno (badge ✓ que los DJs ven).</li>
+                <li style="margin:0 0 8px 0;"><strong>Badge ★ Founding</strong> — eres de los primeros, y se nota.</li>
+                <li style="margin:0 0 8px 0;"><strong>Acceso anticipado</strong> a lo que vayamos soltando (como el match inteligente de DJs).</li>
+              </ul>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                Tu invitación es personal y de un solo uso. Para activarla, crea tu cuenta acá:
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                ${ctaButton("Crear mi cuenta Founding", input.inviteUrl)}
+              </p>
+              <p style="font-size:13px; color:${MUTED}; margin:0 0 24px 0;">
+                Si el botón no funciona, copia este link: ${input.inviteUrl}
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 20px 0;">
+                Importante: crea la cuenta con <strong>este mismo correo</strong> para que tu acceso Founding quede activado automáticamente.
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Nos vemos adentro,<br>
+                DROP<span style="color:${ORANGE};">.</span> Team
+              </p>`;
+
+  return wrapEmail({
+    title: "Tu invitación Founding a DROP.",
+    preheader: `Te invitamos como Founding Booker de DROP., ${name}.`,
+    content,
+    footerReason:
+      "Recibes este email porque te invitamos personalmente a ser Founding Booker de DROP. en dropgigs.com. Si no esperabas esto, puedes ignorarlo — sin acción de tu parte no se crea ninguna cuenta.",
+  });
+}
+
+export function foundingInviteEmailText(input: {
+  fullName: string;
+  inviteUrl: string;
+}): string {
+  const name = input.fullName?.trim() || "hola";
+  return `Hola ${name},
+
+Te queremos invitar como Founding Booker de DROP., el lugar donde encuentras y contactas DJs directo, sin intermediarios ni comisión. Estamos abriendo el lado booker a un grupo chico y elegido, y queremos que seas parte.
+
+Como Founding Booker tienes:
+- Cuenta verificada desde el día uno (badge que los DJs ven).
+- Badge Founding: eres de los primeros, y se nota.
+- Acceso anticipado a lo que vayamos soltando (como el match inteligente de DJs).
+
+Tu invitación es personal y de un solo uso. Para activarla, crea tu cuenta acá:
+${input.inviteUrl}
+
+Importante: crea la cuenta con ESTE MISMO correo para que tu acceso Founding quede activado automáticamente.
+
+Nos vemos adentro,
+DROP. Team`;
+}
+
+// ---------------------------------------------------------------------------
 // 1. Beta Invite
 // ---------------------------------------------------------------------------
 

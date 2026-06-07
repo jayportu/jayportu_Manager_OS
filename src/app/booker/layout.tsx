@@ -4,6 +4,7 @@ import {
   ensureBookerAccount,
   claimBookingsByEmail,
 } from "@/lib/queries/booker";
+import { consumeFoundingInviteIfAny } from "@/lib/queries/founding-invites";
 import { BookerTopBar } from "./top-bar";
 
 /**
@@ -40,6 +41,13 @@ export default async function BookerLayout({
     // Edge: pudimos haber fallado el create. Vamos a la landing.
     redirect("/?error=booker_init");
   }
+
+  // Fase 2 — si hay un invite Founding pendiente (cookie del link o por email),
+  // auto-marca is_founding + verifica e invalida el token (single-use).
+  await consumeFoundingInviteIfAny({
+    userId: user.id,
+    userEmail: user.email ?? null,
+  });
 
   // Backfill: linkear bookings viejos hechos con este email
   await claimBookingsByEmail();
