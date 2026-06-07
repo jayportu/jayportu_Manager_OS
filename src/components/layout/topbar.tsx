@@ -121,11 +121,12 @@ export function Topbar({
         </span>
       )}
 
-      {/* Sprint S19 — Banner trial (excluyente con beta) */}
+      {/* Sprint S19 — Banner trial (excluyente con beta). Visible también en
+          mobile: es el aviso más accionable (lleva a /suscripcion). */}
       {trialLabel && trialBannerColor && (
         <a
           href="/suscripcion"
-          className={`hidden sm:inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor}`}
+          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor}`}
           title="Click para suscribirte ahora"
         >
           {trialLabel}

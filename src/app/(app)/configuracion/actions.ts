@@ -17,7 +17,9 @@ import type {
 
 export async function saveProfileAction(
   patch: DjProfileUpdate
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; normalized: DjProfileUpdate } | { ok: false; error: string }
+> {
   try {
     // Normalizar URLs de redes/web antes de guardar: trim + https:// si falta.
     // Sin esto, una URL pegada sin protocolo (ej. "soundcloud.com/foo") rompe
@@ -57,7 +59,10 @@ export async function saveProfileAction(
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
     revalidateTag("public-djs");
-    return { ok: true };
+    // Devolvemos lo normalizado para que el form re-sincronice sus inputs
+    // (URL con https:// agregado, fee corregido) en vez de seguir mostrando
+    // lo que tipeó el usuario.
+    return { ok: true, normalized };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Error desconocido";
     return { ok: false, error };
