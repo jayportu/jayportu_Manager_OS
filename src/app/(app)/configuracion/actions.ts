@@ -21,6 +21,9 @@ export async function saveProfileAction(
   { ok: true; normalized: DjProfileUpdate } | { ok: false; error: string }
 > {
   try {
+    // Beta vencida = cuenta congelada: no se puede editar nada hasta reaperturar
+    // (consistente con addRiderItemAction y el copy del paywall).
+    await assertBetaActive();
     // Normalizar URLs de redes/web antes de guardar: trim + https:// si falta.
     // Sin esto, una URL pegada sin protocolo (ej. "soundcloud.com/foo") rompe
     // el embed del player y deja los links públicos como rutas relativas.

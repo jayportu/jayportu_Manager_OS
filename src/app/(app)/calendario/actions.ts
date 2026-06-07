@@ -231,7 +231,7 @@ export async function syncEventsAction(): Promise<
     for (const ev of events) {
       if (!ev.id) continue;
       const start =
-        ev.start.dateTime || (ev.start.date ? `${ev.start.date}T00:00:00Z` : null);
+        ev.start.dateTime || (ev.start.date ? `${ev.start.date}T12:00:00Z` : null); // mediodía UTC: misma fecha en cualquier tz
       const end =
         ev.end.dateTime || (ev.end.date ? `${ev.end.date}T23:59:59Z` : null);
       if (!start || !end) continue;

@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { santiagoToUtcISO } from "@/lib/tz";
 import type {
   DjProfile,
   PresskitEvent,
@@ -323,9 +324,10 @@ export async function updateBookingWorkflow(
     // Necesita una fecha. Usar event_date del form (puede ser null).
     const eventDate = patch.event_date ?? b.event_date;
     if (eventDate) {
-      const startAt = new Date(`${eventDate}T22:00:00`);
-      // +4h. Antes era `${eventDate}T26:00:00` → hora 26 inválida → Invalid Date
-      // → RangeError en endAt.toISOString() (agendar crasheaba al cruzar medianoche).
+      // 22:00 HORA DE CHILE (no UTC). Antes `new Date(`${date}T22:00:00`)` se
+      // interpretaba como 22:00 UTC en Vercel → el show salía a las 18:00 Chile.
+      const startAt = new Date(santiagoToUtcISO(eventDate, "22:00:00"));
+      // +4h (cruza medianoche OK; antes `T26:00:00` daba Invalid Date → crash).
       const endAt = new Date(startAt.getTime() + 4 * 60 * 60 * 1000);
       const amount = patch.quoted_amount_clp ?? b.quoted_amount_clp;
       const { data: ev } = await supabase
