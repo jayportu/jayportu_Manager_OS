@@ -120,20 +120,17 @@ export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
     .not("onboarding_completed_at", "is", null);
   const completedOnboarding = completedOnboardingRaw || 0;
 
-  const { count: contactCreatorsRaw } = await admin
-    .from("contacts")
-    .select("user_id", { count: "exact", head: true });
-  const contactCreators = contactCreatorsRaw || 0;
-
-  const { count: gmailConnectedRaw } = await admin
-    .from("gmail_connections")
-    .select("user_id", { count: "exact", head: true });
-  const gmailConnected = gmailConnectedRaw || 0;
-
-  const { count: tracklistCreatorsRaw } = await admin
-    .from("tracklists")
-    .select("user_id", { count: "exact", head: true });
-  const tracklistCreators = tracklistCreatorsRaw || 0;
+  // Usuarios DISTINTOS (no filas) vía RPC. Antes se contaban filas con
+  // count:exact → un user con N contactos contaba N y los % pasaban de 100%.
+  const { data: funnelRows } = await admin.rpc("onboarding_funnel_counts");
+  const fc = (funnelRows?.[0] ?? {}) as {
+    contact_creators?: number;
+    gmail_connected?: number;
+    tracklist_creators?: number;
+  };
+  const contactCreators = Number(fc.contact_creators) || 0;
+  const gmailConnected = Number(fc.gmail_connected) || 0;
+  const tracklistCreators = Number(fc.tracklist_creators) || 0;
 
   const onboardingFunnel = [
     { step: "Tienen profile", count: totalUsers, pct: 100 },

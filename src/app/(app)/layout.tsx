@@ -16,6 +16,7 @@ import {
   evaluateSubscriptionAccess,
   isLegacyBetaUser,
 } from "@/lib/queries/subscription";
+import { isMpConfigured } from "@/lib/mercadopago/client";
 
 /**
  * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
@@ -78,8 +79,13 @@ export default async function AppLayout({
   const subscriptionAccess = isLegacyBeta || profile?.is_admin
     ? null
     : evaluateSubscriptionAccess(await getOrCreateSubscription(user.id));
+  // Soft-gate: si MP no está configurado (prod sin billing activo todavía, o
+  // dev), NO bloqueamos aunque el trial venza — encerrar a alguien sin vía de
+  // pago solo lo pierde. El banner de trial sigue mostrándose como aviso.
   const subscriptionBlocked =
-    subscriptionAccess !== null && !subscriptionAccess.hasAccess;
+    subscriptionAccess !== null &&
+    !subscriptionAccess.hasAccess &&
+    isMpConfigured();
   const trialDaysRemaining =
     subscriptionAccess?.reason === "trial"
       ? subscriptionAccess.daysRemaining

@@ -114,11 +114,15 @@ export async function setPromotedContactId(
   contactId: string
 ): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
-  await supabase
+  const { error } = await supabase
     .from("discovered_leads")
     .update({ status: "added_to_crm", promoted_contact_id: contactId })
     .eq("user_id", user.id)
     .eq("id", leadId);
+  // Antes se tragaba el error: si fallaba, el contacto quedaba creado pero el
+  // lead sin marcar → al reintentar se duplicaba el contacto. Ahora lanza para
+  // que el caller haga rollback.
+  if (error) throw new Error(error.message);
 }
 
 export async function countLeadsByStatus(): Promise<Record<LeadStatus, number>> {
