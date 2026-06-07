@@ -77,7 +77,7 @@ export default async function EmailCampaignsPage({
     { lbl: "Enviados", num: d.enviados, sub: `de ${d.total} · ${d.programados} programados` },
     { lbl: "Entregados", num: d.delivered, sub: `${pct(d.delivered, d.enviados)}%`, good: true },
     { lbl: "Rebotados", num: d.bounced, sub: `${d.bounceRate.toFixed(1)}%`, warn: true },
-    { lbl: "Quejas", num: d.complained, sub: `${d.complaintRate.toFixed(2)}%`, good: true },
+    { lbl: "Quejas", num: d.complained, sub: `${d.complaintRate.toFixed(2)}%`, warn: true },
     { lbl: "Aperturas", num: d.opened, sub: `${pct(d.opened, d.delivered)}%` },
     { lbl: "Clicks", num: d.clicked, sub: `${pct(d.clicked, d.delivered)}%` },
   ];

@@ -352,7 +352,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                       variant="ink"
                     />
                     <StatTile
-                      value={profile.city ? "CL" : "—"}
+                      value={profile.country ? profile.country.toUpperCase() : "—"}
                       label="BASE"
                       variant="orange"
                     />

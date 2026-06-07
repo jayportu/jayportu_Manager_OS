@@ -48,6 +48,10 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
       setError("Por favor pon tu nombre.");
       return;
     }
+    if (!form.email.trim() && !form.phone.trim()) {
+      setError("Déjanos un email o WhatsApp para poder responderte.");
+      return;
+    }
     startTransition(async () => {
       const res = await fetch("/api/booking", {
         method: "POST",

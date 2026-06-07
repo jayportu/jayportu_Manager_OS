@@ -95,17 +95,18 @@ export async function promoteLeadAction(
       city: lead.city || "Santiago",
       country: lead.country || "Chile",
       instagram: lead.instagram,
-      whatsapp: lead.whatsapp.replace(/\D/g, ""),
+      whatsapp: (lead.whatsapp || lead.phone || "").replace(/\D/g, ""),
       email: lead.email,
       website: lead.website,
       contact_person: "",
       contact_role: "",
       music_style: lead.music_style_guess || "",
-      main_channel: lead.whatsapp
-        ? "whatsapp"
-        : lead.email
-        ? "email"
-        : "instagram",
+      main_channel:
+        lead.whatsapp || lead.phone
+          ? "whatsapp"
+          : lead.email
+          ? "email"
+          : "instagram",
       status: "nuevo",
       notes: [
         lead.address ? `Dirección: ${lead.address}` : "",

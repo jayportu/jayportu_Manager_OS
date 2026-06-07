@@ -45,7 +45,11 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
 
   async function handleDismiss() {
     startTransition(async () => {
-      await updateLeadStatusAction(leadId, "dismissed");
+      const r = await updateLeadStatusAction(leadId, "dismissed");
+      if (!r.ok) {
+        alert(`Error: ${r.error}`);
+        return;
+      }
       router.refresh();
     });
   }
@@ -53,7 +57,11 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
   async function handleDelete() {
     if (!confirm("¿Borrar este lead?")) return;
     startTransition(async () => {
-      await deleteLeadAction(leadId);
+      const r = await deleteLeadAction(leadId);
+      if (!r.ok) {
+        alert(`Error: ${r.error}`);
+        return;
+      }
       router.refresh();
     });
   }
