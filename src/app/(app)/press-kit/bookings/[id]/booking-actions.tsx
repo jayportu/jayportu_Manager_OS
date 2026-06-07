@@ -12,7 +12,6 @@ import {
   type BookingStatus,
 } from "@/types/database";
 import {
-  updateBookingStatusAction,
   updateBookingWorkflowAction,
   convertBookingToContactAction,
 } from "../../actions";
@@ -64,7 +63,10 @@ export function BookingActions({
     if (newStatus === status) return;
     setError(null);
     startTransition(async () => {
-      const r = await updateBookingStatusAction(id, newStatus);
+      // Vía workflow (no el UPDATE plano): así las transiciones disparan las
+      // auto-acciones (promover a contacto, follow-up al cotizar, evento al
+      // agendar si hay fecha) en vez de solo cambiar el campo status.
+      const r = await updateBookingWorkflowAction(id, { status: newStatus });
       if (!r.ok) setError(r.error);
       else router.refresh();
     });

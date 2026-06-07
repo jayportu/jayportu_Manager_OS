@@ -15,7 +15,6 @@ import {
   LayoutTemplate,
   Mail,
   TrendingUp,
-  Sparkles,
   Settings,
   Building2,
   type LucideIcon,
@@ -50,7 +49,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
   { href: "/gmail", label: "Gmail", icon: Mail },
   { href: "/growth", label: "Growth", icon: TrendingUp },
-  { href: "/ia", label: "Asistente", icon: Sparkles },
   { href: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
