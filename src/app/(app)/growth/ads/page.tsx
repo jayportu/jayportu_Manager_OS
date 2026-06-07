@@ -288,8 +288,6 @@ export default async function GrowthCampaignsListPage({
                         {roi?.costPerFollower !== null &&
                         roi?.costPerFollower !== undefined
                           ? formatClp(roi.costPerFollower)
-                          : c.is_paid
-                          ? "calculando…"
                           : "—"}
                       </div>
                     </div>

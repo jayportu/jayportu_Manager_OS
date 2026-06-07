@@ -22,3 +22,20 @@ export function santiagoToUtcISO(dateStr: string, time = "00:00:00"): string {
   const offsetMs = naiveUtc.getTime() - sanWall.getTime();
   return new Date(naiveUtc.getTime() + offsetMs).toISOString();
 }
+
+/**
+ * Instante UTC (ISO) del primer día del mes actual a las 00:00 en Santiago.
+ * Para cupos mensuales (ej: tokens de pitch) que deben resetear a medianoche
+ * de Chile, no a medianoche UTC del server.
+ */
+export function santiagoMonthStartUtcISO(now: Date = new Date()): string {
+  // Año y mes vigentes SEGÚN Santiago (no según el server, que corre en UTC).
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(now);
+  const year = parts.find((p) => p.type === "year")!.value;
+  const month = parts.find((p) => p.type === "month")!.value;
+  return santiagoToUtcISO(`${year}-${month}-01`, "00:00:00");
+}

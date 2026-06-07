@@ -136,16 +136,33 @@ export default async function BookerSeguidosPage() {
                   </div>
                 )}
                 <div className="p-3">
-                  <div
-                    className="text-ink truncate"
-                    style={{
-                      fontFamily:
-                        "var(--font-anton), Impact, system-ui, sans-serif",
-                      fontSize: "22px",
-                      lineHeight: 0.95,
-                    }}
-                  >
-                    {dj.artist_name}
+                  <div className="flex items-start gap-2">
+                    <div
+                      className="text-ink truncate flex-1"
+                      style={{
+                        fontFamily:
+                          "var(--font-anton), Impact, system-ui, sans-serif",
+                        fontSize: "22px",
+                        lineHeight: 0.95,
+                      }}
+                    >
+                      {dj.artist_name}
+                    </div>
+                    {dj.notify_email ? (
+                      <span
+                        title="Te avisamos por email cuando publique novedades"
+                        className="text-orange shrink-0 mt-0.5"
+                      >
+                        <Bell className="w-3.5 h-3.5" />
+                      </span>
+                    ) : (
+                      <span
+                        title="Sin avisos por email (solo aparece en este feed)"
+                        className="text-fg-subtle shrink-0 mt-0.5"
+                      >
+                        <BellOff className="w-3.5 h-3.5" />
+                      </span>
+                    )}
                   </div>
                   <div className="font-mono text-[10px] text-fg-muted uppercase tracking-wider mt-1">
                     {dj.city || "—"}
