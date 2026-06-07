@@ -17,6 +17,7 @@ import type {
   DocumentType,
 } from "@/lib/calendar/types";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { revalidatePath } from "next/cache";
 
 type Result<T = void> =
@@ -44,6 +45,7 @@ export async function createEventAction(args: {
   document_type?: DocumentType;
 }): Promise<Result<{ id: string }>> {
   try {
+    await assertBetaActive();
     const conn = await getMyGmailConnection();
     if (!conn) {
       return {
@@ -106,6 +108,7 @@ export async function updateEventAction(
   }
 ): Promise<Result> {
   try {
+    await assertBetaActive();
     const supabase = await createClient();
     const {
       data: { user },
@@ -183,6 +186,7 @@ export async function updateEventFinanceAction(
   }
 ): Promise<Result> {
   try {
+    await assertBetaActive();
     const supabase = await createClient();
     const {
       data: { user },
@@ -289,6 +293,7 @@ export async function syncEventsAction(): Promise<
  */
 export async function deleteEventAction(id: string): Promise<Result> {
   try {
+    await assertBetaActive();
     const row = await deleteCalendarEvent(id);
     if (row?.google_event_id) {
       try {

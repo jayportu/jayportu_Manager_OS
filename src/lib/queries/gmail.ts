@@ -13,13 +13,18 @@ async function getUserOrThrow() {
 
 export async function getMyGmailConnection(): Promise<GmailConnection | null> {
   const { supabase, user } = await getUserOrThrow();
+  // maybeSingle: "sin fila" NO es error (antes .single() tiraba PGRST116 y se
+  // trataba CUALQUIER error —RLS/red/multiple— como "no conectado", silencioso).
   const { data, error } = await supabase
     .from("gmail_connections")
     .select("*")
     .eq("user_id", user.id)
-    .single();
-  if (error) return null;
-  return data as GmailConnection;
+    .maybeSingle();
+  if (error) {
+    console.error("getMyGmailConnection error:", error.message);
+    return null;
+  }
+  return (data as GmailConnection) ?? null;
 }
 
 export async function listCachedThreads(opts?: {

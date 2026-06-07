@@ -222,9 +222,9 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
                 — QR PARA FLYERS · MERCH · PENDRIVES
               </div>
               <p className="text-sm leading-relaxed text-fg mb-4">
-                Imprimilo en flyers, stickers, pendrives promo o pegalo en
+                Imprímelo en flyers, stickers, pendrives promo o pégalo en
                 instagram stories. El QR ya incluye el UTM seleccionado, así
-                trackeás de dónde llega cada visita.
+                trackeas de dónde llega cada visita.
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button

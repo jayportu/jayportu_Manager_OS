@@ -45,14 +45,18 @@ export function TemplateForm({ initial }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   function insertVariable(varKey: string) {
-    const cursor = (
-      document.getElementById("body") as HTMLTextAreaElement | null
-    )?.selectionStart;
-    if (cursor === null || cursor === undefined) {
-      setBody((b) => `${b}{${varKey}}`);
-      return;
-    }
-    setBody((b) => `${b.slice(0, cursor)}{${varKey}}${b.slice(cursor)}`);
+    const ta = document.getElementById("body") as HTMLTextAreaElement | null;
+    const insert = `{${varKey}}`;
+    // Posición actual del cursor; si no hay (textarea sin foco), al final.
+    const cursor = ta?.selectionStart ?? body.length;
+    setBody((b) => `${b.slice(0, cursor)}${insert}${b.slice(cursor)}`);
+    // Reposicionar el cursor justo después de la variable insertada (post-render).
+    setTimeout(() => {
+      if (!ta) return;
+      const pos = cursor + insert.length;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    }, 0);
   }
 
   async function handleSubmit(e: React.FormEvent) {

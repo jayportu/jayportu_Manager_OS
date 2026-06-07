@@ -46,7 +46,7 @@ export async function saveYouTubeAccountAction(input: {
 }): Promise<Result<{ id: string }>> {
   try {
     const raw = input.handle.trim();
-    if (!raw) return { ok: false, error: "Ingresá el handle o URL del canal" };
+    if (!raw) return { ok: false, error: "Ingresa el handle o URL del canal" };
     // Validar que normalize produzca algo válido
     const norm = normalizeYouTubeInput(raw);
     if (!norm.value || norm.value.length > 100) {

@@ -28,7 +28,7 @@ export default function BookerError({
           UPS<span className="text-orange">.</span>
         </h1>
         <p className="text-sm text-fg-muted mb-5">
-          No pudimos cargar esta sección. Probá de nuevo en un momento.
+          No pudimos cargar esta sección. Prueba de nuevo en un momento.
         </p>
         <button
           type="button"
