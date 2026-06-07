@@ -53,7 +53,7 @@ export function SoundcloudEmbed({
 
   const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
     embed
-  )}&color=%23e8b923&inverse=true&auto_play=false&show_user=true&hide_related=true`;
+  )}&color=%23FF5C00&inverse=true&auto_play=false&show_user=true&hide_related=true`;
 
   return (
     <div className="rounded-lg overflow-hidden border border-border bg-bg-panel">

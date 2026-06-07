@@ -308,6 +308,6 @@ export function formatSoundCloudDescription(input: {
   if (input.presskitUrl) {
     lines.push(`// recorded live · ${input.presskitUrl}`);
   }
-  lines.push("// powered by drop.dj");
+  lines.push("// powered by dropgigs.com");
   return lines.join("\n");
 }

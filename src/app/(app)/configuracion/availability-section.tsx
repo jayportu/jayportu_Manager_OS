@@ -82,7 +82,7 @@ export function AvailabilitySection({ profile }: Props) {
             rel="noopener noreferrer"
             className="text-orange hover:underline"
           >
-            drop.dj/dj
+            dropgigs.com/dj
           </a>
           . Bookers y venues lo pueden ver. Activa &ldquo;disponible para
           tocar&rdquo; cuando estés tomando shows.
@@ -104,7 +104,7 @@ export function AvailabilitySection({ profile }: Props) {
           </div>
           <p className="text-xs text-fg-muted mt-1">
             {hiddenFromDirectory
-              ? "Tu perfil no aparece en drop.dj/dj. Solo accesible por link directo a tu press kit."
+              ? "Tu perfil no aparece en dropgigs.com/dj. Solo accesible por link directo a tu press kit."
               : "Aparece en el directorio público, los bookers pueden encontrarte."}
           </p>
         </div>
