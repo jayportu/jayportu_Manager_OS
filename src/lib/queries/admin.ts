@@ -188,40 +188,30 @@ async function getCountsByUser(userIds: string[]): Promise<
     out[id] = { contacts: 0, posts: 0, snapshots: 0, campaigns: 0 };
   }
 
-  // contacts
-  const { data: c } = await admin
-    .from("contacts")
-    .select("user_id")
-    .in("user_id", userIds);
-  for (const row of (c || []) as Array<{ user_id: string }>) {
-    if (out[row.user_id]) out[row.user_id].contacts++;
+  // Conteos en SQL vía RPC — sin el tope de 1000 filas de PostgREST que
+  // truncaba los conteos cuando una tabla superaba ~1000 filas en total.
+  const { data, error } = await admin.rpc("admin_counts_by_user", {
+    ids: userIds,
+  });
+  if (error) {
+    console.error("admin_counts_by_user error:", error.message);
+    return out;
   }
-
-  // content_posts (Sprint 10)
-  const { data: p } = await admin
-    .from("content_posts")
-    .select("user_id")
-    .in("user_id", userIds);
-  for (const row of (p || []) as Array<{ user_id: string }>) {
-    if (out[row.user_id]) out[row.user_id].posts++;
-  }
-
-  // platform_snapshots
-  const { data: s } = await admin
-    .from("platform_snapshots")
-    .select("user_id")
-    .in("user_id", userIds);
-  for (const row of (s || []) as Array<{ user_id: string }>) {
-    if (out[row.user_id]) out[row.user_id].snapshots++;
-  }
-
-  // growth_campaigns
-  const { data: gc } = await admin
-    .from("growth_campaigns")
-    .select("user_id")
-    .in("user_id", userIds);
-  for (const row of (gc || []) as Array<{ user_id: string }>) {
-    if (out[row.user_id]) out[row.user_id].campaigns++;
+  for (const row of (data || []) as Array<{
+    user_id: string;
+    contacts: number;
+    posts: number;
+    snapshots: number;
+    campaigns: number;
+  }>) {
+    if (out[row.user_id]) {
+      out[row.user_id] = {
+        contacts: Number(row.contacts) || 0,
+        posts: Number(row.posts) || 0,
+        snapshots: Number(row.snapshots) || 0,
+        campaigns: Number(row.campaigns) || 0,
+      };
+    }
   }
 
   return out;
