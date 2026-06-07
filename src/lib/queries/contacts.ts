@@ -77,10 +77,19 @@ export async function listContacts(
   if (params.city) q = q.eq("city", params.city);
   if (typeof params.minScore === "number") q = q.gte("score", params.minScore);
   if (params.search && params.search.trim().length > 0) {
-    const s = params.search.trim();
-    q = q.or(
-      `name.ilike.%${s}%,city.ilike.%${s}%,contact_person.ilike.%${s}%,music_style.ilike.%${s}%,notes.ilike.%${s}%`
-    );
+    // PostgREST .or() usa comas y paréntesis como separadores de condiciones:
+    // un término con esos chars (ej. "club, bar") rompe el filtro y devuelve
+    // vacío. Los neutralizamos a espacio antes de armar el or().
+    const s = params.search
+      .trim()
+      .replace(/[,()]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (s.length > 0) {
+      q = q.or(
+        `name.ilike.%${s}%,city.ilike.%${s}%,contact_person.ilike.%${s}%,music_style.ilike.%${s}%,notes.ilike.%${s}%`
+      );
+    }
   }
   // Sprint 19 — Filtro AND por tags (contiene TODOS los tags pedidos)
   if (params.tags && params.tags.length > 0) {

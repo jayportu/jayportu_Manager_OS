@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { listContacts, countContacts } from "@/lib/queries/contacts";
-import { listPendingFollowUps } from "@/lib/queries/follow-ups";
+import {
+  listPendingFollowUps,
+  countPendingFollowUps,
+} from "@/lib/queries/follow-ups";
 import { listRecentInteractions } from "@/lib/queries/interactions";
 import Link from "next/link";
 import {
@@ -54,14 +57,21 @@ const FIRST_STEPS = [
 ];
 
 export default async function DashboardPage() {
-  const [profile, stats, pendingFollowUps, recentInteractions, topContacts] =
-    await Promise.all([
-      getMyProfile(),
-      countContacts(),
-      listPendingFollowUps(10),
-      listRecentInteractions(8),
-      listContacts({ orderBy: "score" }),
-    ]);
+  const [
+    profile,
+    stats,
+    pendingFollowUps,
+    followUpCounts,
+    recentInteractions,
+    topContacts,
+  ] = await Promise.all([
+    getMyProfile(),
+    countContacts(),
+    listPendingFollowUps(10),
+    countPendingFollowUps(),
+    listRecentInteractions(8),
+    listContacts({ orderBy: "score" }),
+  ]);
 
   // Saludo según hora local de Santiago (Vercel corre en UTC).
   // Antes usábamos new Date().getHours() que daba el saludo equivocado:
@@ -85,11 +95,10 @@ export default async function DashboardPage() {
   const profileIncomplete =
     !profile?.artist_name || profile.artist_name.trim().length === 0;
 
-  // KPIs
-  const now = new Date();
-  const overdueCount = pendingFollowUps.filter(
-    (f) => new Date(f.due_at) < now
-  ).length;
+  // KPIs — conteos REALES (sin el tope de listPendingFollowUps(10)).
+  const now = new Date(); // usado para marcar atrasados en la lista renderizada
+  const totalPending = followUpCounts.total;
+  const overdueCount = followUpCounts.overdue;
   const pipelineActive = topContacts.filter((c) =>
     [
       "contactado",
@@ -104,13 +113,13 @@ export default async function DashboardPage() {
 
   const isFirstTime =
     stats.total === 0 &&
-    pendingFollowUps.length === 0 &&
+    totalPending === 0 &&
     recentInteractions.length === 0;
 
   const heroSubtitle = isFirstTime
     ? "Bienvenido a DROP. Estos son tus próximos pasos para arrancar."
-    : `${pendingFollowUps.length} ${
-        pendingFollowUps.length === 1 ? "follow-up pendiente" : "follow-ups pendientes"
+    : `${totalPending} ${
+        totalPending === 1 ? "follow-up pendiente" : "follow-ups pendientes"
       }${overdueCount > 0 ? ` · ${overdueCount} atrasados` : ""}.`;
 
   return (
@@ -236,7 +245,7 @@ export default async function DashboardPage() {
         {/* Follow-ups · white o danger si hay atrasados */}
         <KpiTile
           label="Follow-ups"
-          value={pendingFollowUps.length}
+          value={totalPending}
           footer={
             overdueCount > 0 ? `${overdueCount} atrasados` : "Pendientes"
           }

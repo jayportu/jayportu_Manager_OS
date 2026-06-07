@@ -56,6 +56,32 @@ export async function listPendingFollowUps(
 }
 
 /**
+ * Conteo REAL de follow-ups pendientes (sin el .limit de listPendingFollowUps).
+ * Para KPIs/hero del dashboard, que deben mostrar el total, no el top-N.
+ */
+export async function countPendingFollowUps(): Promise<{
+  total: number;
+  overdue: number;
+}> {
+  const { supabase, user } = await getUserOrThrow();
+  const nowIso = new Date().toISOString();
+  const [totalRes, overdueRes] = await Promise.all([
+    supabase
+      .from("follow_ups")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("done", false),
+    supabase
+      .from("follow_ups")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("done", false)
+      .lt("due_at", nowIso),
+  ]);
+  return { total: totalRes.count ?? 0, overdue: overdueRes.count ?? 0 };
+}
+
+/**
  * Sprint 19 — Lista todos los follow-ups recurrentes activos (head of series).
  * Devuelve una entrada por serie (el follow-up pendiente más próximo de cada una).
  */

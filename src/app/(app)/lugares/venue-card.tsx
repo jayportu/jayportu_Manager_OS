@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Globe,
@@ -42,6 +43,7 @@ export function VenueCard({
   const [availability, setAvailability] = useState("");
   const [pending, startTransition] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  const router = useRouter();
 
   const loc = [venue.city, venue.country].filter(Boolean).join(", ");
   const site = normalizeUrl(venue.website_url);
@@ -68,6 +70,8 @@ export function VenueCard({
       if (!res.ok) return setErr(res.error);
       setPitchStatus("pending");
       setShowForm(false);
+      // Refresca los server components → la barra de tokens (page.tsx) baja en 1.
+      router.refresh();
     });
   }
 
