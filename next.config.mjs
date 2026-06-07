@@ -63,6 +63,14 @@ const nextConfig = {
         destination: "/booker/seguidos",
         permanent: true,
       },
+      // 2026-06-07: IA sacada del app (no era prioridad). El código queda en
+      // src/app/(app)/ia para una integración futura; la ruta redirige.
+      // permanent:false a propósito (reversible sin 301 cacheado en el browser).
+      {
+        source: "/ia",
+        destination: "/dashboard",
+        permanent: false,
+      },
     ];
   },
 };
