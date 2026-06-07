@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { BadgeCheck, Globe, Instagram, ExternalLink } from "lucide-react";
+import { BadgeCheck, Globe, Instagram, ExternalLink, Star } from "lucide-react";
 import { BOOKER_TYPES } from "@/types/database";
 import type { BookerCredibility } from "@/lib/queries/booker";
 
@@ -49,15 +49,22 @@ export function BookerCredibilityCard({ data }: { data: BookerCredibility }) {
               {TYPE_LABEL[data.booker_type] ?? data.booker_type}
               {loc && ` · ${loc}`}
             </div>
-            {data.verified ? (
-              <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-success bg-success/10 border border-success/30 rounded px-1.5 py-0.5">
-                <BadgeCheck className="w-3 h-3" /> Verificado por DROP.
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-fg-muted bg-bg border border-border rounded px-1.5 py-0.5">
-                Cuenta sin verificar
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+              {data.is_founding && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-ink bg-orange border border-ink rounded px-1.5 py-0.5">
+                  <Star className="w-3 h-3 fill-current" /> Founding
+                </span>
+              )}
+              {data.verified ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-success bg-success/10 border border-success/30 rounded px-1.5 py-0.5">
+                  <BadgeCheck className="w-3 h-3" /> Verificado por DROP.
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-fg-muted bg-bg border border-border rounded px-1.5 py-0.5">
+                  Cuenta sin verificar
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
