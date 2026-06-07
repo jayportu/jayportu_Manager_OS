@@ -205,7 +205,7 @@ export function AutoPostSection({ profile }: Props) {
     ...
   ],
   "soundcloud_text": "// formato 1001Tracklists paste-ready",
-  "presskit_url": "https://drop.dj/p/jayportu"
+  "presskit_url": "https://dropgigs.com/p/jayportu"
 }`}</pre>
       </details>
 

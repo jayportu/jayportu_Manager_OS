@@ -49,6 +49,10 @@ export function BetaForm() {
       setResult({ ok: false, error: "Falta nombre artístico o email." });
       return;
     }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) {
+      setResult({ ok: false, error: "El email no tiene un formato válido." });
+      return;
+    }
     setSubmitting(true);
     setResult(null);
     try {
