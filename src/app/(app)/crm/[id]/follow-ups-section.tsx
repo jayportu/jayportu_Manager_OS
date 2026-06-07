@@ -67,6 +67,8 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
         setNote("");
         setIsRecurring(false);
         router.refresh();
+      } else {
+        alert(`No se pudo crear el follow-up: ${result.error}`);
       }
     });
   }

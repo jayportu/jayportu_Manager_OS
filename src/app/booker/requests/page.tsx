@@ -45,7 +45,7 @@ export default async function BookerRequestsPage() {
             INBOX<span className="text-orange">.</span>
           </h1>
           <Link
-            href="/dj"
+            href="/booker/buscar"
             className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
           >
             <Plus className="w-4 h-4" />

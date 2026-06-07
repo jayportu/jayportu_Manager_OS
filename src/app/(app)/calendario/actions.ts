@@ -239,7 +239,7 @@ export async function syncEventsAction(): Promise<
       // Inferir type del título si tiene keywords (best-effort)
       const titleLower = (ev.summary || "").toLowerCase();
       let type: CalendarEventType = "otro";
-      if (/show|gig|jay\s*portu|set|@\s/i.test(titleLower)) type = "show";
+      if (/show|gig|jay\s*portu|\bset\b|@\s/i.test(titleLower)) type = "show";
       else if (/reuni|meeting|call/i.test(titleLower)) type = "reunion";
       else if (/follow|seguim/i.test(titleLower)) type = "follow_up";
       else if (/bloqueo|busy|unavailable/i.test(titleLower)) type = "bloqueo";

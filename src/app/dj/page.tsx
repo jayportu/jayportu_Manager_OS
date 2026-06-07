@@ -29,11 +29,11 @@ export const metadata: Metadata = {
     title: "DROP. · Directorio de DJs",
     description:
       "Encuentra DJs de techno, house, deep y más en Latam. Sin intermediarios.",
-    url: "https://drop.dj/dj",
+    url: "https://dropgigs.com/dj",
     type: "website",
   },
   alternates: {
-    canonical: "https://drop.dj/dj",
+    canonical: "https://dropgigs.com/dj",
   },
 };
 

@@ -39,6 +39,15 @@ export async function POST(request: Request) {
   if (!name || name.trim().length === 0) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
   }
+  // Exigir al menos una vía de contacto (el form promete "respondo en 24h").
+  const contactEmail = (body.email || "").trim();
+  const contactPhone = (body.phone || "").trim();
+  if (!contactEmail && !contactPhone) {
+    return NextResponse.json(
+      { error: "Déjanos un email o teléfono de contacto" },
+      { status: 400 }
+    );
+  }
 
   const ua = request.headers.get("user-agent") || "";
   const ref = request.headers.get("referer") || "";

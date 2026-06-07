@@ -25,7 +25,7 @@ const CAL_API_BASE = "https://www.googleapis.com/calendar/v3";
 
 function inferType(title: string): CalendarEventType {
   const t = title.toLowerCase();
-  if (/show|gig|jay\s*portu|set|@\s/i.test(t)) return "show";
+  if (/show|gig|jay\s*portu|\bset\b|@\s/i.test(t)) return "show";
   if (/reuni|meeting|call/i.test(t)) return "reunion";
   if (/follow|seguim/i.test(t)) return "follow_up";
   if (/bloqueo|busy|unavailable/i.test(t)) return "bloqueo";

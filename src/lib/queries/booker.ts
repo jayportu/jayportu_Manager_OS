@@ -482,7 +482,8 @@ export async function listMyBookerRequests(): Promise<BookingSubmission[]> {
   const { data: byId, error: e1 } = await supabase
     .from("booking_form_submissions")
     .select("*")
-    .eq("booker_user_id", user.id);
+    .eq("booker_user_id", user.id)
+    .order("created_at", { ascending: false });
   if (e1) {
     console.error("listMyBookerRequests byId error", e1);
   }
