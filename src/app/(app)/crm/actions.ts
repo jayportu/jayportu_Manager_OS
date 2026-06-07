@@ -109,6 +109,7 @@ export async function addFollowUpAction(
   try {
     await addFollowUp(input);
     revalidatePath(`/crm/${input.contact_id}`);
+    revalidatePath("/crm");
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   } catch (e) {
@@ -123,6 +124,7 @@ export async function completeFollowUpAction(
   try {
     await completeFollowUp(id);
     revalidatePath(`/crm/${contactId}`);
+    revalidatePath("/crm");
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   } catch (e) {
@@ -137,6 +139,7 @@ export async function deleteFollowUpAction(
   try {
     await deleteFollowUp(id);
     revalidatePath(`/crm/${contactId}`);
+    revalidatePath("/crm");
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   } catch (e) {

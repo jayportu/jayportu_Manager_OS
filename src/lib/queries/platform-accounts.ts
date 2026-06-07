@@ -77,7 +77,7 @@ export async function updateAccountSyncResult(
     error: string | null;
   }
 ): Promise<void> {
-  const { supabase } = await getUserOrThrow();
+  const { supabase, user } = await getUserOrThrow();
   await supabase
     .from("platform_accounts")
     .update({
@@ -87,5 +87,6 @@ export async function updateAccountSyncResult(
       external_id: result.external_id,
       last_error: result.error,
     })
-    .eq("id", accountId);
+    .eq("id", accountId)
+    .eq("user_id", user.id); // defensa en profundidad además de RLS
 }
