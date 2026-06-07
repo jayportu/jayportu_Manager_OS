@@ -74,7 +74,7 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
         size="sm"
       >
         <ArrowRight className="w-4 h-4" />
-        Agregar al CRM
+        {isPending ? "Agregando…" : "Agregar al CRM"}
       </Button>
       {status !== "dismissed" ? (
         <Button
