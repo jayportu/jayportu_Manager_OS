@@ -79,7 +79,9 @@ export async function createBookingSubmission(input: {
     .insert({
       user_id: input.user_id,
       name: input.name,
-      email: input.email || "",
+      // Normalizado a minúscula para que el match por email (claimBookingsByEmail,
+      // /booker/requests) sea consistente sin depender de cómo lo tipeó el booker.
+      email: (input.email || "").trim().toLowerCase(),
       phone: input.phone || "",
       event_type: input.event_type || "",
       event_date: input.event_date || null,
@@ -322,8 +324,9 @@ export async function updateBookingWorkflow(
     const eventDate = patch.event_date ?? b.event_date;
     if (eventDate) {
       const startAt = new Date(`${eventDate}T22:00:00`);
-      const endAt = new Date(`${eventDate}T26:00:00`); // 4h gig default
-      endAt.setHours(endAt.getHours());
+      // +4h. Antes era `${eventDate}T26:00:00` → hora 26 inválida → Invalid Date
+      // → RangeError en endAt.toISOString() (agendar crasheaba al cruzar medianoche).
+      const endAt = new Date(startAt.getTime() + 4 * 60 * 60 * 1000);
       const amount = patch.quoted_amount_clp ?? b.quoted_amount_clp;
       const { data: ev } = await supabase
         .from("calendar_events")

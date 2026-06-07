@@ -519,10 +519,15 @@ export async function claimBookingsByEmail(): Promise<number> {
   // hacer UPDATE de bookings (solo SELECT y solo de los suyos).
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const admin = createAdminClient();
+  // Match case-insensitive: bookings viejos pudieron guardarse con el email en
+  // mayúsculas (antes de normalizar al guardar) → con .eq nunca matcheaban y el
+  // request quedaba huérfano. ilike sin wildcards = comparación exacta sin case;
+  // escapamos %/_ para que no actúen como comodín si el email los tuviera.
+  const emailPattern = user.email.replace(/[%_]/g, "\\$&");
   const { data, error } = await admin
     .from("booking_form_submissions")
     .update({ booker_user_id: user.id })
-    .eq("email", user.email.toLowerCase())
+    .ilike("email", emailPattern)
     .is("booker_user_id", null)
     .select("id");
 
