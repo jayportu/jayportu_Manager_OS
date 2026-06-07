@@ -59,6 +59,29 @@ export async function toggleFavoriteAction(
 }
 
 /**
+ * m8 — marca UN pitch como visto (cuando el booker abre su press kit), en vez
+ * de marcar TODOS en bulk al cargar la pestaña. Así el token del DJ se consume
+ * solo cuando hubo lectura real de ese pitch. RLS limita al booker dueño.
+ */
+export async function markPitchViewedAction(
+  pitchId: string
+): Promise<{ ok: boolean }> {
+  if (!pitchId) return { ok: false };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+  await supabase
+    .from("venue_pitches")
+    .update({ viewed_at: new Date().toISOString() })
+    .eq("id", pitchId)
+    .eq("booker_user_id", user.id)
+    .is("viewed_at", null);
+  return { ok: true };
+}
+
+/**
  * Sprint RA-3 — Activa/desactiva los avisos por email sobre un DJ.
  *
  * Requiere que el booker YA tenga al DJ favoriteado (row en
