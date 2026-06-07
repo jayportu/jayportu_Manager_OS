@@ -113,7 +113,24 @@ export async function syncEventsForUser(userId: string): Promise<{
   const json = (await res.json()) as { items?: GCalEventMin[] };
   const events = json.items || [];
 
-  // 4. Upsert eventos
+  // 4. Insert / update eventos.
+  // OJO: NO usamos upsert con `type`, porque `type` es clasificación del lado
+  // DROP (no viene de Google). inferType es solo una adivinanza al importar;
+  // si el usuario reclasifica, el re-sync horario NO debe pisarla. Por eso:
+  // eventos nuevos → insert con type inferido; existentes → update SIN type.
+  const eventIds = events.map((e) => e.id).filter(Boolean) as string[];
+  const existingIds = new Set<string>();
+  if (eventIds.length > 0) {
+    const { data: existing } = await admin
+      .from("calendar_events")
+      .select("google_event_id")
+      .eq("user_id", userId)
+      .in("google_event_id", eventIds);
+    for (const r of existing || []) {
+      if (r.google_event_id) existingIds.add(r.google_event_id);
+    }
+  }
+
   let pulled = 0;
   for (const ev of events) {
     if (!ev.id) continue;
@@ -124,25 +141,33 @@ export async function syncEventsForUser(userId: string): Promise<{
       ev.end.dateTime || (ev.end.date ? `${ev.end.date}T23:59:59Z` : null);
     if (!start || !end) continue;
 
-    const type = inferType(ev.summary || "");
+    const googleFields = {
+      user_id: userId,
+      google_event_id: ev.id,
+      google_calendar_id: "primary",
+      title: ev.summary || "(sin título)",
+      description: ev.description || "",
+      location: ev.location || "",
+      start_at: start,
+      end_at: end,
+      all_day: !ev.start.dateTime,
+      sync_state: "synced",
+      last_synced_at: new Date().toISOString(),
+    };
 
-    await admin.from("calendar_events").upsert(
-      {
-        user_id: userId,
-        google_event_id: ev.id,
-        google_calendar_id: "primary",
-        type,
-        title: ev.summary || "(sin título)",
-        description: ev.description || "",
-        location: ev.location || "",
-        start_at: start,
-        end_at: end,
-        all_day: !ev.start.dateTime,
-        sync_state: "synced",
-        last_synced_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,google_event_id" }
-    );
+    if (existingIds.has(ev.id)) {
+      // Existente: actualizar solo campos de Google, preservar `type` manual.
+      await admin
+        .from("calendar_events")
+        .update(googleFields)
+        .eq("user_id", userId)
+        .eq("google_event_id", ev.id);
+    } else {
+      // Nuevo: insert con type inferido (mejor adivinanza inicial).
+      await admin
+        .from("calendar_events")
+        .insert({ ...googleFields, type: inferType(ev.summary || "") });
+    }
     pulled++;
   }
 

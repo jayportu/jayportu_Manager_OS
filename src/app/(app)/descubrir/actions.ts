@@ -7,7 +7,7 @@ import {
   getLead,
   deleteLead,
 } from "@/lib/queries/discovered-leads";
-import { createContact } from "@/lib/queries/contacts";
+import { createContact, deleteContact } from "@/lib/queries/contacts";
 import { revalidatePath } from "next/cache";
 import type {
   ContactInsert,
@@ -122,7 +122,14 @@ export async function promoteLeadAction(
     };
 
     const contact = await createContact(contactInput);
-    await setPromotedContactId(leadId, contact.id);
+    try {
+      await setPromotedContactId(leadId, contact.id);
+    } catch (e) {
+      // Rollback: el contacto se creó pero no pudimos marcar el lead. Borramos
+      // el contacto para no dejar duplicado y que el reintento parta limpio.
+      await deleteContact(contact.id).catch(() => {});
+      throw e;
+    }
 
     revalidatePath("/descubrir");
     revalidatePath("/crm");

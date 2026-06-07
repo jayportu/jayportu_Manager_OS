@@ -6,6 +6,7 @@
  * lo contrario un user normal podría leer toda la DB.
  */
 import "server-only";
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
@@ -88,6 +89,25 @@ export interface GlobalMetrics {
 }
 
 /**
+ * Trae TODOS los auth users paginando (listUsers topa por página). Antes se
+ * pedía page:1/perPage:200 y se perdían los users >200 en la tabla admin y en
+ * el conteo "Activos 7d".
+ */
+type AuthAdmin = ReturnType<typeof createAdminClient>["auth"]["admin"];
+async function listAllAuthUsers(authAdmin: AuthAdmin): Promise<User[]> {
+  const all: User[] = [];
+  const perPage = 1000;
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await authAdmin.listUsers({ page, perPage });
+    if (error) throw new Error(`auth.admin.listUsers: ${error.message}`);
+    const users = data?.users ?? [];
+    all.push(...users);
+    if (users.length < perPage) break;
+  }
+  return all;
+}
+
+/**
  * Lista todos los users con métricas básicas.
  * Hace 1 query a auth.users + 1 query agregada a dj_profile JOIN counts.
  */
@@ -95,17 +115,13 @@ export async function getAllUsers(): Promise<AdminUserRow[]> {
   const admin = createAdminClient();
 
   // 1) Auth users — necesitamos email y last_sign_in_at que no están en dj_profile
-  const { data: authData, error: authErr } = await admin.auth.admin.listUsers({
-    page: 1,
-    perPage: 200,
-  });
-  if (authErr) throw new Error(`auth.admin.listUsers: ${authErr.message}`);
+  const authUsers = await listAllAuthUsers(admin.auth.admin);
 
   const authById = new Map<
     string,
     { email: string; last_sign_in_at: string | null }
   >();
-  for (const u of authData.users) {
+  for (const u of authUsers) {
     authById.set(u.id, {
       email: u.email || "(sin email)",
       last_sign_in_at: u.last_sign_in_at ?? null,
@@ -251,16 +267,11 @@ export async function getGlobalMetrics(): Promise<GlobalMetrics> {
   ]);
 
   // Active last 7d: contar users con auth.last_sign_in_at >= d7
-  // No hay forma directa de query — leemos via admin listUsers
+  // No hay forma directa de query — leemos via admin listUsers (paginado).
   let active7d = 0;
-  const { data: authData } = await admin.auth.admin.listUsers({
-    page: 1,
-    perPage: 200,
-  });
-  if (authData) {
-    for (const u of authData.users) {
-      if (u.last_sign_in_at && u.last_sign_in_at >= d7) active7d++;
-    }
+  const allAuthUsers = await listAllAuthUsers(admin.auth.admin);
+  for (const u of allAuthUsers) {
+    if (u.last_sign_in_at && u.last_sign_in_at >= d7) active7d++;
   }
 
   return {
