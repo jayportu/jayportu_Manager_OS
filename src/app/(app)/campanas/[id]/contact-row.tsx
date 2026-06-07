@@ -113,9 +113,11 @@ export function CampaignContactRow({
     }
     // Cambia status a enviado si estaba pendiente o preparado
     if (row.status === "pendiente" || row.status === "preparado") {
-      void updateCampaignContactStatusAction(row.id, campaignId, "enviado").then(
-        () => router.refresh()
-      );
+      void updateCampaignContactStatusAction(row.id, campaignId, "enviado")
+        .then(() => router.refresh())
+        .catch((e) =>
+          console.error("auto-marcar 'enviado' falló:", e)
+        );
     }
     window.open(wa, "_blank");
   }
@@ -132,9 +134,11 @@ export function CampaignContactRow({
       subj
     )}&body=${encodeURIComponent(resolved)}`;
     if (row.status === "pendiente" || row.status === "preparado") {
-      void updateCampaignContactStatusAction(row.id, campaignId, "enviado").then(
-        () => router.refresh()
-      );
+      void updateCampaignContactStatusAction(row.id, campaignId, "enviado")
+        .then(() => router.refresh())
+        .catch((e) =>
+          console.error("auto-marcar 'enviado' falló:", e)
+        );
     }
     window.location.href = url;
   }

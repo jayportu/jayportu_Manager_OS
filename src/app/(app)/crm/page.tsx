@@ -235,6 +235,10 @@ export default async function CrmPage({ searchParams }: PageProps) {
       {/* Filtros */}
       <Card className="p-4 mb-5">
         <form className="grid grid-cols-1 md:grid-cols-5 gap-3" action="/crm">
+          {/* Preserva los tags activos al aplicar los demás filtros */}
+          {activeTags.length > 0 && (
+            <input type="hidden" name="tags" value={activeTags.join(",")} />
+          )}
           <Input
             type="search"
             name="q"

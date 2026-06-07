@@ -9,6 +9,7 @@
  */
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { santiagoMonthStartUtcISO } from "@/lib/tz";
 import type { BookingSubmission } from "@/types/database";
 
 export interface BookerAccount {
@@ -213,15 +214,15 @@ export async function getPitchTokenBalance(): Promise<PitchTokenBalance> {
   if (!user)
     return { allowance: MONTHLY_PITCH_TOKENS, used: 0, available: 0 };
 
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
+  // Inicio de mes en hora de Chile (no UTC del server): el cupo resetea a la
+  // medianoche del 1° en Santiago.
+  const monthStartISO = santiagoMonthStartUtcISO();
 
   const { data } = await supabase
     .from("venue_pitches")
     .select("created_at, viewed_at")
     .eq("dj_user_id", user.id)
-    .gte("created_at", monthStart.toISOString());
+    .gte("created_at", monthStartISO);
 
   const refundCutoff = Date.now() - PITCH_REFUND_DAYS * 24 * 60 * 60 * 1000;
   const used = ((data ?? []) as Array<{ created_at: string; viewed_at: string | null }>)
@@ -552,6 +553,7 @@ export interface BookerFavorite {
   hero_image_url: string;
   logo_url: string;
   favorited_at: string;
+  notify_email: boolean;
 }
 
 export async function listMyFavorites(): Promise<BookerFavorite[]> {
@@ -567,6 +569,7 @@ export async function listMyFavorites(): Promise<BookerFavorite[]> {
       `
       dj_user_id,
       created_at,
+      notify_email,
       dj_profile:dj_profile!booker_favorites_dj_user_id_fkey(
         artist_name, city, genres, public_slug, hero_image_url, logo_url
       )
@@ -584,6 +587,7 @@ export async function listMyFavorites(): Promise<BookerFavorite[]> {
   type FavRow = {
     dj_user_id: string;
     created_at: string;
+    notify_email: boolean | null;
     dj_profile:
       | {
           artist_name: string;
@@ -617,6 +621,7 @@ export async function listMyFavorites(): Promise<BookerFavorite[]> {
         hero_image_url: dj.hero_image_url,
         logo_url: dj.logo_url,
         favorited_at: row.created_at,
+        notify_email: row.notify_email ?? false,
       } satisfies BookerFavorite;
     })
     .filter((x): x is BookerFavorite => x !== null);

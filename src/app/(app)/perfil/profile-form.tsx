@@ -156,7 +156,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="artist_name">Nombre artístico *</Label>
             <Input
               id="artist_name"
-              value={form.artist_name}
+              value={form.artist_name ?? ""}
               onChange={(e) => update("artist_name", e.target.value)}
               placeholder="JAY PORTU"
               required
@@ -166,7 +166,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="tagline">Tagline</Label>
             <Input
               id="tagline"
-              value={form.tagline}
+              value={form.tagline ?? ""}
               onChange={(e) => update("tagline", e.target.value)}
               placeholder="DJ chileno · House & Tech House"
             />
@@ -176,7 +176,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
           <Label htmlFor="bio_short">Bio corta (1-2 líneas)</Label>
           <Textarea
             id="bio_short"
-            value={form.bio_short}
+            value={form.bio_short ?? ""}
             onChange={(e) => update("bio_short", e.target.value)}
             rows={2}
             placeholder="Para usar en cards y previews."
@@ -186,7 +186,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
           <Label htmlFor="bio_long">Bio larga (para press kit)</Label>
           <Textarea
             id="bio_long"
-            value={form.bio_long}
+            value={form.bio_long ?? ""}
             onChange={(e) => update("bio_long", e.target.value)}
             rows={6}
             placeholder="Texto completo para el press kit público."
@@ -264,7 +264,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="city">Ciudad</Label>
             <Input
               id="city"
-              value={form.city}
+              value={form.city ?? ""}
               onChange={(e) => update("city", e.target.value)}
             />
           </div>
@@ -272,7 +272,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="country">País</Label>
             <Input
               id="country"
-              value={form.country}
+              value={form.country ?? ""}
               onChange={(e) => update("country", e.target.value)}
             />
           </div>
@@ -289,7 +289,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="instagram_url">Instagram URL</Label>
             <Input
               id="instagram_url"
-              value={form.instagram_url}
+              value={form.instagram_url ?? ""}
               onChange={(e) => update("instagram_url", e.target.value)}
               placeholder="https://instagram.com/jay_portu"
             />
@@ -298,7 +298,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="soundcloud_url">SoundCloud URL</Label>
             <Input
               id="soundcloud_url"
-              value={form.soundcloud_url}
+              value={form.soundcloud_url ?? ""}
               onChange={(e) => update("soundcloud_url", e.target.value)}
               placeholder="https://soundcloud.com/jay-portu"
             />
@@ -307,7 +307,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="youtube_url">YouTube URL</Label>
             <Input
               id="youtube_url"
-              value={form.youtube_url}
+              value={form.youtube_url ?? ""}
               onChange={(e) => update("youtube_url", e.target.value)}
               placeholder="https://youtube.com/@jayportu"
             />
@@ -316,7 +316,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="spotify_url">Spotify URL</Label>
             <Input
               id="spotify_url"
-              value={form.spotify_url}
+              value={form.spotify_url ?? ""}
               onChange={(e) => update("spotify_url", e.target.value)}
               placeholder="https://open.spotify.com/artist/..."
             />
@@ -325,7 +325,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="website">Website</Label>
             <Input
               id="website"
-              value={form.website}
+              value={form.website ?? ""}
               onChange={(e) => update("website", e.target.value)}
               placeholder="https://tunombre.com"
             />
@@ -568,7 +568,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Input
               id="public_email"
               type="email"
-              value={form.public_email}
+              value={form.public_email ?? ""}
               onChange={(e) => update("public_email", e.target.value)}
               placeholder="tunombre@gmail.com"
             />
@@ -577,7 +577,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             <Label htmlFor="whatsapp">WhatsApp (con código país, sin +)</Label>
             <Input
               id="whatsapp"
-              value={form.whatsapp}
+              value={form.whatsapp ?? ""}
               onChange={(e) => update("whatsapp", e.target.value)}
               placeholder="56988188531"
             />

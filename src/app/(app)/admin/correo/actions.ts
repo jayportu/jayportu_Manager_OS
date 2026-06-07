@@ -47,6 +47,22 @@ async function filesToAttachments(
   return out;
 }
 
+/**
+ * Marca un correo como leído. Se llama desde un client trigger al abrir el
+ * correo (no durante el render del RSC) y revalida para que el punto de
+ * "no leído" de la lista desaparezca al instante.
+ */
+export async function markEmailRead(id: string): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  await admin
+    .from("inbound_emails")
+    .update({ read_at: new Date().toISOString() })
+    .eq("id", id)
+    .is("read_at", null);
+  revalidatePath("/admin/correo");
+}
+
 export async function archiveEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();

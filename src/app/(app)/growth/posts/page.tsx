@@ -112,12 +112,14 @@ function ListView({
   campaignMap: Map<string, string>;
   sp: { platform?: SocialPlatform; status?: PostStatus };
 }) {
+  // Preserva ?platform al cambiar de chip de estado (si está activo)
+  const platformQuery = sp.platform ? `&platform=${sp.platform}` : "";
   return (
     <>
       {/* Filtros simples */}
       <div className="flex items-center gap-1.5 flex-wrap mb-5">
         <Link
-          href="/growth/posts?view=list"
+          href={`/growth/posts?view=list${platformQuery}`}
           className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
             !sp.status
               ? "bg-ink text-orange border-ink"
@@ -131,7 +133,7 @@ function ListView({
         ).map((s) => (
           <Link
             key={s}
-            href={`/growth/posts?view=list&status=${s}`}
+            href={`/growth/posts?view=list&status=${s}${platformQuery}`}
             className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
               sp.status === s
                 ? "bg-ink text-orange border-ink"

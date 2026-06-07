@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { syncEventsAction } from "./actions";
+import { acquireSyncLock, releaseSyncLock } from "./sync-lock";
 import { RefreshCw } from "lucide-react";
 
 interface Props {
@@ -40,6 +41,9 @@ export function AutoSync({ lastSyncAt, staleMinutes = 5 }: Props) {
       return;
     }
 
+    // Si el botón manual ya está sincronizando, no disparamos otro en paralelo.
+    if (!acquireSyncLock()) return;
+
     setSyncing(true);
     void (async () => {
       try {
@@ -49,6 +53,7 @@ export function AutoSync({ lastSyncAt, staleMinutes = 5 }: Props) {
         // Silencioso
       } finally {
         setSyncing(false);
+        releaseSyncLock();
       }
     })();
   }, [lastSyncAt, staleMinutes, router]);

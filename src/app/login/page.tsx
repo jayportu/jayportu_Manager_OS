@@ -17,7 +17,7 @@ import { LoginForm } from "./login-form";
 import { startBetaInviteFlow } from "@/lib/queries/beta-invite";
 
 interface PageProps {
-  searchParams: Promise<{ invite?: string; auth_error?: string }>;
+  searchParams: Promise<{ invite?: string; auth_error?: string; next?: string }>;
 }
 
 // Mensajes para errores propagados desde /auth/callback. Mantener en chileno.
@@ -58,6 +58,15 @@ export default async function LoginPage({ searchParams }: PageProps) {
   if (sp.invite && typeof sp.invite === "string") {
     invite = await startBetaInviteFlow(sp.invite);
   }
+
+  // ?next= — solo aceptamos rutas internas (evita open-redirect): debe empezar
+  // con "/" pero no con "//" (que el navegador trata como URL absoluta).
+  const nextPath =
+    typeof sp.next === "string" &&
+    sp.next.startsWith("/") &&
+    !sp.next.startsWith("//")
+      ? sp.next
+      : null;
 
   // Error propagado desde /auth/callback (link expirado, etc.)
   const authErrorKey = typeof sp.auth_error === "string" ? sp.auth_error : null;
@@ -108,6 +117,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
         <LoginForm
           inviteEmail={invite?.email ?? null}
           inviteArtistName={invite?.artist_name ?? null}
+          nextPath={nextPath}
         />
 
         {/* Soporte de contacto — captura usuarios bloqueados en el login */}

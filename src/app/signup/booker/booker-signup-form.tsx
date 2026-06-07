@@ -126,7 +126,7 @@ export function BookerSignupForm() {
     }
 
     setInfo(
-      "Te mandamos un email para confirmar tu cuenta. Revisa tu bandeja (también spam). El link dura unos minutos."
+      "Te mandamos un email para confirmar tu cuenta. Revisa tu bandeja (también spam). El link dura unos minutos. Si ya tenías cuenta con este email, no recibirás nada nuevo: usa 'Iniciar sesión'."
     );
     setLoading(false);
   }

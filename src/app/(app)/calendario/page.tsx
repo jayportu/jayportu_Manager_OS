@@ -194,7 +194,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {sp.synced && (
         <Card className="p-3 mb-4 bg-success/10 border-2 border-success">
           <div className="text-sm text-success">
-            ✓ {sp.synced} eventos sincronizados desde Google Calendar.
+            ✓ {sp.synced} eventos revisados desde Google Calendar.
           </div>
         </Card>
       )}

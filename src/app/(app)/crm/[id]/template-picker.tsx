@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,6 @@ export function TemplatePicker({
   const [templates, setTemplates] = useState<Template[] | null>(null);
   const [selectedId, setSelectedId] = useState<string>("");
   const [resolvedText, setResolvedText] = useState("");
-  const [missing, setMissing] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -66,10 +65,17 @@ export function TemplatePicker({
     if (!selectedId || !templates) return;
     const t = templates.find((x) => x.id === selectedId);
     if (!t) return;
-    const { text, missing } = resolveTemplate(t.body, vars);
-    setResolvedText(text);
-    setMissing(missing);
+    setResolvedText(resolveTemplate(t.body, vars).text);
   }, [selectedId, templates, vars]);
+
+  // "Faltan datos" se recalcula sobre el texto actual del textarea (las
+  // variables sin resolver quedan como {variable}), así refleja ediciones
+  // manuales y se limpia al cambiar de plantilla.
+  const missing = useMemo(() => {
+    const found =
+      resolvedText.match(/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g) || [];
+    return Array.from(new Set(found.map((m) => m.slice(1, -1))));
+  }, [resolvedText]);
 
   const selected = templates?.find((t) => t.id === selectedId) || null;
 

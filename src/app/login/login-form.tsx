@@ -18,9 +18,11 @@ import { translateSupabaseError } from "@/lib/auth-errors";
 interface Props {
   inviteEmail: string | null;
   inviteArtistName: string | null;
+  /** Ruta interna a la que volver tras login (sanitizada en el server). */
+  nextPath?: string | null;
 }
 
-export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
+export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
   const router = useRouter();
   const supabase = createClient();
   // Si viene un invite, forzar signup como modo default
@@ -53,11 +55,14 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
     setError(null);
     setInfo(null);
     setGoogleLoading(true);
+    const callbackUrl = nextPath
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+      : `${window.location.origin}/auth/callback`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         scopes: "email profile",
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl,
       },
     });
     if (error) {
@@ -90,9 +95,9 @@ export function LoginForm({ inviteEmail, inviteArtistName }: Props) {
         return;
       }
       router.refresh();
-      // Ruteamos a "/" y dejamos que RootPage decida DJ→/dashboard vs
-      // booker→/booker/requests según el tipo de cuenta.
-      router.push("/");
+      // Si vino con ?next=, volvemos ahí. Si no, ruteamos a "/" y dejamos que
+      // RootPage decida DJ→/dashboard vs booker→/booker/requests según el tipo.
+      router.push(nextPath ?? "/");
     } else {
       // Sprint S20 — Beta cerrada. Si no llegó con invite, refusamos signup
       // en el cliente como UX hint (la defensa real está en el trigger DB

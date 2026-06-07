@@ -1,12 +1,12 @@
 import { Mail, Archive, Trash2, RotateCcw, Paperclip } from "lucide-react";
 import { assertAdmin } from "@/lib/queries/admin";
 import { getInbox, getInboundEmail } from "@/lib/queries/inbox";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { relativeTime, dateTime } from "@/lib/format";
 import { AutoRefresh } from "../email-campaigns/auto-refresh";
 import { archiveEmail, deleteEmail, restoreEmail } from "./actions";
 import { ReplyForm } from "./reply-form";
 import { Compose } from "./compose";
+import { MarkRead } from "./mark-read";
 
 export const dynamic = "force-dynamic";
 
@@ -33,15 +33,8 @@ export default async function CorreoPage({
   const list = await getInbox(folder);
   const selected = sp.id ? await getInboundEmail(sp.id) : null;
 
-  // Marcar como leído al abrir
-  if (selected && !selected.read_at) {
-    const admin = createAdminClient();
-    await admin
-      .from("inbound_emails")
-      .update({ read_at: new Date().toISOString() })
-      .eq("id", selected.id);
-    selected.read_at = new Date().toISOString();
-  }
+  // Marcar como leído: lo dispara <MarkRead/> en el cliente (fuera del render).
+  const needsMarkRead = !!selected && !selected.read_at;
 
   const hasText = !!selected?.text_body && selected.text_body.trim().length > 0;
 
@@ -118,6 +111,7 @@ export default async function CorreoPage({
             </div>
           ) : (
             <div className="p-5">
+              {needsMarkRead && <MarkRead id={selected.id} />}
               <div className="flex items-start gap-3 pb-4 border-b border-border">
                 <div>
                   <div className="text-lg font-bold">{selected.subject || "(sin asunto)"}</div>
