@@ -213,9 +213,13 @@ export async function completeFollowUp(id: string): Promise<string | null> {
     return null;
   }
 
-  // 5. Crear el siguiente
+  // 5. Crear el siguiente. Base = max(due_at, hoy): si el follow-up estaba
+  // atrasado, el próximo se cuenta desde HOY (no desde la fecha vieja, que
+  // dejaba el nuevo también en el pasado).
+  const base =
+    new Date(fu.due_at) < new Date() ? new Date().toISOString() : fu.due_at;
   const newDueAt = nextDueDate(
-    fu.due_at,
+    base,
     fu.recurrence_value,
     fu.recurrence_unit
   );

@@ -187,7 +187,10 @@ export async function getFinanceKpis(): Promise<FinanceKpis> {
   }>;
   const withAmount = rows.filter((r) => r.amount_clp && r.amount_clp > 0);
   const paid = withAmount.filter((r) => r.payment_status === "paid");
-  const pending = withAmount.filter((r) => r.payment_status === "pending");
+  // 'partial' cuenta como pendiente (antes desaparecía de todos los totales).
+  const pending = withAmount.filter(
+    (r) => r.payment_status === "pending" || r.payment_status === "partial"
+  );
   const totalCobrado = paid.reduce((sum, r) => sum + (r.amount_clp ?? 0), 0);
   const totalPendiente = pending.reduce(
     (sum, r) => sum + (r.amount_clp ?? 0),

@@ -128,6 +128,9 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     startTransition(async () => {
       const result = await saveProfileAction(patch);
       if (result.ok) {
+        // Re-sincronizar los inputs con lo que realmente quedó guardado
+        // (URLs con https:// agregado, fee corregido), no lo que se tipeó.
+        setForm((f) => ({ ...f, ...result.normalized }) as DjProfile);
         setMessage({ type: "ok", text: "Guardado." });
         router.refresh();
       } else {
