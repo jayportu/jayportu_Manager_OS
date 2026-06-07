@@ -195,7 +195,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       {djs.length === 0 ? (
         <div className="border-2 border-ink bg-white p-10 text-center">
           <p className="text-sm text-fg-muted">
-            No hay DJs que coincidan con los filtros. Probá con menos filtros,
+            No hay DJs que coincidan con los filtros. Prueba con menos filtros,
             otra ciudad o un presupuesto más alto.
           </p>
         </div>

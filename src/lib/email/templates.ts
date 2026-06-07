@@ -464,7 +464,7 @@ export function bugFixFollowupEmailHtml(input: {
                 ${escapeHtml(input.fixSummary)}
               </p>
               <p style="font-size:15px; margin:0 0 12px 0;">
-                Te invito a chequear que todo se vea como esperás en estos lugares:
+                Te invito a chequear que todo se vea como esperas en estos lugares:
               </p>
               <ol style="font-size:15px; margin:0 0 20px 20px; padding:0;">
                 ${points}
@@ -505,7 +505,7 @@ Antes que nada, gracias por avisar del problema con ${input.bugTitle}. Reportes 
 
 ${input.fixSummary}
 
-Te invito a chequear que todo se vea como esperás en estos lugares:
+Te invito a chequear que todo se vea como esperas en estos lugares:
 
 ${points}
 
@@ -545,17 +545,17 @@ export function avatarReminderEmailHtml(input: {
               <p style="font-size:15px; margin:0 0 16px 0;">
                 Sin foto, tu card en el <a href="${input.directoryUrl}" style="color:${INK}; text-decoration:underline;">directorio público</a> sale con tus iniciales en vez de tu cara. Los bookers que entran a buscar DJ se enganchan con quien identifican rápido — y la foto es lo primero que ven.
               </p>
-              <p style="font-size:15px; margin:0 0 12px 0;">Subila en 30 segundos:</p>
+              <p style="font-size:15px; margin:0 0 12px 0;">Súbela en 30 segundos:</p>
               <ol style="font-size:15px; margin:0 0 20px 20px; padding:0;">
-                <li style="margin:0 0 8px 0;">Abrí tu perfil en DROP.</li>
+                <li style="margin:0 0 8px 0;">Abre tu perfil en DROP.</li>
                 <li style="margin:0 0 8px 0;">Click en el círculo gris arriba (donde van las iniciales).</li>
-                <li style="margin:0 0 8px 0;">Elegí una foto cuadrada — JPG o PNG, hasta 10&nbsp;MB.</li>
+                <li style="margin:0 0 8px 0;">Elige una foto cuadrada — JPG o PNG, hasta 10&nbsp;MB.</li>
               </ol>
               <p style="font-size:15px; margin:0 0 24px 0;">
                 ${ctaButton("Subir mi foto", input.profileUrl)}
               </p>
               <p style="font-size:13px; color:${MUTED}; margin:0 0 16px 0;">
-                Tip: usá una foto donde se te vea la cara claramente, sin filtros raros. Lo que pondrías en tu Instagram de perfil. La misma queda como avatar en toda la app + en tu press kit público.
+                Tip: usa una foto donde se te vea la cara claramente, sin filtros raros. Lo que pondrías en tu Instagram de perfil. La misma queda como avatar en toda la app + en tu press kit público.
               </p>
               <p style="font-size:15px; margin:0 0 24px 0;">
                 Cualquier duda — o si algo no carga — respondes este correo y te ayudo directo.
@@ -585,14 +585,14 @@ Pasé revisando los perfiles de los DJs en la beta y vi que el tuyo todavía no 
 
 Sin foto, tu card en el directorio público (${input.directoryUrl}) sale con tus iniciales en vez de tu cara. Los bookers que entran a buscar DJ se enganchan con quien identifican rápido — y la foto es lo primero que ven.
 
-Subila en 30 segundos:
-1. Abrí tu perfil en DROP.
+Súbela en 30 segundos:
+1. Abre tu perfil en DROP.
 2. Click en el círculo gris arriba (donde van las iniciales).
-3. Elegí una foto cuadrada — JPG o PNG, hasta 10 MB.
+3. Elige una foto cuadrada — JPG o PNG, hasta 10 MB.
 
 Subir mi foto: ${input.profileUrl}
 
-Tip: usá una foto donde se te vea la cara claramente, sin filtros raros. Lo que pondrías en tu Instagram de perfil. La misma queda como avatar en toda la app + en tu press kit público.
+Tip: usa una foto donde se te vea la cara claramente, sin filtros raros. Lo que pondrías en tu Instagram de perfil. La misma queda como avatar en toda la app + en tu press kit público.
 
 Cualquier duda — o si algo no carga — respondes este correo y te ayudo directo.
 

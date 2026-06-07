@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     windowMs: 60_000,
   });
   if (!limit.ok) {
-    return new NextResponse("Demasiados intentos. Esperá unos minutos.", {
+    return new NextResponse("Demasiados intentos. Espera unos minutos.", {
       status: 429,
     });
   }

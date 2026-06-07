@@ -64,7 +64,7 @@ export function CounterofferResponse({
       ? parseInt(newAmount.replace(/\D/g, ""), 10)
       : null;
     if (!amount || amount <= 0) {
-      setError("Ingresá un monto válido para la nueva cotización");
+      setError("Ingresa un monto válido para la nueva cotización");
       return;
     }
     startTransition(async () => {
