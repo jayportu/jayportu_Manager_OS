@@ -1,23 +1,18 @@
-import Link from "next/link";
 import Image from "next/image";
-import {
-  listReceivedPitches,
-  markReceivedPitchesViewed,
-} from "@/lib/queries/booker";
+import { listReceivedPitches } from "@/lib/queries/booker";
 import { relativeTime } from "@/lib/format";
-import { Send, ArrowRight, CalendarClock } from "lucide-react";
+import { Send, CalendarClock } from "lucide-react";
+import { PitchPressKitLink } from "./pitch-presskit-link";
 
 /**
  * Fase 4a booker — Pitches recibidos por el lugar.
- * Al cargar marca los nuevos como vistos → el DJ ve "visto" y se consume
- * su token. El lugar lee el mensaje + disponibilidad + abre el press kit.
+ * m8: el pitch se marca "visto" (consume el token del DJ) recién cuando el
+ * booker abre el press kit de ESE DJ — no en bulk al cargar la pestaña.
  */
 export const dynamic = "force-dynamic";
 
 export default async function PitchesPage() {
   const pitches = await listReceivedPitches();
-  // Marcar vistos los nuevos (después de leerlos, para mostrar el estado real)
-  await markReceivedPitchesViewed();
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
@@ -98,14 +93,7 @@ export default async function PitchesPage() {
                     </div>
                   </div>
                   {p.public_slug && (
-                    <Link
-                      href={`/p/${p.public_slug}`}
-                      target="_blank"
-                      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border-2 border-ink font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
-                    >
-                      Press kit
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <PitchPressKitLink pitchId={p.id} slug={p.public_slug} />
                   )}
                 </div>
 
