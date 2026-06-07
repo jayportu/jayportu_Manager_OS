@@ -99,16 +99,17 @@ export default async function DashboardPage() {
   const now = new Date(); // usado para marcar atrasados en la lista renderizada
   const totalPending = followUpCounts.total;
   const overdueCount = followUpCounts.overdue;
-  const pipelineActive = topContacts.filter((c) =>
-    [
-      "contactado",
-      "respondio",
-      "interesado",
-      "propuesta_enviada",
-      "negociando",
-      "confirmado",
-    ].includes(c.status)
-  ).length;
+  // Pipeline activo: del conteo REAL (countContacts.byStatus, todos los
+  // contactos) — antes filtraba topContacts (topado en 500 + otro denominador
+  // que las demás KPIs).
+  const pipelineActive = [
+    "contactado",
+    "respondio",
+    "interesado",
+    "propuesta_enviada",
+    "negociando",
+    "confirmado",
+  ].reduce((sum, s) => sum + (stats.byStatus[s] ?? 0), 0);
   const top5 = topContacts.slice(0, 5);
 
   const isFirstTime =

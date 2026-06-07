@@ -123,19 +123,13 @@ export async function saveSnapshotsAction(
   try {
     let inserted = 0;
     for (const s of snapshots) {
-      // Solo guardar si hay al menos un dato numérico
+      // Guardar si hay al menos un dato presente. OJO: 0 es un valor VÁLIDO
+      // (cuenta nueva con 0 seguidores) — antes se descartaba silenciosamente.
       if (
-        s.followers === null ||
-        s.followers === undefined ||
-        s.followers === 0
+        (s.followers === null || s.followers === undefined) &&
+        (s.engagement_rate === null || s.engagement_rate === undefined)
       ) {
-        if (
-          s.engagement_rate === null ||
-          s.engagement_rate === undefined ||
-          s.engagement_rate === 0
-        ) {
-          continue;
-        }
+        continue;
       }
       await createSnapshot(s);
       inserted++;

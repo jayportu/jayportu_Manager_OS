@@ -27,7 +27,26 @@ function feeLabel(dj: PublicDjProfile): string | null {
   return null;
 }
 
-export function BuscarCard({ dj }: { dj: PublicDjProfile }) {
+type BuscarFilters = { q?: string; city?: string; avail?: string; budget?: string };
+
+/** href del chip de género preservando los filtros activos (no resetearlos). */
+function genreHref(g: string, filters?: BuscarFilters): string {
+  const p = new URLSearchParams();
+  if (filters?.q) p.set("q", filters.q);
+  if (filters?.city) p.set("city", filters.city);
+  if (filters?.avail) p.set("avail", filters.avail);
+  if (filters?.budget) p.set("budget", filters.budget);
+  p.set("genres", g.toLowerCase());
+  return `/booker/buscar?${p.toString()}`;
+}
+
+export function BuscarCard({
+  dj,
+  filters,
+}: {
+  dj: PublicDjProfile;
+  filters?: BuscarFilters;
+}) {
   const [showSet, setShowSet] = useState(false);
 
   const cardImg =
@@ -130,7 +149,7 @@ export function BuscarCard({ dj }: { dj: PublicDjProfile }) {
             {dj.genres.slice(0, 3).map((g) => (
               <Link
                 key={g}
-                href={`/booker/buscar?genres=${encodeURIComponent(g.toLowerCase())}`}
+                href={genreHref(g, filters)}
                 className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream hover:bg-orange hover:text-ink transition-colors"
               >
                 {g}
