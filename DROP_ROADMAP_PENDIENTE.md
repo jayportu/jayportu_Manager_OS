@@ -52,10 +52,12 @@ Es la primera impresión de cualquier booker que se invite.
 ### FASE 2 · Reabrir el lado booker · Founding Bookers · ~1 semana
 **Objetivo:** traer los primeros bookers, a mano y curados. El backend ya existe casi entero.
 
-- [ ] ♻️ Ya en prod: perfil booker, ficha de credibilidad, directorio de lugares, pitches+tokens
-- [ ] 🆕 Construir `/booker/buscar` (hoy es stub "Próximamente"): filtra por género, ciudad, disponibilidad, fee + escucha sets en un solo lugar *(la propuesta de valor exacta)*
-- [ ] 🆕 Reabrir signup booker (decidir: campos obligatorios, verificación de email, anti-spam)
-- [ ] 🆕 Programa Founding Bookers: invitación VIP (♻️ reusa infra de invites beta), gratis por X tiempo, acceso anticipado, badge "Founding", perfil verificado
+- [x] ♻️ Ya en prod (pre-Fase 2): perfil booker, ficha de credibilidad, directorio de lugares, pitches+tokens
+- [x] 🆕 Construir `/booker/buscar`: filtra por género, ciudad, disponibilidad y **presupuesto** + escucha sets inline + guarda favoritos *(la propuesta de valor exacta)*. ✅ 2026-06-06 (PR #14, en prod). Reusa `listPublicDjs` (extendida con fee/sets/budget), `FavoriteButtonClient` y `SetEmbed`. **Diferido a v2:** filtros guardados, recos por favoritos (= Fase 3 Smart Match), filtro por fecha específica.
+- [x] 🆕 Reabrir signup booker. ✅ 2026-06-06 (PR #15, en prod). Campos: nombre+email+password+**país+ciudad** obligatorios (tipo opcional); verificación email obligatoria (mailer_autoconfirm off); anti-spam = rate-limit nativo + email confirm. País→ciudad dependiente (datalist vía countriesnow.space, fallback a texto libre). **CAPTCHA Turnstile pendiente** como paso de hardening (es global, toca los 4 forms de auth → ver Fase 6).
+- [x] 🆕 Programa Founding Bookers. ✅ 2026-06-07 (PR #16, en prod; migración 0044). Invitación VIP con **token único de un solo uso** (mirror infra beta): admin invita en /admin/founding-invites → token → al registrarse (o próxima visita a /booker) queda `is_founding` + verificado auto, token invalidado. Badge ★ Founding en /admin/bookers y en la card de credibilidad que ve el DJ. **Construido 3/5 del bullet original** (invitación VIP + badge + verificado); los otros 2 — **gratis por X tiempo** y **acceso anticipado** — quedan DIFERIDOS a Fase 3 (flag `is_founding` listo, pero hoy no hay nada pago/exclusivo que gatear). CAPTCHA del signup pendiente (Fase 6 hardening).
+
+> **✅ FASE 2 COMPLETA (2026-06-07):** buscar (PR #14) + signup reabierto (PR #15) + Founding Bookers (PR #16). El lado booker está listo para traer los primeros bookers curados. **Siguiente: Fase 3 · Smart Match.**
 
 ### FASE 3 · Smart Match · el gancho de pago · ~1-2 semanas
 **Objetivo:** feature exclusiva del booker que justifica suscripción.
@@ -64,6 +66,7 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] 🆕 v1: filtros estructurados (género + ciudad + disponibilidad + fee) · v2: IA semántica
 - [ ] ♻️ Conecta con la infra Ollama existente → de paso arregla que el tab "IA" hoy no usa IA
 - [ ] 📋 Es la versión booker-initiated de "Para ti" (RA-2B)
+- [ ] 🪙 **Perks Founding (heredados de Fase 2):** cuando Smart Match (u otro feature de booker) sea pago, activar con el flag `is_founding` los 2 perks que quedaron listos pero sin función: **gratis por X tiempo** + **acceso anticipado**. Sin esto, "Founding" hoy = badge + verificado nomás.
 
 ### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas
 **Objetivo:** del match al cierre con plata y contrato, dentro de DROP.
@@ -83,12 +86,14 @@ Es la primera impresión de cualquier booker que se invite.
 **Objetivo:** abrir a bookers = más exposición → blindar antes.
 
 - [ ] 📋 Sección 13 completa: Next 14→15, rate limiting, CSP, `/privacy` + `/terms`, Sentry, 2FA, DMARC `reject`, rotar keys
+- [ ] 🆕 CAPTCHA Turnstile en los 4 forms de auth (heredado de Fase 2 · signup booker)
+- [x] ⚪ **QA tab por tab (2026-06-07/08)** — barrido exhaustivo de bugs/fricciones por pestaña (workflow multi-agente, 77 hallazgos). **73/77 arreglados y en prod** (PRs #17–#31): 11 altos + 30 medios + 32 bajos. Bonus de la tanda: dashboard de email en tiempo real (webhook `campaign_id`, PR #13) y Gmail N+1 → batch endpoint (PR #31). **Quedan 4 a propósito:** 2 de cobros (reactivar suscripción + acceso en `pending`) → entran con Fase 4 · pagos; press-kit tope 1000 eventos/7d (imposible de gatillar, pediría un RPC para cero beneficio real); IA race condition (moot — la IA salió del nav). Detalle completo en `QA_FINDINGS.md`.
 
 ### Backlog / deuda menor (no bloquea)
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
-**Siguiente paso:** Fase 0 → bug de géneros.
+**Siguiente paso:** Fase 3 · Smart Match (Fases 0-2 cerradas; QA tab-por-tab 73/77 en prod).
 
 ---
 

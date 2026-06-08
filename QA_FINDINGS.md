@@ -1,0 +1,244 @@
+# QA · hallazgos tab por tab (workflow 2026-06-07)
+
+Total: 77. Arreglados: 73/77 — 11 ALTOS + 30 medios + 32 bajos (PR #17-#29). Checkbox = arreglado.
+
+
+## 🔴 ALTO (11 · 11 ✅)
+
+- [x] **/dashboard · Conteo de follow-ups topado en 10: KPI y hero sub-reportan** _(bug)_ ✅ PR #17
+  - 📍 `src/app/(app)/dashboard/page.tsx:61, 90-92, 112-114, 239`
+  - 🔧 Traer el conteo real con una query count (head:true, sin limit) para KPI y hero, y dejar el limit solo para la lista renderizada. O usar limit alto y etiquetar como 'top N'.
+- [x] **/crm · Buscar con coma rompe la query de PostgREST y devuelve lista vacía** _(bug)_ ✅ PR #17
+  - 📍 `src/lib/queries/contacts.ts:79-84`
+  - 🔧 Sanitizar el término antes de interpolar (como mínimo quitar comas: `s.replace(/[,()%*]/g, ' ')`), o escapar y construir las condiciones por separado, o usar textSearch/websearch_to_tsquery.
+- [x] **/lugares · Barra de tokens queda desactualizada tras mandar un pitch (sin router.refresh)** _(bug)_ ✅ PR #17
+  - 📍 `src/app/(app)/lugares/venue-card.tsx:60-72 (submitPitch); barra en src/app/(app)/lugares/page.tsx:38-44`
+  - 🔧 Llamar router.refresh() tras un pitch exitoso (como hace DiscoverTabs en discover-tabs.tsx:137/165), o levantar el conteo de tokens a estado compartido en la página y decrementarlo localmente al enviar.
+- [x] **/descubrir · setPromotedContactId ignora errores → lead huérfano y posible contacto duplicado al reintentar** _(error)_ ✅ PR #18
+  - 📍 `src/lib/queries/discovered-leads.ts:112-122 (setPromotedContactId), usado en src/app/(app)/descubrir/actions.ts:124-125`
+  - 🔧 En setPromotedContactId capturar el error y 'throw new Error(error.message)' como el resto de funciones, para que promoteLeadAction lo atrape en su try/catch y devuelva { ok:false }.
+- [x] **/calendario (sync cron) · El cron horario pisa la clasificación manual de tipo (type)** _(bug)_ ✅ PR #18
+  - 📍 `src/lib/calendar/sync-job.ts:127-145`
+  - 🔧 En syncEventsForUser hacer lo mismo que upsertCalendarEvent: SELECT por (user_id, google_event_id); si existe -> UPDATE solo title/description/location/start_at/end_at/all_day/sync_state/last_synced_at (NO type ni campos locales); si no existe -> INSERT con type inferido. Mejor aún: extraer la lógica de upsertCalendarEvent a una función que acepte un cliente admin y reusarla en el cron.
+- [x] **/press-kit/bookings/[id] · Agendar · Agendar CRASHEA: endAt usa hora 26:00:00 → Invalid Date → RangeError en toISOString()** _(error)_ ✅ PR #17
+  - 📍 `src/lib/queries/presskit.ts:325 (throw real en :337 end_at)`
+  - 🔧 Sumar horas sobre un Date válido: const startAt=new Date(`${eventDate}T22:00:00`); const endAt=new Date(startAt); endAt.setHours(endAt.getHours()+4). Eliminar el T26:00:00 y el endAt.setHours(endAt.getHours()) de la línea 326 que no hace nada.
+- [x] **/suscripcion · Paywall sin salida si MP no está configurado en prod (flujo diferido)** _(friction)_ ✅ PR #18
+  - 📍 `src/app/suscripcion/page.tsx:98 + src/app/suscripcion/actions.ts:37-39 + src/app/(app)/layout.tsx:78-82`
+  - 🔧 Si !isMpConfigured() (o falta NEXT_PUBLIC_MP_PUBLIC_KEY): no rendir el CheckoutForm; mostrar copy tipo 'pagos abren pronto, escríbeme a hola@dropgigs.com' y/o no activar el gating de subscription en prod mientras MP esté diferido (extender trial / no bloquear).
+- [x] **/booker/requests · Backfill por email no matchea si el email se guardo con mayusculas (case-sensitive)** _(bug)_ ✅ PR #17
+  - 📍 `src/lib/queries/booker.ts:525 + src/lib/queries/presskit.ts:82`
+  - 🔧 Normalizar el email a lowercase al insertar (route.ts/presskit.ts) Y/O usar .ilike('email', user.email) en claimBookingsByEmail para match case-insensitive. Idealmente ambos para cubrir filas ya guardadas.
+- [x] **/booker/requests (backfill en layout) · claimBookingsByEmail no matchea bookings con email en mayúsculas → requests huérfanos nunca aparecen** _(bug)_ ✅ PR #17
+  - 📍 `src/lib/queries/booker.ts:522-527`
+  - 🔧 Normalizar el email a minúsculas al GUARDAR (route.ts + createBookingSubmission) y/o usar .ilike() o match case-insensitive en claimBookingsByEmail. Para los ya guardados, un backfill case-insensitive de una vez.
+- [x] **/admin (page principal · tabla de usuarios + KPI Activos 7d) · Lista de usuarios y 'Activos 7d' capados a 200 auth users sin paginar** _(bug)_ ✅ PR #18
+  - 📍 `src/lib/queries/admin.ts:98-101 y 256-259`
+  - 🔧 Paginar listUsers en bucle (page++ mientras data.users.length === perPage, perPage 1000) reutilizando el patrón de beta-reminder/actions.ts:78-91, y compartir la lista paginada entre getAllUsers y getGlobalMetrics.active_last_7d.
+- [x] **/admin/analytics (Funnel onboarding · pasos Contacto/Gmail/Tracklist) · El funnel cuenta FILAS, no usuarios únicos → % pueden pasar de 100%** _(bug)_ ✅ PR #18
+  - 📍 `src/lib/queries/analytics.ts:123-160`
+  - 🔧 Contar usuarios distintos por paso: RPC con count(distinct user_id), o traer user_ids y meterlos en un Set como ya se hace en topFeatures (analytics.ts:99-105).
+
+## 🟡 MEDIO (32 · 30 ✅)
+
+- [x] **/dashboard · KPI 'Pipeline activo' sub-cuenta sobre 500 contactos y usa denominador distinto a las otras KPIs** _(bug)_ ✅ PR #20
+  - 📍 `src/app/(app)/dashboard/page.tsx:63, 93-102, 231`
+  - 🔧 Calcular pipelineActive en el servidor sumando los estados activos de countContacts().byStatus, en vez de filtrar topContacts en memoria.
+- [x] **/perfil · saveProfileAction no valida beta expirada (inconsistente con el resto de actions del archivo)** _(bug)_ ✅ PR #22
+  - 📍 `src/app/(app)/configuracion/actions.ts:18-65`
+  - 🔧 Definir politica: si editar perfil debe quedar permitido en beta expirada, ajustar el copy del BetaExpiredError; si no, agregar await assertBetaActive() al inicio de saveProfileAction como las demas.
+- [x] **/perfil · El form no refleja las URLs normalizadas tras guardar (input desincronizado del valor real)** _(friction)_ ✅ PR #21
+  - 📍 `src/app/(app)/perfil/profile-form.tsx:35, 128-137 + configuracion/actions.ts:25-35`
+  - 🔧 Que saveProfileAction devuelva el profile actualizado y el form haga setForm(result.data) tras ok, o reconciliar form con el initialProfile fresco via efecto.
+- [x] **/crm/[id] · follow-ups recurrentes · El siguiente follow-up recurrente se agenda desde la fecha vieja, no desde hoy** _(bug)_ ✅ PR #21
+  - 📍 `src/lib/queries/follow-ups.ts:191-195 (nextDueDate sobre fu.due_at)`
+  - 🔧 Calcular el próximo vencimiento desde max(fu.due_at, now): `nextDueDate(new Date(fu.due_at) < new Date() ? new Date().toISOString() : fu.due_at, value, unit)`.
+- [x] **/crm/[id] · addFollowUp no muestra error al usuario si la acción falla** _(friction)_ ✅ PR #19
+  - 📍 `src/app/(app)/crm/[id]/follow-ups-section.tsx:52-72`
+  - 🔧 Agregar estado `error` y `else { setError(result.error) }`, mostrando el mensaje en el form como hace add-interaction-button.tsx.
+- [x] **/descubrir · Dismiss y Delete de leads fallan en silencio (no se chequea r.ok)** _(friction)_ ✅ PR #19
+  - 📍 `src/app/(app)/descubrir/lead-actions.tsx:46-59 (handleDismiss, handleDelete)`
+  - 🔧 Chequear el resultado: const r = await updateLeadStatusAction(...); if (!r.ok) alert(`Error: ${r.error}`); else router.refresh(); igual para delete.
+- [x] **/descubrir · Promote pierde el teléfono de venues OSM: whatsapp queda vacío y main_channel mal asignado** _(bug)_ ✅ PR #19
+  - 📍 `src/app/(app)/descubrir/actions.ts:98 y 104-108; origen en saveOverpassLeadsAction (:52-68) + normalizeOverpassElement (src/lib/overpass.ts:295-347)`
+  - 🔧 Al promover usar phone como fallback de whatsapp: whatsapp: (lead.whatsapp || lead.phone).replace(/\D/g,'') y ajustar el cálculo de main_channel para considerar phone/whatsapp.
+- [x] **/campanas · Chip 'Activas' resaltado pero la lista muestra campañas de TODOS los estados** _(bug)_ ✅ PR #20
+  - 📍 `src/app/(app)/campanas/page.tsx:30,42 + src/lib/queries/campaigns.ts:31`
+  - 🔧 Default real a 'active' (listCampaigns({ status: sp.status ?? 'active' })) o no resaltar ningún chip cuando sp.status es undefined y agregar un chip 'Todas'.
+- [x] **/growth · Hero dice 'ÚLTIMOS 30 DÍAS' pero el delta es vs el snapshot anterior de cualquier fecha** _(bug)_ ✅ PR #20
+  - 📍 `src/app/(app)/growth/page.tsx:73 + src/lib/queries/growth.ts:410-417`
+  - 🔧 Filtrar el snapshot de comparación al más cercano a -30d antes de calcular el delta, o cambiar el copy a 'vs snapshot anterior' / 'desde la última actualización'.
+- [x] **/growth · saveSnapshotsAction descarta snapshots con followers=0 silenciosamente** _(bug)_ ✅ PR #20
+  - 📍 `src/app/(app)/growth/actions.ts:127-139`
+  - 🔧 Tratar 0 como valor válido: chequear solo null/undefined (s.followers != null) y no 0. El filtro de 'al menos un valor' ya está en el cliente (snapshot-dialog.tsx:79).
+- [x] **/calendario (sync all-day) · Eventos all-day se muestran un día antes (UTC midnight vs tz Santiago)** _(bug)_ ✅ PR #22
+  - 📍 `src/app/(app)/calendario/actions.ts:233-236 y src/lib/calendar/sync-job.ts:120-124`
+  - 🔧 Para all-day no anclar a UTC midnight: guardar `${date}T00:00:00-04:00` (medianoche local Santiago) o detectar all_day en EventRow/format y parsear el date string sin conversión de tz. Aplicar en ambos paths (actions.ts y sync-job.ts) ya que duplican el formato.
+- [x] **/calendario (KPIs) · Gigs con pago 'parcial' no suman en ningún total financiero** _(bug)_ ✅ PR #21
+  - 📍 `src/lib/queries/calendar-events.ts:188-208`
+  - 🔧 Decidir tratamiento de 'partial'. Mínimo: incluir 'partial' en totalPendiente para que el monto no desaparezca. Idealmente sumar la porción cobrada a COBRADO y el resto a PENDIENTE (requeriría un campo de monto pagado parcial, que hoy no existe).
+- [x] **/calendario (sync inferType) · inferType clasifica como 'show' títulos que no lo son ('set' como substring)** _(bug)_ ✅ PR #19
+  - 📍 `src/lib/calendar/sync-job.ts:28 y src/app/(app)/calendario/actions.ts:242`
+  - 🔧 Anclar 'set' con límites de palabra: /\bset\b/i en lugar de 'set' suelto. Y unificar el regex en una sola función exportada (eliminar el duplicado entre sync-job.ts y actions.ts) para que ambos paths queden coherentes.
+- [x] **/press-kit/bookings/[id] · Agendar · calendar_event se ancla a hora UTC, no Chile (show de 22:00 aparecería a las 18:00) — bug latente tras arreglar el crash** _(bug)_ ✅ PR #22
+  - 📍 `src/lib/queries/presskit.ts:324`
+  - 🔧 Construir con offset explícito de Chile o anclar correctamente: new Date(`${eventDate}T22:00:00-04:00`) (cuidado horario de verano CLST/CLT) o calcular el offset de America/Santiago. Aplicar igual a endAt.
+- [x] **/press-kit/bookings/[id] · Estado actual · Los pills de estado (Agendado/Cotizado) cambian status SIN crear evento, follow-up ni contacto** _(friction)_ ✅ PR #23
+  - 📍 `src/app/(app)/press-kit/bookings/[id]/booking-actions.tsx:63`
+  - 🔧 Rutear las transiciones a 'cotizado'/'agendado' desde los pills hacia updateBookingWorkflowAction (o el form), o deshabilitar esos dos pills obligando a usar los botones de workflow. Mínimo: advertir que el pill directo no dispara las auto-acciones.
+- [x] **IA · Strategy · El tab "IA · Strategy" no llama a ningún modelo: solo arma un prompt para copiar/pegar en ChatGPT** _(friction)_ ✅ PR #22
+  - 📍 `src/app/(app)/ia/strategy-mode.tsx:105-126, src/app/(app)/ia/actions.ts:44-75`
+  - 🔧 Renombrar el ítem de nav a algo como 'Asistente / Prompt builder', o cablear una llamada real a un modelo. El copy de la página ya es honesto, así que basta ajustar el label del sidebar/mobile-menu.
+- [x] **Gmail · "Última sincronización" en /gmail muestra el sync de Google Calendar, no de Gmail** _(friction)_ ✅ PR #20
+  - 📍 `src/app/(app)/gmail/page.tsx:162-166, src/lib/calendar/sync-job.ts:149-153, src/app/(app)/calendario/actions.ts:262-273`
+  - 🔧 Quitar el texto 'Última sincronización' de /gmail (los hilos son en vivo) o usar un campo separado para Gmail. Decidir si gmail_threads_cache/listCachedThreads se usan o se eliminan (hoy es código muerto de lectura).
+- [ ] **/configuracion/suscripcion · Botón 'Reactivar' no reactiva nada: deja status='cancelled' y manda a re-pagar** _(bug)_
+  - 📍 `src/app/suscripcion/actions.ts:193-228 + src/app/(app)/configuracion/suscripcion/reactivate-subscription-button.tsx:11-18 + page.tsx:145-155`
+  - 🔧 Renombrar el botón a 'Volver a suscribirme' (deja claro que re-cobra), o si hay período pagado vigente, flippear status='active' + cancel_at_period_end=false sin re-checkout. Eliminar el botón duplicado.
+- [ ] **app · Status 'pending' otorga acceso completo + 'Próximo cobro' sin pago confirmado** _(bug)_
+  - 📍 `src/lib/queries/subscription.ts:125-134 + src/app/suscripcion/actions.ts:91-102 + src/app/(app)/configuracion/suscripcion/page.tsx:120-128`
+  - 🔧 No setear current_period_end hasta que el pago esté authorized/approved; o dar a 'pending' un acceso de gracia corto y no mostrar 'Próximo cobro' hasta status='active'.
+- [x] **app · Contador de trial invisible en mobile (no hay aviso ni link para suscribirse)** _(friction)_ ✅ PR #21
+  - 📍 `src/components/layout/topbar.tsx:125-133 (hidden sm:inline-flex) + src/app/(app)/layout.tsx:135-140 + mobile-menu.tsx:63-65`
+  - 🔧 Mostrar el banner trial en mobile (quitar 'hidden sm:' o agregar variante mobile) y/o pasar trialDaysRemaining al MobileMenu con un CTA a /suscripcion.
+- [x] **/booker/requests · El inbox no aplica ningun .order() (orden de filas no garantizado)** _(bug)_ ✅ PR #19
+  - 📍 `src/lib/queries/booker.ts:482-485`
+  - 🔧 Agregar .order('created_at', { ascending: false }) a la query en booker.ts (o ordenar el array antes de retornar). Bajo severity de high a medium: es ordenamiento, no perdida de datos.
+- [x] **/booker/requests · Los CTA 'Buscar DJs' del inbox llevan al directorio publico /dj, no a /booker/buscar** _(friction)_ ✅ PR #19
+  - 📍 `src/app/booker/requests/page.tsx:48,151`
+  - 🔧 Cambiar ambos href de '/dj' a '/booker/buscar' para mantener al booker dentro de su portal.
+- [x] **/booker/buscar · Click en chip de genero dentro de la card descarta los demas filtros activos** _(friction)_ ✅ PR #20
+  - 📍 `src/app/booker/buscar/buscar-card.tsx:133`
+  - 🔧 Pasar los searchParams actuales como prop desde page.tsx a BuscarCard y construir el href con merge (reusar buildHref), o documentar explicitamente que el chip de la card resetea filtros.
+- [x] **/booker/seguidos, /booker/interesados, /booker/pitches · createAdminClient() puede lanzar y crashear la página (no hay error boundary)** _(error)_ ✅ PR #20
+  - 📍 `src/lib/queries/booker.ts:693-694 (listFollowFeed), :326-327 (listInterestedDjs), :405 (listReceivedPitches)`
+  - 🔧 Envolver la creación del admin client + sus queries en try/catch dentro de cada función y retornar [] ante excepción, o agregar un app/booker/error.tsx que degrade.
+- [x] **/booker/pitches · Abrir la pestaña de pitches consume el token del DJ aunque el booker no lea nada** _(friction)_ ✅ PR #24
+  - 📍 `src/app/booker/pitches/page.tsx:20 + src/lib/queries/booker.ts:452-463, 226-231`
+  - 🔧 Marcar viewed_at por-pitch cuando el booker realmente abra/expanda el pitch o el press kit de ese DJ, no en bulk al montar la página. Mínimo: que la promesa de refund de la venue-card sea consistente con cuándo se marca 'visto'.
+- [x] **/dj · Canonical y OG URL del directorio apuntan a drop.dj (dominio muerto)** _(bug)_ ✅ PR #19
+  - 📍 `src/app/dj/page.tsx:32,36`
+  - 🔧 Cambiar ambas ocurrencias (lineas 32 y 36) a https://dropgigs.com/dj.
+- [x] **/p/[slug] · Stat tile 'BASE' muestra 'CL' hardcodeado para cualquier pais** _(bug)_ ✅ PR #19
+  - 📍 `src/app/p/[slug]/page.tsx:355`
+  - 🔧 Derivar el codigo del pais real (mapear profile.country a ISO) o mostrar profile.country directamente en vez de 'CL' fijo.
+- [x] **/p/[slug] · available_note nunca se muestra: el DJ escribe disponibilidad que el booker no ve** _(friction)_ ✅ PR #20
+  - 📍 `src/app/p/[slug]/page.tsx (no rendered) · select en src/lib/queries/presskit.ts:25`
+  - 🔧 Mostrar profile.available_note junto al chip DISPONIBLE o en la card 'INFORMACION DE RESERVA' cuando este presente.
+- [x] **/p/[slug] · Booking form se puede enviar sin email ni telefono pese a prometer 'respondo en 24h'** _(friction)_ ✅ PR #19
+  - 📍 `src/app/p/[slug]/booking-form.tsx:47 y src/app/api/booking/route.ts:39-41`
+  - 🔧 Exigir al menos uno de email o phone (validacion cliente en booking-form.tsx:47 y servidor en route.ts) antes de aceptar el submit.
+- [x] **/admin (tabla de usuarios · columnas Cont./Posts/Snaps) · Conteos por usuario truncados por el límite de 1000 filas de PostgREST** _(bug)_ ✅ PR #22
+  - 📍 `src/lib/queries/admin.ts:159-212 (getCountsByUser)`
+  - 🔧 Usar count agregado por user (RPC/vista con group by), o consultas head:true con count:'exact' por tabla, o paginar el select. Para exactitud, una función SQL que agrupe por user_id es lo correcto.
+- [x] **/admin/email-campaigns (KPI Quejas) · El KPI 'Quejas' se pinta verde (good) aunque haya quejas de spam** _(bug)_ ✅ PR #19
+  - 📍 `src/app/(app)/admin/email-campaigns/page.tsx:80 (item Quejas) y 139-142 (render)`
+  - 🔧 Cambiar el item 'Quejas' a warn:true y quitar good:true, para que el número se tiña de naranja cuando num>0, consistente con 'Rebotados'.
+- [x] **/admin/beta-requests (selector de estado por fila) · Cambiar a 'approved' desde el <select> no manda el email de invitación** _(bug)_ ✅ PR #20
+  - 📍 `src/app/(app)/admin/beta-requests/beta-requests-table.tsx:117-130 y actions.ts:194-206`
+  - 🔧 Routear 'approved' del dropdown a approveBetaRequestAction (que sí manda email), o deshabilitar la opción 'approved' en el <select> y forzar el botón. El refresh ya trae el invite_token, así que el problema central es solo el email faltante.
+
+## ⚪ BAJO (34 · 32 ✅)
+
+- [x] **/perfil · El mensaje 'Guardado.' nunca desaparece y queda fijo en la barra sticky** _(friction)_ ✅ PR #26
+  - 📍 `src/app/(app)/perfil/profile-form.tsx:131, 604-613`
+  - 🔧 Auto-ocultar el mensaje ok tras ~3s con setTimeout, o limpiarlo en el primer onChange posterior al guardado.
+- [x] **/perfil · Inputs controlados sin fallback ?? '' (riesgo controlled->uncontrolled si una columna llega null)** _(error)_ ✅ PR #29
+  - 📍 `src/app/(app)/perfil/profile-form.tsx:155,165,175,186,263,272,288,297,306,315,324,567,577 (record_label:441 si tiene guard)`
+  - 🔧 Por consistencia y robustez, aplicar value={form.X ?? ''} en todos los Input/Textarea de texto, igual que record_label. Bajo costo, elimina el riesgo.
+- [x] **/crm · El filtro de tags se pierde al enviar el form de filtros (q/type/status/score)** _(bug)_ ✅ PR #29
+  - 📍 `src/app/(app)/crm/page.tsx:237-275`
+  - 🔧 Incluir los tags activos como `<input type="hidden" name="tags" value={activeTags.join(',')} />` dentro del form de filtros.
+- [x] **/crm/[id] · Editar el texto resuelto de la plantilla no recalcula 'faltan datos' y se pierde al cambiar de plantilla** _(friction)_ ✅ PR #29
+  - 📍 `src/app/(app)/crm/[id]/template-picker.tsx:65-72, 209-215`
+  - 🔧 Recalcular `missing` sobre el texto actual del textarea, o aclarar en el copy que el warning se refiere a los datos del contacto/perfil, no al texto editado manualmente.
+- [x] **/crm · Las acciones de follow-up no revalidan /crm (inconsistente con interacciones)** _(friction)_ ✅ PR #27
+  - 📍 `src/app/(app)/crm/actions.ts:106-145`
+  - 🔧 Por consistencia, agregar revalidatePath('/crm') en addFollowUpAction, completeFollowUpAction y deleteFollowUpAction. Severidad real baja porque ninguna columna del listado /crm se ve afectada por follow-ups.
+- [x] **/lugares · Botón de pitch sin tokens no se ve deshabilitado (clase disabled:opacity-50 sin prop disabled)** _(friction)_ ✅ PR #26
+  - 📍 `src/app/(app)/lugares/venue-card.tsx:157-165`
+  - 🔧 Pasar disabled={noTokens} (o condicionar el estilo/atenuar con noTokens) para señalizar el estado antes del click; el onClick ya maneja el caso sin tokens.
+- [x] **/descubrir · Sin feedback de carga al promover al CRM (label estático, sin spinner)** _(friction)_ ✅ PR #27
+  - 📍 `src/app/(app)/descubrir/lead-actions.tsx:35-44 y 62-70`
+  - 🔧 Mostrar spinner o cambiar el label a 'Agregando…' mientras isPending (igual que DiscoverTabs).
+- [x] **/growth/posts · ?platform es dead-feature: no hay UI para setearlo y los chips de estado lo borran** _(friction)_ ✅ PR #29
+  - 📍 `src/app/(app)/growth/posts/page.tsx:34-35,134`
+  - 🔧 Propagar platform en los hrefs de los chips (y el chip 'Todos'), o eliminar el soporte de ?platform si no se va a exponer. Idealmente agregar chips de plataforma.
+- [x] **/growth (sync) · updateAccountSyncResult no filtra por user_id (inconsistencia de defensa-en-profundidad)** _(bug)_ ✅ PR #27
+  - 📍 `src/lib/queries/platform-accounts.ts:80-90`
+  - 🔧 Agregar .eq('user_id', user.id) al update y usar el `user` ya obtenido.
+- [x] **/growth/ads/[id] · Card de campaña pagada muestra '$/Follower: calculando…' permanente cuando delta<=0** _(friction)_ ✅ PR #29
+  - 📍 `src/app/(app)/growth/ads/page.tsx:288-294 + src/lib/queries/growth.ts:151-157`
+  - 🔧 Cuando is_paid pero costPerFollower es null por delta<=0, mostrar '—' o 'sin crecimiento aún' en lugar de 'calculando…'.
+- [x] **/campanas/[id] · Auto-cambio a 'enviado' en WhatsApp/Email es fire-and-forget: si el update falla, se traga el error** _(error)_ ✅ PR #29
+  - 📍 `src/app/(app)/campanas/[id]/contact-row.tsx:115-121,134-140`
+  - 🔧 Capturar el error de updateCampaignContactStatusAction y avisar al usuario si falla, en vez de tragarlo con void. (La parte de await-antes-de-navegar es opcional y probablemente innecesaria con mailto/_blank.)
+- [x] **/calendario (auto-sync) · AutoSync y SyncButton pueden disparar dos syncs concurrentes (sin lock compartido)** _(bug)_ ✅ PR #29
+  - 📍 `src/app/(app)/calendario/auto-sync.tsx:25-54 + src/app/(app)/calendario/sync-button.tsx:9-23`
+  - 🔧 Compartir estado de 'sync en curso' (contexto o lock a nivel de módulo): deshabilitar SyncButton mientras AutoSync corre, y que SyncButton no haga nada si ya hay un sync en vuelo.
+- [x] **/calendario (mutaciones) · Acciones de calendario no validan beta activa (inconsistente con tracklist/CRM/configuración)** _(friction)_ ✅ PR #28
+  - 📍 `src/app/(app)/calendario/actions.ts (createEventAction:33, updateEventAction:97, updateEventFinanceAction:176, deleteEventAction:290, syncEventsAction:216)`
+  - 🔧 Si la regla de beta aplica a DJs en este módulo, agregar assertBetaActive() al inicio de createEventAction/updateEventAction/updateEventFinanceAction/deleteEventAction (y opcionalmente syncEventsAction). Si NO aplica, documentar la excepción para no asumir que está protegido.
+- [x] **/calendario (banner sync) · 'N eventos sincronizados' cuenta todos los procesados, no los nuevos/cambiados** _(friction)_ ✅ PR #29
+  - 📍 `src/app/(app)/calendario/actions.ts:230-260 + sync-button.tsx:17 + page.tsx:194-200`
+  - 🔧 Contar solo inserts/updates con cambios reales, o renombrar el mensaje a 'N eventos revisados'. Opcional: avisar cuando se alcanza el tope de 250.
+- [ ] **/press-kit · Métricas · KPIs de Press Kit subestiman si el DJ supera 1000 eventos en 7 días (tope .limit(1000))** _(bug)_
+  - 📍 `src/lib/queries/presskit.ts:159`
+  - 🔧 Contar en la DB con count exacto agrupado por event (select head:true + count por tipo, o un RPC que agrupe), en vez de traer hasta 1000 filas y reducir en JS.
+- [x] **/plantillas/nueva · Variables · insertVariable inserta en la posición de cursor obsoleta (no donde el DJ espera ni al final)** _(friction)_ ✅ PR #28
+  - 📍 `src/app/(app)/plantillas/template-form.tsx:47`
+  - 🔧 Guardar la última posición de cursor en onSelect/onBlur del textarea (ref) y usarla; o re-enfocar el textarea antes de leer selectionStart; o insertar al final si el textarea no tiene foco activo.
+- [x] **/plantillas · tracklists (texto SoundCloud) · formatSoundCloudDescription firma con marca incorrecta 'drop.dj'** _(bug)_ ✅ PR #25
+  - 📍 `src/lib/queries/tracklists.ts:311`
+  - 🔧 Cambiar a '// powered by dropgigs.com' (idealmente derivado de NEXT_PUBLIC_SITE_URL para no hardcodear).
+- [x] **Gmail · N+1 a Gmail API: hasta 30 getThread (format=metadata) en paralelo por cada carga de la lista** _(error)_ ✅ PR #31
+  - 📍 `src/app/(app)/gmail/page.tsx:89-119, src/lib/gmail/client.ts:136-138`
+  - 🔧 Usar el batch endpoint de Gmail, o cachear metadata, o diferir el getThread al click (el listado podría mostrar solo snippet/fecha). Bajar maxResults también ayuda.
+- [ ] **IA · Strategy · Cambio de contacto: race condition sin request-id + el prompt sigue mostrando el contacto anterior mientras carga** _(bug)_
+  - 📍 `src/app/(app)/ia/strategy-mode.tsx:87-99, 213-240`
+  - 🔧 Guardar el id solicitado y descartar respuestas obsoletas (if requestedId !== latest return). Mostrar estado loading en el panel de prompt mientras loadingContact es true.
+- [x] **Gmail · getMyGmailConnection trata CUALQUIER error de DB (RLS/red/multiple rows) como "no conectado"** _(error)_ ✅ PR #28
+  - 📍 `src/lib/queries/gmail.ts:14-23, src/app/(app)/gmail/page.tsx:26-29`
+  - 🔧 Distinguir 'no row' de error real: usar maybeSingle() y, si hay error con code != 'PGRST116', loguear/propagar y mostrar estado de error en vez de tratarlo como desconectado.
+- [x] **/configuracion · Texto de marca obsoleto 'drop.dj/dj' en disponibilidad** _(friction)_ ✅ PR #25
+  - 📍 `src/app/(app)/configuracion/availability-section.tsx:86 y :107`
+  - 🔧 Reemplazar el texto visible por 'dropgigs.com/dj' (o simplemente 'el directorio /dj').
+- [x] **/configuracion · 'Limpiar disponibilidad' parece una acción pero solo borra el form local sin guardar** _(friction)_ ✅ PR #27
+  - 📍 `src/app/(app)/configuracion/availability-section.tsx:62-66,180-188`
+  - 🔧 O persistir directamente al limpiar (llamar updateAvailabilityAction con nulls), o aclarar el copy ('se aplica al Guardar').
+- [x] **/booker (layout) · El layout dispara writes/queries admin (service_role) en CADA navegacion entre tabs** _(bug)_ ✅ PR #30
+  - 📍 `src/app/booker/layout.tsx:47,53`
+  - 🔧 Hacer el backfill condicional (flag en booker_accounts indicando que ya se corrio, o solo en primer login). Para founding, evitar el fallback por email cuando no aplica.
+- [x] **/booker/buscar + /booker/requests · No existe error.tsx ni loading.tsx en /booker (ni a nivel app)** _(error)_ ✅ PR #26
+  - 📍 `src/app/booker (sin error.tsx/loading.tsx; tampoco a nivel src/app)`
+  - 🔧 Agregar src/app/booker/error.tsx (boundary con boton reintentar) y opcionalmente loading.tsx para el fetch server-side dinamico.
+- [x] **/booker/seguidos · Rama availability_updated puede renderizar 'Invalid Date' (sin guard, a diferencia de show_scheduled)** _(error)_ ✅ PR #26
+  - 📍 `src/app/booker/seguidos/page.tsx:259-265`
+  - 🔧 Aplicar la misma protección que show_scheduled: validar con Number.isNaN(new Date(iso).getTime()) y caer al string crudo o vacío si la fecha es inválida.
+- [x] **/booker/seguidos · Las cards de la grilla no muestran si el aviso por email está activo; terminología corazón/seguir/favorito mezclada** _(friction)_ ✅ PR #29
+  - 📍 `src/app/booker/seguidos/page.tsx:108-155, 220-228, 275-294`
+  - 🔧 Mostrar el estado notify_email por card en la grilla (como ya hacen las UpdateCard) y unificar el lenguaje (seguir = guardar + opción de avisos).
+- [x] **/booker/pitches y /booker/interesados · El copy promete 'contáctalos' pero la única acción es 'Press kit' (abre en pestaña nueva); no hay vía de contacto** _(friction)_ ✅ PR #26
+  - 📍 `src/app/booker/pitches/page.tsx:38-41,100-109 y src/app/booker/interesados/page.tsx:32-35,94-103`
+  - 🔧 Agregar un CTA de contacto directo en cada card (ej. prefilar el booking, o mostrar el canal de contacto público del DJ), o ajustar el copy para no prometer 'contáctalos' si solo se ofrece ver el press kit.
+- [x] **/booker/pitches (cupo de tokens) · El reset mensual de tokens de pitch se calcula en UTC, no en hora de Chile** _(bug)_ ✅ PR #29
+  - 📍 `src/lib/queries/booker.ts:216-218`
+  - 🔧 Calcular el inicio de mes en America/Santiago (como format.ts hace con las fechas mostradas) en vez de usar la hora local del server.
+- [x] **/signup/booker · Deteccion de 'email ya registrado' no se dispara con email confirm activado** _(bug)_ ✅ PR #29
+  - 📍 `src/app/signup/booker/booker-signup-form.tsx:115 (mismo patron login-form.tsx:146)`
+  - 🔧 Aceptar que con confirm-on no se distingue de forma fiable; ajustar el copy del estado info para cubrir ambos casos ('Si ya tenias cuenta, usa Iniciar sesion'), o mover el chequeo de duplicados a un endpoint server-side previo.
+- [x] **/login · Google sign-in ignora el ?next= y siempre vuelve a la raiz** _(friction)_ ✅ PR #29
+  - 📍 `src/app/login/login-form.tsx:60 (y push a '/' en linea 95) vs src/app/booker/layout.tsx:28`
+  - 🔧 Leer searchParams.next en /login, pasarlo al server component LoginForm como prop, y propagarlo a `/auth/callback?next=${next}` en el OAuth y al push tras login con password.
+- [x] **/beta · El form de beta valida email solo por includes('@') — acepta direcciones invalidas** _(friction)_ ✅ PR #25
+  - 📍 `src/lib/queries/beta.ts:48-51 (endpoint api/beta/route.ts no revalida formato)`
+  - 🔧 Validar formato con regex razonable (o normalizar y rechazar sin dominio) en createBetaRequest:48-51 antes de insertar.
+- [x] **/p/[slug] · Color del player de SoundCloud hardcodeado a un amarillo legacy (#e8b923) en vez del naranja de marca** _(error)_ ✅ PR #25
+  - 📍 `src/app/p/[slug]/embeds.tsx:56`
+  - 🔧 Cambiar color=%23e8b923 a color=%23FF5C00 en embeds.tsx:56. (Las clases de fallback NO necesitan cambio: ya resuelven a la paleta actual.)
+- [x] **/admin/correo (lectura de correo) · Marcar como leído escribe en DB durante el render del RSC y la lista no se actualiza** _(error)_ ✅ PR #29
+  - 📍 `src/app/(app)/admin/correo/page.tsx:36-44`
+  - 🔧 Mover el marcado a una server action explícita (o route handler) y revalidatePath('/admin/correo') después, en vez de escribir durante el render.
+- [x] **/admin/founding-invites (envío de invitación) · Si el email falla, la invitación queda creada, el form se limpia y la tabla la muestra como no enviada sin alerta clara** _(friction)_ ✅ PR #26
+  - 📍 `src/app/(app)/admin/founding-invites/founding-invites-client.tsx:54-69 y actions.ts:48-78`
+  - 🔧 Diferenciar visualmente emailSent=false (banner de advertencia, no type:'ok') y/o no limpiar el form hasta confirmar emailSent=true; dejar claro 'Copia el link y mándalo tú'.
