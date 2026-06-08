@@ -69,8 +69,9 @@ Es la primera impresión de cualquier booker que se invite.
 
 > **✅ FASE 3 COMPLETA (2026-06-08):** Smart Match v1 estructurado (PR #33/#34) + v2 texto libre heurístico (PR #36) + perk Founding "acceso anticipado", todo en prod y gratis de operar. (El gating de pago + perk "gratis por X tiempo" viven en Fase 4; embeddings/saved-searches en Backlog.) **Siguiente: Fase 4 · cerrar el ciclo del booking (pagos/MP).**
 
-### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas
+### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas · ⏸️ EN PAUSA
 **Objetivo:** del match al cierre con plata y contrato, dentro de DROP.
+> **Saltada por ahora (2026-06-08):** no se prende pago todavía. Se retoma después de Fase 5.
 
 - [ ] 📋 S18.5 Contratos (firma electrónica simple, click-wrap + hash)
 - [ ] 📋 S19 Pagos MercadoPago — ♻️ code-complete, falta **activar en prod** (5 pasos, ver sección 12)
@@ -79,7 +80,8 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4)
 
 ### FASE 5 · Loops de crecimiento y retención · paralelo, con tracción
-- [ ] 🆕 RA-5 Analytics del press kit (data ya capturada)
+> Vamos **en orden**: RA-5 ✅ → RA-6 → RA-7.
+- [x] 🆕 **RA-5 · Analytics del press kit.** ✅ 2026-06-08 (PR #39, en prod). Vista `/press-kit/stats`: rango 7/30/90, KPIs (visitas/clicks/solicitudes/conversión), embudo, visitas por día, por canal, "de dónde llegan" (referrer/país/UTM — data capturada nunca mostrada) y solicitudes por estado. Barras CSS, sin librería, **$0**. Migración 0047 (RPCs agregadas) **destapó el cap de 1000** → cierra el QA finding de press-kit ↓.
 - [ ] 🆕 RA-6 Anuncio instantáneo de fecha a seguidores (push+mail)
 - [ ] 🆕 RA-7 Página de evento + RSVP (loop fan→seguidor→lead)
 - [ ] 📋 S22 Ads tracker · S24 música personal · tab Productor (sección 14) · Descubrir locales cerrados (sección 15)
@@ -90,14 +92,14 @@ Es la primera impresión de cualquier booker que se invite.
 
 - [ ] 📋 Sección 13 completa: Next 14→15, rate limiting, CSP, `/privacy` + `/terms`, Sentry, 2FA, DMARC `reject`, rotar keys
 - [ ] 🆕 CAPTCHA Turnstile en los 4 forms de auth (heredado de Fase 2 · signup booker)
-- [x] ⚪ **QA tab por tab (2026-06-07/08)** — barrido exhaustivo de bugs/fricciones por pestaña (workflow multi-agente, 77 hallazgos). **73/77 arreglados y en prod** (PRs #17–#31): 11 altos + 30 medios + 32 bajos. Bonus de la tanda: dashboard de email en tiempo real (webhook `campaign_id`, PR #13) y Gmail N+1 → batch endpoint (PR #31). **Quedan 4 a propósito:** 2 de cobros (reactivar suscripción + acceso en `pending`) → entran con Fase 4 · pagos; press-kit tope 1000 eventos/7d (imposible de gatillar, pediría un RPC para cero beneficio real); IA race condition (moot — la IA salió del nav). Detalle completo en `QA_FINDINGS.md`.
+- [x] ⚪ **QA tab por tab (2026-06-07/08)** — barrido exhaustivo de bugs/fricciones por pestaña (workflow multi-agente, 77 hallazgos). **73/77 arreglados y en prod** (PRs #17–#31): 11 altos + 30 medios + 32 bajos. Bonus de la tanda: dashboard de email en tiempo real (webhook `campaign_id`, PR #13) y Gmail N+1 → batch endpoint (PR #31). **Quedan 3 a propósito:** 2 de cobros (reactivar suscripción + acceso en `pending`) → entran con Fase 4 · pagos; IA race condition (moot — la IA salió del nav). *(El press-kit tope-1000 quedó resuelto por RA-5 / migración 0047.)* Detalle completo en `QA_FINDINGS.md`.
 
 ### Backlog / deuda menor (no bloquea)
 - [ ] 🆕 **Smart Match v2 parte 2** (solo si el heurístico se queda corto): semántica con embeddings + pgvector, búsquedas/alertas guardadas, filtro por fecha exacta de calendario. Embeddings = costo recurrente + dependencia externa → por eso quedó fuera del v2 actual.
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
-**Siguiente paso:** Fase 4 · cerrar el ciclo del booking / pagos (Fases 0-3 v1 cerradas; QA tab-por-tab 73/77 en prod; Smart Match v1 en prod).
+**Siguiente paso:** Fase 5 · RA-6 (aviso de fecha a seguidores). Fase 4 (pagos) en pausa. Fases 0-3 cerradas; QA 74/77; Smart Match v1+v2 y RA-5 Analytics en prod.
 
 ---
 
