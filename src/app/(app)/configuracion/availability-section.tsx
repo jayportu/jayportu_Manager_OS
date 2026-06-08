@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Bell } from "lucide-react";
 import { updateAvailabilityAction } from "./actions";
 
 interface Props {
@@ -197,6 +197,13 @@ export function AvailabilitySection({ profile }: Props) {
           {message.text}
         </div>
       )}
+
+      <p className="text-[11px] text-fg-muted flex items-start gap-1.5">
+        <Bell className="w-3.5 h-3.5 shrink-0 mt-0.5 text-orange" />
+        Cuando publicas tu disponibilidad, los bookers que te siguen con avisos
+        activados reciben un email. Mientras más completo tu perfil, más
+        seguidores.
+      </p>
 
       <div className="flex justify-end gap-2 pt-2 border-t-2 border-ink">
         <Button onClick={handleSave} disabled={isPending} variant="orange">

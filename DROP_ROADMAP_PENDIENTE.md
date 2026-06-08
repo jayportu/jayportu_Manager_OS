@@ -80,9 +80,9 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4)
 
 ### FASE 5 · Loops de crecimiento y retención · paralelo, con tracción
-> Vamos **en orden**: RA-5 ✅ → RA-6 → RA-7.
+> Vamos **en orden**: RA-5 ✅ → RA-6 ✅ → RA-7.
 - [x] 🆕 **RA-5 · Analytics del press kit.** ✅ 2026-06-08 (PR #39, en prod). Vista `/press-kit/stats`: rango 7/30/90, KPIs (visitas/clicks/solicitudes/conversión), embudo, visitas por día, por canal, "de dónde llegan" (referrer/país/UTM — data capturada nunca mostrada) y solicitudes por estado. Barras CSS, sin librería, **$0**. Migración 0047 (RPCs agregadas) **destapó el cap de 1000** → cierra el QA finding de press-kit ↓.
-- [ ] 🆕 RA-6 Anuncio instantáneo de fecha a seguidores (push+mail)
+- [x] 🆕 **RA-6 · Aviso de fecha a seguidores.** ✅ 2026-06-08 (PR pendiente, en prod). El loop de email ya existía (RA-3: `dj_update_events` + trigger + cron diario que emaila a seguidores con `notify_email=true`). Este sprint lo **destrabó**: arregló 2 bugs pre-existentes que lo dejaban muerto — (1) `booker_favorites` no tenía policy de UPDATE → activar/desactivar avisos era un no-op silencioso (migración 0048); (2) la grilla de favoritos en `/booker/seguidos` salía siempre vacía (join a `dj_profile` bajo RLS owner-only → ahora resuelve vía admin client). Polish: toggle 🔔 clickeable en `/booker/seguidos` + feedback al DJ en disponibilidad. **"Instantáneo" (digest diario es suficiente, menos spam) y "push" (infra pesada) diferidos** — sin combustible aún (0 seguidores). Verificado en vivo: toggle persiste true↔false.
 - [ ] 🆕 RA-7 Página de evento + RSVP (loop fan→seguidor→lead)
 - [ ] 📋 S22 Ads tracker · S24 música personal · tab Productor (sección 14) · Descubrir locales cerrados (sección 15)
 - [ ] 🆕 LinkedIn / contenido para bookers — *track de marketing, no código*
@@ -99,7 +99,7 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
-**Siguiente paso:** Fase 5 · RA-6 (aviso de fecha a seguidores). Fase 4 (pagos) en pausa. Fases 0-3 cerradas; QA 74/77; Smart Match v1+v2 y RA-5 Analytics en prod.
+**Siguiente paso:** Fase 5 · RA-7 (página de evento + RSVP). Fase 4 (pagos) en pausa. Fases 0-3 cerradas; QA 74/77; Smart Match v1+v2, RA-5 Analytics y RA-6 (avisos destrabados) en prod.
 
 ---
 
