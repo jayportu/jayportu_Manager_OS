@@ -29,6 +29,8 @@ export interface BookerAccount {
   accepts_pitches: boolean;
   verified_at: string | null;
   verified_by: string | null;
+  /** Fase 2 — booker fundador (perks: acceso anticipado a features nuevas). */
+  is_founding: boolean;
   created_at: string;
   updated_at: string;
 }

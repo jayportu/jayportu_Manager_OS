@@ -5,6 +5,8 @@ import {
   listPublicCities,
 } from "@/lib/queries/directory";
 import { rankDjsForGig, type GigNeed } from "@/lib/match/score";
+import { parseFreeText, type ParsedQuery } from "@/lib/match/parse-query";
+import { getMyBookerAccount } from "@/lib/queries/booker";
 import { MatchCard } from "./match-card";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,8 @@ interface PageProps {
     date?: string;
     budget?: string;
     genres?: string;
+    /** v2 texto libre — exclusivo Founding. */
+    q?: string;
   }>;
 }
 
@@ -55,19 +59,36 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
     ? parseInt(sp.budget.replace(/\D/g, ""), 10) || undefined
     : undefined;
 
+  const [allGenres, allCities, booker] = await Promise.all([
+    listPublicGenres(),
+    listPublicCities(),
+    getMyBookerAccount(),
+  ]);
+  const isFounding = !!booker?.is_founding;
+
+  // v2 — texto libre solo se procesa para Founding (gating server-side, no solo UI).
+  const freeText = isFounding ? (sp.q ?? "").trim() : "";
+  const parsed: ParsedQuery | null = freeText
+    ? parseFreeText(
+        freeText,
+        allGenres.map((g) => g.genre)
+      )
+    : null;
+  // Los géneros inferidos del texto se SUMAN a los chips explícitos (sin
+  // tocar el estado de los chips, que refleja solo la selección manual).
+  const effectiveGenres = Array.from(
+    new Set([...activeGenres, ...(parsed?.genres ?? [])])
+  );
+
   // ¿El booker ya describió algo? Cualquier campo dispara el ranking.
   const hasQuery = !!(
     sp.type ||
     sp.city ||
     sp.date ||
     (budgetNum && budgetNum > 0) ||
-    activeGenres.length > 0
+    effectiveGenres.length > 0 ||
+    freeText
   );
-
-  const [allGenres, allCities] = await Promise.all([
-    listPublicGenres(),
-    listPublicCities(),
-  ]);
 
   let results: ReturnType<typeof rankDjsForGig> = [];
   if (hasQuery) {
@@ -76,7 +97,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
       city: sp.city || undefined,
       eventDate: sp.date || undefined,
       budget: budgetNum && budgetNum > 0 ? budgetNum : undefined,
-      genres: activeGenres,
+      genres: effectiveGenres,
     };
     const base = await getPublicDjsBase();
     results = rankDjsForGig(base, need);
@@ -86,8 +107,15 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
     <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
       {/* Hero */}
       <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — SMART MATCH
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+            — SMART MATCH
+          </span>
+          {isFounding && (
+            <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-ink text-orange border border-ink">
+              ★ Founding
+            </span>
+          )}
         </div>
         <h1
           className="mt-2 leading-none"
@@ -114,6 +142,41 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
           — TU EVENTO
         </div>
+
+        {/* v2 — texto libre (exclusivo Founding) */}
+        {isFounding ? (
+          <div>
+            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1 flex items-center gap-2">
+              <span>En tus palabras (opcional)</span>
+              <span className="px-1.5 py-0.5 bg-ink text-orange border border-ink">
+                ★ Founding
+              </span>
+            </div>
+            <input
+              type="text"
+              name="q"
+              defaultValue={sp.q ?? ""}
+              placeholder="ej: energía de festival para un rooftop al atardecer"
+              className="w-full border-2 border-ink bg-white px-3 py-2 font-mono text-[12px] tracking-[0.02em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            />
+          </div>
+        ) : (
+          <div className="relative">
+            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1">
+              En tus palabras
+            </div>
+            <input
+              type="text"
+              disabled
+              placeholder="ej: energía de festival para un rooftop al atardecer"
+              className="w-full border-2 border-ink/30 bg-cream/50 px-3 py-2 font-mono text-[12px] placeholder:text-fg-subtle cursor-not-allowed"
+            />
+            <span className="absolute right-2 top-[26px] font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-1 bg-ink text-orange border border-ink">
+              ✦ Exclusivo Founding
+            </span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_150px_160px_auto] gap-2">
           <select
             name="type"
@@ -193,6 +256,32 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           </div>
         )}
       </form>
+
+      {/* v2 — qué interpretamos del texto libre */}
+      {parsed && (parsed.genres.length > 0 || parsed.vibes.length > 0) && (
+        <div className="border-2 border-ink bg-cream p-3 mb-4 text-sm">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
+            — INTERPRETAMOS
+          </span>{" "}
+          {parsed.vibes.length > 0 && (
+            <>
+              vibe <span className="font-semibold">{parsed.vibes.join(", ")}</span>
+              {parsed.genres.length > 0 && " → "}
+            </>
+          )}
+          {parsed.genres.length > 0 && (
+            <>
+              géneros{" "}
+              <span className="font-semibold">{parsed.genres.join(", ")}</span>
+            </>
+          )}
+          {parsed.genres.length === 0 && parsed.vibes.length === 0 && (
+            <span className="text-fg-muted">
+              no pillamos géneros claros — afina el texto o usa los chips.
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Resultados o intro */}
       {!hasQuery ? (
