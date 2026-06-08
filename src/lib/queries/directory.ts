@@ -15,6 +15,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { computeCompleteness } from "@/lib/match/completeness";
 import type { DjProfile } from "@/types/database";
 
 export interface PublicDjProfile {
@@ -47,6 +48,8 @@ export interface PublicDjProfile {
   fee_max: number | null;
   /** Sets destacados (Fase 1 · 1B). URLs SoundCloud/Mixcloud/YouTube. */
   featured_sets: string[];
+  /** Completitud del perfil 0–100 (Smart Match). Más completo → más arriba. */
+  completeness: number;
 }
 
 export interface ListDirectoryParams {
@@ -66,12 +69,14 @@ export interface ListDirectoryParams {
 
 function calcIsAvailable(
   from: string | null,
-  until: string | null
+  until: string | null,
+  checkDate?: string
 ): boolean {
   if (!from) return false;
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
-  if (today < from) return false;
-  if (until && today > until) return false;
+  // YYYY-MM-DD. Default: hoy (UTC). Smart Match pasa la fecha del evento.
+  const date = checkDate ?? new Date().toISOString().slice(0, 10);
+  if (date < from) return false;
+  if (until && date > until) return false;
   return true;
 }
 
@@ -81,13 +86,16 @@ function calcIsAvailable(
  * `is_available_now` NO se cachea acá (depende de today) — se recalcula por
  * request en `listPublicDjs`.
  */
-const getPublicDjsBase = unstable_cache(
+export const getPublicDjsBase = unstable_cache(
   async (): Promise<PublicDjProfile[]> => {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("dj_profile")
       .select(
-        "user_id, artist_name, tagline, bio_short, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, show_fee, fee_min, fee_max, featured_sets, onboarding_completed_at, hidden_from_directory"
+        // Los campos extra (bio_long, redes, brands_worked, aliases, etc.) se
+        // traen SOLO para calcular `completeness`; no se exponen en el objeto
+        // cacheado (no engordan el payload) — ver el .map de abajo.
+        "user_id, artist_name, tagline, bio_short, bio_long, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, show_fee, fee_min, fee_max, featured_sets, brands_worked, aliases, record_label, instagram_url, soundcloud_url, youtube_url, spotify_url, website, public_email, whatsapp, onboarding_completed_at, hidden_from_directory"
       )
       .eq("hidden_from_directory", false)
       .not("onboarding_completed_at", "is", null)
@@ -127,6 +135,7 @@ const getPublicDjsBase = unstable_cache(
       fee_min: row.fee_min ?? null,
       fee_max: row.fee_max ?? null,
       featured_sets: row.featured_sets ?? [],
+      completeness: computeCompleteness(row).percent,
     }));
   },
   ["public-djs-base"],

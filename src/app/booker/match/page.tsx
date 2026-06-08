@@ -1,0 +1,236 @@
+import Link from "next/link";
+import {
+  getPublicDjsBase,
+  listPublicGenres,
+  listPublicCities,
+} from "@/lib/queries/directory";
+import { rankDjsForGig, type GigNeed } from "@/lib/match/score";
+import { MatchCard } from "./match-card";
+
+export const dynamic = "force-dynamic";
+
+interface PageProps {
+  searchParams: Promise<{
+    type?: string;
+    city?: string;
+    date?: string;
+    budget?: string;
+    genres?: string;
+  }>;
+}
+
+const EVENT_TYPES = [
+  "Club",
+  "Festival",
+  "Evento privado",
+  "Bar / Resto",
+  "Corporativo",
+  "Matrimonio",
+  "Otro",
+];
+
+/** Construye un href a /booker/match mezclando params actuales + overrides. */
+function buildHref(
+  current: Record<string, string | undefined>,
+  override: Record<string, string | undefined>
+): string {
+  const params = new URLSearchParams();
+  const merged = { ...current, ...override };
+  for (const [k, v] of Object.entries(merged)) {
+    if (v && v.trim().length > 0) params.set(k, v);
+  }
+  const qs = params.toString();
+  return qs ? `/booker/match?${qs}` : "/booker/match";
+}
+
+export default async function BookerMatchPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+
+  const activeGenres = (sp.genres ?? "")
+    .split(",")
+    .map((g) => g.trim().toLowerCase())
+    .filter((g) => g.length > 0);
+
+  const budgetNum = sp.budget
+    ? parseInt(sp.budget.replace(/\D/g, ""), 10) || undefined
+    : undefined;
+
+  // ¿El booker ya describió algo? Cualquier campo dispara el ranking.
+  const hasQuery = !!(
+    sp.type ||
+    sp.city ||
+    sp.date ||
+    (budgetNum && budgetNum > 0) ||
+    activeGenres.length > 0
+  );
+
+  const [allGenres, allCities] = await Promise.all([
+    listPublicGenres(),
+    listPublicCities(),
+  ]);
+
+  let results: ReturnType<typeof rankDjsForGig> = [];
+  if (hasQuery) {
+    const need: GigNeed = {
+      eventType: sp.type || undefined,
+      city: sp.city || undefined,
+      eventDate: sp.date || undefined,
+      budget: budgetNum && budgetNum > 0 ? budgetNum : undefined,
+      genres: activeGenres,
+    };
+    const base = await getPublicDjsBase();
+    results = rankDjsForGig(base, need);
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
+      {/* Hero */}
+      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+          — SMART MATCH
+        </div>
+        <h1
+          className="mt-2 leading-none"
+          style={{
+            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontSize: "56px",
+            letterSpacing: "-0.005em",
+          }}
+        >
+          MATCH<span className="text-orange">.</span>
+        </h1>
+        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+          Describe tu evento una vez y DROP te ordena los DJs que mejor calzan —
+          con el porqué de cada match. Sin filtrar a mano.
+        </p>
+      </div>
+
+      {/* Form del evento */}
+      <form
+        action="/booker/match"
+        method="get"
+        className="border-2 border-ink bg-white p-4 md:p-5 mb-6 space-y-4"
+      >
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
+          — TU EVENTO
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_150px_160px_auto] gap-2">
+          <select
+            name="type"
+            defaultValue={sp.type ?? ""}
+            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+          >
+            <option value="">Tipo de evento</option>
+            {EVENT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          <select
+            name="city"
+            defaultValue={sp.city ?? ""}
+            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+          >
+            <option value="">Ciudad: cualquiera</option>
+            {allCities.map((c) => (
+              <option key={c.city} value={c.city}>
+                {c.city}
+              </option>
+            ))}
+          </select>
+          <input
+            type="date"
+            name="date"
+            defaultValue={sp.date ?? ""}
+            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
+          />
+          <input
+            type="number"
+            name="budget"
+            min={0}
+            step={50000}
+            placeholder="Presupuesto $"
+            defaultValue={sp.budget ?? ""}
+            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+          />
+          <button
+            type="submit"
+            className="border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
+          >
+            BUSCAR MATCH
+          </button>
+        </div>
+
+        {/* Géneros como chips (preservan los demás campos) */}
+        {allGenres.length > 0 && (
+          <div>
+            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-2">
+              Géneros que buscas:
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {allGenres.slice(0, 24).map((g) => {
+                const active = activeGenres.includes(g.genre);
+                const newGenres = active
+                  ? activeGenres.filter((x) => x !== g.genre)
+                  : [...activeGenres, g.genre];
+                return (
+                  <Link
+                    key={g.genre}
+                    href={buildHref(sp, {
+                      genres: newGenres.length > 0 ? newGenres.join(",") : undefined,
+                    })}
+                    className={`inline-flex items-center gap-1.5 border-2 border-ink font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
+                      active ? "bg-orange text-ink" : "bg-cream hover:bg-orange"
+                    }`}
+                  >
+                    {g.genre.toUpperCase()}
+                    {!active && <span className="text-fg-muted">{g.count}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </form>
+
+      {/* Resultados o intro */}
+      {!hasQuery ? (
+        <div className="border-2 border-dashed border-ink/40 bg-cream p-10 text-center">
+          <h2
+            className="leading-tight mb-2"
+            style={{
+              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+              fontSize: "28px",
+            }}
+          >
+            DESCRIBE TU EVENTO ↑
+          </h2>
+          <p className="text-sm text-fg-muted max-w-md mx-auto">
+            Elige tipo, ciudad, fecha, presupuesto y/o géneros. DROP te arma el
+            ranking de DJs y te explica por qué cada uno calza. Mientras más
+            cuentes, mejor el match.
+          </p>
+        </div>
+      ) : results.length === 0 ? (
+        <div className="border-2 border-ink bg-white p-10 text-center">
+          <p className="text-sm text-fg-muted">
+            No encontramos DJs para esos criterios. Prueba aflojar el
+            presupuesto o sacar algún filtro.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
+            — {results.length} {results.length === 1 ? "DJ" : "DJs"} para tu evento
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {results.map((scored) => (
+              <MatchCard key={scored.dj.user_id} scored={scored} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
