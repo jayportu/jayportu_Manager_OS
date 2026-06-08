@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { saveProfileAction } from "../configuracion/actions";
 import { AvatarUpload } from "./avatar-upload";
-import { X } from "lucide-react";
+import { computeCompleteness } from "@/lib/match/completeness";
+import { X, TrendingUp } from "lucide-react";
 
 const GENRE_SUGGESTIONS = [
   "House",
@@ -140,8 +141,44 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     });
   }
 
+  // Completitud del perfil (live, según lo que está en el form). Mismo cálculo
+  // que usa Smart Match para rankear → el incentivo calza con la realidad.
+  const completeness = computeCompleteness(form);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Visibilidad — más completo = más arriba en Smart Match */}
+      {completeness.percent < 100 && (
+        <div className="p-4 rounded-xl bg-accent-soft border border-accent/30">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-accent shrink-0" />
+            <span className="text-sm font-semibold text-fg">
+              Tu perfil está {completeness.percent}% completo
+            </span>
+          </div>
+          <div className="h-2 rounded-full bg-accent/15 overflow-hidden mb-2">
+            <div
+              className="h-full bg-accent transition-all"
+              style={{ width: `${completeness.percent}%` }}
+            />
+          </div>
+          <p className="text-xs text-fg-muted">
+            Mientras más completo, más arriba apareces en las búsquedas de
+            bookers (Smart Match).
+            {completeness.missing.length > 0 && (
+              <>
+                {" "}
+                Te falta:{" "}
+                <span className="text-fg font-medium">
+                  {completeness.missing.slice(0, 3).join(", ")}
+                </span>
+                .
+              </>
+            )}
+          </p>
+        </div>
+      )}
+
       {/* Identidad */}
       <Card className="p-6 space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
