@@ -65,17 +65,17 @@ Es la primera impresión de cualquier booker que se invite.
 - [x] 🆕 **Smart Match v1 estructurado.** ✅ 2026-06-08 (PR #33 + #34, en prod). Booker describe su evento (tipo + ciudad + fecha + presupuesto + géneros) en `/booker/match` → DROP ranquea DJs con el **porqué** de cada match. Score 0-100 = Relevancia (género 35 · ciudad 25 · disponibilidad-en-la-fecha 20 · presupuesto 10) + Calidad (completitud + verificado + DROP Pick 10). Capa de scoring pura sobre la lectura cacheada del directorio → **costo $0, sin LLM, sin infra, sin migración.** Es la versión booker-initiated de "Para ti" (RA-2B).
 - [x] 🆕 **"Más info → más visibilidad".** ✅ 2026-06-08 (PR #34). `computeCompleteness` rankea más arriba al perfil más completo + nudge en `/perfil` ("estás X% completo → llena Y para subir en Smart Match"). Mismo cálculo en ambos lados.
 - [x] 🚫 **Ollama descartado.** La infra Ollama existente solo corre en el Mac de Jaime (browser→localhost) → inútil para bookers. La IA generativa NO se usa en Smart Match. El tab "IA" ya se sacó del nav (QA m5).
-- [x] 🆕 **v2 — match por texto libre (heurístico).** ✅ 2026-06-08 (PR #36, en prod). El booker escribe "algo melódico para un rooftop al atardecer" → parser de sinónimos (`src/lib/match/parse-query.ts`) lo mapea a géneros + vibes, **sin LLM ni embeddings → $0, cero dependencias externas**. Embeddings reales se evaluaron y descartaron por ahora (rompen el $0). **Acceso anticipado = perk Founding:** el texto libre es exclusivo de bookers `is_founding` (gating server-side); el resto usa el v1 estructurado abierto.
-- [ ] 📋 **v2 diferido (parte 2):** semántica con embeddings + pgvector (solo si el heurístico se queda corto), búsquedas/alertas guardadas, filtro por fecha exacta de calendario.
-- [ ] 🪙 **Perk Founding "gratis por X tiempo" + gating de pago:** cuando Smart Match (u otro feature) sea pago, gatear con `evaluateSubscriptionAccess` y dar gratis por X tiempo a `is_founding`. **Por ahora NO se pone pago** (decisión 2026-06-08) — hooks listos, se prende cuando MP esté vivo (Fase 4). El perk "acceso anticipado" ya se activó vía el v2 founding-only ↑.
+- [x] 🆕 **v2 — match por texto libre (heurístico).** ✅ 2026-06-08 (PR #36, en prod). El booker escribe "algo melódico para un rooftop al atardecer" → parser de sinónimos (`src/lib/match/parse-query.ts`) lo mapea a géneros + vibes, **sin LLM ni embeddings → $0, cero dependencias externas**. Embeddings reales se evaluaron y descartaron por ahora (rompen el $0 → ver Backlog). **Acceso anticipado = perk Founding:** el texto libre es exclusivo de bookers `is_founding` (gating server-side); el resto usa el v1 estructurado abierto.
 
-> **✅ FASE 3 COMPLETA (2026-06-08):** Smart Match v1 estructurado (PR #33/#34) + v2 texto libre heurístico (PR #36) + perk Founding "acceso anticipado", todo en prod y gratis de operar. Pago = diferido a propósito; embeddings/saved-searches = backlog. **Siguiente: Fase 4 · cerrar el ciclo del booking (pagos/MP).**
+> **✅ FASE 3 COMPLETA (2026-06-08):** Smart Match v1 estructurado (PR #33/#34) + v2 texto libre heurístico (PR #36) + perk Founding "acceso anticipado", todo en prod y gratis de operar. (El gating de pago + perk "gratis por X tiempo" viven en Fase 4; embeddings/saved-searches en Backlog.) **Siguiente: Fase 4 · cerrar el ciclo del booking (pagos/MP).**
 
 ### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas
 **Objetivo:** del match al cierre con plata y contrato, dentro de DROP.
 
 - [ ] 📋 S18.5 Contratos (firma electrónica simple, click-wrap + hash)
 - [ ] 📋 S19 Pagos MercadoPago — ♻️ code-complete, falta **activar en prod** (5 pasos, ver sección 12)
+- [ ] 🪙 **Gating de pago + perk Founding "gratis por X tiempo"** (heredado de Fase 3). Al prender el pago: gatear Smart Match (u otro feature de booker) con `evaluateSubscriptionAccess` y dar gratis por X tiempo a `is_founding`. Hooks listos. *(El perk "acceso anticipado" ya se activó en Fase 3 vía v2 founding-only.)*
+- [ ] 🔴 QA diferidos de cobros (de Fase 6): botón "Reactivar" suscripción + acceso en estado `pending` — se arreglan al activar MP.
 - [ ] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4)
 
 ### FASE 5 · Loops de crecimiento y retención · paralelo, con tracción
@@ -93,6 +93,7 @@ Es la primera impresión de cualquier booker que se invite.
 - [x] ⚪ **QA tab por tab (2026-06-07/08)** — barrido exhaustivo de bugs/fricciones por pestaña (workflow multi-agente, 77 hallazgos). **73/77 arreglados y en prod** (PRs #17–#31): 11 altos + 30 medios + 32 bajos. Bonus de la tanda: dashboard de email en tiempo real (webhook `campaign_id`, PR #13) y Gmail N+1 → batch endpoint (PR #31). **Quedan 4 a propósito:** 2 de cobros (reactivar suscripción + acceso en `pending`) → entran con Fase 4 · pagos; press-kit tope 1000 eventos/7d (imposible de gatillar, pediría un RPC para cero beneficio real); IA race condition (moot — la IA salió del nav). Detalle completo en `QA_FINDINGS.md`.
 
 ### Backlog / deuda menor (no bloquea)
+- [ ] 🆕 **Smart Match v2 parte 2** (solo si el heurístico se queda corto): semántica con embeddings + pgvector, búsquedas/alertas guardadas, filtro por fecha exacta de calendario. Embeddings = costo recurrente + dependencia externa → por eso quedó fuera del v2 actual.
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
