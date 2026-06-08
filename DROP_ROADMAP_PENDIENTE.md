@@ -62,11 +62,13 @@ Es la primera impresión de cualquier booker que se invite.
 ### FASE 3 · Smart Match · el gancho de pago · ~1-2 semanas
 **Objetivo:** feature exclusiva del booker que justifica suscripción.
 
-- [ ] 🆕 Booker describe ("Melodic house para sunset en rooftop") → DROP recomienda DJs
-- [ ] 🆕 v1: filtros estructurados (género + ciudad + disponibilidad + fee) · v2: IA semántica
-- [ ] ♻️ Conecta con la infra Ollama existente → de paso arregla que el tab "IA" hoy no usa IA
-- [ ] 📋 Es la versión booker-initiated de "Para ti" (RA-2B)
-- [ ] 🪙 **Perks Founding (heredados de Fase 2):** cuando Smart Match (u otro feature de booker) sea pago, activar con el flag `is_founding` los 2 perks que quedaron listos pero sin función: **gratis por X tiempo** + **acceso anticipado**. Sin esto, "Founding" hoy = badge + verificado nomás.
+- [x] 🆕 **Smart Match v1 estructurado.** ✅ 2026-06-08 (PR #33 + #34, en prod). Booker describe su evento (tipo + ciudad + fecha + presupuesto + géneros) en `/booker/match` → DROP ranquea DJs con el **porqué** de cada match. Score 0-100 = Relevancia (género 35 · ciudad 25 · disponibilidad-en-la-fecha 20 · presupuesto 10) + Calidad (completitud + verificado + DROP Pick 10). Capa de scoring pura sobre la lectura cacheada del directorio → **costo $0, sin LLM, sin infra, sin migración.** Es la versión booker-initiated de "Para ti" (RA-2B).
+- [x] 🆕 **"Más info → más visibilidad".** ✅ 2026-06-08 (PR #34). `computeCompleteness` rankea más arriba al perfil más completo + nudge en `/perfil` ("estás X% completo → llena Y para subir en Smart Match"). Mismo cálculo en ambos lados.
+- [x] 🚫 **Ollama descartado.** La infra Ollama existente solo corre en el Mac de Jaime (browser→localhost) → inútil para bookers. La IA generativa NO se usa en Smart Match. El tab "IA" ya se sacó del nav (QA m5). Semántica por texto libre = v2 con **embeddings** (API hosteada + pgvector), no Ollama.
+- [ ] 📋 **v2 diferido:** texto libre semántico (embeddings + pgvector), búsquedas/alertas guardadas, filtro por fecha exacta de calendario.
+- [ ] 🪙 **Perks Founding + gating de pago (heredados de Fase 2):** cuando Smart Match (u otro feature de booker) sea pago, gatearlo con `evaluateSubscriptionAccess` y activar con `is_founding` los 2 perks listos pero sin función: **gratis por X tiempo** + **acceso anticipado**. Hooks listos; se prende cuando MP esté vivo (Fase 4).
+
+> **✅ FASE 3 v1 COMPLETA (2026-06-08):** Smart Match estructurado en prod (PR #33/#34). El gancho del booker ya funciona, gratis de operar. Pago + semántica = diferidos. **Siguiente: Fase 4 · cerrar el ciclo del booking (pagos/MP).**
 
 ### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas
 **Objetivo:** del match al cierre con plata y contrato, dentro de DROP.
@@ -93,7 +95,7 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
-**Siguiente paso:** Fase 3 · Smart Match (Fases 0-2 cerradas; QA tab-por-tab 73/77 en prod).
+**Siguiente paso:** Fase 4 · cerrar el ciclo del booking / pagos (Fases 0-3 v1 cerradas; QA tab-por-tab 73/77 en prod; Smart Match v1 en prod).
 
 ---
 
