@@ -565,18 +565,10 @@ export async function listMyFavorites(): Promise<BookerFavorite[]> {
   } = await supabase.auth.getUser();
   if (!user) return [];
 
-  const { data, error } = await supabase
+  // Mis favoritos (RLS deja leer los propios).
+  const { data: favs, error } = await supabase
     .from("booker_favorites")
-    .select(
-      `
-      dj_user_id,
-      created_at,
-      notify_email,
-      dj_profile:dj_profile!booker_favorites_dj_user_id_fkey(
-        artist_name, city, genres, public_slug, hero_image_url, logo_url
-      )
-      `
-    )
+    .select("dj_user_id, created_at, notify_email")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -584,44 +576,48 @@ export async function listMyFavorites(): Promise<BookerFavorite[]> {
     console.error("listMyFavorites error", error);
     return [];
   }
-
-  // Supabase devuelve dj_profile como array por defecto en relación FK
-  type FavRow = {
+  const rows = (favs ?? []) as {
     dj_user_id: string;
     created_at: string;
     notify_email: boolean | null;
-    dj_profile:
-      | {
-          artist_name: string;
-          city: string;
-          genres: string[];
-          public_slug: string;
-          hero_image_url: string;
-          logo_url: string;
-        }
-      | Array<{
-          artist_name: string;
-          city: string;
-          genres: string[];
-          public_slug: string;
-          hero_image_url: string;
-          logo_url: string;
-        }>
-      | null;
-  };
+  }[];
+  if (rows.length === 0) return [];
 
-  return ((data ?? []) as FavRow[])
+  // El perfil del DJ se resuelve con admin client: dj_profile es owner-only en
+  // RLS, así que un join embebido bajo la sesión del booker volvía null y la
+  // grilla quedaba SIEMPRE vacía. (Mismo patrón que listFollowFeed.)
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const djIds = rows.map((r) => r.dj_user_id);
+  const { data: profiles } = await admin
+    .from("dj_profile")
+    .select("user_id, artist_name, city, genres, public_slug, hero_image_url, logo_url")
+    .in("user_id", djIds);
+
+  const byId = new Map(
+    ((profiles ?? []) as Array<{
+      user_id: string;
+      artist_name: string;
+      city: string;
+      genres: string[];
+      public_slug: string;
+      hero_image_url: string;
+      logo_url: string;
+    }>).map((p) => [p.user_id, p])
+  );
+
+  return rows
     .map((row) => {
-      const dj = Array.isArray(row.dj_profile) ? row.dj_profile[0] : row.dj_profile;
+      const dj = byId.get(row.dj_user_id);
       if (!dj) return null;
       return {
         dj_user_id: row.dj_user_id,
-        artist_name: dj.artist_name,
-        city: dj.city,
+        artist_name: dj.artist_name ?? "",
+        city: dj.city ?? "",
         genres: dj.genres ?? [],
-        public_slug: dj.public_slug,
-        hero_image_url: dj.hero_image_url,
-        logo_url: dj.logo_url,
+        public_slug: dj.public_slug ?? "",
+        hero_image_url: dj.hero_image_url ?? "",
+        logo_url: dj.logo_url ?? "",
         favorited_at: row.created_at,
         notify_email: row.notify_email ?? false,
       } satisfies BookerFavorite;

@@ -6,8 +6,9 @@ import {
   markFollowFeedRead,
   type FeedUpdate,
 } from "@/lib/queries/booker";
-import { Plus, Bell, BellOff, Heart } from "lucide-react";
+import { Plus, Bell, Heart } from "lucide-react";
 import { relativeTime } from "@/lib/format";
+import { NotifyToggleIcon } from "@/components/booker/notify-toggle-icon";
 
 export const dynamic = "force-dynamic";
 
@@ -148,21 +149,12 @@ export default async function BookerSeguidosPage() {
                     >
                       {dj.artist_name}
                     </div>
-                    {dj.notify_email ? (
-                      <span
-                        title="Te avisamos por email cuando publique novedades"
-                        className="text-orange shrink-0 mt-0.5"
-                      >
-                        <Bell className="w-3.5 h-3.5" />
-                      </span>
-                    ) : (
-                      <span
-                        title="Sin avisos por email (solo aparece en este feed)"
-                        className="text-fg-subtle shrink-0 mt-0.5"
-                      >
-                        <BellOff className="w-3.5 h-3.5" />
-                      </span>
-                    )}
+                    <span className="shrink-0 mt-0.5">
+                      <NotifyToggleIcon
+                        djUserId={dj.dj_user_id}
+                        initial={dj.notify_email}
+                      />
+                    </span>
                   </div>
                   <div className="font-mono text-[10px] text-fg-muted uppercase tracking-wider mt-1">
                     {dj.city || "—"}
@@ -234,15 +226,10 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
           {update.unread && <span className="text-orange mr-1">●</span>}
           {relativeTime(update.created_at)}
         </div>
-        {update.notify_email ? (
-          <span title="Avisos por email activos" className="text-orange">
-            <Bell className="w-3.5 h-3.5" />
-          </span>
-        ) : (
-          <span title="Avisos por email desactivados" className="text-fg-subtle">
-            <BellOff className="w-3.5 h-3.5" />
-          </span>
-        )}
+        <NotifyToggleIcon
+          djUserId={update.dj_user_id}
+          initial={update.notify_email}
+        />
       </div>
     </Link>
   );
