@@ -1,7 +1,7 @@
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import {
   listThreads,
-  getThread,
+  getThreadsMetadataBatch,
   extractMessageMeta,
 } from "@/lib/gmail/client";
 import { Card } from "@/components/ui/card";
@@ -89,33 +89,25 @@ export default async function GmailPage({ searchParams }: PageProps) {
       q: sp.q,
       maxResults: 30,
     });
-    // Para cada thread, traer metadata del primer mensaje
-    threads = await Promise.all(
-      summaries.map(async (t) => {
-        try {
-          const full = await getThread(t.id);
-          const lastMsg = full.messages?.[full.messages.length - 1];
-          const meta = lastMsg
-            ? extractMessageMeta(lastMsg)
-            : { subject: "", from: "", to: "", date: "" };
-          return {
-            id: t.id,
-            snippet: t.snippet,
-            subject: meta.subject,
-            from: meta.from,
-            date: meta.date,
-          };
-        } catch {
-          return {
-            id: t.id,
-            snippet: t.snippet,
-            subject: "",
-            from: "",
-            date: "",
-          };
-        }
-      })
+    // Metadata (Subject/From/Date) de todos los hilos en UNA llamada batch,
+    // en vez de un getThread por hilo (antes: 1 + 30 round-trips → ahora 2).
+    const metaByThread = await getThreadsMetadataBatch(
+      summaries.map((t) => t.id)
     );
+    threads = summaries.map((t) => {
+      const full = metaByThread.get(t.id);
+      const lastMsg = full?.messages?.[full.messages.length - 1];
+      const meta = lastMsg
+        ? extractMessageMeta(lastMsg)
+        : { subject: "", from: "", to: "", date: "" };
+      return {
+        id: t.id,
+        snippet: t.snippet,
+        subject: meta.subject,
+        from: meta.from,
+        date: meta.date,
+      };
+    });
   } catch (e) {
     loadError = e instanceof Error ? e.message : "Error desconocido";
   }
