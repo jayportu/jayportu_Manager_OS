@@ -8,6 +8,13 @@ import { consumeFoundingInviteIfAny } from "@/lib/queries/founding-invites";
 import { BookerTopBar } from "./top-bar";
 
 /**
+ * Guard en memoria (por instancia del server) para no re-correr los backfills
+ * en CADA navegación entre tabs. Las operaciones son idempotentes, así que un
+ * reset en cold start solo significa correrlas una vez más — sin riesgo.
+ */
+const backfilledUsers = new Set<string>();
+
+/**
  * Layout para todo /booker/*. Server component.
  *
  * Garantías:
@@ -42,15 +49,21 @@ export default async function BookerLayout({
     redirect("/?error=booker_init");
   }
 
-  // Fase 2 — si hay un invite Founding pendiente (cookie del link o por email),
-  // auto-marca is_founding + verifica e invalida el token (single-use).
-  await consumeFoundingInviteIfAny({
-    userId: user.id,
-    userEmail: user.email ?? null,
-  });
+  // Backfills caros (writes/queries service_role): solo la primera vez que este
+  // booker pasa por el layout en esta instancia, no en cada navegación.
+  if (!backfilledUsers.has(user.id)) {
+    // Fase 2 — si hay un invite Founding pendiente (cookie del link o por email),
+    // auto-marca is_founding + verifica e invalida el token (single-use).
+    await consumeFoundingInviteIfAny({
+      userId: user.id,
+      userEmail: user.email ?? null,
+    });
 
-  // Backfill: linkear bookings viejos hechos con este email
-  await claimBookingsByEmail();
+    // Backfill: linkear bookings viejos hechos con este email
+    await claimBookingsByEmail();
+
+    backfilledUsers.add(user.id);
+  }
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
