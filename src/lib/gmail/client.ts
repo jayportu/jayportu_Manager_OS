@@ -137,6 +137,84 @@ export async function getThread(threadId: string): Promise<GmailThread> {
   return gmailFetch<GmailThread>(`/threads/${threadId}?format=metadata`);
 }
 
+/**
+ * Trae metadata (Subject/From/Date) de varios hilos en UNA sola llamada HTTP
+ * vía el batch endpoint de Gmail, en vez de N getThread en paralelo (N+1).
+ *
+ * Devuelve un Map threadId → GmailThread. El mapeo es por el `id` que vuelve
+ * en cada respuesta, así que NO depende del orden del batch. Si el batch
+ * entero falla, loguea y devuelve lo que haya podido parsear (puede ser vacío)
+ * para degradar a "solo snippet" sin romper la página.
+ */
+const BATCH_META_HEADERS = ["Subject", "From", "Date"];
+
+export async function getThreadsMetadataBatch(
+  threadIds: string[]
+): Promise<Map<string, GmailThread>> {
+  const result = new Map<string, GmailThread>();
+  if (threadIds.length === 0) return result;
+
+  const token = await getGmailToken();
+  if (!token) throw new Error("Gmail no conectado");
+
+  const boundary = "batch_drop_gmail_meta";
+  const metaQuery = BATCH_META_HEADERS.map(
+    (h) => `metadataHeaders=${h}`
+  ).join("&");
+
+  let body = "";
+  threadIds.forEach((id, i) => {
+    body += `--${boundary}\r\n`;
+    body += "Content-Type: application/http\r\n";
+    body += `Content-ID: <item-${i}>\r\n\r\n`;
+    body += `GET /gmail/v1/users/me/threads/${id}?format=metadata&${metaQuery}\r\n\r\n`;
+  });
+  body += `--${boundary}--\r\n`;
+
+  try {
+    const res = await fetch("https://gmail.googleapis.com/batch/gmail/v1", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token.accessToken}`,
+        "Content-Type": `multipart/mixed; boundary=${boundary}`,
+      },
+      body,
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(`Gmail batch ${res.status}: ${txt}`);
+    }
+    const text = await res.text();
+
+    // El boundary de la respuesta lo genera Google (distinto al del request).
+    const ct = res.headers.get("content-type") || "";
+    const bm = ct.match(/boundary=([^;]+)/);
+    const respBoundary = bm ? bm[1].trim().replace(/^"|"$/g, "") : null;
+    const chunks = respBoundary ? text.split(`--${respBoundary}`) : [text];
+
+    for (const chunk of chunks) {
+      // Cada parte = una respuesta HTTP con un único objeto JSON.
+      const start = chunk.indexOf("{");
+      const end = chunk.lastIndexOf("}");
+      if (start === -1 || end <= start) continue;
+      try {
+        const json = JSON.parse(chunk.slice(start, end + 1)) as GmailThread & {
+          error?: unknown;
+        };
+        if (json && typeof json.id === "string" && !json.error) {
+          result.set(json.id, json);
+        }
+      } catch {
+        // parte sin JSON válido (preámbulo/epílogo del multipart) — ignorar
+      }
+    }
+  } catch (e) {
+    console.error("getThreadsMetadataBatch error:", e);
+  }
+
+  return result;
+}
+
 export async function getThreadFull(threadId: string): Promise<GmailThread> {
   return gmailFetch<GmailThread>(`/threads/${threadId}?format=full`);
 }
