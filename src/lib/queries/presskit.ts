@@ -164,16 +164,59 @@ export async function listEvents(days = 7): Promise<PresskitEvent[]> {
   return data as PresskitEvent[];
 }
 
+/** Serie diaria por evento (RA-5, vía RPC 0047 — agregada en SQL, sin cap). */
+export interface PresskitDailyRow {
+  day: string; // YYYY-MM-DD (hora de Chile)
+  event: string;
+  n: number;
+}
+
+export async function getPresskitDaily(days = 7): Promise<PresskitDailyRow[]> {
+  const { supabase } = await getUserOrThrow();
+  const { data, error } = await supabase.rpc("presskit_event_daily", {
+    p_days: days,
+  });
+  if (error) {
+    console.error("getPresskitDaily error:", error);
+    return [];
+  }
+  return (data ?? []) as PresskitDailyRow[];
+}
+
+/** De dónde llegan: referrer / país / utm_source agregados (RA-5, RPC 0047). */
+export interface PresskitSourceRow {
+  dimension: "referrer" | "country" | "utm_source";
+  value: string;
+  n: number;
+}
+
+export async function getPresskitSources(
+  days = 7
+): Promise<PresskitSourceRow[]> {
+  const { supabase } = await getUserOrThrow();
+  const { data, error } = await supabase.rpc("presskit_sources", {
+    p_days: days,
+  });
+  if (error) {
+    console.error("getPresskitSources error:", error);
+    return [];
+  }
+  return (data ?? []) as PresskitSourceRow[];
+}
+
 export async function getEventsSummary(days = 7): Promise<{
   total: number;
   byEvent: Record<string, number>;
 }> {
-  const events = await listEvents(days);
+  // Re-basado en la RPC agregada (0047) → sin el tope de 1000 filas.
+  const rows = await getPresskitDaily(days);
   const byEvent: Record<string, number> = {};
-  for (const e of events) {
-    byEvent[e.event] = (byEvent[e.event] || 0) + 1;
+  let total = 0;
+  for (const r of rows) {
+    byEvent[r.event] = (byEvent[r.event] || 0) + r.n;
+    total += r.n;
   }
-  return { total: events.length, byEvent };
+  return { total, byEvent };
 }
 
 export async function listBookings(

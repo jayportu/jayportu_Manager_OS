@@ -168,9 +168,18 @@ export default async function PressKitAdminPage() {
       <ShareTools publicUrl={publicUrl} artistSlug={profile.public_slug} />
 
       {/* KPIs últimos 7 días */}
-      <h2 className="text-xs uppercase tracking-widest text-fg-muted mb-3 font-semibold">
-        Métricas · últimos 7 días
-      </h2>
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold">
+          Métricas · últimos 7 días
+        </h2>
+        <Link
+          href="/press-kit/stats"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
+        >
+          Ver estadísticas completas
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <KpiCard label="Visitas" value={views} icon={Eye} />
         <KpiCard
