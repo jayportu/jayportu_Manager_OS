@@ -8,11 +8,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createFeedbackReport } from "@/lib/queries/beta";
+import { rateLimit } from "@/lib/rate-limit";
 import type { FeedbackKind } from "@/types/database";
 
 const BUCKET = "feedback-screenshots";
 
 export async function POST(req: Request) {
+  const limit = rateLimit(req, { key: "feedback", max: 20, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
   const supabase = await createClient();
   const {
     data: { user },

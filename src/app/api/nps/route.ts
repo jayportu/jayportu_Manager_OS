@@ -5,9 +5,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createNpsResponse } from "@/lib/queries/beta";
+import { rateLimit } from "@/lib/rate-limit";
 import { NPS_MILESTONES, type NpsMilestone } from "@/types/database";
 
 export async function POST(req: Request) {
+  const limit = rateLimit(req, { key: "nps", max: 20, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
   const supabase = await createClient();
   const {
     data: { user },

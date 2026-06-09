@@ -9,6 +9,7 @@
  */
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -25,6 +26,14 @@ interface Body {
 }
 
 export async function POST(request: Request) {
+  // Protege el upstream (Overpass) de que un DJ lo martille y baneen la IP.
+  const limit = rateLimit(request, { key: "overpass", max: 15, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Demasiadas búsquedas. Espera un minuto." },
+      { status: 429 }
+    );
+  }
   // Requiere sesión (no es endpoint público)
   const supabase = await createClient();
   const {

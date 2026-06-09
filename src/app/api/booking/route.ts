@@ -9,6 +9,7 @@
  */
 import { createBookingSubmission } from "@/lib/queries/presskit";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,15 @@ interface BookingBody {
 }
 
 export async function POST(request: Request) {
+  // Endpoint público (form anónimo) → rate-limit anti-abuso.
+  const limit = rateLimit(request, { key: "booking", max: 10, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Espera un minuto." },
+      { status: 429 }
+    );
+  }
+
   let body: BookingBody;
   try {
     body = await request.json();
