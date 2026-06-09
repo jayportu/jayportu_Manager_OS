@@ -1,34 +1,21 @@
-# Fase 6 hardening — auto-avisa (PRs) de updates con CVEs en deps.
-# Semanal para no inundar; agrupa los minor/patch para reducir ruido.
+# Dependabot — postura "SOLO SEGURIDAD" (decisión 2026-06-09).
+#
+# La activación inicial drenó el backlog con muchos majors → ráfaga de previews
+# fallidos + comentarios de bots → ruido de emails. Dejamos
+# open-pull-requests-limit en 0: NO abre PRs de updates rutinarios (ni
+# minor/patch ni major). Las actualizaciones de SEGURIDAD (Dependabot security
+# updates, que se controlan en repo Settings → Code security & analysis) SÍ
+# pueden abrir PR — eso es lo único importante y queremos recibirlo.
+# Los updates rutinarios se hacen a mano cuando se decida.
 version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    groups:
-      minor-and-patch:
-        update-types:
-          - "minor"
-          - "patch"
-    labels:
-      - "dependencies"
-    # Ignoramos TODOS los major version bumps: cada major (React 19, Next 16,
-    # Tailwind 4, TS 6, ESLint 10, etc.) necesita una migración dedicada y
-    # decidida, no un auto-PR que rompe el preview y genera ruido/emails.
-    # Siguen llegando minor/patch (agrupados) + parches de seguridad.
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 0
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-    labels:
-      - "dependencies"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 0
