@@ -91,12 +91,11 @@ Es la primera impresión de cualquier booker que se invite.
 **Objetivo:** abrir a bookers = más exposición → blindar antes.
 
 - [x] ⚪ **Quick wins de hardening.** ✅ 2026-06-08 (en prod). Rate-limit agregado a los endpoints públicos que faltaban (`/api/booking`, `/api/feedback`, `/api/nps`, `/api/overpass`); **security headers** en `next.config.mjs` (HSTS, X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy) + **CSP en Report-Only** (no bloquea — base para endurecer); **Dependabot** (`.github/dependabot.yml`). Verificado en vivo: headers presentes + `/api/booking` da 429 tras 10/min.
-- [ ] 🔴 **Next.js 14 → 15** — 14 CVEs HIGH (ver 13.1). Breaking, necesita rama propia + smoke test. **El ítem #1 antes de abrir al público.**
-- [ ] 🟡 **CAPTCHA Turnstile** en los 4 forms de auth — código mío + keys de Cloudflare (tú).
+- [x] 🔴 **Next.js 14 → 15** ✅ 2026-06-08 (en prod). Subido a **next@15.5.19** manteniendo **React 18** (los CVEs eran de Next, no de React → mínimo riesgo). **14 CVEs HIGH eliminados** (quedan 2 moderate transitivos: postcss bundleado en Next + uuid de MercadoPago, ya aceptado en 13.2). Suave porque el código ya era async-ready (`cookies()` await + `params`/`searchParams` Promise). Fixes: `<a href="/gmail">`→`<Link>` (lint estricto), `outputFileTracingRoot` (lockfile perdido en ~/), tsconfig target→ES2017 (auto). Smoke test en vivo: /dj, login→dashboard, /calendario, /p/[slug] ✓.
+- [ ] 🟡 **CAPTCHA Turnstile** en los 4 forms de auth (heredado de Fase 2) — código mío + keys de Cloudflare (tú).
 - [ ] 🟡 **Sentry** monitoring — SDK mío + proyecto/DSN (tú).
 - [ ] 📋 **CSP enforce** (hoy report-only) · 2FA (Supabase TOTP) — pases dedicados.
 - [ ] 🔵 **Ops tuyas (al lanzar):** DMARC `p=reject` (con reputación), rotar API key Resend, verificar backups Supabase. *(`/privacy` + `/terms` ya existen.)*
-- [ ] 🆕 CAPTCHA Turnstile en los 4 forms de auth (heredado de Fase 2 · signup booker)
 - [x] ⚪ **QA tab por tab (2026-06-07/08)** — barrido exhaustivo de bugs/fricciones por pestaña (workflow multi-agente, 77 hallazgos). **73/77 arreglados y en prod** (PRs #17–#31): 11 altos + 30 medios + 32 bajos. Bonus de la tanda: dashboard de email en tiempo real (webhook `campaign_id`, PR #13) y Gmail N+1 → batch endpoint (PR #31). **Quedan 3 a propósito:** 2 de cobros (reactivar suscripción + acceso en `pending`) → entran con Fase 4 · pagos; IA race condition (moot — la IA salió del nav). *(El press-kit tope-1000 quedó resuelto por RA-5 / migración 0047.)* Detalle completo en `QA_FINDINGS.md`.
 
 ### Backlog / deuda menor (no bloquea)

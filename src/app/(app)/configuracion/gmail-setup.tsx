@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Mail, ExternalLink } from "lucide-react";
@@ -68,7 +69,7 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
               </a>
             </Button>
             <Button asChild variant="outline" size="sm">
-              <a href="/gmail">Ir a Gmail</a>
+              <Link href="/gmail">Ir a Gmail</Link>
             </Button>
           </div>
         ) : serverConfigured ? (
