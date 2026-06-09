@@ -69,14 +69,14 @@ Es la primera impresión de cualquier booker que se invite.
 
 > **✅ FASE 3 COMPLETA (2026-06-08):** Smart Match v1 estructurado (PR #33/#34) + v2 texto libre heurístico (PR #36) + perk Founding "acceso anticipado", todo en prod y gratis de operar. (El gating de pago + perk "gratis por X tiempo" viven en Fase 4; embeddings/saved-searches en Backlog.) **Siguiente: Fase 4 · cerrar el ciclo del booking (pagos/MP).**
 
-### FASE 4 · Cerrar el ciclo del booking · ~1-2 semanas · ⏸️ EN PAUSA
-**Objetivo:** del match al cierre con plata y contrato, dentro de DROP.
-> **Saltada por ahora (2026-06-08):** no se prende pago todavía. Se retoma después de Fase 5.
+### FASE 4 · Activar suscripción + contratos · ⏸️ EN PAUSA (stand-by hasta fin de beta)
+**Objetivo:** prender el único cobro de DROP — la **suscripción del DJ** ($9.990/mes vía MP). Contratos, opcional.
+> **Decisión 2026-06-08:** DROP cobra **solo la suscripción al DJ**, y queda en stand-by **hasta terminar la beta**. **DROP NO intermedia el pago booker↔DJ** — ese pago es responsabilidad exclusiva del booker, va directo y no pasa por DROP (ya cubierto en /terms · Limitación de responsabilidad). Los pagos integrados (Idea 3) quedan **descartados**, no diferidos.
 
-- [ ] 📋 S18.5 Contratos (firma electrónica simple, click-wrap + hash)
-- [ ] 📋 S19 Pagos MercadoPago — ♻️ code-complete, falta **activar en prod** (5 pasos, ver sección 12)
-- [ ] 🪙 **Gating de pago + perk Founding "gratis por X tiempo"** (heredado de Fase 3). Al prender el pago: gatear Smart Match (u otro feature de booker) con `evaluateSubscriptionAccess` y dar gratis por X tiempo a `is_founding`. Hooks listos. *(El perk "acceso anticipado" ya se activó en Fase 3 vía v2 founding-only.)*
-- [ ] 🔴 QA diferidos de cobros (de Fase 6): botón "Reactivar" suscripción + acceso en estado `pending` — se arreglan al activar MP.
+- [ ] 📋 **Activar suscripción del DJ en prod** — S19 ♻️ code-complete (MP *preapproval* $9.990/mes), faltan los 5 pasos de prod (ver sección 12). Es el cobro de DROP, NO el pago del booking.
+- [ ] 🪙 **Gating de pago + perk Founding "gratis por X tiempo"** (heredado de Fase 3). Al prender la suscripción: gatear Smart Match con `evaluateSubscriptionAccess` y dar gratis por X tiempo a `is_founding`. Hooks listos. *(El perk "acceso anticipado" ya se activó en Fase 3.)*
+- [ ] 🔴 QA diferidos de cobros: botón "Reactivar" suscripción + acceso en estado `pending` — se arreglan al activar la suscripción.
+- [ ] 📋 S18.5 Contratos (firma electrónica simple, click-wrap + hash) — opcional, no bloquea.
 - [ ] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4)
 
 ### FASE 5 · Loops de crecimiento y retención · paralelo, con tracción
@@ -220,6 +220,7 @@ El registro de bookers está **deshabilitado** (landing y `/signup/booker` muest
 - Automatización de posteo en redes
 - WhatsApp automation / Baileys
 - Sprint 22.5 · Instagram auto-sync vía Meta Graph API (pospuesto indefinidamente)
+- **Pagos integrados booker↔DJ (Idea 3 / "cobrar la seña" vía Flow/MP)** — DESCARTADO 2026-06-08. DROP no intermedia el pago entre booker y DJ ni se responsabiliza de él; ese pago va directo y no pasa por DROP. El ÚNICO cobro de DROP es la suscripción del DJ.
 
 ---
 
@@ -245,7 +246,8 @@ El registro de bookers está **deshabilitado** (landing y `/signup/booker` muest
 - **Riesgo:** UI debe ser clara — es **simple**, no avanzada. Sirve 90% de casos, no notariales.
 - **Complejidad:** Media · **Depende de:** Idea 1 ✅ · **Estimado:** 4-5 días
 
-### Idea 3 · Pagos integrados Flow + MercadoPago → S19
+### ~~Idea 3 · Pagos integrados Flow + MercadoPago → S19~~ · ❌ DESCARTADO (2026-06-08)
+> **DROP no intermedia el pago booker↔DJ** (decisión 2026-06-08). El cobro de DROP es solo la suscripción del DJ. Lo de abajo queda como referencia histórica.
 - **Qué suma:** cobrar la seña dentro del sistema (segundo dolor LATAM)
 - **Por qué importa:** sin pago integrado el flujo queda "casi cerrado pero no"
 - **Funciones:**
