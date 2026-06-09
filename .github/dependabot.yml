@@ -15,6 +15,24 @@ updates:
           - "patch"
     labels:
       - "dependencies"
+    # Ignoramos los MAJOR de estos paquetes (decisiones conscientes): React 18
+    # se mantiene (Next 15 corre sobre 18), Tailwind 4 y lucide major requieren
+    # migración dedicada. Siguen llegando minor/patch + parches de seguridad.
+    ignore:
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "lucide-react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
