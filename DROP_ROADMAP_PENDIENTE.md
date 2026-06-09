@@ -90,12 +90,12 @@ Es la primera impresión de cualquier booker que se invite.
 ### FASE 6 · Hardening pre-lanzamiento público · gate antes de abrir
 **Objetivo:** abrir a bookers = más exposición → blindar antes.
 
-- [x] ⚪ **Quick wins de hardening.** ✅ 2026-06-08 (en prod). Rate-limit agregado a los endpoints públicos que faltaban (`/api/booking`, `/api/feedback`, `/api/nps`, `/api/overpass`); **security headers** en `next.config.mjs` (HSTS, X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy) + **CSP en Report-Only** (no bloquea — base para endurecer); **Dependabot** (`.github/dependabot.yml`). Verificado en vivo: headers presentes + `/api/booking` da 429 tras 10/min.
+- [x] ⚪ **Quick wins de hardening.** ✅ 2026-06-08 (en prod). Rate-limit agregado a los endpoints públicos que faltaban (`/api/booking`, `/api/feedback`, `/api/nps`, `/api/overpass`); **security headers** en `next.config.mjs` (HSTS, X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy) + **CSP en Report-Only** (no bloquea — base para endurecer); **Dependabot** (`.github/dependabot.yml`, dejado en **solo-seguridad** desde #58 — la activación inicial generó ráfaga de PRs/emails de updates rutinarios; ahora solo abre PR ante una vulnerabilidad). Verificado en vivo: headers presentes + `/api/booking` da 429 tras 10/min.
 - [x] 🔴 **Next.js 14 → 15** ✅ 2026-06-08 (en prod). Subido a **next@15.5.19** manteniendo **React 18** (los CVEs eran de Next, no de React → mínimo riesgo). **14 CVEs HIGH eliminados** (quedan 2 moderate transitivos: postcss bundleado en Next + uuid de MercadoPago, ya aceptado en 13.2). Suave porque el código ya era async-ready (`cookies()` await + `params`/`searchParams` Promise). Fixes: `<a href="/gmail">`→`<Link>` (lint estricto), `outputFileTracingRoot` (lockfile perdido en ~/), tsconfig target→ES2017 (auto). Smoke test en vivo: /dj, login→dashboard, /calendario, /p/[slug] ✓.
 - [ ] 🟡 **CAPTCHA Turnstile** en los 4 forms de auth (heredado de Fase 2) — código mío + keys de Cloudflare (tú).
 - [ ] 🟡 **Sentry** monitoring — SDK mío + proyecto/DSN (tú).
 - [ ] 📋 **CSP enforce** (hoy report-only) · 2FA (Supabase TOTP) — pases dedicados.
-- [ ] 🔵 **Ops tuyas (al lanzar):** DMARC `p=reject` (con reputación), rotar API key Resend, verificar backups Supabase. *(`/privacy` + `/terms` ya existen.)*
+- [ ] 🔵 **Ops tuyas (al lanzar):** DMARC `p=reject` (con reputación), rotar API key Resend, confirmar que los **backups automáticos de Supabase** estén activos (ya estamos en **plan Pro** desde 2026-06-04 → los snapshots vienen incluidos, solo verificar). *(`/privacy` + `/terms` ya existen.)*
 - [x] ⚪ **QA tab por tab (2026-06-07/08)** — barrido exhaustivo de bugs/fricciones por pestaña (workflow multi-agente, 77 hallazgos). **73/77 arreglados y en prod** (PRs #17–#31): 11 altos + 30 medios + 32 bajos. Bonus de la tanda: dashboard de email en tiempo real (webhook `campaign_id`, PR #13) y Gmail N+1 → batch endpoint (PR #31). **Quedan 3 a propósito:** 2 de cobros (reactivar suscripción + acceso en `pending`) → entran con Fase 4 · pagos; IA race condition (moot — la IA salió del nav). *(El press-kit tope-1000 quedó resuelto por RA-5 / migración 0047.)* Detalle completo en `QA_FINDINGS.md`.
 
 ### Backlog / deuda menor (no bloquea)
@@ -103,7 +103,7 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
-**Siguiente paso (a elección):** Fase 6 · hardening pre-lanzamiento (CAPTCHA + sección 13) **o** retomar Fase 4 · pagos/MP. Fases 0-3 cerradas + **Fase 5 loops core (RA-5/6/7) en prod**; QA 74/77. Quedan sueltos menores de Fase 5 (S22 ads tracker, música, Productor) y la parte 2 de v2 (embeddings) en backlog.
+**Siguiente paso (a elección):** **Fase 6 ya tiene hechos sus 2 grandes** (quick wins ✅ + Next 15 ✅, 2026-06-08). Quedan, cuando quieras: CAPTCHA Turnstile + Sentry (necesitan cuentas tuyas: Cloudflare / Sentry), y CSP-enforce / 2FA (pases dedicados). **Fase 4 · suscripción** sigue en stand-by hasta fin de beta. Fases 0-3 + **Fase 5 loops core (RA-5/6/7)** en prod; QA 74/77. Backlog: v2 parte 2 (embeddings), sueltos de Fase 5 (S22/música/Productor), RA-4.
 
 ---
 
