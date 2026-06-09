@@ -7,7 +7,7 @@ import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Download, ListMusic } from "lucide-react";
+import { Calendar, AlertCircle, Download, ListMusic, Globe } from "lucide-react";
 import Link from "next/link";
 import { SyncButton } from "./sync-button";
 import { NewEventButton } from "./new-event-button";
@@ -376,6 +376,16 @@ function EventRow({
             >
               <ListMusic className="w-3 h-3" />
               Tracklist
+            </Link>
+          )}
+          {isShow && (
+            <Link
+              href={`/calendario/${ev.id}/evento`}
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              title="Publicar como evento público + RSVP"
+            >
+              <Globe className="w-3 h-3" />
+              Evento
             </Link>
           )}
         </div>
