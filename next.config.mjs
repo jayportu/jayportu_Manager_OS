@@ -1,5 +1,13 @@
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Hay un package-lock.json perdido en ~/ que Next 15 tomaba como raíz del
+  // workspace. Fijamos la raíz a este proyecto para el file tracing en Vercel.
+  outputFileTracingRoot: __dirname,
   // Server Actions default body limit es 1 MB → rompía subidas de avatar
   // (foto de perfil) con error críptico para fotos del celular (2-4 MB).
   // Subimos a 25 MB que cubre el caso más grande (press-kit PDF, 25 MB).
