@@ -32,6 +32,44 @@ const nextConfig = {
     // (las fotos usan path con timestamp único, así que cache largo es seguro).
     minimumCacheTTL: 2678400,
   },
+  // Security headers (Fase 6 hardening). Defensa en profundidad — Cloudflare
+  // ya está delante, esto es otro layer en el origin.
+  async headers() {
+    // CSP en REPORT-ONLY: no bloquea nada, solo reporta violaciones en la
+    // consola del browser. Sienta la base para endurecer/enforzar después
+    // sin riesgo de romper embeds (SoundCloud/YouTube/Mixcloud/Spotify),
+    // el SDK de MercadoPago, imágenes de Supabase, ni los inline scripts de Next.
+    const cspReportOnly = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co https://*.mercadopago.com",
+      "frame-src 'self' https://w.soundcloud.com https://*.soundcloud.com https://www.youtube.com https://www.youtube-nocookie.com https://www.mixcloud.com https://open.spotify.com https://*.mercadopago.com",
+      "media-src 'self' https: blob:",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; ");
+
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=31536000" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+          { key: "Content-Security-Policy-Report-Only", value: cspReportOnly },
+        ],
+      },
+    ];
+  },
   // Redirects para mantener URLs viejas funcionando después de renames.
   async redirects() {
     return [
