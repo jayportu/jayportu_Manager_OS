@@ -8,6 +8,9 @@
  * Uso: <TurnstileWidget onVerify={setToken} onExpire={() => setToken(null)} />
  * Para forzar un token nuevo tras un submit fallido, dale una `key` distinta
  * desde el padre (el token de Turnstile es de un solo uso).
+ *
+ * Activado en prod 2026-06-10 (NEXT_PUBLIC_TURNSTILE_SITE_KEY en Vercel,
+ * NO-Sensitive para que se inyecte en el build).
  */
 
 import { useEffect, useRef } from "react";
