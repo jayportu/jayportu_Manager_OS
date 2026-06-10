@@ -110,12 +110,18 @@ export default async function PublicEventPage({ params }: PageProps) {
             >
               {ev.title}
             </h1>
-            <Link
-              href={`/p/${ev.dj_public_slug}`}
-              className="inline-flex items-center gap-1 text-sm text-orange hover:underline mt-2"
-            >
-              {ev.dj_artist_name} <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
+            {ev.dj_public_slug ? (
+              <Link
+                href={`/p/${ev.dj_public_slug}`}
+                className="inline-flex items-center gap-1 text-sm text-orange hover:underline mt-2"
+              >
+                {ev.dj_artist_name} <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <span className="inline-block text-sm text-orange mt-2">
+                {ev.dj_artist_name}
+              </span>
+            )}
           </div>
         </div>
 
