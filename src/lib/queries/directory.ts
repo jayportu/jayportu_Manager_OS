@@ -50,6 +50,8 @@ export interface PublicDjProfile {
   featured_sets: string[];
   /** Completitud del perfil 0–100 (Smart Match). Más completo → más arriba. */
   completeness: number;
+  /** ISO de alta — para el badge "Nuevo" en el landing. */
+  created_at: string;
 }
 
 export interface ListDirectoryParams {
@@ -62,8 +64,9 @@ export interface ListDirectoryParams {
   onlyAvailable?: boolean;
   /** Presupuesto del booker (CLP): excluye DJs cuyo fee_min publicado lo supera. */
   budget?: number;
-  /** Sort: 'available' (disponibles primero) o 'name' (alfabético). */
-  sort?: "available" | "name";
+  /** Sort: 'available' (disponibles primero), 'name' (alfabético) o 'recent'
+   *  (recién sumados — preserva el orden created_at desc de la base). */
+  sort?: "available" | "name" | "recent";
   limit?: number;
 }
 
@@ -95,7 +98,7 @@ export const getPublicDjsBase = unstable_cache(
         // Los campos extra (bio_long, redes, brands_worked, aliases, etc.) se
         // traen SOLO para calcular `completeness`; no se exponen en el objeto
         // cacheado (no engordan el payload) — ver el .map de abajo.
-        "user_id, artist_name, tagline, bio_short, bio_long, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, show_fee, fee_min, fee_max, featured_sets, brands_worked, aliases, record_label, instagram_url, soundcloud_url, youtube_url, spotify_url, website, public_email, whatsapp, onboarding_completed_at, hidden_from_directory"
+        "user_id, artist_name, tagline, bio_short, bio_long, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, show_fee, fee_min, fee_max, featured_sets, brands_worked, aliases, record_label, instagram_url, soundcloud_url, youtube_url, spotify_url, website, public_email, whatsapp, onboarding_completed_at, hidden_from_directory, created_at"
       )
       .eq("hidden_from_directory", false)
       // A1: no exponer DJs suspendidos/baneados en el directorio /dj ni en
@@ -139,6 +142,7 @@ export const getPublicDjsBase = unstable_cache(
       fee_max: row.fee_max ?? null,
       featured_sets: row.featured_sets ?? [],
       completeness: computeCompleteness(row).percent,
+      created_at: (row.created_at as string) ?? "",
     }));
   },
   ["public-djs-base"],
@@ -199,7 +203,9 @@ export async function listPublicDjs(
   }
 
   // Sort: disponibles primero, después alfabético.
-  if (params.sort === "name") {
+  if (params.sort === "recent") {
+    // La base ya viene created_at desc → preservamos ese orden (recién sumados).
+  } else if (params.sort === "name") {
     result.sort((a, b) => a.artist_name.localeCompare(b.artist_name));
   } else {
     result.sort((a, b) => {
@@ -272,4 +278,82 @@ export async function listPublicCities(): Promise<
   return Array.from(counts.entries())
     .map(([city, count]) => ({ city, count }))
     .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Cuenta seguidores (booker_favorites) por DJ en los últimos `days` días y
+ * devuelve los top `limit` con su conteo. In-memory: la tabla es chica en beta
+ * y reusa la lectura base cacheada para el perfil (sin query extra de perfiles).
+ */
+export async function getTopFollowedDjs(
+  days = 30,
+  limit = 5
+): Promise<(PublicDjProfile & { followers_count: number })[]> {
+  const admin = createAdminClient();
+  const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+  const { data, error } = await admin
+    .from("booker_favorites")
+    .select("dj_user_id")
+    .gte("created_at", cutoff);
+  if (error || !data || data.length === 0) return [];
+
+  const counts = new Map<string, number>();
+  for (const r of data as { dj_user_id: string }[]) {
+    counts.set(r.dj_user_id, (counts.get(r.dj_user_id) ?? 0) + 1);
+  }
+
+  const base = await getPublicDjsBase();
+  const byId = new Map(base.map((d) => [d.user_id, d]));
+  return Array.from(counts.entries())
+    .map(([id, n]) => {
+      const d = byId.get(id);
+      return d ? { ...d, followers_count: n } : null;
+    })
+    .filter((x): x is PublicDjProfile & { followers_count: number } => x !== null)
+    .sort(
+      (a, b) =>
+        b.followers_count - a.followers_count ||
+        a.artist_name.localeCompare(b.artist_name)
+    )
+    .slice(0, limit);
+}
+
+export interface LandingRanking {
+  /** 'followed' = hay suficientes seguidores reales; 'destacados' = fallback. */
+  mode: "followed" | "destacados";
+  label: string;
+  items: (PublicDjProfile & { followers_count?: number })[];
+}
+
+/**
+ * Ranking ADAPTATIVO para el landing. Si hay ≥3 DJs con seguidores reales este
+ * mes, muestra "Los más seguidos del mes". Si no, cae a "Destacados de la
+ * escena" (DROP Picks → verificados → recién llegados, deduplicado). Nunca
+ * queda vacío y evoluciona solo a medida que crecen los seguidores.
+ */
+export async function getLandingRanking(limit = 5): Promise<LandingRanking> {
+  const followed = await getTopFollowedDjs(30, limit);
+  if (followed.length >= 3) {
+    return { mode: "followed", label: "Los más seguidos del mes", items: followed };
+  }
+
+  const base = await getPublicDjsBase();
+  const out: PublicDjProfile[] = [];
+  const seen = new Set<string>();
+  const take = (arr: PublicDjProfile[]) => {
+    for (const d of arr) {
+      if (out.length >= limit) break;
+      if (seen.has(d.user_id)) continue;
+      seen.add(d.user_id);
+      out.push(d);
+    }
+  };
+  take(
+    base
+      .filter((d) => d.is_drop_pick)
+      .sort((a, b) => b.drop_pick_priority - a.drop_pick_priority)
+  );
+  take(base.filter((d) => d.is_verified));
+  take(base); // base ya viene created_at desc (recién llegados)
+  return { mode: "destacados", label: "Destacados de la escena", items: out };
 }
