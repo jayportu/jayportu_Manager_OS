@@ -34,6 +34,9 @@ const nextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
+    // Calidades usadas por next/image en la app (cards/hero 85, avatar 90).
+    // Declararlas evita el warning de deprecación y será obligatorio en Next 16.
+    qualities: [85, 90],
     // Egress: Vercel cachea cada variante optimizada al menos este tiempo
     // antes de re-bajar el original desde Supabase Storage. Default era 60s →
     // re-fetch frecuente. 31 días corta drásticamente el egress de Storage
