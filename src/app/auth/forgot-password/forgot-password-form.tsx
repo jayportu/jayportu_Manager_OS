@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { translateSupabaseError } from "@/lib/auth-errors";
+import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
 
 export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
   const supabase = createClient();
@@ -28,18 +29,31 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
+    if (TURNSTILE_ENABLED && !captchaToken) {
+      setError("Completa la verificación anti-bot.");
+      setLoading(false);
+      return;
+    }
+
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
       "/auth/reset-password"
     )}`;
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo,
+      captchaToken: captchaToken || undefined,
     });
+    // El token es de un solo uso → re-montar el widget para el próximo intento
+    // (incluye el botón "Reenviar" del estado sent).
+    setCaptchaToken(null);
+    setCaptchaKey((k) => k + 1);
     if (error) {
       setError(translateSupabaseError(error.message, error.status));
       setLoading(false);
@@ -104,7 +118,19 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
           </div>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        {TURNSTILE_ENABLED && (
+          <TurnstileWidget
+            key={captchaKey}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken(null)}
+          />
+        )}
+
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading || (TURNSTILE_ENABLED && !captchaToken)}
+        >
           {loading ? "Enviando…" : "Enviarme el link"}
         </Button>
       </form>

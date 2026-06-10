@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { TOS_VERSION } from "@/lib/legal";
 import { translateSupabaseError } from "@/lib/auth-errors";
+import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
 
 interface Props {
   inviteEmail: string | null;
@@ -37,6 +38,15 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
   const [info, setInfo] = useState<string | null>(null);
   // Aceptación de Términos — obligatoria al crear cuenta (click-wrap).
   const [tosAccepted, setTosAccepted] = useState(false);
+  // CAPTCHA (Turnstile). Si está habilitado, el token es obligatorio para
+  // enviar; `captchaKey` se bumpea para re-montar el widget tras cada intento
+  // (el token es de un solo uso).
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    setCaptchaKey((k) => k + 1);
+  }
 
   /**
    * Login/signup con Google. Pide SOLO email/perfil (permisos NO sensibles)
@@ -84,13 +94,21 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
     setInfo(null);
     setLoading(true);
 
+    if (TURNSTILE_ENABLED && !captchaToken) {
+      setError("Completa la verificación anti-bot.");
+      setLoading(false);
+      return;
+    }
+
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: { captchaToken: captchaToken || undefined },
       });
       if (error) {
         setError(translateSupabaseError(error.message, error.status));
+        resetCaptcha();
         setLoading(false);
         return;
       }
@@ -135,6 +153,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          captchaToken: captchaToken || undefined,
           data: {
             tos_accepted: "true",
             tos_version: TOS_VERSION,
@@ -143,6 +162,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
       });
       if (error) {
         setError(translateSupabaseError(error.message, error.status));
+        resetCaptcha();
         setLoading(false);
         return;
       }
@@ -152,12 +172,14 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
         setError(
           "Este email ya tiene cuenta. Usa 'Iniciar sesión' arriba con tu contraseña."
         );
+        resetCaptcha();
         setLoading(false);
         return;
       }
       setInfo(
         "Te enviamos un email para confirmar tu cuenta. Revisa tu bandeja (también spam). El link dura unos minutos."
       );
+      resetCaptcha();
       setLoading(false);
     }
   }
@@ -293,10 +315,22 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           </label>
         )}
 
+        {TURNSTILE_ENABLED && (
+          <TurnstileWidget
+            key={captchaKey}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken(null)}
+          />
+        )}
+
         <Button
           type="submit"
           className="w-full"
-          disabled={loading || (mode === "signup" && !tosAccepted)}
+          disabled={
+            loading ||
+            (mode === "signup" && !tosAccepted) ||
+            (TURNSTILE_ENABLED && !captchaToken)
+          }
         >
           {loading
             ? "Procesando…"
