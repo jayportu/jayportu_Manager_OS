@@ -331,6 +331,7 @@ export async function listInterestedDjs(): Promise<InterestedDj[]> {
   const { data: profiles } = await admin
     .from("dj_profile")
     .select("user_id, artist_name, city, genres, public_slug, avatar_url")
+    .eq("account_status", "active") // A1: ocultar DJs suspendidos/baneados
     .in(
       "user_id",
       list.map((r) => r.dj_user_id)
@@ -410,6 +411,7 @@ export async function listReceivedPitches(): Promise<ReceivedPitch[]> {
   const { data: profiles } = await admin
     .from("dj_profile")
     .select("user_id, artist_name, city, genres, public_slug, avatar_url")
+    .eq("account_status", "active") // A1: ocultar DJs suspendidos/baneados
     .in(
       "user_id",
       list.map((r) => r.dj_user_id)
@@ -592,6 +594,7 @@ export async function listMyFavorites(): Promise<BookerFavorite[]> {
   const { data: profiles } = await admin
     .from("dj_profile")
     .select("user_id, artist_name, city, genres, public_slug, hero_image_url, logo_url")
+    .eq("account_status", "active") // A1: ocultar DJs suspendidos/baneados de favoritos
     .in("user_id", djIds);
 
   const byId = new Map(
@@ -728,6 +731,7 @@ export async function listFollowFeed(): Promise<FeedUpdate[]> {
   const { data: rawProfiles } = await admin
     .from("dj_profile")
     .select("user_id, artist_name, public_slug, avatar_url")
+    .eq("account_status", "active") // A1: ocultar DJs suspendidos/baneados del feed
     .in("user_id", uniqueDjIds);
   type ProfileRow = {
     user_id: string;

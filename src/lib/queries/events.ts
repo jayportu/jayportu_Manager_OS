@@ -48,9 +48,13 @@ export async function getEventByToken(
 
   const { data: dj } = await admin
     .from("dj_profile")
-    .select("artist_name, public_slug, avatar_url, hero_image_url")
+    .select("artist_name, public_slug, avatar_url, hero_image_url, account_status")
     .eq("user_id", ev.user_id)
     .maybeSingle();
+  // A1: si el DJ está suspendido/baneado, su evento público no se muestra.
+  if (dj && (dj as { account_status?: string }).account_status !== "active") {
+    return null;
+  }
 
   const { count } = await admin
     .from("event_rsvps")

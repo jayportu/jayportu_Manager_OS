@@ -26,6 +26,8 @@ export async function getProfileBySlug(slug: string): Promise<DjProfile | null> 
       "user_id, public_slug, artist_name, tagline, bio_short, bio_long, genres, city, country, avatar_url, hero_image_url, logo_url, instagram_url, soundcloud_url, youtube_url, spotify_url, website, public_email, whatsapp, tech_rider_ideal, tech_rider_alt, hospitality, press_kit_pdf_url, featured_sets, brands_worked, aliases, record_label, show_fee, fee_min, fee_max, verified_at, verifications, available_from, available_until, available_note"
     )
     .eq("public_slug", slug)
+    // A1: no exponer DJs suspendidos/baneados en el press kit público.
+    .eq("account_status", "active")
     .single();
   if (error) {
     if (error.code !== "PGRST116") {
