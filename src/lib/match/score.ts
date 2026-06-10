@@ -66,11 +66,22 @@ export function scoreDjForGig(dj: PublicDjProfile, need: GigNeed): ScoredDj {
   if (need.genres.length === 0) {
     score += 35;
   } else {
-    const wanted = need.genres.map(norm);
-    const matched = dj.genres.filter((g) => wanted.includes(norm(g)));
-    score += Math.round(35 * (matched.length / need.genres.length));
+    // A5: intersectar sobre lo BUSCADO (no sobre dj.genres) y dedupear, para
+    // que un DJ con géneros duplicados ("House"/"house") no infle el ratio.
+    const wanted = Array.from(new Set(need.genres.map(norm)));
+    const djSet = new Set(dj.genres.map(norm));
+    const matched = wanted.filter((w) => djSet.has(w));
+    score += Math.round(35 * (matched.length / wanted.length));
     if (matched.length > 0) {
-      reasons.push({ label: `Toca ${matched.join(", ")}`, positive: true });
+      // Mostrar las etiquetas originales del DJ (deduplicadas) que matchean.
+      const seen = new Set<string>();
+      const labels = dj.genres.filter((g) => {
+        const n = norm(g);
+        if (!matched.includes(n) || seen.has(n)) return false;
+        seen.add(n);
+        return true;
+      });
+      reasons.push({ label: `Toca ${labels.join(", ")}`, positive: true });
     }
   }
 
@@ -87,7 +98,9 @@ export function scoreDjForGig(dj: PublicDjProfile, need: GigNeed): ScoredDj {
   // Disponibilidad en la fecha (20)
   const avail = availabilityFor(dj.available_from, dj.available_until, need.eventDate);
   if (!need.eventDate) {
-    score += 12;
+    // M5: sin fecha, la disponibilidad no es un criterio → neutral completo
+    // (no penaliza), así el match máximo alcanzable es 100 y no 92.
+    score += 20;
   } else if (avail === "in") {
     score += 20;
     reasons.push({ label: `Disponible el ${fmtDate(need.eventDate)}`, positive: true });

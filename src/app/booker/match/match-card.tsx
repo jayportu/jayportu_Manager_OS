@@ -28,6 +28,9 @@ export function MatchCard({ scored }: { scored: ScoredDj }) {
     .join("")
     .toUpperCase();
   const hasSet = dj.featured_sets.length > 0;
+  // M5: bajo 70 el match es "parcial" (suele venir de criterios neutros, no de
+  // coincidencias fuertes) → badge atenuado en gris, no el naranjo confiado.
+  const strong = score >= 70;
 
   return (
     <div className="group border-2 border-ink bg-white flex flex-col">
@@ -57,9 +60,13 @@ export function MatchCard({ scored }: { scored: ScoredDj }) {
             </span>
           </div>
         )}
-        {/* % de match */}
-        <span className="absolute top-2 right-2 bg-orange text-ink px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wider border-2 border-ink">
-          {score}% match
+        {/* % de match — atenuado si es parcial (M5) */}
+        <span
+          className={`absolute top-2 right-2 px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wider border-2 border-ink ${
+            strong ? "bg-orange text-ink" : "bg-cream text-fg-muted"
+          }`}
+        >
+          {score}% {strong ? "match" : "parcial"}
         </span>
         <div className="absolute top-2 left-2">
           <FavoriteButtonClient
