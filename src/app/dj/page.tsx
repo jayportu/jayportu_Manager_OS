@@ -367,7 +367,16 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
 
   return (
-    <div className="group border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
+    <div className="group relative border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
+      {/* Botón corazón FUERA del <Link> del card: un <button> dentro de un
+          <a> es HTML inválido. Se posiciona sobre la esquina del card. */}
+      <div className="absolute top-2 left-2 z-10">
+        <FavoriteButtonClient
+          djUserId={dj.user_id}
+          size="sm"
+          redirectOnUnauth={false}
+        />
+      </div>
       <Link href={`/p/${dj.public_slug}`} className="flex flex-col">
       <div className="bg-ink aspect-square flex items-center justify-center relative overflow-hidden">
         {/* Preferimos avatar_url (cuadrado, foto de perfil) para el card
@@ -402,14 +411,6 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             ★ DISPONIBLE
           </span>
         )}
-        {/* Botón corazón (solo se muestra si el visitante es Booker logueado) */}
-        <div className="absolute top-2 left-2">
-          <FavoriteButtonClient
-            djUserId={dj.user_id}
-            size="sm"
-            redirectOnUnauth={false}
-          />
-        </div>
       </div>
       <div className="p-3 border-t-2 border-ink flex flex-col gap-1.5">
         <div

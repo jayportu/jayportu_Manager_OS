@@ -53,7 +53,7 @@ const nextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co https://*.mercadopago.com",
+      "connect-src 'self' https://*.supabase.co https://*.mercadopago.com https://countriesnow.space",
       "frame-src 'self' https://w.soundcloud.com https://*.soundcloud.com https://www.youtube.com https://www.youtube-nocookie.com https://www.mixcloud.com https://open.spotify.com https://*.mercadopago.com",
       "media-src 'self' https: blob:",
       "object-src 'none'",

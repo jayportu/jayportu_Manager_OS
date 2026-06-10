@@ -54,7 +54,12 @@ function maybeCleanup() {
 }
 
 function getClientIp(req: Request): string {
-  // Vercel popula estos headers con la IP real del cliente
+  // M16: detrás de Cloudflare (dropgigs.com lo está), `cf-connecting-ip` es la
+  // IP REAL del cliente y CF la sobrescribe — no es spoofeable por el cliente.
+  // Va PRIMERO: x-forwarded-for puede traer la IP del edge de CF (compartida →
+  // falsos 429 para usuarios distintos) o venir manipulada (evadible).
+  const cf = req.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
   const fwd = req.headers.get("x-forwarded-for");
   if (fwd) return fwd.split(",")[0].trim();
   const real = req.headers.get("x-real-ip");

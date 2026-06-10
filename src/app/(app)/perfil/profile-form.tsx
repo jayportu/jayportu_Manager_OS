@@ -187,6 +187,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         <AvatarUpload
           initialUrl={form.avatar_url}
           artistName={form.artist_name}
+          onChange={(url) => update("avatar_url", url)}
         />
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
