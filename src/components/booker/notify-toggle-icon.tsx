@@ -5,7 +5,7 @@
  * email de un DJ seguido, desde /booker/seguidos. Reusa toggleFollowNotifyAction
  * (la misma que usa el toggle de /p/[slug]).
  */
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, BellOff } from "lucide-react";
 import { toggleFollowNotifyAction } from "@/app/booker/actions";
@@ -19,6 +19,14 @@ export function NotifyToggleIcon({ djUserId, initial }: Props) {
   const router = useRouter();
   const [on, setOn] = useState(initial);
   const [pending, startTransition] = useTransition();
+
+  // M9: el mismo DJ puede aparecer 2 veces en /seguidos (feed + grilla). Al
+  // togglear uno, el router.refresh() trae el estado fresco del server; este
+  // efecto re-sincroniza la otra instancia (useState ignora cambios de `initial`
+  // tras el montaje, por eso se desincronizaban).
+  useEffect(() => {
+    setOn(initial);
+  }, [initial]);
 
   function handleClick(e: React.MouseEvent) {
     // La card suele ser un <Link>; no navegar al togglear.
