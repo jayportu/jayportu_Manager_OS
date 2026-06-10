@@ -491,7 +491,50 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             )}
 
             {/* ── TECH RIDER ── */}
-            {hasStructuredRider ? (
+            {/* Prioridad: el texto simple IDEAL/ALTERNATIVO (lo que el DJ edita
+                en Configuración) manda. El rider estructurado + stage plot queda
+                como fallback solo para quien tenga ítems pero ningún texto. */}
+            {profile.tech_rider_ideal ||
+            profile.tech_rider_alt ||
+            profile.hospitality ? (
+              <section id="rider" className="mb-10 scroll-mt-20">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                  — TECH RIDER
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {profile.tech_rider_ideal && (
+                    <div className="p-4 border-2 border-ink bg-white">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                        IDEAL
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {profile.tech_rider_ideal}
+                      </div>
+                    </div>
+                  )}
+                  {profile.tech_rider_alt && (
+                    <div className="p-4 border-2 border-ink bg-white">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                        ALTERNATIVO
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {profile.tech_rider_alt}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {profile.hospitality && (
+                  <div className="mt-4 p-4 border-2 border-ink bg-white">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
+                      HOSPITALITY
+                    </div>
+                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {profile.hospitality}
+                    </div>
+                  </div>
+                )}
+              </section>
+            ) : hasStructuredRider ? (
               <section id="rider" className="mb-10 scroll-mt-20">
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
                   — TECH RIDER
@@ -504,52 +547,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   items={riderItems}
                   hospitalityNote={profile.hospitality}
                 />
-                {/* Las notas legacy (tech_rider_ideal/alt) NO se muestran acá
-                    cuando hay rider estructurado: serían duplicación de lo que
-                    ya muestra TechRiderRender. El DJ las sigue viendo en
-                    Configuración como recordatorio para migrarlas/limpiarlas. */}
               </section>
-            ) : (
-              (profile.tech_rider_ideal || profile.tech_rider_alt) && (
-                <section id="rider" className="mb-10 scroll-mt-20">
-                  <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
-                    — TECH RIDER
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {profile.tech_rider_ideal && (
-                      <div className="p-4 border-2 border-ink bg-white">
-                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
-                          IDEAL
-                        </div>
-                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                          {profile.tech_rider_ideal}
-                        </div>
-                      </div>
-                    )}
-                    {profile.tech_rider_alt && (
-                      <div className="p-4 border-2 border-ink bg-white">
-                        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
-                          ALTERNATIVO
-                        </div>
-                        <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                          {profile.tech_rider_alt}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {profile.hospitality && (
-                    <div className="mt-4 p-4 border-2 border-ink bg-white">
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
-                        HOSPITALITY
-                      </div>
-                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                        {profile.hospitality}
-                      </div>
-                    </div>
-                  )}
-                </section>
-              )
-            )}
+            ) : null}
           </div>
 
           {/* ────── COLUMNA DERECHA: contacto sticky card naranja ────── */}

@@ -623,16 +623,15 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         </div>
       </Card>
 
-      {/* Tech rider — movido a Configuración (editor estructurado) */}
+      {/* Tech rider — se edita en Configuración (editor simple IDEAL/ALT) */}
       <Card className="p-6 space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
           Tech rider & hospitality
         </h2>
         <p className="text-sm text-fg-muted">
-          Tu tech rider y hospitality ahora se editan desde el{" "}
-          <strong>editor estructurado</strong> en Configuración: cada equipo
-          con su categoría, cantidad y alternativo. Eso alimenta tu press kit
-          y el stage plot automático.
+          Tu tech rider y hospitality se editan en Configuración:{" "}
+          <strong>un equipo por línea</strong>, en los cuadros IDEAL y
+          ALTERNATIVO. Se muestran tal cual en tu press kit público.
         </p>
         <a
           href="/configuracion#tech-rider"
