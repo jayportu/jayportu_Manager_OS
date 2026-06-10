@@ -701,7 +701,7 @@ Recibes este correo porque sigues a ${input.djArtistName} con avisos activados. 
 // Helpers
 // ---------------------------------------------------------------------------
 
-function escapeHtml(s: string): string {
+export function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

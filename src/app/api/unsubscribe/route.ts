@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { unsubscribeFanByRsvp } from "@/lib/queries/events";
 
 /**
  * Endpoint para el header List-Unsubscribe (Gmail/Yahoo bulk sender
@@ -30,6 +31,13 @@ export async function POST(request: NextRequest) {
   });
   if (!limit.ok) return new NextResponse(null, { status: 429 });
 
+  // A4: baja real de un fan (avisos de shows). El link lleva el id de su RSVP.
+  const rsvp = request.nextUrl.searchParams.get("rsvp");
+  if (rsvp) {
+    await unsubscribeFanByRsvp(rsvp);
+    return new NextResponse(null, { status: 200 });
+  }
+
   const email = request.nextUrl.searchParams.get("email") || "unknown";
   console.log("[unsubscribe] POST one-click", { email });
   return new NextResponse(null, { status: 200 });
@@ -48,8 +56,14 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const email = request.nextUrl.searchParams.get("email") || "tu email";
-  console.log("[unsubscribe] GET click", { email });
+  // A4: clic en "Cancelar avisos" del email a fans → apaga notify_future.
+  const rsvp = request.nextUrl.searchParams.get("rsvp");
+  if (rsvp) {
+    await unsubscribeFanByRsvp(rsvp);
+  } else {
+    const email = request.nextUrl.searchParams.get("email") || "tu email";
+    console.log("[unsubscribe] GET click", { email });
+  }
   return new NextResponse(
     `<!doctype html>
 <html lang="es">

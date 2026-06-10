@@ -5,6 +5,9 @@ import { ArrowLeft } from "lucide-react";
 import { EventoManager } from "./evento-manager";
 
 export const dynamic = "force-dynamic";
+// A3: el publishEventAction avisa a fans síncrono (loop rate-limited). Damos
+// margen al server action de esta ruta para que Vercel no lo mate a mitad.
+export const maxDuration = 60;
 
 interface PageProps {
   params: Promise<{ id: string }>;

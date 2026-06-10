@@ -4,9 +4,49 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Globe, Copy, Check, Download, Users, Bell } from "lucide-react";
-import { publishEventAction, unpublishEventAction } from "./actions";
+import {
+  Globe,
+  Copy,
+  Check,
+  Download,
+  Users,
+  Bell,
+  Ticket,
+  Eye,
+} from "lucide-react";
+import {
+  publishEventAction,
+  unpublishEventAction,
+  setEventTicketUrlAction,
+} from "./actions";
 import type { MyEventInfo, EventRsvpRow } from "@/lib/queries/events";
+
+function fmtWhen(iso: string): string {
+  try {
+    const s = new Date(iso).toLocaleString("es-CL", {
+      timeZone: "America/Santiago",
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * M15 — celda CSV segura: neutraliza inyección de fórmulas (=,+,-,@,tab,CR)
+ * prefijando con comilla simple, y escapa comillas. Excel/Sheets, si no, podría
+ * ejecutar `=...` desde el nombre que puso un fan anónimo.
+ */
+function csvCell(value: string): string {
+  let v = value ?? "";
+  if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`;
+  return `"${v.replace(/"/g, '""')}"`;
+}
 
 interface Props {
   event: MyEventInfo;
@@ -19,10 +59,26 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [ticketUrl, setTicketUrl] = useState(event.ticket_url ?? "");
+  const [ticketSaved, setTicketSaved] = useState(false);
 
   const isPublic = event.is_public && !!event.public_token;
   const link = event.public_token ? `${siteUrl}/e/${event.public_token}` : "";
   const notifyCount = rsvps.filter((r) => r.notify_future).length;
+  const isShow = event.type === "show";
+
+  function saveTicket() {
+    startTransition(async () => {
+      const res = await setEventTicketUrlAction(event.id, ticketUrl);
+      if (res.ok) {
+        setTicketSaved(true);
+        setTimeout(() => setTicketSaved(false), 1500);
+        router.refresh();
+      } else {
+        setNotice(res.error);
+      }
+    });
+  }
 
   function publish() {
     startTransition(async () => {
@@ -64,15 +120,18 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
     const rows = rsvps
       .map((r) =>
         [
-          `"${r.name.replace(/"/g, '""')}"`,
-          r.email,
-          r.status,
+          csvCell(r.name),
+          csvCell(r.email),
+          csvCell(r.status),
           r.notify_future ? "si" : "no",
-          r.created_at,
+          csvCell(r.created_at),
         ].join(",")
       )
       .join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8" });
+    // BOM (﻿) para que Excel reconozca UTF-8 y no rompa tildes/ñ.
+    const blob = new Blob(["﻿" + header + rows], {
+      type: "text/csv;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -100,10 +159,17 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
               Instagram o WhatsApp. Los fans confirman asistencia y quedan como
               leads tuyos.
             </p>
-            <Button onClick={publish} disabled={pending} variant="orange">
-              <Globe className="w-4 h-4" />
-              {pending ? "Publicando…" : "Publicar como evento"}
-            </Button>
+            {isShow ? (
+              <Button onClick={publish} disabled={pending} variant="orange">
+                <Globe className="w-4 h-4" />
+                {pending ? "Publicando…" : "Publicar como evento"}
+              </Button>
+            ) : (
+              <p className="text-xs text-fg-muted border-2 border-dashed border-ink/30 bg-cream px-3 py-2 max-w-sm mx-auto">
+                Solo los eventos de tipo <strong>show</strong> se pueden publicar.
+                Cambia el tipo en el calendario para habilitarlo.
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
@@ -127,6 +193,26 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                 {copied ? "Copiado" : "Copiar"}
               </Button>
             </div>
+
+            {/* Link de entradas (opcional) — antes era una feature muerta sin UI */}
+            <div>
+              <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted flex items-center gap-1.5 mb-1">
+                <Ticket className="w-3.5 h-3.5" /> Link de entradas (opcional)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={ticketUrl}
+                  onChange={(e) => setTicketUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 border-2 border-ink bg-white px-3 py-2 font-mono text-xs focus:outline-none focus:border-orange"
+                />
+                <Button onClick={saveTicket} variant="outline" disabled={pending}>
+                  {ticketSaved ? <Check className="w-4 h-4" /> : "Guardar"}
+                </Button>
+              </div>
+            </div>
+
             <button
               type="button"
               onClick={unpublish}
@@ -138,6 +224,37 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
           </div>
         )}
         {notice && <div className="text-sm text-success mt-3">{notice}</div>}
+      </Card>
+
+      {/* M11 — vista previa de lo que el público verá. Evita publicar la
+          descripción del calendario (que puede tener notas privadas/fee) sin
+          que el DJ se dé cuenta. */}
+      <Card className="p-5">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted flex items-center gap-1.5 mb-2">
+          <Eye className="w-3.5 h-3.5" /> Esto ve el público
+        </div>
+        <div className="border-2 border-ink bg-cream p-3 space-y-1">
+          <div className="font-display text-xl leading-none">{event.title}</div>
+          <div className="text-xs text-fg-muted">
+            {fmtWhen(event.start_at) || "Fecha por confirmar"}
+            {event.location ? ` · ${event.location}` : ""}
+          </div>
+          {event.description ? (
+            <p className="text-sm text-fg whitespace-pre-wrap pt-1">
+              {event.description}
+            </p>
+          ) : (
+            <p className="text-xs text-fg-subtle pt-1 italic">
+              Sin descripción.
+            </p>
+          )}
+        </div>
+        {event.description && (
+          <p className="text-[11px] text-fg-muted mt-2">
+            ⚠ La descripción sale tal cual del calendario. Si tiene notas
+            privadas o tu fee, edítala en el calendario antes de compartir.
+          </p>
+        )}
       </Card>
 
       {/* RSVPs */}

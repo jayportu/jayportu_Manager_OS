@@ -1,9 +1,10 @@
 import "server-only";
+import { cache } from "react";
 import { randomBytes } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { sendEmail, isResendConfigured } from "@/lib/email/resend";
-import { wrapEmail, ctaButton } from "@/lib/email/templates";
+import { wrapEmail, ctaButton, escapeHtml } from "@/lib/email/templates";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
 
@@ -30,8 +31,12 @@ export interface PublicEvent {
   going_count: number;
 }
 
-/** Lee un evento público por su token. null si no existe o no está publicado. */
-export async function getEventByToken(
+/**
+ * Lee un evento público por su token. null si no existe o no está publicado.
+ * Cacheado por-request (`cache`): la página lo llama en `generateMetadata` y en
+ * el componente → así no duplicamos las 3 queries en cada render.
+ */
+export const getEventByToken = cache(async function getEventByToken(
   token: string
 ): Promise<PublicEvent | null> {
   if (!token) return null;
@@ -56,10 +61,12 @@ export async function getEventByToken(
     return null;
   }
 
+  // M13: "N van" cuenta SOLO los que confirmaron "voy", no los "quizás".
   const { count } = await admin
     .from("event_rsvps")
     .select("id", { count: "exact", head: true })
-    .eq("event_id", ev.id);
+    .eq("event_id", ev.id)
+    .eq("status", "going");
 
   return {
     id: ev.id,
@@ -77,7 +84,7 @@ export async function getEventByToken(
     dj_hero_url: (dj as { hero_image_url?: string } | null)?.hero_image_url ?? "",
     going_count: count ?? 0,
   };
-}
+});
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -102,42 +109,74 @@ export async function createRsvp(input: {
   const admin = createAdminClient();
   const { data: ev } = await admin
     .from("calendar_events")
-    .select("id")
+    .select("id, start_at, end_at")
     .eq("public_token", input.token)
     .eq("is_public", true)
     .maybeSingle();
   if (!ev) return { ok: false, error: "Evento no encontrado" };
 
-  // Upsert manual (dedupe por evento+email; email ya en minúscula).
-  const { data: existing } = await admin
-    .from("event_rsvps")
-    .select("id")
-    .eq("event_id", ev.id)
-    .eq("email", email)
-    .maybeSingle();
-
-  if (existing) {
-    await admin
-      .from("event_rsvps")
-      .update({ name, status, notify_future: input.notifyFuture })
-      .eq("id", (existing as { id: string }).id);
-  } else {
-    const { error } = await admin.from("event_rsvps").insert({
-      event_id: ev.id,
-      name,
-      email,
-      status,
-      notify_future: input.notifyFuture,
-    });
-    if (error) return { ok: false, error: error.message };
+  // No aceptar RSVPs de eventos que ya terminaron (sin sentido + ruido en leads).
+  const ends = (ev as { end_at?: string; start_at?: string }).end_at
+    ?? (ev as { start_at?: string }).start_at;
+  if (ends && new Date(ends).getTime() < Date.now()) {
+    return { ok: false, error: "Este evento ya pasó." };
   }
 
+  // M14: upsert robusto. Intentamos INSERT; si dos fans con el mismo email
+  // entran a la vez chocan en el índice único (event_id, lower(email)) → caemos
+  // a UPDATE y CHEQUEAMOS su error (antes se ignoraba y el RSVP se perdía mudo).
+  const { error: insErr } = await admin.from("event_rsvps").insert({
+    event_id: ev.id,
+    name,
+    email,
+    status,
+    notify_future: input.notifyFuture,
+  });
+  if (insErr) {
+    // 23505 = unique_violation → ya existe una fila para (evento, email).
+    const isDup = (insErr as { code?: string }).code === "23505";
+    if (!isDup) return { ok: false, error: insErr.message };
+    const { error: updErr } = await admin
+      .from("event_rsvps")
+      .update({ name, status, notify_future: input.notifyFuture })
+      .eq("event_id", ev.id)
+      .eq("email", email);
+    if (updErr) return { ok: false, error: updErr.message };
+  }
+
+  // M13: el contador devuelto cuenta solo "voy" (igual que la página pública).
   const { count } = await admin
     .from("event_rsvps")
     .select("id", { count: "exact", head: true })
-    .eq("event_id", ev.id);
+    .eq("event_id", ev.id)
+    .eq("status", "going");
 
   return { ok: true, going_count: count ?? 0 };
+}
+
+/**
+ * A4 — baja real de avisos. El link de "cancelar avisos" del email lleva el id
+ * (uuid opaco, sin PII) de un RSVP del fan. Apagamos `notify_future` para TODAS
+ * sus filas (por email), así deja de recibir avisos de ese DJ y de cualquiera.
+ * Devuelve el nombre del DJ del evento (para el copy de confirmación) o null.
+ */
+export async function unsubscribeFanByRsvp(
+  rsvpId: string
+): Promise<{ ok: boolean }> {
+  if (!rsvpId) return { ok: false };
+  const admin = createAdminClient();
+  const { data: row } = await admin
+    .from("event_rsvps")
+    .select("email")
+    .eq("id", rsvpId)
+    .maybeSingle();
+  const fanEmail = (row as { email?: string } | null)?.email;
+  if (!fanEmail) return { ok: false };
+  await admin
+    .from("event_rsvps")
+    .update({ notify_future: false })
+    .eq("email", fanEmail);
+  return { ok: true };
 }
 
 // ─── Owner-side (el DJ gestiona su evento) ────────────────────────────
@@ -145,6 +184,7 @@ export async function createRsvp(input: {
 export interface MyEventInfo {
   id: string;
   title: string;
+  description: string;
   start_at: string;
   location: string;
   type: string;
@@ -161,11 +201,39 @@ export async function getMyEvent(eventId: string): Promise<MyEventInfo | null> {
   if (!user) return null;
   const { data } = await supabase
     .from("calendar_events")
-    .select("id, title, start_at, location, type, is_public, public_token, ticket_url")
+    .select(
+      "id, title, description, start_at, location, type, is_public, public_token, ticket_url"
+    )
     .eq("id", eventId)
     .eq("user_id", user.id)
     .maybeSingle();
-  return (data as MyEventInfo) ?? null;
+  if (!data) return null;
+  return { ...(data as MyEventInfo), description: (data as { description?: string }).description ?? "" };
+}
+
+/** Setea (o limpia) el link de venta de entradas del evento (owner). */
+export async function setEventTicketUrl(
+  eventId: string,
+  url: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+
+  const clean = url.trim();
+  // Solo http(s); evita javascript:/data: en un link que se muestra público.
+  if (clean && !/^https?:\/\//i.test(clean)) {
+    return { ok: false, error: "El link debe empezar con http:// o https://" };
+  }
+  const { error } = await supabase
+    .from("calendar_events")
+    .update({ ticket_url: clean || null })
+    .eq("id", eventId)
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
 }
 
 export interface EventRsvpRow {
@@ -207,11 +275,17 @@ export async function setEventPublished(
 
   const { data: ev } = await supabase
     .from("calendar_events")
-    .select("id, public_token")
+    .select("id, public_token, type")
     .eq("id", eventId)
     .eq("user_id", user.id)
     .maybeSingle();
   if (!ev) return { ok: false, error: "Evento no encontrado" };
+
+  // M12: solo los shows se publican como evento público (no clases, bloqueos,
+  // etc.). Guard server-side: alguien podría pegarle a la acción por URL directa.
+  if (publish && (ev as { type?: string }).type !== "show") {
+    return { ok: false, error: "Solo los shows se pueden publicar como evento." };
+  }
 
   let token = (ev as { public_token: string | null }).public_token;
   // "Primera publicación" = nunca tuvo token. Así republicar no re-avisa.
@@ -256,19 +330,23 @@ export async function notifyFansOfEvent(eventId: string): Promise<number> {
 
   const { data: rsvps } = await admin
     .from("event_rsvps")
-    .select("email, name, event_id")
+    .select("id, email, name, event_id")
     .eq("notify_future", true)
     .in("event_id", ids);
 
-  // Distinct por email, excluyendo los de este mismo evento.
-  const recipients = new Map<string, string>();
+  // Distinct por email, excluyendo los de este mismo evento. Guardamos un id de
+  // RSVP por fan para armar su link de baja (A4).
+  const recipients = new Map<string, { name: string; rsvpId: string }>();
   for (const r of (rsvps ?? []) as {
+    id: string;
     email: string;
     name: string;
     event_id: string;
   }[]) {
     if (r.event_id === eventId) continue;
-    if (!recipients.has(r.email)) recipients.set(r.email, r.name);
+    if (!recipients.has(r.email)) {
+      recipients.set(r.email, { name: r.name, rsvpId: r.id });
+    }
   }
   if (recipients.size === 0) return 0;
 
@@ -277,27 +355,45 @@ export async function notifyFansOfEvent(eventId: string): Promise<number> {
     .select("artist_name")
     .eq("user_id", ev.user_id)
     .maybeSingle();
-  const djName = (dj as { artist_name?: string } | null)?.artist_name ?? "Tu DJ";
+  const djNameRaw = (dj as { artist_name?: string } | null)?.artist_name ?? "Tu DJ";
+  // A2: el nombre del DJ y el título salen en HTML del correo → escapar para
+  // que no se puedan inyectar tags/markup en un email que sale de dropgigs.com.
+  const djName = escapeHtml(djNameRaw);
+  const evTitle = escapeHtml(ev.title ?? "");
   const link = `${SITE}/e/${ev.public_token}`;
 
+  // A3: cap de envíos síncronos. A 600ms c/u, 50 = ~30s (dentro del maxDuration
+  // de 60s de la ruta). Si la lista crece, esto debe pasar a un cron
+  // (patrón follow-updates); por ahora logueamos la truncación, no la tapamos.
+  const SYNC_CAP = 50;
+  const all = Array.from(recipients.entries());
+  if (all.length > SYNC_CAP) {
+    console.warn(
+      `notifyFansOfEvent: ${all.length} fans opt-in pero solo se avisó a ${SYNC_CAP} (cap síncrono). Mover a cron.`
+    );
+  }
+
   let sent = 0;
-  for (const [email, name] of Array.from(recipients.entries()).slice(0, 100)) {
+  for (const [email, { name, rsvpId }] of all.slice(0, SYNC_CAP)) {
+    const fanName = escapeHtml(name ?? "");
+    const unsubUrl = `${SITE}/api/unsubscribe?rsvp=${encodeURIComponent(rsvpId)}`;
     const html = wrapEmail({
-      title: `${djName} anunció un nuevo show`,
-      preheader: ev.title,
+      title: `${djNameRaw} anunció un nuevo show`,
+      preheader: ev.title ?? "",
       content: `<p style="font-size:15px;line-height:1.5;">Hola${
-        name ? ` ${name}` : ""
-      },</p><p style="font-size:15px;line-height:1.5;"><strong>${djName}</strong> anunció un nuevo show: <strong>${ev.title}</strong>.</p><p style="margin:24px 0;">${ctaButton(
+        fanName ? ` ${fanName}` : ""
+      },</p><p style="font-size:15px;line-height:1.5;"><strong>${djName}</strong> anunció un nuevo show: <strong>${evTitle}</strong>.</p><p style="margin:24px 0;">${ctaButton(
         "Ver evento y confirmar",
         link
       )}</p>`,
-      footerReason: `Recibes este email porque pediste que ${djName} te avise de próximos shows.`,
+      // A4: link de baja real (apaga notify_future), no solo el header log-only.
+      footerReason: `Recibes este email porque pediste que ${djName} te avise de próximos shows. <a href="${unsubUrl}" style="color:#7A7670;text-decoration:underline;">Cancelar avisos</a>.`,
     });
     const res = await sendEmail({
       to: email,
-      subject: `${djName} anunció un nuevo show`,
+      subject: `${djNameRaw} anunció un nuevo show`,
       html,
-      text: `${djName} anunció un nuevo show: ${ev.title}. Confírmalo acá: ${link}`,
+      text: `${djNameRaw} anunció un nuevo show: ${ev.title}. Confírmalo acá: ${link}\n\nCancelar avisos: ${unsubUrl}`,
     });
     if (res.ok) {
       sent++;

@@ -1,6 +1,10 @@
 "use server";
 
-import { setEventPublished, notifyFansOfEvent } from "@/lib/queries/events";
+import {
+  setEventPublished,
+  notifyFansOfEvent,
+  setEventTicketUrl,
+} from "@/lib/queries/events";
 import { revalidatePath } from "next/cache";
 
 export async function publishEventAction(
@@ -32,4 +36,13 @@ export async function unpublishEventAction(
   revalidatePath(`/calendario/${eventId}/evento`);
   if (!res.ok) return res;
   return { ok: true };
+}
+
+export async function setEventTicketUrlAction(
+  eventId: string,
+  url: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await setEventTicketUrl(eventId, url);
+  revalidatePath(`/calendario/${eventId}/evento`);
+  return res;
 }
