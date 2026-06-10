@@ -12,15 +12,9 @@ import { MatchCard } from "./match-card";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{
-    type?: string;
-    city?: string;
-    date?: string;
-    budget?: string;
-    genres?: string;
-    /** v2 texto libre — exclusivo Founding. */
-    q?: string;
-  }>;
+  // Next puede entregar string[] si un param se repite (?genres=a&genres=b);
+  // normalizamos abajo para no crashear con .split/.trim.
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 const EVENT_TYPES = [
@@ -48,7 +42,19 @@ function buildHref(
 }
 
 export default async function BookerMatchPage({ searchParams }: PageProps) {
-  const sp = await searchParams;
+  const raw = await searchParams;
+  // Si un param se repite, Next entrega string[] → tomamos el primero. Evita
+  // el crash de `.split is not a function` con URLs manipuladas.
+  const one = (x: string | string[] | undefined): string | undefined =>
+    (Array.isArray(x) ? x[0] : x) ?? undefined;
+  const sp = {
+    type: one(raw.type),
+    city: one(raw.city),
+    date: one(raw.date),
+    budget: one(raw.budget),
+    genres: one(raw.genres),
+    q: one(raw.q),
+  };
 
   const activeGenres = (sp.genres ?? "")
     .split(",")
@@ -74,10 +80,20 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
         allGenres.map((g) => g.genre)
       )
     : null;
-  // Los géneros inferidos del texto se SUMAN a los chips explícitos (sin
-  // tocar el estado de los chips, que refleja solo la selección manual).
+  // M4: el tipo de evento (select, para TODOS) también aporta géneros, vía el
+  // mismo diccionario de vibes (Festival→techno, Matrimonio→nu disco, etc.).
+  const typeParsed = sp.type
+    ? parseFreeText(sp.type, allGenres.map((g) => g.genre))
+    : null;
+
+  // Los géneros inferidos (texto libre Founding + tipo de evento) se SUMAN a
+  // los chips explícitos, sin tocar el estado de los chips (selección manual).
   const effectiveGenres = Array.from(
-    new Set([...activeGenres, ...(parsed?.genres ?? [])])
+    new Set([
+      ...activeGenres,
+      ...(parsed?.genres ?? []),
+      ...(typeParsed?.genres ?? []),
+    ])
   );
 
   // ¿El booker ya describió algo? Cualquier campo dispara el ranking.
@@ -142,6 +158,11 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
           — TU EVENTO
         </div>
+
+        {/* A6: los géneros se eligen como chips (links), no como campos del
+            form. Sin este hidden, al apretar "BUSCAR MATCH" el GET se llevaría
+            solo type/city/date/budget/q y borraría la selección de géneros. */}
+        <input type="hidden" name="genres" value={activeGenres.join(",")} />
 
         {/* v2 — texto libre (exclusivo Founding) */}
         {isFounding ? (
@@ -257,8 +278,10 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
         )}
       </form>
 
-      {/* v2 — qué interpretamos del texto libre */}
-      {parsed && (parsed.genres.length > 0 || parsed.vibes.length > 0) && (
+      {/* v2 — qué interpretamos del texto libre. M3: el banner se muestra
+          siempre que el Founding escribió algo (`parsed` ya implica freeText),
+          para que el fallback "no pillamos géneros" no sea código muerto. */}
+      {parsed && (
         <div className="border-2 border-ink bg-cream p-3 mb-4 text-sm">
           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
             — INTERPRETAMOS

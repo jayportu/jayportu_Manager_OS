@@ -92,15 +92,29 @@ export function parseFreeText(text: string, knownGenres: string[]): ParsedQuery 
   const collected = new Set<string>();
   const vibes: string[] = [];
 
-  // 1. Mención directa de un género real ("tech house", "minimal", ...).
-  knownGenres.forEach((raw) => {
-    const g = norm(raw);
-    if (g.length >= 3 && t.includes(g)) collected.add(g);
-  });
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const hasWord = (needle: string) => new RegExp(`\\b${esc(needle)}\\b`).test(t);
 
-  // 2. Vibes → géneros (solo los que existen en el directorio).
+  // 1. Mención directa de un género real, con LÍMITES DE PALABRA (M1: que
+  //    "warehouse" no cace "house"). Luego descarta un género si es subcadena
+  //    por-palabra de otro más largo ya nombrado ("house" dentro de "tech house").
+  const direct = knownGenres
+    .map((g) => norm(g))
+    .filter((g) => g.length >= 3 && hasWord(g));
+  for (const g of direct) {
+    const subsumed = direct.some(
+      (other) =>
+        other !== g &&
+        other.length > g.length &&
+        new RegExp(`\\b${esc(g)}\\b`).test(other)
+    );
+    if (!subsumed) collected.add(g);
+  }
+
+  // 2. Vibes → géneros (M2: keys con límites de palabra — "bar" no caza
+  //    "barato"/"barrio"). Solo géneros que existen en el directorio.
   for (const v of VIBES) {
-    if (v.keys.some((k) => t.includes(norm(k)))) {
+    if (v.keys.some((k) => hasWord(norm(k)))) {
       vibes.push(v.label);
       for (const g of v.genres) {
         if (known.has(norm(g))) collected.add(norm(g));
