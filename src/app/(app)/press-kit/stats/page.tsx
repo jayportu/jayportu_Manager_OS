@@ -22,11 +22,21 @@ interface PageProps {
 
 const RANGES = [7, 30, 90];
 
-/** Día YYYY-MM-DD en hora de Chile, `offset` días atrás. */
+/**
+ * Día YYYY-MM-DD en hora de Chile, `offset` días-calendario atrás.
+ * M7: NO restamos ms fijos (86400000) sobre el instante actual — en el cambio
+ * de hora chileno un día dura 23h/25h y eso corría el bucket un día. Tomamos la
+ * fecha-calendario de HOY en Chile y caminamos días hacia atrás sobre un Date
+ * anclado a mediodía UTC (inmune al DST porque solo leemos la parte de fecha).
+ */
 function santiagoDay(offset: number): string {
-  return new Date(Date.now() - offset * 86400000).toLocaleDateString("en-CA", {
+  const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "America/Santiago",
   });
+  const [y, m, d] = today.split("-").map(Number);
+  const base = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  base.setUTCDate(base.getUTCDate() - offset);
+  return base.toISOString().slice(0, 10);
 }
 
 function hostOf(ref: string): string {
@@ -50,26 +60,36 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
     listBookings(),
   ]);
 
-  // Totales por evento
+  // M6: un único set de días-calendario (hora de Chile, de hoy hacia atrás).
+  // El RPC trae una ventana MÓVIL (now() - p_days días) que incluye un día
+  // borde parcial → si los KPIs sumaran TODO el RPC y el chart solo estos días,
+  // la suma de barras no cuadraría con el KPI de Visitas. Alineamos ambos a la
+  // misma ventana de días completos.
+  const windowDays = Array.from({ length: days }, (_, i) =>
+    santiagoDay(days - 1 - i)
+  );
+  const windowSet = new Set(windowDays);
+  const dailyInWindow = daily.filter((r) => windowSet.has(r.day));
+
+  // Totales por evento (sobre la MISMA ventana que el chart)
   const byEvent: Record<string, number> = {};
-  for (const r of daily) byEvent[r.event] = (byEvent[r.event] || 0) + r.n;
+  for (const r of dailyInWindow) byEvent[r.event] = (byEvent[r.event] || 0) + r.n;
   const views = byEvent.view || 0;
   const clicks = Object.entries(byEvent)
     .filter(([k]) => k.startsWith("click_"))
     .reduce((a, [, v]) => a + v, 0);
   const formOpens = byEvent.form_open || 0;
   const formSubmits = byEvent.form_submit || 0;
-  const conv = views > 0 ? Math.round((formSubmits / views) * 100) : 0;
+  // M8: la conversión no puede pasar de 100% (gaps de tracking podrían dar
+  // submits>views) → clamp para no mostrar "150%".
+  const conv = views > 0 ? Math.min(100, Math.round((formSubmits / views) * 100)) : 0;
 
-  // Serie de visitas por día (rellena ceros)
+  // Serie de visitas por día (rellena ceros), misma ventana
   const viewsByDay = new Map<string, number>();
-  for (const r of daily) {
+  for (const r of dailyInWindow) {
     if (r.event === "view") viewsByDay.set(r.day, (viewsByDay.get(r.day) || 0) + r.n);
   }
-  const series = Array.from({ length: days }, (_, i) => {
-    const day = santiagoDay(days - 1 - i);
-    return { day, n: viewsByDay.get(day) || 0 };
-  });
+  const series = windowDays.map((day) => ({ day, n: viewsByDay.get(day) || 0 }));
   const maxDay = Math.max(1, ...series.map((s) => s.n));
   const peak = series.reduce((a, b) => (b.n > a.n ? b : a), series[0]);
 
@@ -107,7 +127,7 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
   for (const b of rangeBookings)
     bookingsByStatus.set(b.status, (bookingsByStatus.get(b.status) || 0) + 1);
 
-  const noData = daily.length === 0 && rangeBookings.length === 0;
+  const noData = dailyInWindow.length === 0 && rangeBookings.length === 0;
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
@@ -180,13 +200,13 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
                 label="Abrió formulario"
                 value={formOpens}
                 base={views}
-                pct={views > 0 ? Math.round((formOpens / views) * 100) : 0}
+                pct={views > 0 ? Math.min(100, Math.round((formOpens / views) * 100)) : 0}
               />
               <FunnelBar
                 label="Envió formulario"
                 value={formSubmits}
                 base={views}
-                pct={views > 0 ? Math.round((formSubmits / views) * 100) : 0}
+                pct={views > 0 ? Math.min(100, Math.round((formSubmits / views) * 100)) : 0}
               />
             </div>
           </Card>
@@ -343,7 +363,8 @@ function FunnelBar({
   base: number;
   pct?: number;
 }) {
-  const width = base > 0 ? Math.max(2, (value / base) * 100) : 0;
+  // M8: clamp a [0,100] — si value>base (gaps de tracking) la barra desbordaba.
+  const width = base > 0 ? Math.min(100, Math.max(2, (value / base) * 100)) : 0;
   return (
     <div>
       <div className="flex justify-between text-[12px] mb-0.5">
