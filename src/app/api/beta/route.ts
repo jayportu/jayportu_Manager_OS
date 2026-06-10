@@ -13,6 +13,7 @@
 import { NextResponse } from "next/server";
 import { createBetaRequest } from "@/lib/queries/beta";
 import { rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
@@ -46,9 +47,22 @@ export async function POST(req: Request) {
 
   // IP para guardar como audit trail en beta_requests
   const ip =
+    req.headers.get("cf-connecting-ip")?.trim() ||
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
     req.headers.get("x-real-ip") ||
     "unknown";
+
+  // CAPTCHA (Turnstile). Dormido sin TURNSTILE_SECRET_KEY (verify → skipped).
+  const captcha = await verifyTurnstile(
+    typeof body.captcha_token === "string" ? body.captcha_token : undefined,
+    ip
+  );
+  if (!captcha.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Verificación anti-bot fallida. Recarga e intenta de nuevo." },
+      { status: 400 }
+    );
+  }
 
   // Validación de campos requeridos
   const artistName = typeof body.artist_name === "string" ? body.artist_name : "";

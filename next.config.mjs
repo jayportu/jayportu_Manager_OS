@@ -49,12 +49,12 @@ const nextConfig = {
     // el SDK de MercadoPago, imágenes de Supabase, ni los inline scripts de Next.
     const cspReportOnly = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://challenges.cloudflare.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "connect-src 'self' https://*.supabase.co https://*.mercadopago.com https://countriesnow.space",
-      "frame-src 'self' https://w.soundcloud.com https://*.soundcloud.com https://www.youtube.com https://www.youtube-nocookie.com https://www.mixcloud.com https://open.spotify.com https://*.mercadopago.com",
+      "frame-src 'self' https://w.soundcloud.com https://*.soundcloud.com https://www.youtube.com https://www.youtube-nocookie.com https://www.mixcloud.com https://open.spotify.com https://*.mercadopago.com https://challenges.cloudflare.com",
       "media-src 'self' https: blob:",
       "object-src 'none'",
       "base-uri 'self'",

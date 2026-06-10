@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
 
 interface FormState {
   artist_name: string;
@@ -37,6 +38,8 @@ export function BetaForm() {
   const [result, setResult] = useState<
     { ok: true } | { ok: false; error: string } | null
   >(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -53,13 +56,17 @@ export function BetaForm() {
       setResult({ ok: false, error: "El email no tiene un formato válido." });
       return;
     }
+    if (TURNSTILE_ENABLED && !captchaToken) {
+      setResult({ ok: false, error: "Completa la verificación anti-bot." });
+      return;
+    }
     setSubmitting(true);
     setResult(null);
     try {
       const res = await fetch("/api/beta", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, captcha_token: captchaToken }),
       });
       const data = (await res.json()) as
         | { ok: true; id: string }
@@ -73,6 +80,9 @@ export function BetaForm() {
     } catch {
       setResult({ ok: false, error: "Error de red. Intenta de nuevo." });
     } finally {
+      // Token de un solo uso → re-montar el widget para el próximo intento.
+      setCaptchaToken(null);
+      setCaptchaKey((k) => k + 1);
       setSubmitting(false);
     }
   }
@@ -233,10 +243,18 @@ export function BetaForm() {
         </div>
       )}
 
+      {TURNSTILE_ENABLED && (
+        <TurnstileWidget
+          key={captchaKey}
+          onVerify={setCaptchaToken}
+          onExpire={() => setCaptchaToken(null)}
+        />
+      )}
+
       <Button
         type="submit"
         variant="orange"
-        disabled={submitting}
+        disabled={submitting || (TURNSTILE_ENABLED && !captchaToken)}
         className="w-full"
       >
         {submitting ? "Enviando…" : "Enviar solicitud →"}

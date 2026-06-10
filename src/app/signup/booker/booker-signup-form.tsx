@@ -23,6 +23,7 @@ import {
   COUNTRY_API_BY_ES,
   fetchCities,
 } from "@/lib/geo/countries";
+import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
 
 const BOOKER_TYPES = [
   { value: "venue", label: "Venue / Club / Bar" },
@@ -66,6 +67,12 @@ export function BookerSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    setCaptchaKey((k) => k + 1);
+  }
 
   // Ciudades dependientes del país elegido. Si la API falla, queda [] y el
   // input degrada a texto libre (sigue siendo obligatorio).
@@ -90,11 +97,18 @@ export function BookerSignupForm() {
     setInfo(null);
     setLoading(true);
 
+    if (TURNSTILE_ENABLED && !captchaToken) {
+      setError("Completa la verificación anti-bot.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/booker/requests`,
+        captchaToken: captchaToken || undefined,
         data: {
           account_type: "booker",
           full_name: fullName.trim(),
@@ -107,6 +121,7 @@ export function BookerSignupForm() {
 
     if (error) {
       setError(translateError(error.message, error.status));
+      resetCaptcha();
       setLoading(false);
       return;
     }
@@ -114,6 +129,7 @@ export function BookerSignupForm() {
     // Detección de email ya registrado (Supabase devuelve user con identities=[])
     if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
       setError("Este email ya tiene cuenta. Usa 'Iniciar sesión'.");
+      resetCaptcha();
       setLoading(false);
       return;
     }
@@ -128,6 +144,7 @@ export function BookerSignupForm() {
     setInfo(
       "Te mandamos un email para confirmar tu cuenta. Revisa tu bandeja (también spam). El link dura unos minutos. Si ya tenías cuenta con este email, no recibirás nada nuevo: usa 'Iniciar sesión'."
     );
+    resetCaptcha();
     setLoading(false);
   }
 
@@ -247,11 +264,19 @@ export function BookerSignupForm() {
         </div>
       )}
 
+      {TURNSTILE_ENABLED && (
+        <TurnstileWidget
+          key={captchaKey}
+          onVerify={setCaptchaToken}
+          onExpire={() => setCaptchaToken(null)}
+        />
+      )}
+
       <Button
         type="submit"
         variant="default"
         size="lg"
-        disabled={loading}
+        disabled={loading || (TURNSTILE_ENABLED && !captchaToken)}
         className="w-full"
       >
         {loading ? "Creando cuenta…" : "Crear cuenta gratis →"}
