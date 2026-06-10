@@ -9,9 +9,12 @@ import { AvatarLightbox } from "@/components/avatar-lightbox";
 interface AvatarUploadProps {
   initialUrl: string;
   artistName: string;
+  /** Avisa al form padre del nuevo avatar para que recalcule la completitud
+      (el nudge "te falta foto") sin esperar un reload ni pisar otras ediciones. */
+  onChange?: (url: string) => void;
 }
 
-export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
+export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState(initialUrl);
@@ -49,6 +52,7 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
         const res = await uploadAvatarAction(formData);
         if (res.ok) {
           setUrl(res.data.url);
+          onChange?.(res.data.url);
           router.refresh();
         } else {
           setError(res.error);
@@ -72,6 +76,7 @@ export function AvatarUpload({ initialUrl, artistName }: AvatarUploadProps) {
         const res = await deleteAvatarAction();
         if (res.ok) {
           setUrl("");
+          onChange?.("");
           router.refresh();
         } else {
           setError(res.error);

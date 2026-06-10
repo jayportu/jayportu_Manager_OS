@@ -4,7 +4,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { santiagoToUtcISO } from "@/lib/tz";
 import type {
   DjProfile,
-  PresskitEvent,
   PresskitEventType,
   BookingSubmission,
   BookingStatus,
@@ -152,19 +151,6 @@ async function getUserOrThrow() {
   return { supabase, user };
 }
 
-export async function listEvents(days = 7): Promise<PresskitEvent[]> {
-  const { supabase, user } = await getUserOrThrow();
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from("presskit_events")
-    .select("*")
-    .eq("user_id", user.id)
-    .gte("created_at", since)
-    .order("created_at", { ascending: false })
-    .limit(1000);
-  if (error) return [];
-  return data as PresskitEvent[];
-}
 
 /** Serie diaria por evento (RA-5, vía RPC 0047 — agregada en SQL, sin cap). */
 export interface PresskitDailyRow {

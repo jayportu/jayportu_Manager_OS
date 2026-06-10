@@ -119,6 +119,17 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
     results = rankDjsForGig(base, need);
   }
 
+  // Chips: top-24 por uso + cualquier género activo que quedara fuera del tope,
+  // para que una selección no se vuelva invisible (BAJO).
+  const topGenres = allGenres.slice(0, 24);
+  const topGenreSet = new Set(topGenres.map((g) => g.genre));
+  const chipGenres = [
+    ...topGenres,
+    ...allGenres.filter(
+      (g) => activeGenres.includes(g.genre) && !topGenreSet.has(g.genre)
+    ),
+  ];
+
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
       {/* Hero */}
@@ -253,7 +264,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
               Géneros que buscas:
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {allGenres.slice(0, 24).map((g) => {
+              {chipGenres.map((g) => {
                 const active = activeGenres.includes(g.genre);
                 const newGenres = active
                   ? activeGenres.filter((x) => x !== g.genre)
