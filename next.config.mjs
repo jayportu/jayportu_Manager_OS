@@ -43,22 +43,30 @@ const nextConfig = {
   // Security headers (Fase 6 hardening). Defensa en profundidad — Cloudflare
   // ya está delante, esto es otro layer en el origin.
   async headers() {
-    // CSP en REPORT-ONLY: no bloquea nada, solo reporta violaciones en la
-    // consola del browser. Sienta la base para endurecer/enforzar después
-    // sin riesgo de romper embeds (SoundCloud/YouTube/Mixcloud/Spotify),
-    // el SDK de MercadoPago, imágenes de Supabase, ni los inline scripts de Next.
-    const cspReportOnly = [
+    // CSP ENFORCED (bloquea, no solo reporta). El allowlist cubre todo lo que
+    // el sitio usa de verdad: Supabase (REST + realtime wss + Storage), SDK de
+    // MercadoPago, embeds (SoundCloud/YouTube/Mixcloud/Spotify), Cloudflare
+    // Turnstile, Sentry (ingest), countriesnow (ciudades), imágenes https y los
+    // scripts inline/eval que Next necesita.
+    //
+    // NOTA: se mantienen 'unsafe-inline' y 'unsafe-eval' (Next los necesita sin
+    // nonces). El endurecimiento full (nonces → quitar unsafe-inline) es un pase
+    // dedicado futuro; aun así esto YA bloquea cargar scripts de dominios no
+    // autorizados (el vector típico de XSS / supply-chain) + object/base/form.
+    const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://challenges.cloudflare.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co https://*.mercadopago.com https://countriesnow.space",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.mercadopago.com https://countriesnow.space https://*.sentry.io",
       "frame-src 'self' https://w.soundcloud.com https://*.soundcloud.com https://www.youtube.com https://www.youtube-nocookie.com https://www.mixcloud.com https://open.spotify.com https://*.mercadopago.com https://challenges.cloudflare.com",
       "media-src 'self' https: blob:",
+      "worker-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
+      "frame-ancestors 'self'",
     ].join("; ");
 
     return [
@@ -73,7 +81,7 @@ const nextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
           },
-          { key: "Content-Security-Policy-Report-Only", value: cspReportOnly },
+          { key: "Content-Security-Policy", value: csp },
         ],
       },
     ];
