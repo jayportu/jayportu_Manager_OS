@@ -98,6 +98,9 @@ export const getPublicDjsBase = unstable_cache(
         "user_id, artist_name, tagline, bio_short, bio_long, genres, city, country, logo_url, avatar_url, hero_image_url, public_slug, available_from, available_until, available_note, verified_at, is_drop_pick, drop_pick_priority, show_fee, fee_min, fee_max, featured_sets, brands_worked, aliases, record_label, instagram_url, soundcloud_url, youtube_url, spotify_url, website, public_email, whatsapp, onboarding_completed_at, hidden_from_directory"
       )
       .eq("hidden_from_directory", false)
+      // A1: no exponer DJs suspendidos/baneados en el directorio /dj ni en
+      // ninguna superficie que derive de esta lectura base (incl. Smart Match).
+      .eq("account_status", "active")
       .not("onboarding_completed_at", "is", null)
       .not("public_slug", "is", null)
       .not("artist_name", "is", null)
