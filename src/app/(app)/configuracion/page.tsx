@@ -1,7 +1,6 @@
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
-import { listMyRiderItems } from "@/lib/queries/tech-rider";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ExportButton } from "./export-button";
@@ -22,7 +21,6 @@ export default async function ConfiguracionPage() {
   const gmailConfigured =
     !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
   const platformAccounts = await listPlatformAccounts();
-  const riderItems = await listMyRiderItems();
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
@@ -76,10 +74,9 @@ export default async function ConfiguracionPage() {
 
       <div id="tech-rider" className="mt-12 pt-8 border-t border-border scroll-mt-24">
         <TechRiderSection
-          initialItems={riderItems}
-          legacyTechRiderIdeal={profile.tech_rider_ideal}
-          legacyTechRiderAlt={profile.tech_rider_alt}
-          legacyHospitality={profile.hospitality}
+          initialIdeal={profile.tech_rider_ideal}
+          initialAlt={profile.tech_rider_alt}
+          initialHospitality={profile.hospitality}
         />
       </div>
 
