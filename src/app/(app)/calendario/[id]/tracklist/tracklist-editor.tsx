@@ -304,7 +304,7 @@ export function TracklistEditor({
       lines.push(`${n}. ${artist} — ${title}${label}${tagLabel}`);
     }
     lines.push("");
-    lines.push("// powered by drop.dj");
+    lines.push("// powered by dropgigs.com");
     return lines.join("\n");
   }
 

@@ -4,6 +4,7 @@ import { listRecurringFollowUps } from "@/lib/queries/follow-ups";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { dateTime, relativeTime } from "@/lib/format";
+import { santiagoToday, santiagoDay } from "@/lib/tz";
 import { RecurrentesActions } from "./recurrentes-actions";
 
 export default async function RecurrentesPage() {
@@ -63,11 +64,9 @@ export default async function RecurrentesPage() {
           {series.map((f) => {
             const due = new Date(f.due_at);
             const overdue = due < now;
-            const dueToday =
-              !overdue &&
-              due.getDate() === now.getDate() &&
-              due.getMonth() === now.getMonth() &&
-              due.getFullYear() === now.getFullYear();
+            // "Hoy" se compara por día calendario EN CHILE (no en UTC del
+            // server, que de noche en Chile ya está en el día siguiente).
+            const dueToday = !overdue && santiagoDay(f.due_at) === santiagoToday();
             const tint = overdue
               ? "border-danger bg-danger/5"
               : dueToday

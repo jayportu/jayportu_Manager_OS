@@ -17,12 +17,20 @@ import {
   formatSoundCloudDescription,
 } from "@/lib/queries/tracklists";
 import { getMyProfile } from "@/lib/queries/dj-profile";
+import { rateLimit } from "@/lib/rate-limit";
+import { isSafePublicHttpUrl } from "@/lib/url-guard";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(_req: Request, { params }: Params) {
+export async function POST(req: Request, { params }: Params) {
+  // El server hace fetch a una URL del usuario → cap por si se usa como proxy.
+  const limit = rateLimit(req, { key: "tracklist-notify", max: 20, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json({ ok: false, error: "Demasiados envíos. Espera un momento." }, { status: 429 });
+  }
+
   const { id } = await params;
   const supabase = await createClient();
   const {
@@ -53,6 +61,16 @@ export async function POST(_req: Request, { params }: Params) {
       {
         ok: false,
         error: "No hay URL de webhook configurada en /configuracion.",
+      },
+      { status: 400 }
+    );
+  }
+  // Anti-SSRF: el server NO debe pegarle a localhost/IPs internas/metadata.
+  if (!isSafePublicHttpUrl(profile.auto_post_webhook_url)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "La URL del webhook no es válida (debe ser http(s) pública).",
       },
       { status: 400 }
     );

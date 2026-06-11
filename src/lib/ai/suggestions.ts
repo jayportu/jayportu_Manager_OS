@@ -142,7 +142,7 @@ function fallbackHashtags(
     `${g.toLowerCase().replace(/\s+/g, "")}chile`,
   ]);
   return Array.from(
-    new Set([...base, ...platformSpecific[platform], ...genreTags, "dropdj"])
+    new Set([...base, ...platformSpecific[platform], ...genreTags, "dropgigs"])
   ).slice(0, 12);
 }
 

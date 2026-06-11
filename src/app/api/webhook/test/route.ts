@@ -56,8 +56,8 @@ export async function POST(req: Request) {
       { n: 3, artist: "Test Artist 3", title: "Track 3", label: "", bpm: 128, tag: "closer" },
     ],
     soundcloud_text:
-      "// Sample DJ @ Club Test\n01. Test Artist 1 — Track 1 [INTRO]\n02. Test Artist 2 — Track 2 (Test Label) [PEAK]\n03. Test Artist 3 — Track 3 [CLOSER]\n// powered by drop.dj",
-    presskit_url: "https://drop.dj/p/test",
+      "// Sample DJ @ Club Test\n01. Test Artist 1 — Track 1 [INTRO]\n02. Test Artist 2 — Track 2 (Test Label) [PEAK]\n03. Test Artist 3 — Track 3 [CLOSER]\n// powered by dropgigs.com",
+    presskit_url: "https://dropgigs.com/p/test",
   };
 
   try {

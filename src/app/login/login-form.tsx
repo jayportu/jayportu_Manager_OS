@@ -230,7 +230,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           <Input
             id="email"
             type="email"
-            placeholder="hola@drop.dj"
+            placeholder="tu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required

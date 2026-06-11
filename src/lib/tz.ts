@@ -23,6 +23,52 @@ export function santiagoToUtcISO(dateStr: string, time = "00:00:00"): string {
   return new Date(naiveUtc.getTime() + offsetMs).toISOString();
 }
 
+/** Año y mes (1-12) vigentes según Santiago, no según el server (UTC). */
+function santiagoYearMonth(now: Date): { year: number; month: number } {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(now);
+  return {
+    year: Number(parts.find((p) => p.type === "year")!.value),
+    month: Number(parts.find((p) => p.type === "month")!.value),
+  };
+}
+
+/**
+ * Fecha de HOY en Santiago como "YYYY-MM-DD". Para comparar contra columnas de
+ * fecha (disponibilidad, vencimientos) sin el off-by-one de usar la fecha UTC
+ * del server cerca de medianoche de Chile.
+ */
+export function santiagoToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
+/** Día calendario (en Santiago) de un instante ISO, como "YYYY-MM-DD". */
+export function santiagoDay(iso: string): string {
+  return santiagoToday(new Date(iso));
+}
+
+/**
+ * Instante UTC (ISO) del primer día del MES SIGUIENTE a las 00:00 en Santiago.
+ * Cota superior (exclusiva) para ventanas mensuales en hora de Chile.
+ */
+export function santiagoNextMonthStartUtcISO(now: Date = new Date()): string {
+  let { year, month } = santiagoYearMonth(now);
+  month += 1;
+  if (month === 13) {
+    month = 1;
+    year += 1;
+  }
+  return santiagoToUtcISO(`${year}-${String(month).padStart(2, "0")}-01`, "00:00:00");
+}
+
 /**
  * Instante UTC (ISO) del primer día del mes actual a las 00:00 en Santiago.
  * Para cupos mensuales (ej: tokens de pitch) que deben resetear a medianoche
