@@ -31,6 +31,7 @@ const PUBLIC_PATHS = [
   "/api/push/send-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/beta/expire-cron", // Sprint 23.5 cron (protegido con CRON_SECRET)
   "/api/follow-updates/cron", // Sprint RA-3 cron (protegido con CRON_SECRET)
+  "/api/onboarding-nudge/cron", // nudge perfil incompleto (protegido con CRON_SECRET)
   "/api/unsubscribe", // List-Unsubscribe header target (Gmail bulk sender req)
   "/api/resend/webhook", // Webhook de Resend (verifica firma Svix adentro)
   "/api/mp/webhook", // Webhook de MercadoPago (verifica firma HMAC adentro) — sin esto MP redirige a /login y los pagos nunca se procesan

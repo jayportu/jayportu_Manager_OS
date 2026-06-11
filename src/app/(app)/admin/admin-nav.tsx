@@ -19,6 +19,7 @@ const SECTIONS: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin/email-campaigns", label: "Campañas" },
   { href: "/admin/correo", label: "Correo" },
   { href: "/admin/beta-reminder", label: "Recordatorio" },
+  { href: "/admin/onboarding-nudge", label: "Nudge" },
 ];
 
 export function AdminNav() {

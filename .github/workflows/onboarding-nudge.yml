@@ -1,0 +1,47 @@
+name: Onboarding nudge (daily)
+
+# Recordatorio "termina tu perfil" para DJs que crearon cuenta y dejaron el
+# onboarding a medias hace +24h. One-shot por DJ. Corre 1 vez al día a las
+# 14:00 UTC (10:00 Santiago invierno / 11:00 verano).
+#
+# DORMIDO por defecto: el endpoint corre en dry-run (no manda nada) hasta que
+# ONBOARDING_NUDGE_ENABLED=true esté en Vercel. Hasta entonces este job solo
+# loguea a quién mandaría.
+#
+# Secrets (mismos que los otros workflows): CRON_SECRET, APP_URL.
+
+on:
+  schedule:
+    - cron: "0 14 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit onboarding-nudge cron endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::APP_URL o CRON_SECRET no configurados en GitHub Secrets"
+            exit 1
+          fi
+
+          echo "Calling $APP_URL/api/onboarding-nudge/cron"
+          HTTP_CODE=$(curl -s -o /tmp/onboarding-nudge-response.json -w "%{http_code}" \
+            -X GET "$APP_URL/api/onboarding-nudge/cron" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            --max-time 120)
+
+          echo "HTTP $HTTP_CODE"
+          echo "--- Response ---"
+          cat /tmp/onboarding-nudge-response.json
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::onboarding-nudge cron failed with status $HTTP_CODE"
+            exit 1
+          fi
