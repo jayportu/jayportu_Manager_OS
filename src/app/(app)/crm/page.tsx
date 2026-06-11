@@ -1,4 +1,4 @@
-import { listContacts, listAllUserTags } from "@/lib/queries/contacts";
+import { listContacts, listAllUserTags, getContactStats } from "@/lib/queries/contacts";
 import {
   CONTACT_TYPES,
   CONTACT_STATUS,
@@ -50,38 +50,26 @@ export default async function CrmPage({ searchParams }: PageProps) {
     .map((t) => t.trim().toLowerCase())
     .filter((t) => t.length > 0);
 
-  const [contacts, allTags] = await Promise.all([
-    listContacts({
-      search: sp.q,
-      type: sp.type,
-      status: sp.status,
-      minScore: sp.score ? parseInt(sp.score, 10) : undefined,
-      tags: activeTags.length > 0 ? activeTags : undefined,
-    }),
+  const filters = {
+    search: sp.q,
+    type: sp.type,
+    status: sp.status,
+    minScore: sp.score ? parseInt(sp.score, 10) : undefined,
+    tags: activeTags.length > 0 ? activeTags : undefined,
+  };
+  const [contacts, allTags, stats] = await Promise.all([
+    listContacts(filters),
     listAllUserTags(),
+    // Total + KPIs HONESTOS (count exacto, mismos filtros). No derivar de
+    // `contacts` que viene capado a 1000 → mentía arriba de ese tope.
+    getContactStats(filters),
   ]);
 
-  // KPIs derivados (cálculo en memoria sobre el resultado filtrado)
-  const pipelineStatuses = new Set<ContactStatus>([
-    "interesado",
-    "propuesta_enviada",
-    "negociando",
-  ]);
-  const inPipeline = contacts.filter((c) => pipelineStatuses.has(c.status)).length;
-  const scoreAvg =
-    contacts.length > 0
-      ? Math.round(
-          contacts.reduce((sum, c) => sum + (c.score || 0), 0) / contacts.length
-        )
-      : 0;
-  const venueTypes = new Set<ContactType>([
-    "club",
-    "bar",
-    "rooftop",
-    "festival",
-    "productora",
-  ]);
-  const venuesCount = contacts.filter((c) => venueTypes.has(c.type)).length;
+  const inPipeline = stats.inPipeline;
+  const scoreAvg = stats.avgScore;
+  const venuesCount = stats.venuesCount;
+  // Si la lista quedó corta respecto al total real, avisamos (no ocultamos).
+  const listTruncated = contacts.length < stats.total;
   const isFiltered =
     !!(sp.q || sp.type || sp.status || sp.score || activeTags.length > 0);
 
@@ -94,8 +82,8 @@ export default async function CrmPage({ searchParams }: PageProps) {
         </div>
         <div className="mt-2 flex flex-wrap items-end gap-4 justify-between">
           <h1 className="font-display text-4xl md:text-6xl leading-none">
-            {String(contacts.length).padStart(2, "0")} CONTACTO
-            {contacts.length === 1 ? "" : "S"}
+            {String(stats.total).padStart(2, "0")} CONTACTO
+            {stats.total === 1 ? "" : "S"}
             <span className="text-orange">.</span>
           </h1>
           <div className="flex gap-2 flex-wrap">
@@ -116,7 +104,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
       </div>
 
       {/* ═══ KPIs · grid 4 col zero-gap borde ink ═══ */}
-      {contacts.length > 0 && (
+      {stats.total > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
           <div className="bg-white p-4 border-r-2 border-ink border-b-2 md:border-b-0">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
@@ -160,7 +148,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
               — TOTAL
             </div>
             <div className="font-display text-3xl md:text-4xl leading-none mt-2">
-              {String(contacts.length).padStart(2, "0")}
+              {String(stats.total).padStart(2, "0")}
             </div>
             <div className="font-mono text-[10px] mt-2 opacity-70">
               {isFiltered ? "Filtrados" : "Todos los contactos"}
@@ -370,6 +358,12 @@ export default async function CrmPage({ searchParams }: PageProps) {
               </tbody>
             </table>
           </div>
+          {listTruncated && (
+            <div className="px-4 py-3 border-t border-border font-mono text-[11px] text-fg-muted">
+              Mostrando los primeros {contacts.length} de {stats.total}. Usa los
+              filtros o la búsqueda para acotar.
+            </div>
+          )}
         </Card>
       )}
     </div>

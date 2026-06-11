@@ -49,6 +49,9 @@ export interface ListContactsParams {
   orderBy?: "score" | "last_contact_at" | "created_at" | "name";
   /** Sprint 19 — Filtrar contactos que tengan TODOS estos tags (AND). */
   tags?: string[];
+  /** Tope de filas a traer para la lista (default 1000). El total/KPIs reales
+   *  van por getContactStats (count exacto), no por el largo de esta lista. */
+  limit?: number;
 }
 
 async function getUserOrThrow() {
@@ -98,13 +101,72 @@ export async function listContacts(
 
   const { data, error } = await q
     .order(orderBy, { ascending, nullsFirst: false })
-    .limit(500);
+    .limit(params.limit ?? 1000);
 
   if (error) {
     console.error("listContacts error:", error);
     return [];
   }
   return data as Contact[];
+}
+
+const PIPELINE_STATUSES = ["interesado", "propuesta_enviada", "negociando"];
+const VENUE_TYPES = ["club", "bar", "rooftop", "festival", "productora"];
+
+export interface ContactStats {
+  /** Total REAL de contactos que matchean el filtro (count exacto, sin cap). */
+  total: number;
+  inPipeline: number;
+  venuesCount: number;
+  avgScore: number;
+  /** true si los KPIs (no el total) se calcularon sobre una muestra capada. */
+  sampled: boolean;
+}
+
+/**
+ * Totales/KPIs HONESTOS del CRM para la cabecera, con los MISMOS filtros que
+ * listContacts. El `total` es un count exacto (no miente arriba del cap de la
+ * lista); los KPIs se computan sobre hasta 10k filas (suficiente para cualquier
+ * CRM real — si se excede, `sampled=true` lo señala).
+ */
+export async function getContactStats(
+  params: ListContactsParams = {}
+): Promise<ContactStats> {
+  const { supabase, user } = await getUserOrThrow();
+  let q = supabase
+    .from("contacts")
+    .select("status, score, type", { count: "exact" })
+    .eq("user_id", user.id);
+
+  // Mismos filtros que listContacts (mantener en sync).
+  if (params.type) q = q.eq("type", params.type);
+  if (params.status) q = q.eq("status", params.status);
+  if (params.city) q = q.eq("city", params.city);
+  if (typeof params.minScore === "number") q = q.gte("score", params.minScore);
+  if (params.search && params.search.trim().length > 0) {
+    const s = params.search.trim().replace(/[,()]/g, " ").replace(/\s+/g, " ").trim();
+    if (s.length > 0) {
+      q = q.or(
+        `name.ilike.%${s}%,city.ilike.%${s}%,contact_person.ilike.%${s}%,music_style.ilike.%${s}%,notes.ilike.%${s}%`
+      );
+    }
+  }
+  if (params.tags && params.tags.length > 0) q = q.contains("tags", params.tags);
+
+  const STATS_CAP = 10000;
+  const { data, count, error } = await q.limit(STATS_CAP);
+  if (error || !data) {
+    return { total: 0, inPipeline: 0, venuesCount: 0, avgScore: 0, sampled: false };
+  }
+  const rows = data as Array<{ status: string; score: number | null; type: string }>;
+  const total = count ?? rows.length;
+  const pipeline = new Set(PIPELINE_STATUSES);
+  const venues = new Set(VENUE_TYPES);
+  const inPipeline = rows.filter((c) => pipeline.has(c.status)).length;
+  const venuesCount = rows.filter((c) => venues.has(c.type)).length;
+  const sumScore = rows.reduce((acc, c) => acc + (c.score || 0), 0);
+  const avgScore = rows.length ? Math.round(sumScore / rows.length) : 0;
+  return { total, inPipeline, venuesCount, avgScore, sampled: total > rows.length };
 }
 
 /**
