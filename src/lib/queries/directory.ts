@@ -299,7 +299,8 @@ export async function getTopFollowedDjs(
   const { data, error } = await admin
     .from("booker_favorites")
     .select("dj_user_id")
-    .gte("created_at", cutoff);
+    .gte("created_at", cutoff)
+    .limit(100000); // sin esto el default 1000 sesgaría el ranking "más seguidos"
   if (error || !data || data.length === 0) return [];
 
   const counts = new Map<string, number>();

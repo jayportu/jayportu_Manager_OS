@@ -9,6 +9,7 @@
  */
 import { createBookingSubmission } from "@/lib/queries/presskit";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
@@ -61,6 +62,20 @@ export async function POST(request: Request) {
       { error: "Déjanos un email o teléfono de contacto" },
       { status: 400 }
     );
+  }
+
+  // A1: el DJ debe existir y estar ACTIVO (su press kit ya está oculto si está
+  // suspendido/baneado; esto cierra el POST directo al endpoint).
+  {
+    const admin = createAdminClient();
+    const { data: dj } = await admin
+      .from("dj_profile")
+      .select("user_id, account_status")
+      .eq("user_id", user_id)
+      .maybeSingle();
+    if (!dj || (dj as { account_status?: string }).account_status !== "active") {
+      return NextResponse.json({ error: "DJ no disponible" }, { status: 404 });
+    }
   }
 
   const ua = request.headers.get("user-agent") || "";
