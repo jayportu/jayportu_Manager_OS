@@ -36,13 +36,31 @@ export async function generateMetadata({
     profile.tagline ||
     `DJ ${profile.artist_name}, ${profile.genres.join(", ")} desde ${profile.city}.`;
 
+  // OG image: foto del DJ si es de Storage; si no, el OG por defecto del sitio.
+  // Antes no había imagen ni canonical → el link se veía pobre al compartir.
+  const ogImg = [profile.hero_image_url, profile.avatar_url, profile.logo_url].find(
+    (u) => typeof u === "string" && u.startsWith("https://")
+  );
+  const images = ogImg
+    ? [{ url: ogImg }]
+    : [{ url: "/og.png", width: 1200, height: 630, alt: title }];
+
   return {
     title,
     description,
+    alternates: { canonical: `/p/${slug}` },
     openGraph: {
       title,
       description,
       type: "profile",
+      url: `/p/${slug}`,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ogImg ? [ogImg] : ["/og.png"],
     },
   };
 }

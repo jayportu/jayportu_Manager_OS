@@ -119,6 +119,7 @@ export function CounterofferForm({
           <Input
             id="counter-date"
             type="date"
+            min={new Date().toISOString().slice(0, 10)}
             value={eventDate}
             onChange={(e) => setEventDate(e.target.value)}
           />

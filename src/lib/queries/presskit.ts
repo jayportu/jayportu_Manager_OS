@@ -353,7 +353,15 @@ export async function updateBookingWorkflow(
     !b.calendar_event_id
   ) {
     // Necesita una fecha. Usar event_date del form (puede ser null).
-    const eventDate = patch.event_date ?? b.event_date;
+    const rawDate = patch.event_date ?? b.event_date;
+    // Validar formato YYYY-MM-DD y que sea fecha real: un valor malformado vía
+    // POST directo daba Invalid Date en santiagoToUtcISO y rompía el agendar.
+    const eventDate =
+      typeof rawDate === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(rawDate) &&
+      !Number.isNaN(new Date(`${rawDate}T00:00:00Z`).getTime())
+        ? rawDate
+        : null;
     if (eventDate) {
       // 22:00 HORA DE CHILE (no UTC). Antes `new Date(`${date}T22:00:00`)` se
       // interpretaba como 22:00 UTC en Vercel → el show salía a las 18:00 Chile.
