@@ -10,7 +10,21 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
+  // Anti-CSRF: el POST que muta debe ser same-origin. Comparamos el host del
+  // header Origin (lo setea el navegador, no spoofeable cross-site) contra el
+  // Host real del request → env-independiente (sirve en local y prod).
+  const origin = request.headers.get("origin");
+  const host = request.headers.get("host");
+  if (origin && host) {
+    try {
+      if (new URL(origin).host !== host) {
+        return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Origen inválido" }, { status: 403 });
+    }
+  }
   try {
     await deleteGmailConnection();
     return NextResponse.redirect(

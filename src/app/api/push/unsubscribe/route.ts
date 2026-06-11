@@ -4,6 +4,7 @@
  * Borra la subscription de la DB para el user logueado + endpoint dado.
  */
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,9 @@ interface Body {
 }
 
 export async function POST(request: Request) {
+  const limit = rateLimit(request, { key: "push-unsubscribe", max: 30, windowMs: 60_000 });
+  if (!limit.ok) return NextResponse.json({ error: "Demasiados intentos" }, { status: 429 });
+
   const supabase = await createClient();
   const {
     data: { user },
