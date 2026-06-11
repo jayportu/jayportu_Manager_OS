@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   const country = clip(request.headers.get("cf-ipcountry"), 4);
 
   const admin = createAdminClient();
-  await admin.from("site_events").insert({
+  const { error } = await admin.from("site_events").insert({
     session_id: sessionId,
     path,
     is_registered: isRegistered,
@@ -64,6 +64,11 @@ export async function POST(request: Request) {
     utm_source: clip(body.utm_source, 120),
     country,
   });
+  // No rompemos el beacon por esto, pero un fallo de insert no debe ser mudo:
+  // sin log, el panel /admin/trafico se vaciaría sin que nadie se entere.
+  if (error) {
+    console.error("[site-track] insert falló:", error.message);
+  }
 
   return new NextResponse(null, { status: 204 });
 }
