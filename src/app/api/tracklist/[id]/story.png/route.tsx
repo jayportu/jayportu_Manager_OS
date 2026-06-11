@@ -337,7 +337,7 @@ export async function GET(_req: Request, { params }: Params) {
               textTransform: "uppercase",
             }}
           >
-            drop.dj/p/{profile.public_slug || "—"}
+            dropgigs.com/p/{profile.public_slug || "—"}
           </div>
           <div
             style={{

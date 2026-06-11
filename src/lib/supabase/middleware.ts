@@ -33,6 +33,7 @@ const PUBLIC_PATHS = [
   "/api/follow-updates/cron", // Sprint RA-3 cron (protegido con CRON_SECRET)
   "/api/unsubscribe", // List-Unsubscribe header target (Gmail bulk sender req)
   "/api/resend/webhook", // Webhook de Resend (verifica firma Svix adentro)
+  "/api/mp/webhook", // Webhook de MercadoPago (verifica firma HMAC adentro) — sin esto MP redirige a /login y los pagos nunca se procesan
   "/sw.js", // service worker debe ser servido sin auth gate
   "/manifest.json", // manifest PWA público
   // /api/gmail/callback NO es público — el callback verifica sesión adentro.

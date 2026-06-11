@@ -2,6 +2,7 @@
 
 import { updateMyProfile } from "@/lib/queries/dj-profile";
 import { normalizeUrl } from "@/lib/format";
+import { isSafePublicHttpUrl } from "@/lib/url-guard";
 import {
   addRiderItem,
   updateRiderItem,
@@ -175,6 +176,13 @@ export async function updateAutoPostAction(patch: {
   auto_post_webhook_url: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
+    // Anti-SSRF: si hay URL, debe ser http(s) pública (no localhost/IP interna).
+    if (patch.auto_post_webhook_url && !isSafePublicHttpUrl(patch.auto_post_webhook_url)) {
+      return {
+        ok: false,
+        error: "La URL del webhook debe ser http(s) y pública (no localhost ni IPs internas).",
+      };
+    }
     await updateMyProfile(patch as DjProfileUpdate);
     revalidatePath("/configuracion");
     return { ok: true };

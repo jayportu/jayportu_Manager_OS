@@ -16,6 +16,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { computeCompleteness } from "@/lib/match/completeness";
+import { santiagoToday } from "@/lib/tz";
 import type { DjProfile } from "@/types/database";
 
 export interface PublicDjProfile {
@@ -76,8 +77,9 @@ function calcIsAvailable(
   checkDate?: string
 ): boolean {
   if (!from) return false;
-  // YYYY-MM-DD. Default: hoy (UTC). Smart Match pasa la fecha del evento.
-  const date = checkDate ?? new Date().toISOString().slice(0, 10);
+  // YYYY-MM-DD. Default: hoy EN CHILE (no UTC del server, que cerca de
+  // medianoche da off-by-one). Smart Match pasa la fecha del evento.
+  const date = checkDate ?? santiagoToday();
   if (date < from) return false;
   if (until && date > until) return false;
   return true;

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 interface ShareToolsProps {
-  /** URL base del press kit (sin query params). Ej: https://drop.dj/p/jay-portu */
+  /** URL base del press kit (sin query params). Ej: https://dropgigs.com/p/jay-portu */
   publicUrl: string;
   /** Slug del artist, usado para nombrar archivos descargados. */
   artistSlug: string;

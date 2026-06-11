@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { santiagoMonthStartUtcISO, santiagoNextMonthStartUtcISO } from "@/lib/tz";
 import type {
   CalendarEventRow,
   CalendarEventType,
@@ -169,17 +170,18 @@ export interface FinanceKpis {
 
 export async function getFinanceKpis(): Promise<FinanceKpis> {
   const { supabase, user } = await getUserOrThrow();
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  // Ventana del mes EN HORA DE CHILE (no UTC del server: cerca del cambio de
+  // mes, gigs del último/primer día caían en el mes equivocado).
+  const monthStartIso = santiagoMonthStartUtcISO();
+  const nextMonthIso = santiagoNextMonthStartUtcISO();
 
   const { data } = await supabase
     .from("calendar_events")
     .select("amount_clp, payment_status")
     .eq("user_id", user.id)
     .eq("type", "show")
-    .gte("start_at", monthStart.toISOString())
-    .lt("start_at", nextMonth.toISOString());
+    .gte("start_at", monthStartIso)
+    .lt("start_at", nextMonthIso);
 
   const rows = (data || []) as Array<{
     amount_clp: number | null;
@@ -198,7 +200,7 @@ export async function getFinanceKpis(): Promise<FinanceKpis> {
   );
 
   return {
-    monthLabel: monthStart.toLocaleDateString("es-CL", {
+    monthLabel: new Date(monthStartIso).toLocaleDateString("es-CL", {
       month: "long",
       year: "numeric",
       timeZone: "America/Santiago",
