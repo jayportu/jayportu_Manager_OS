@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -62,6 +63,7 @@ export function AIPanel({
   const [run, setRun] = useState<RunState>({ status: "idle" });
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const confirm = useConfirm();
 
   // Reply config
   const [replyType, setReplyType] = useState<ReplyType>("primer_contacto");
@@ -167,9 +169,20 @@ export function AIPanel({
       const result = await appendToContactNotesAction(contactId, run.text);
       if (result.ok) {
         router.refresh();
-        alert("Guardado en notas del contacto");
+        await confirm({
+          title: "Guardado en notas",
+          message: "Lo agregamos a las notas del contacto.",
+          confirmLabel: "Listo",
+          hideCancel: true,
+        });
       } else {
-        alert(`Error: ${result.error}`);
+        await confirm({
+          title: "Error",
+          message: result.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       }
     });
   }

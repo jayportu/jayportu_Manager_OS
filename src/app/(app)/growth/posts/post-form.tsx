@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,7 @@ function toLocalInput(iso: string | null): string {
 
 export function PostForm({ initial, campaigns, defaultCampaignId }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -127,7 +129,12 @@ export function PostForm({ initial, campaigns, defaultCampaignId }: Props) {
 
   async function handleDelete() {
     if (!initial) return;
-    if (!confirm("¿Borrar este post?")) return;
+    const { ok } = await confirm({
+      title: "¿Borrar este post?",
+      variant: "danger",
+      confirmLabel: "Borrar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deleteContentPostAction(initial.id);
       router.push("/growth/posts");

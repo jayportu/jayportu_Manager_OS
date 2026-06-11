@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,6 +44,9 @@ export function TemplatePicker({
   vars,
 }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
+  const aviso = (msg: string) =>
+    confirm({ title: "Aviso", message: msg, confirmLabel: "Entendido", hideCancel: true });
   const [open, setOpen] = useState(false);
   const [templates, setTemplates] = useState<Template[] | null>(null);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -93,7 +97,7 @@ export function TemplatePicker({
     if (!selected) return;
     const wa = whatsappLink(contactWhatsapp, resolvedText);
     if (!wa) {
-      alert("Este contacto no tiene WhatsApp configurado.");
+      void aviso("Este contacto no tiene WhatsApp configurado.");
       return;
     }
     // Bump usage
@@ -104,7 +108,7 @@ export function TemplatePicker({
   function openEmail() {
     if (!selected) return;
     if (!contactEmail) {
-      alert("Este contacto no tiene email configurado.");
+      void aviso("Este contacto no tiene email configurado.");
       return;
     }
     const subj = resolveTemplate(selected.subject || "", vars).text;
@@ -133,7 +137,7 @@ export function TemplatePicker({
       await bumpTemplateUsageAction(selected.id);
       router.refresh();
       setOpen(false);
-      alert("Registrado como interacción saliente");
+      await aviso("Registrado como interacción saliente.");
     });
   }
 

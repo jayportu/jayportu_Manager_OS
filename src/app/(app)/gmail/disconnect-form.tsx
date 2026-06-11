@@ -1,13 +1,22 @@
 "use client";
 
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Unlink } from "lucide-react";
 
 export function DisconnectForm() {
-  function handleSubmit(e: React.FormEvent) {
-    if (!confirm("¿Desconectar Gmail? Tu data de contactos y plantillas no se borra, solo la conexión OAuth.")) {
-      e.preventDefault();
-    }
+  const confirm = useConfirm();
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const { ok } = await confirm({
+      title: "¿Desconectar Gmail?",
+      message:
+        "Tu data de contactos y plantillas no se borra, solo la conexión OAuth.",
+      variant: "warning",
+      confirmLabel: "Desconectar",
+    });
+    if (ok) form.submit();
   }
   return (
     <form action="/api/gmail/disconnect" method="POST" onSubmit={handleSubmit}>

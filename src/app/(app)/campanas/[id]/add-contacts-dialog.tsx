@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ export function AddContactsDialog({
   buttonVariant = "outline",
 }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -89,7 +91,13 @@ export function AddContactsDialog({
         setSelectedIds(new Set());
         router.refresh();
       } else {
-        alert(`Error: ${r.error}`);
+        await confirm({
+          title: "Error",
+          message: r.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       }
     });
   }

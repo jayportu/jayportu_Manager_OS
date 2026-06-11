@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,7 @@ export function PressKitSection({
   publicSlug,
 }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -79,13 +81,14 @@ export function PressKitSection({
     });
   }
 
-  function removePdf() {
-    if (
-      !confirm(
-        "¿Borrar el PDF? Tu press kit volverá a generarse desde tus datos de perfil."
-      )
-    )
-      return;
+  async function removePdf() {
+    const { ok } = await confirm({
+      title: "¿Borrar el PDF?",
+      message: "Tu press kit volverá a generarse desde tus datos de perfil.",
+      variant: "warning",
+      confirmLabel: "Borrar PDF",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const r = await deletePressKitPdfAction();
       if (r.ok) {

@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Download } from "lucide-react";
 
 export function ExportButton() {
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(false);
 
   async function handleExport() {
@@ -26,7 +28,13 @@ export function ExportButton() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      alert("Error al exportar. Mira la consola.");
+      await confirm({
+        title: "Error al exportar",
+        message: "Inténtalo de nuevo en un momento.",
+        confirmLabel: "Entendido",
+        hideCancel: true,
+        variant: "danger",
+      });
     } finally {
       setLoading(false);
     }

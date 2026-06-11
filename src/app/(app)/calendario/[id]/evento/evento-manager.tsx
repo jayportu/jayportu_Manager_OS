@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +57,7 @@ interface Props {
 
 export function EventoManager({ event, rsvps, siteUrl }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -96,8 +98,14 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
     });
   }
 
-  function unpublish() {
-    if (!confirm("¿Despublicar? El link dejará de funcionar.")) return;
+  async function unpublish() {
+    const { ok } = await confirm({
+      title: "¿Despublicar el evento?",
+      message: "El link público dejará de funcionar.",
+      variant: "warning",
+      confirmLabel: "Despublicar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await unpublishEventAction(event.id);
       setNotice(null);

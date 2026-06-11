@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Calendar } from "lucide-react";
 import {
   type ContentPost,
@@ -26,6 +27,7 @@ interface Props {
 
 export function PostsBoard({ posts, campaignMap }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [, startTransition] = useTransition();
   const [dragging, setDragging] = useState<string | null>(null);
   const [optimistic, setOptimistic] = useState<Map<string, PostStatus>>(
@@ -84,7 +86,13 @@ export function PostsBoard({ posts, campaignMap }: Props) {
           n.delete(postId);
           return n;
         });
-        alert("No se pudo cambiar el estado: " + r.error);
+        void confirm({
+          title: "No se pudo cambiar el estado",
+          message: r.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       } else {
         router.refresh();
       }
