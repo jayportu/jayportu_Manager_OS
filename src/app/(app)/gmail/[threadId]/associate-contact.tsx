@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SelectNative } from "@/components/ui/select-native";
@@ -36,6 +37,7 @@ export function AssociateContactSelect({
     (c) => c.email && c.email.toLowerCase() === fromEmail
   );
 
+  const confirm = useConfirm();
   const [selected, setSelected] = useState<string>(suggested?.id || "");
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -56,7 +58,13 @@ export function AssociateContactSelect({
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       } else {
-        alert(result.error);
+        await confirm({
+          title: "Error",
+          message: result.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       }
     });
   }

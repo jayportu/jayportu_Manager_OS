@@ -10,6 +10,7 @@
 
 import { useState, useTransition, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import {
   TRACK_TAGS,
   TRACK_TAG_LABELS,
@@ -74,6 +75,7 @@ export function TracklistEditor({
   autoPost,
 }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [tracks, setTracks] = useState<TracklistTrack[]>(initialTracks);
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
@@ -192,8 +194,14 @@ export function TracklistEditor({
     });
   }
 
-  function handleDelete(track: TracklistTrack) {
-    if (!confirm(`¿Borrar "${track.artist} - ${track.title}"?`)) return;
+  async function handleDelete(track: TracklistTrack) {
+    const { ok } = await confirm({
+      title: "¿Borrar este track?",
+      message: `${track.artist} — ${track.title}`,
+      variant: "danger",
+      confirmLabel: "Borrar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const result = await deleteTrackAction(track.id);
       if (result.ok) {

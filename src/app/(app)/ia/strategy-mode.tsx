@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -73,6 +74,7 @@ export function StrategyMode({
   firstInteractions,
   djProfile,
 }: Props) {
+  const confirm = useConfirm();
   const [selectedId, setSelectedId] = useState(firstContact?.id || "");
   const [contact, setContact] = useState<Contact | null>(firstContact);
   const [interactions, setInteractions] =
@@ -141,7 +143,13 @@ export function StrategyMode({
           // El response queda; las notas se actualizaron en server
         }
       } else {
-        alert(`Error: ${result.error}`);
+        await confirm({
+          title: "Error",
+          message: result.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       }
     });
   }

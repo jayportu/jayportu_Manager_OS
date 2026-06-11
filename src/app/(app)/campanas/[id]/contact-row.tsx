@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { SelectNative } from "@/components/ui/select-native";
 import {
@@ -63,8 +64,12 @@ export function CampaignContactRow({
   baseUrl,
 }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const sc = scoreColor(row.contact_score);
+
+  const aviso = (msg: string) =>
+    confirm({ title: "Aviso", message: msg, confirmLabel: "Entendido", hideCancel: true });
 
   // Resolver mensaje (plantilla o mensaje base) con variables
   const vars = buildVars(
@@ -97,8 +102,13 @@ export function CampaignContactRow({
     });
   }
 
-  function removeFromCampaign() {
-    if (!confirm("¿Quitar este contacto de la campaña?")) return;
+  async function removeFromCampaign() {
+    const { ok } = await confirm({
+      title: "¿Quitar este contacto de la campaña?",
+      variant: "warning",
+      confirmLabel: "Quitar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await removeCampaignContactAction(row.id, campaignId);
       router.refresh();
@@ -108,7 +118,7 @@ export function CampaignContactRow({
   function openWhatsApp() {
     const wa = whatsappLink(row.contact_whatsapp, resolved);
     if (!wa) {
-      alert("Este contacto no tiene WhatsApp.");
+      void aviso("Este contacto no tiene WhatsApp.");
       return;
     }
     // Cambia status a enviado si estaba pendiente o preparado
@@ -124,7 +134,7 @@ export function CampaignContactRow({
 
   function openEmail() {
     if (!row.contact_email) {
-      alert("Este contacto no tiene email.");
+      void aviso("Este contacto no tiene email.");
       return;
     }
     const subj = templateSubject
@@ -148,7 +158,7 @@ export function CampaignContactRow({
       .replace(/^@/, "")
       .replace(/^https?:\/\/(www\.)?instagram\.com\//, "");
     if (!handle) {
-      alert("Este contacto no tiene Instagram.");
+      void aviso("Este contacto no tiene Instagram.");
       return;
     }
     window.open(`https://instagram.com/${handle}`, "_blank");
