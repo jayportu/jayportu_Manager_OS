@@ -6,7 +6,7 @@ import {
 } from "@/lib/queries/directory";
 import { rankDjsForGig, type GigNeed } from "@/lib/match/score";
 import { parseFreeText, type ParsedQuery } from "@/lib/match/parse-query";
-import { getMyBookerAccount } from "@/lib/queries/booker";
+import { getMyBookerAccount, getMyFavoriteDjIds } from "@/lib/queries/booker";
 import { MatchCard } from "./match-card";
 
 export const dynamic = "force-dynamic";
@@ -65,10 +65,11 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
     ? parseInt(sp.budget.replace(/\D/g, ""), 10) || undefined
     : undefined;
 
-  const [allGenres, allCities, booker] = await Promise.all([
+  const [allGenres, allCities, booker, favIds] = await Promise.all([
     listPublicGenres(),
     listPublicCities(),
     getMyBookerAccount(),
+    getMyFavoriteDjIds(),
   ]);
   const isFounding = !!booker?.is_founding;
 
@@ -349,7 +350,11 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {results.map((scored) => (
-              <MatchCard key={scored.dj.user_id} scored={scored} />
+              <MatchCard
+                key={scored.dj.user_id}
+                scored={scored}
+                favorited={favIds.has(scored.dj.user_id)}
+              />
             ))}
           </div>
         </>

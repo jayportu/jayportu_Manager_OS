@@ -24,6 +24,13 @@ interface Props {
   size?: "sm" | "lg";
   /** Si true, redirige a /signup/booker cuando user no logueado. */
   redirectOnUnauth?: boolean;
+  /**
+   * Estado inicial conocido desde el server (páginas del booker logueado como
+   * /booker/buscar y /booker/match). Si se pasa, NO hacemos el fetch por-card
+   * (evita el N+1 de un request por cada DJ de la grilla).
+   */
+  initialCanFavorite?: boolean;
+  initialFavorited?: boolean;
 }
 
 interface State {
@@ -36,16 +43,25 @@ export function FavoriteButtonClient({
   djUserId,
   size = "sm",
   redirectOnUnauth = true,
+  initialCanFavorite,
+  initialFavorited,
 }: Props) {
   const router = useRouter();
-  const [state, setState] = useState<State>({
-    loaded: false,
-    canFavorite: false,
-    favorited: false,
-  });
+  // Si el server ya nos dio el estado, arrancamos cargado y saltamos el fetch.
+  const hasInitial = initialCanFavorite !== undefined;
+  const [state, setState] = useState<State>(
+    hasInitial
+      ? {
+          loaded: true,
+          canFavorite: !!initialCanFavorite,
+          favorited: !!initialFavorited,
+        }
+      : { loaded: false, canFavorite: false, favorited: false }
+  );
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
+    if (hasInitial) return; // estado ya provisto por el server → sin fetch
     let cancelled = false;
     void (async () => {
       try {

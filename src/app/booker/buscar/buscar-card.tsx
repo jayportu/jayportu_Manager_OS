@@ -43,9 +43,12 @@ function genreHref(g: string, filters?: BuscarFilters): string {
 export function BuscarCard({
   dj,
   filters,
+  favorited = false,
 }: {
   dj: PublicDjProfile;
   filters?: BuscarFilters;
+  /** Estado de favorito provisto por el server (evita el fetch por-card). */
+  favorited?: boolean;
 }) {
   const [showSet, setShowSet] = useState(false);
 
@@ -99,6 +102,8 @@ export function BuscarCard({
             djUserId={dj.user_id}
             size="sm"
             redirectOnUnauth={false}
+            initialCanFavorite
+            initialFavorited={favorited}
           />
         </div>
       </div>
