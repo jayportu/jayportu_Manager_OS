@@ -40,7 +40,7 @@ export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
   // Retención D7/D15: de los aprobados hace >= 7d / 15d, cuántos tuvieron page_view en últimos 7/3d
   const now = Date.now();
   const past7 = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const past3 = new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString();
+  const past15 = new Date(now - 15 * 24 * 60 * 60 * 1000).toISOString();
 
   const d7CandidateIds = approved
     .filter((b) => {
@@ -73,7 +73,7 @@ export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
       .from("usage_events")
       .select("user_id")
       .in("user_id", d15CandidateIds)
-      .gte("created_at", past3);
+      .gte("created_at", past15); // D15 = activos en los últimos 15d (antes: 3d, bug)
     const distinct = new Set((data || []).map((r) => (r as { user_id: string }).user_id));
     d15Active = distinct.size;
   }
