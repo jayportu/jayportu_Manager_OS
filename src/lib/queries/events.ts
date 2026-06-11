@@ -86,6 +86,115 @@ export const getEventByToken = cache(async function getEventByToken(
   };
 });
 
+/** Una fila del feed público de eventos (landing + /eventos). */
+export interface FeedEvent {
+  public_token: string;
+  title: string;
+  location: string;
+  start_at: string;
+  ticket_url: string | null;
+  dj_artist_name: string;
+  dj_public_slug: string;
+  dj_avatar_url: string;
+  dj_hero_url: string;
+  going_count: number;
+}
+
+/**
+ * Feed de eventos públicos PRÓXIMOS (de cualquier DJ activo), para los fans
+ * sin cuenta. Soonest-first. Incluye eventos en curso (terminan a futuro) para
+ * que un after de hoy no desaparezca a medianoche. DJs suspendidos/baneados se
+ * excluyen (A1). Volumen beta = chico → batch en memoria, sin N+1.
+ */
+export async function getUpcomingPublicEvents(limit = 12): Promise<FeedEvent[]> {
+  const admin = createAdminClient();
+  // Traemos desde ayer para no perder shows en curso (start pasado, end futuro);
+  // luego filtramos por (end_at ?? start_at) >= ahora en memoria.
+  const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  const { data: rows } = await admin
+    .from("calendar_events")
+    .select(
+      "id, user_id, title, location, start_at, end_at, ticket_url, public_token"
+    )
+    .eq("is_public", true)
+    .not("public_token", "is", null)
+    .gte("start_at", since)
+    .order("start_at", { ascending: true })
+    .limit(200);
+
+  const now = Date.now();
+  const upcoming = ((rows ?? []) as {
+    id: string;
+    user_id: string;
+    title: string;
+    location: string | null;
+    start_at: string;
+    end_at: string | null;
+    ticket_url: string | null;
+    public_token: string;
+  }[]).filter((e) => new Date(e.end_at ?? e.start_at).getTime() >= now);
+
+  if (upcoming.length === 0) return [];
+
+  const userIds = Array.from(new Set(upcoming.map((e) => e.user_id)));
+  const eventIds = upcoming.map((e) => e.id);
+
+  const [{ data: djs }, { data: rsvps }] = await Promise.all([
+    admin
+      .from("dj_profile")
+      .select("user_id, artist_name, public_slug, avatar_url, hero_image_url, account_status")
+      .in("user_id", userIds),
+    admin
+      .from("event_rsvps")
+      .select("event_id")
+      .eq("status", "going")
+      .in("event_id", eventIds),
+  ]);
+
+  const djById = new Map<string, {
+    artist_name: string;
+    public_slug: string;
+    avatar_url: string;
+    hero_image_url: string;
+    account_status: string;
+  }>();
+  for (const d of (djs ?? []) as Record<string, string>[]) {
+    djById.set(d.user_id, {
+      artist_name: d.artist_name ?? "DJ",
+      public_slug: d.public_slug ?? "",
+      avatar_url: d.avatar_url ?? "",
+      hero_image_url: d.hero_image_url ?? "",
+      account_status: d.account_status ?? "active",
+    });
+  }
+
+  const goingByEvent = new Map<string, number>();
+  for (const r of (rsvps ?? []) as { event_id: string }[]) {
+    goingByEvent.set(r.event_id, (goingByEvent.get(r.event_id) ?? 0) + 1);
+  }
+
+  const out: FeedEvent[] = [];
+  for (const e of upcoming) {
+    const dj = djById.get(e.user_id);
+    // A1: si el DJ no existe o no está activo, su evento no aparece en el feed.
+    if (!dj || dj.account_status !== "active") continue;
+    out.push({
+      public_token: e.public_token,
+      title: e.title,
+      location: e.location ?? "",
+      start_at: e.start_at,
+      ticket_url: e.ticket_url ?? null,
+      dj_artist_name: dj.artist_name,
+      dj_public_slug: dj.public_slug,
+      dj_avatar_url: dj.avatar_url,
+      dj_hero_url: dj.hero_image_url,
+      going_count: goingByEvent.get(e.id) ?? 0,
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**

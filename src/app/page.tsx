@@ -9,7 +9,10 @@ import {
   getLandingRanking,
   type PublicDjProfile,
 } from "@/lib/queries/directory";
+import { getUpcomingPublicEvents } from "@/lib/queries/events";
 import { isSupabaseStorageUrl } from "@/lib/format";
+import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
+import { EventCard } from "@/components/public/event-card";
 
 /**
  * Landing público (arquitectura editorial estilo RA) — ALIMENTADO POR DATA REAL.
@@ -86,7 +89,7 @@ export default async function RootPage() {
   }
 
   // ── Data real para el landing (todo deriva de la lectura base cacheada) ──
-  const [suena, ranking, genres, collectionsRaw] = await Promise.all([
+  const [suena, ranking, genres, collectionsRaw, eventos] = await Promise.all([
     listPublicDjs({ sort: "recent", limit: 8 }),
     getLandingRanking(5),
     listPublicGenres(),
@@ -96,6 +99,7 @@ export default async function RootPage() {
         count: (await listPublicDjs({ genres: c.genres })).length,
       }))
     ),
+    getUpcomingPublicEvents(4),
   ]);
   const topGenres = genres.slice(0, 5);
   const collections = collectionsRaw.filter((c) => c.count > 0).slice(0, 3);
@@ -104,25 +108,7 @@ export default async function RootPage() {
 
   return (
     <main className="bg-cream text-ink">
-      {/* NAV */}
-      <header className="sticky top-0 z-50 bg-ink border-b-2 border-orange">
-        <div className="max-w-[1140px] mx-auto px-6 h-[62px] flex items-center gap-6">
-          <Link href="/" className="text-cream" style={{ fontFamily: ANTON, fontSize: 28, lineHeight: 0.85 }}>
-            DROP<span className="text-orange">.</span>
-          </Link>
-          <nav className="hidden md:flex gap-6 ml-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
-            <Link href="/dj" className="text-cream/70 hover:text-orange transition-colors">Buscar DJs</Link>
-            <a href="#curaduria" className="text-cream/70 hover:text-orange transition-colors">La escena</a>
-            <a href="#conexion" className="text-cream/70 hover:text-orange transition-colors">Cómo funciona</a>
-            <a href="#incluye" className="text-cream/70 hover:text-orange transition-colors">Para DJs</a>
-          </nav>
-          <div className="flex-1" />
-          <span className="hidden md:inline font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">THE DJ OS</span>
-          <Link href="/login" className="px-4 py-2 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
-            Entrar
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* CAPA 1 · HERO + DOS PUERTAS */}
       <section className="relative overflow-hidden border-b-2 border-ink">
@@ -193,6 +179,24 @@ export default async function RootPage() {
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
             {suena.map((dj) => <SuenaCard key={dj.user_id} dj={dj} />)}
+          </div>
+        </section>
+      )}
+
+      {/* CAPA 2.5 · PRÓXIMOS EVENTOS (para los fans — RSVP sin cuenta) */}
+      {eventos.length > 0 && (
+        <section id="eventos" className="border-y-2 border-ink bg-white">
+          <div className="max-w-[1140px] mx-auto px-6 py-16">
+            <div className="flex items-end justify-between gap-4 mb-2.5">
+              <h2 style={{ fontFamily: ANTON, fontSize: 34, lineHeight: 0.9 }}>PRÓXIMOS EVENTOS</h2>
+              <Link href="/eventos" className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] border-b-2 border-orange pb-0.5 hover:text-orange transition-colors">Ver todos los eventos →</Link>
+            </div>
+            <p className="text-sm text-fg-muted mb-7" style={{ maxWidth: "56ch" }}>
+              Fiestas y shows de la escena. Confirma tu asistencia sin crear cuenta — y entérate cuando tu DJ anuncie el próximo.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {eventos.map((ev) => <EventCard key={ev.public_token} ev={ev} />)}
+            </div>
           </div>
         </section>
       )}
@@ -313,37 +317,8 @@ export default async function RootPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-ink text-cream border-t-2 border-orange">
-        <div className="max-w-[1140px] mx-auto px-6 py-14">
-          <p style={{ fontFamily: ANTON, fontSize: 38, lineHeight: 0.92, maxWidth: "18ch" }}>
-            Hecho por la escena, <span className="text-fg-subtle">para la escena.</span>
-          </p>
-          <div className="flex gap-12 flex-wrap mt-8">
-            <FootCol title="Explorar" links={[["Buscar DJs", "/dj"], ["Cómo funciona", "#conexion"]]} />
-            <FootCol title="Para ti" links={[["Soy DJ", "/beta"], ["Soy booker", "/signup/booker"], ["Entrar", "/login"]]} />
-            <FootCol title="drop." links={[["Privacidad", "/privacy"], ["Términos", "/terms"], ["hola@dropgigs.com", "mailto:hola@dropgigs.com"]]} />
-            <div className="flex-1" />
-            <FootCol title="Síguenos" links={[["@drop.gigs", "https://instagram.com/drop.gigs"]]} />
-          </div>
-          <div className="mt-10 pt-5 border-t border-[#2a2a2a] font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle flex gap-3 flex-wrap items-center">
-            <span style={{ fontFamily: ANTON, fontSize: 22 }}>DROP<span className="text-orange">.</span></span>
-            <span>— The DJ OS · © 2026 · dropgigs.com</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
-  );
-}
-
-function FootCol({ title, links }: { title: string; links: [string, string][] }) {
-  return (
-    <div>
-      <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-cream/60 mb-3">{title}</h4>
-      {links.map(([label, href]) => (
-        <a key={label} href={href} className="block font-mono text-[11px] uppercase tracking-[0.06em] text-cream/70 py-1 hover:text-orange transition-colors">{label}</a>
-      ))}
-    </div>
   );
 }
 
