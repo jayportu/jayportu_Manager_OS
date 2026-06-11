@@ -316,3 +316,53 @@ export async function setAccountStatusAction(
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
   }
 }
+
+/**
+ * Elimina una cuenta de forma PERMANENTE (ej. una cuenta de prueba o spam).
+ * Borra el user de auth.users → el cascade de FKs limpia todo su contenido
+ * (dj_profile, contacts, bookings, favoritos, etc.). A diferencia de
+ * notifyAndDeleteUserAction, sirve también para cuentas con onboarding.
+ *
+ * Salvaguardas: no puedes eliminarte a ti mismo ni a otro admin. La UI exige
+ * escribir "ELIMINAR" antes de llamar (ConfirmDialog typeToConfirm).
+ */
+export async function deleteUserAction(
+  userId: string
+): Promise<Result<{ deleted: true }>> {
+  try {
+    const { userId: adminId } = await assertAdmin();
+    if (userId === adminId) {
+      return { ok: false, error: "No puedes eliminar tu propia cuenta." };
+    }
+
+    const admin = createAdminClient();
+    const { data: target, error: tErr } = await admin
+      .from("dj_profile")
+      .select("user_id, is_admin, artist_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (tErr) return { ok: false, error: `dj_profile: ${tErr.message}` };
+    if (target?.is_admin) {
+      return { ok: false, error: "No puedes eliminar a un admin." };
+    }
+
+    // Audit ANTES del borrado (bajo el user_id del admin, que persiste).
+    await admin.from("usage_events").insert({
+      user_id: adminId,
+      event: "admin_account_deleted",
+      page: "/admin",
+      metadata: {
+        target_user_id: userId,
+        artist_name: (target?.artist_name as string) || null,
+      },
+    });
+
+    const { error: delErr } = await admin.auth.admin.deleteUser(userId);
+    if (delErr) return { ok: false, error: `Borrado falló: ${delErr.message}` };
+
+    revalidatePath("/admin");
+    return { ok: true, data: { deleted: true } };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}

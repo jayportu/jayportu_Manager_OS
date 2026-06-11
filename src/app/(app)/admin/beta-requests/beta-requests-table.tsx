@@ -23,6 +23,7 @@ import {
   deleteBetaRequestAction,
 } from "./actions";
 import { Copy, Check, Trash2 } from "lucide-react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 interface Props {
   initialRequests: BetaRequest[];
@@ -30,6 +31,7 @@ interface Props {
 
 export function BetaRequestsTable({ initialRequests }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [requests, setRequests] = useState(initialRequests);
   const [isPending, startTransition] = useTransition();
   const [filter, setFilter] = useState<BetaRequestStatus | "all">("all");
@@ -74,9 +76,22 @@ export function BetaRequestsTable({ initialRequests }: Props) {
     });
   }
 
-  function handleReject(r: BetaRequest) {
-    const reason = prompt(`Motivo del rechazo (opcional) para ${r.artist_name}:`);
-    if (reason === null) return; // cancelado
+  async function handleReject(r: BetaRequest) {
+    const conf = await confirm({
+      title: "Rechazar solicitud",
+      message: (
+        <>
+          Rechazar la solicitud de <strong>{r.artist_name}</strong>. El motivo queda
+          registrado.
+        </>
+      ),
+      variant: "danger",
+      confirmLabel: "Rechazar",
+      requireReason: true,
+      reasonPlaceholder: "Motivo del rechazo…",
+    });
+    if (!conf.ok) return;
+    const reason = conf.reason;
     setMessage(null);
     startTransition(async () => {
       const res = await rejectBetaRequestAction(r.id, reason);
@@ -136,8 +151,18 @@ export function BetaRequestsTable({ initialRequests }: Props) {
     });
   }
 
-  function handleDelete(r: BetaRequest) {
-    if (!confirm(`¿Borrar solicitud de ${r.artist_name}? Permanente.`)) return;
+  async function handleDelete(r: BetaRequest) {
+    const conf = await confirm({
+      title: "Borrar solicitud",
+      message: (
+        <>
+          ¿Borrar la solicitud de <strong>{r.artist_name}</strong>? Permanente.
+        </>
+      ),
+      variant: "danger",
+      confirmLabel: "Borrar",
+    });
+    if (!conf.ok) return;
     startTransition(async () => {
       const res = await deleteBetaRequestAction(r.id);
       if (res.ok) {

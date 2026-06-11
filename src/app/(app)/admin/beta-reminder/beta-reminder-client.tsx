@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { sendBetaReminderToAllAction } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 interface Props {
   recipientCount: number;
@@ -24,14 +25,20 @@ type Result =
   | { ok: false; error: string };
 
 export function BetaReminderClient({ recipientCount }: Props) {
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<Result | null>(null);
 
-  function handleSend() {
-    const message = `¿Mandar el correo recordatorio a ${recipientCount} ${
-      recipientCount === 1 ? "DJ" : "DJs"
-    }? Se disparan emails reales.`;
-    if (!confirm(message)) return;
+  async function handleSend() {
+    const conf = await confirm({
+      title: "Enviar recordatorio",
+      message: `¿Mandar el correo recordatorio a ${recipientCount} ${
+        recipientCount === 1 ? "DJ" : "DJs"
+      }? Se disparan emails reales.`,
+      variant: "warning",
+      confirmLabel: "Enviar a todos",
+    });
+    if (!conf.ok) return;
     setResult(null);
     startTransition(async () => {
       const res = await sendBetaReminderToAllAction();

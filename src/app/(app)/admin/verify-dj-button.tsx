@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, X } from "lucide-react";
 import { setDjVerifiedAction } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 interface Props {
   djUserId: string;
@@ -17,19 +18,20 @@ interface Props {
  */
 export function VerifyDjButton({ djUserId, verified, name }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  function handle() {
+  async function handle() {
     const next = !verified;
-    if (
-      !window.confirm(
-        next
-          ? `¿Verificar a "${name}"? Aparecerá con el badge ✓ Verificado en /dj y en su press kit.`
-          : `¿Quitar la verificación de "${name}"?`
-      )
-    )
-      return;
+    const res = await confirm({
+      title: next ? "Verificar DJ" : "Quitar verificación",
+      message: next
+        ? `Verificar a "${name}". Aparecerá con el badge ✓ Verificado en /dj y en su press kit.`
+        : `¿Quitar la verificación de "${name}"?`,
+      confirmLabel: next ? "Verificar" : "Quitar",
+    });
+    if (!res.ok) return;
     setError(null);
     startTransition(async () => {
       const res = await setDjVerifiedAction(djUserId, next);

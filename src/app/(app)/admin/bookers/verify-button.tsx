@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, X } from "lucide-react";
 import { setBookerVerifiedAction } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 interface Props {
   bookerUserId: string;
@@ -13,19 +14,20 @@ interface Props {
 
 export function VerifyBookerButton({ bookerUserId, verified, name }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  function handle() {
+  async function handle() {
     const next = !verified;
-    if (
-      !window.confirm(
-        next
-          ? `¿Verificar a "${name}"? Aparecerá con el badge ✓ y podrá salir en el directorio de lugares.`
-          : `¿Quitar la verificación de "${name}"?`
-      )
-    )
-      return;
+    const res = await confirm({
+      title: next ? "Verificar booker" : "Quitar verificación",
+      message: next
+        ? `Verificar a "${name}". Aparecerá con el badge ✓ y podrá salir en el directorio de lugares.`
+        : `¿Quitar la verificación de "${name}"?`,
+      confirmLabel: next ? "Verificar" : "Quitar",
+    });
+    if (!res.ok) return;
     setError(null);
     startTransition(async () => {
       const res = await setBookerVerifiedAction(bookerUserId, next);

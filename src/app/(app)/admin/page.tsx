@@ -41,71 +41,16 @@ export default async function AdminPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-7 flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Shield className="w-6 h-6 text-accent" />
-            Backoffice
-          </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            Vista privada. Métricas globales y listado de todos los usuarios
-            registrados.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <a
-            href="/admin/beta-requests"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Solicitudes Beta →
-          </a>
-          <a
-            href="/admin/bookers"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Bookers →
-          </a>
-          <a
-            href="/admin/founding-invites"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            ★ Founding →
-          </a>
-          <a
-            href="/admin/feedback"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Feedback →
-          </a>
-          <a
-            href="/admin/analytics"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Analytics →
-          </a>
-          <a
-            href="/admin/email-campaigns"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Campañas →
-          </a>
-          <a
-            href="/admin/correo"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Correo →
-          </a>
-          <a
-            href="/admin/beta-reminder"
-            className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-          >
-            Recordatorio Beta →
-          </a>
-          <span className="text-[10px] uppercase tracking-widest text-fg-subtle">
-            Solo admin
-          </span>
-        </div>
+      {/* Header — la navegación entre secciones la da la barra fija (admin/layout). */}
+      <div className="mb-7">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+          <Shield className="w-6 h-6 text-accent" />
+          Backoffice
+        </h1>
+        <p className="text-sm text-fg-muted mt-1">
+          Vista privada. Métricas globales y listado de todos los usuarios
+          registrados.
+        </p>
       </div>
 
       {/* KPIs */}
