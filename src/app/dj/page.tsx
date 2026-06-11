@@ -329,7 +329,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
             name: "Directorio de DJs DROP.",
             description:
               "Catálogo público de DJs en Latam buscable por género, ciudad y disponibilidad.",
-            numberOfItems: djs.length,
+            numberOfItems: Math.min(djs.length, 50),
             itemListElement: djs.slice(0, 50).map((d, i) => ({
               "@type": "ListItem",
               position: i + 1,

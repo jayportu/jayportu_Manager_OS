@@ -128,9 +128,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Si hay user y está en /login → redirige a "/" y RootPage decide el
-  // destino según tipo de cuenta (DJ→/dashboard, booker→/booker/requests).
-  if (user && (pathname === "/login" || pathname === "/signup")) {
+  // Si hay user y está en /login o cualquier /signup* → redirige a "/" y
+  // RootPage decide el destino (DJ→/dashboard, booker→/booker/requests). Antes
+  // "/signup" era exacto y dejaba pasar a un logueado a /signup/booker. (El
+  // cookie de founding ya se guardó arriba, así que ese flujo no se pierde.)
+  if (user && (pathname === "/login" || pathname.startsWith("/signup"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

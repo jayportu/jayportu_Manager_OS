@@ -54,7 +54,10 @@ export default async function CrmPage({ searchParams }: PageProps) {
     search: sp.q,
     type: sp.type,
     status: sp.status,
-    minScore: sp.score ? parseInt(sp.score, 10) : undefined,
+    minScore:
+      sp.score && Number.isFinite(parseInt(sp.score, 10))
+        ? parseInt(sp.score, 10)
+        : undefined,
     tags: activeTags.length > 0 ? activeTags : undefined,
   };
   const [contacts, allTags, stats] = await Promise.all([
