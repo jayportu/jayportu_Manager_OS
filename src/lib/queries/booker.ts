@@ -648,6 +648,24 @@ export async function isFavorite(djUserId: string): Promise<boolean> {
   return !!data;
 }
 
+/**
+ * Set de dj_user_id favoritos del booker actual — UNA query para toda la grilla.
+ * /booker/buscar y /booker/match lo piden una vez y pasan el estado inicial a
+ * cada card, evitando el N+1 (un fetch por card a /api/booker/favorite-state).
+ */
+export async function getMyFavoriteDjIds(): Promise<Set<string>> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return new Set();
+  const { data } = await supabase
+    .from("booker_favorites")
+    .select("dj_user_id")
+    .eq("user_id", user.id);
+  return new Set((data ?? []).map((r) => (r as { dj_user_id: string }).dj_user_id));
+}
+
 // ════════════════════════════════════════════════════════════════════
 // Sprint RA-3 — Feed de updates de los DJs seguidos
 // ════════════════════════════════════════════════════════════════════

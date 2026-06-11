@@ -4,6 +4,7 @@ import {
   listPublicGenres,
   listPublicCities,
 } from "@/lib/queries/directory";
+import { getMyFavoriteDjIds } from "@/lib/queries/booker";
 import { BuscarCard } from "./buscar-card";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +45,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
     ? parseInt(sp.budget.replace(/\D/g, ""), 10) || undefined
     : undefined;
 
-  const [djs, allGenres, allCities] = await Promise.all([
+  const [djs, allGenres, allCities, favIds] = await Promise.all([
     listPublicDjs({
       search: sp.q,
       city: sp.city,
@@ -54,6 +55,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
     }),
     listPublicGenres(),
     listPublicCities(),
+    getMyFavoriteDjIds(),
   ]);
 
   const availableCount = djs.filter((d) => d.is_available_now).length;
@@ -206,6 +208,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
               key={d.user_id}
               dj={d}
               filters={{ q: sp.q, city: sp.city, avail: sp.avail, budget: sp.budget }}
+              favorited={favIds.has(d.user_id)}
             />
           ))}
         </div>

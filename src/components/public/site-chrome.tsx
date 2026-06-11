@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Menu } from "lucide-react";
 
 /**
  * Header + footer públicos, compartidos entre el landing (/) y /eventos.
@@ -8,6 +9,14 @@ import Link from "next/link";
 
 const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
 
+/** Links del nav (compartidos entre desktop y el menú móvil). */
+const NAV_LINKS: { href: string; label: string }[] = [
+  { href: "/dj", label: "Buscar DJs" },
+  { href: "/eventos", label: "Eventos" },
+  { href: "/#conexion", label: "Cómo funciona" },
+  { href: "/#incluye", label: "Para DJs" },
+];
+
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 bg-ink border-b-2 border-orange">
@@ -16,13 +25,35 @@ export function SiteHeader() {
           DROP<span className="text-orange">.</span>
         </Link>
         <nav className="hidden md:flex gap-6 ml-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
-          <Link href="/dj" className="text-cream/70 hover:text-orange transition-colors">Buscar DJs</Link>
-          <Link href="/eventos" className="text-cream/70 hover:text-orange transition-colors">Eventos</Link>
-          <Link href="/#conexion" className="text-cream/70 hover:text-orange transition-colors">Cómo funciona</Link>
-          <Link href="/#incluye" className="text-cream/70 hover:text-orange transition-colors">Para DJs</Link>
+          {NAV_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="text-cream/70 hover:text-orange transition-colors">
+              {l.label}
+            </Link>
+          ))}
         </nav>
         <div className="flex-1" />
         <span className="hidden md:inline font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">THE DJ OS</span>
+        {/* Menú móvil (sin JS): <details> como disclosure. Se cierra solo al
+            navegar porque cada página re-renderiza el header. */}
+        <details className="md:hidden relative">
+          <summary
+            className="list-none [&::-webkit-details-marker]:hidden cursor-pointer p-1.5 -mr-1 text-cream"
+            aria-label="Abrir menú"
+          >
+            <Menu className="w-6 h-6" />
+          </summary>
+          <div className="absolute right-0 top-[calc(100%+1px)] z-50 min-w-[190px] bg-ink border-2 border-orange flex flex-col">
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-cream/80 hover:bg-orange hover:text-ink border-b border-cream/10 last:border-b-0 transition-colors"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
+        </details>
         <Link href="/login" className="px-4 py-2 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
           Entrar
         </Link>

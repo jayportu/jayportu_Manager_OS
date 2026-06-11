@@ -14,7 +14,14 @@ import { SetEmbed } from "@/app/p/[slug]/embeds";
 import { isSupabaseStorageUrl } from "@/lib/format";
 import type { ScoredDj } from "@/lib/match/score";
 
-export function MatchCard({ scored }: { scored: ScoredDj }) {
+export function MatchCard({
+  scored,
+  favorited = false,
+}: {
+  scored: ScoredDj;
+  /** Estado de favorito provisto por el server (evita el fetch por-card). */
+  favorited?: boolean;
+}) {
   const { dj, score, reasons } = scored;
   const [showSet, setShowSet] = useState(false);
 
@@ -73,6 +80,8 @@ export function MatchCard({ scored }: { scored: ScoredDj }) {
             djUserId={dj.user_id}
             size="sm"
             redirectOnUnauth={false}
+            initialCanFavorite
+            initialFavorited={favorited}
           />
         </div>
       </div>
