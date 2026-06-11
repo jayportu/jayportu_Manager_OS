@@ -84,6 +84,7 @@ export async function updateAvailabilityAction(patch: {
   available_note: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
+    await assertBetaActive(); // consistente con saveProfileAction (decisión 2026-06-11)
     await updateMyProfile(patch as DjProfileUpdate);
     revalidatePath("/configuracion");
     revalidatePath("/dj");
@@ -176,6 +177,7 @@ export async function updateAutoPostAction(patch: {
   auto_post_webhook_url: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
+    await assertBetaActive(); // consistente con saveProfileAction (decisión 2026-06-11)
     // Anti-SSRF: si hay URL, debe ser http(s) pública (no localhost/IP interna).
     if (patch.auto_post_webhook_url && !isSafePublicHttpUrl(patch.auto_post_webhook_url)) {
       return {
