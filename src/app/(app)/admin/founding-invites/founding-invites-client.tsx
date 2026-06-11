@@ -8,6 +8,7 @@ import {
   sendFoundingInviteAction,
   revokeFoundingInviteAction,
 } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 function inviteLink(token: string): string {
   const origin =
@@ -32,6 +33,7 @@ export function FoundingInvitesClient({
   invites: FoundingInvite[];
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [pending, startTransition] = useTransition();
@@ -71,9 +73,19 @@ export function FoundingInvitesClient({
     });
   }
 
-  function handleRevoke(inv: FoundingInvite) {
-    if (!window.confirm(`¿Revocar la invitación de ${inv.email}? El link dejará de funcionar.`))
-      return;
+  async function handleRevoke(inv: FoundingInvite) {
+    const res = await confirm({
+      title: "Revocar invitación",
+      message: (
+        <>
+          ¿Revocar la invitación de <strong>{inv.email}</strong>? El link dejará de
+          funcionar.
+        </>
+      ),
+      variant: "danger",
+      confirmLabel: "Revocar",
+    });
+    if (!res.ok) return;
     startTransition(async () => {
       const res = await revokeFoundingInviteAction(inv.id);
       if (!res.ok) setMsg({ type: "err", text: res.error });

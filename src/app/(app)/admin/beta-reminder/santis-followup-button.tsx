@@ -4,22 +4,25 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { sendSantisTechRiderFollowupAction } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 type Result =
   | { ok: true; emailId: string; email: string }
   | { ok: false; error: string };
 
 export function SantisFollowupButton() {
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<Result | null>(null);
 
-  function handleSend() {
-    if (
-      !confirm(
-        "¿Mandar el email a SANTIS agradeciéndole por el bug y pidiéndole que pruebe?"
-      )
-    )
-      return;
+  async function handleSend() {
+    const conf = await confirm({
+      title: "Avisar a SANTIS",
+      message:
+        "¿Mandar el email a SANTIS agradeciéndole por el bug y pidiéndole que pruebe?",
+      confirmLabel: "Enviar",
+    });
+    if (!conf.ok) return;
     setResult(null);
     startTransition(async () => {
       const res = await sendSantisTechRiderFollowupAction();

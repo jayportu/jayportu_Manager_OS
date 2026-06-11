@@ -11,6 +11,7 @@ import {
 } from "@/types/database";
 import { SelectNative } from "@/components/ui/select-native";
 import { updateFeedbackAction } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 
 interface Props {
   initialReports: FeedbackReportWithUser[];
@@ -18,8 +19,10 @@ interface Props {
 
 export function FeedbackTable({ initialReports }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [reports, setReports] = useState(initialReports);
   const [filter, setFilter] = useState<FeedbackStatus | "all">("all");
+  const [err, setErr] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [expanded, setExpanded] = useState<string | null>(null);
   // Borradores locales de admin_notes editados pero aún no guardados.
@@ -35,20 +38,28 @@ export function FeedbackTable({ initialReports }: Props) {
     return noteDrafts[r.id] ?? r.admin_notes ?? "";
   }
 
-  function handleStatusChange(r: FeedbackReportWithUser, status: FeedbackStatus) {
+  async function handleStatusChange(r: FeedbackReportWithUser, status: FeedbackStatus) {
     const adminNotes = notesFor(r);
     const willSendEmail = status === "resolved" && r.status !== "resolved";
 
     if (willSendEmail && r.email) {
-      const noteLine = adminNotes.trim()
-        ? `\n\nResumen del fix:\n"${adminNotes.trim()}"`
-        : "\n\n(Sin resumen — se usará texto genérico)";
-      const ok = confirm(
-        `Marcar como "Resuelto" y mandar email a ${r.artist_name || r.email} (${r.email})?${noteLine}`
-      );
-      if (!ok) return;
+      const res = await confirm({
+        title: "Marcar como resuelto",
+        message: (
+          <>
+            Marcar como “Resuelto” y mandar email a{" "}
+            <strong>{r.artist_name || r.email}</strong> ({r.email}).
+            {adminNotes.trim()
+              ? " Se incluye tu resumen del fix."
+              : " Sin resumen — se usará texto genérico."}
+          </>
+        ),
+        confirmLabel: "Resolver y avisar",
+      });
+      if (!res.ok) return;
     }
 
+    setErr(null);
     startTransition(async () => {
       const res = await updateFeedbackAction(r.id, status, adminNotes);
       if (res.ok) {
@@ -65,7 +76,7 @@ export function FeedbackTable({ initialReports }: Props) {
         });
         router.refresh();
       } else {
-        alert(`Error: ${res.error}`);
+        setErr(res.error);
       }
     });
   }
@@ -109,6 +120,12 @@ export function FeedbackTable({ initialReports }: Props) {
           </button>
         ))}
       </div>
+
+      {err && (
+        <div className="border-2 border-danger bg-danger/10 text-danger text-sm px-3 py-2">
+          {err}
+        </div>
+      )}
 
       <div className="border-2 border-ink bg-white">
         {filtered.length === 0 && (

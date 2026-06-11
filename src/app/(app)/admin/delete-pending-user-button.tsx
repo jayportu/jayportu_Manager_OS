@@ -12,6 +12,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { notifyAndDeleteUserAction } from "./actions";
+import { useConfirm } from "@/components/admin/confirm-dialog";
+import { adminBtn } from "@/components/admin/buttons";
 
 interface Props {
   userId: string;
@@ -20,6 +22,7 @@ interface Props {
 
 export function DeletePendingUserButton({ userId, email }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<
     | { kind: "ok"; message: string }
@@ -27,11 +30,19 @@ export function DeletePendingUserButton({ userId, email }: Props) {
     | null
   >(null);
 
-  function handleClick() {
-    const ok = window.confirm(
-      `¿Mandar email a ${email} avisando que necesita solicitar acceso a la beta y borrar la cuenta?\n\nEsto NO se puede deshacer.`
-    );
-    if (!ok) return;
+  async function handleClick() {
+    const res = await confirm({
+      title: "Limpiar cuenta huérfana",
+      message: (
+        <>
+          Mandar email a <strong>{email}</strong> avisando que necesita solicitar
+          acceso a la beta, y borrar la cuenta. No se puede deshacer.
+        </>
+      ),
+      variant: "danger",
+      confirmLabel: "Avisar y borrar",
+    });
+    if (!res.ok) return;
     setFeedback(null);
     startTransition(async () => {
       const res = await notifyAndDeleteUserAction(userId);
@@ -53,7 +64,7 @@ export function DeletePendingUserButton({ userId, email }: Props) {
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className="inline-flex items-center gap-1 px-2 py-1 border border-danger/40 text-danger hover:bg-danger hover:text-white font-mono text-[9px] uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={adminBtn("danger")}
         title="Avisar al user y borrar cuenta huérfana"
       >
         <Trash2 className="w-3 h-3" />
