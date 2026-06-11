@@ -22,7 +22,15 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   // Default "/" → RootPage rutea por tipo (DJ→/dashboard, booker→/booker/requests).
   // El signup booker pasa next=/booker/requests explícito; lo respetamos.
-  const next = searchParams.get("next") ?? "/";
+  // Anti open-redirect: solo rutas internas. Sin esto, next=@evil.com producía
+  // `${origin}@evil.com` → el navegador resuelve host=evil.com (redirect externo).
+  const rawNext = searchParams.get("next") ?? "/";
+  const next =
+    rawNext.startsWith("/") &&
+    !rawNext.startsWith("//") &&
+    !rawNext.startsWith("/\\")
+      ? rawNext
+      : "/";
   // Reset de contraseña: resetPasswordForEmail manda el link de recovery
   // con next=/auth/reset-password. Detectarlo nos deja dar mensajes de
   // error específicos del reset (link expirado → pedir uno nuevo) en vez

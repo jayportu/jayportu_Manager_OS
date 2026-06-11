@@ -193,9 +193,13 @@ export async function updateEventFinanceAction(
     } = await supabase.auth.getUser();
     if (!user) throw new Error("No autenticado");
 
-    // Si pasa a paid y no hay paid_at, setearlo a now
+    // Si pasa a paid y no hay paid_at, setearlo a now.
     if (patch.payment_status === "paid" && !patch.paid_at) {
       patch.paid_at = new Date().toISOString();
+    } else if (patch.payment_status && patch.payment_status !== "paid") {
+      // Al SACAR el gig de "pagado" (a pendiente/parcial), limpiar paid_at:
+      // antes quedaba la fecha vieja → un gig "pendiente" con fecha de pago.
+      patch.paid_at = null;
     }
 
     const { error } = await supabase

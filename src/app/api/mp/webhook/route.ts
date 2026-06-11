@@ -96,9 +96,12 @@ export async function POST(req: NextRequest) {
     }
   } catch (e) {
     console.error("[mp-webhook] handler error:", e);
-    // Devolvemos 200 igual para que MP no nos siga reintentando si el error
-    // es nuestro y no del request. Si fuera del request, 500.
-    return NextResponse.json({ ok: false, error: String(e) }, { status: 200 });
+    // Devolvemos 500 para que MP REINTENTE. Los handlers son idempotentes
+    // (upsert por mp_payment_id unique + re-sync del preapproval desde la API
+    // de MP), así que reintentar es seguro. Antes devolvíamos 200 y un error
+    // transitorio (timeout de la API de MP, blip de la DB) se perdía para
+    // siempre → estado de billing desincronizado.
+    return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });
