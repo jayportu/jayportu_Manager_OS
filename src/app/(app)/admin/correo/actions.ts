@@ -55,39 +55,44 @@ async function filesToAttachments(
 export async function markEmailRead(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin
+  const { error } = await admin
     .from("inbound_emails")
     .update({ read_at: new Date().toISOString() })
     .eq("id", id)
     .is("read_at", null);
+  if (error) console.error("[inbox] markEmailRead:", error.message);
   revalidatePath("/admin/correo");
 }
 
 export async function archiveEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin.from("inbound_emails").update({ folder: "archived" }).eq("id", id);
+  const { error } = await admin.from("inbound_emails").update({ folder: "archived" }).eq("id", id);
+  if (error) console.error("[inbox] archiveEmail:", error.message);
   revalidatePath("/admin/correo");
 }
 
 export async function toggleStar(id: string, starred: boolean): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin.from("inbound_emails").update({ starred }).eq("id", id);
+  const { error } = await admin.from("inbound_emails").update({ starred }).eq("id", id);
+  if (error) console.error("[inbox] toggleStar:", error.message);
   revalidatePath("/admin/correo");
 }
 
 export async function deleteEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin.from("inbound_emails").update({ folder: "trash" }).eq("id", id);
+  const { error } = await admin.from("inbound_emails").update({ folder: "trash" }).eq("id", id);
+  if (error) console.error("[inbox] deleteEmail:", error.message);
   revalidatePath("/admin/correo");
 }
 
 export async function restoreEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin.from("inbound_emails").update({ folder: "inbox" }).eq("id", id);
+  const { error } = await admin.from("inbound_emails").update({ folder: "inbox" }).eq("id", id);
+  if (error) console.error("[inbox] restoreEmail:", error.message);
   revalidatePath("/admin/correo");
 }
 

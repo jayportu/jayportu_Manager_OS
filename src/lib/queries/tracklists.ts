@@ -189,7 +189,7 @@ export async function recomputeTracklistKpis(
       : null;
   // Estimación duración: 1 track ~ 18 minutos (set average)
   const durationMinutes = totalTracks > 0 ? totalTracks * 18 : null;
-  await supabase
+  const { error } = await supabase
     .from("tracklists")
     .update({
       total_tracks: totalTracks,
@@ -198,6 +198,7 @@ export async function recomputeTracklistKpis(
     })
     .eq("user_id", user.id)
     .eq("id", tracklistId);
+  if (error) console.error("[tracklists] recomputeTracklistKpis:", error.message);
 }
 
 export async function bulkInsertTracks(

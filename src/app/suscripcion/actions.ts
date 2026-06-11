@@ -214,7 +214,7 @@ export async function reactivateSubscriptionAction(): Promise<SimpleResult> {
   }
 
   // Resetear flags para que pueda volver a /suscripcion y pagar
-  await admin
+  const { error: updErr } = await admin
     .from("subscriptions")
     .update({
       cancel_at_period_end: false,
@@ -222,6 +222,7 @@ export async function reactivateSubscriptionAction(): Promise<SimpleResult> {
       cancellation_reason: null,
     })
     .eq("id", s.id);
+  if (updErr) return { ok: false, error: updErr.message };
 
   revalidatePath("/configuracion/suscripcion");
   return { ok: true };

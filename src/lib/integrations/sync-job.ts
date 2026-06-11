@@ -108,7 +108,7 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
     if (snapErr) throw new Error(`Snapshot upsert: ${snapErr.message}`);
 
     // Actualizar platform_accounts con resultado
-    await admin
+    const { error: accErr } = await admin
       .from("platform_accounts")
       .update({
         last_synced_at: new Date().toISOString(),
@@ -118,6 +118,7 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
         last_error: null,
       })
       .eq("id", acc.id);
+    if (accErr) console.error(`[sync] update account ${acc.id}:`, accErr.message);
 
     const delta =
       acc.last_followers !== null ? followers - acc.last_followers : null;
@@ -130,13 +131,14 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
     };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Error desconocido";
-    await admin
+    const { error: accErr } = await admin
       .from("platform_accounts")
       .update({
         last_synced_at: new Date().toISOString(),
         last_error: msg,
       })
       .eq("id", acc.id);
+    if (accErr) console.error(`[sync] update account error ${acc.id}:`, accErr.message);
     return { ...base, ok: false, error: msg };
   }
 }

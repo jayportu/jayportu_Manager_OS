@@ -125,7 +125,7 @@ export function VenueCard({
               onChange={(e) => setMessage(e.target.value)}
               maxLength={600}
               rows={3}
-              placeholder="Quién sos, tu sonido, por qué encajas en este lugar…"
+              placeholder="Quién eres, tu sonido, por qué encajas en este lugar…"
               className="w-full border-2 border-ink bg-white px-2.5 py-2 text-sm outline-none focus:border-accent resize-y"
             />
             <input
