@@ -45,7 +45,15 @@ Cumbres Sky,rooftop,Santiago,Chile,@cumbressky,,,cumbressky.cl,,,House,whatsapp,
             confirmado, realizado, perdido, recontactar_despues, ignorar
           </p>
           <p>
-            <span className="text-fg">score</span> debe ser número entre 0 y 100.
+            <span className="text-fg">score</span> (opcional): número entre 0 y
+            100. Si omites la columna, DROP lo calcula automáticamente por
+            calidad del contacto.
+          </p>
+          <p>
+            Se omiten los contactos que ya tengas (mismo nombre + ciudad, o mismo
+            email), y los <span className="text-fg">email</span>/
+            <span className="text-fg">whatsapp</span> con formato inválido se
+            dejan en blanco.
           </p>
         </div>
       </Card>

@@ -17,7 +17,9 @@ import {
 } from "@/types/database";
 import { importContactsAction } from "../actions";
 
-type Row = ContactInsert & { _ok: boolean; _error?: string };
+type Row = ContactInsert & { _ok: boolean; _error?: string; _warn?: string };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function normalize(s: string): string {
   return s.trim();
@@ -44,6 +46,8 @@ export function ImportForm() {
       }
       const header = rows[0].map((h) => h.trim().toLowerCase());
       const nameIdx = header.indexOf("name");
+      // ¿El CSV trae columna score? Si no, dejamos que el server auto-scoree.
+      const hasScoreCol = header.indexOf("score") !== -1;
       if (nameIdx === -1) {
         setMessage(
           'Falta la columna obligatoria "name" en el header.'
@@ -72,9 +76,24 @@ export function ImportForm() {
           ? (rawChannel as MainChannel)
           : ("whatsapp" as MainChannel);
 
-        const scoreStr = get("score");
-        const score = scoreStr ? parseInt(scoreStr, 10) : 50;
-        const safeScore = isNaN(score) ? 50 : Math.min(100, Math.max(0, score));
+        // Score: solo lo respetamos si el CSV trajo la columna y un número
+        // válido; si no, queda undefined → el server auto-scorea.
+        let scoreVal: number | undefined = undefined;
+        if (hasScoreCol) {
+          const n = parseInt(get("score"), 10);
+          if (!isNaN(n)) scoreVal = Math.min(100, Math.max(0, n));
+        }
+
+        // Validación: email/whatsapp inválidos se OMITEN (campo vacío) en vez de
+        // guardar basura; el contacto igual entra. Se avisa en el preview.
+        const warns: string[] = [];
+        const emailRaw = get("email");
+        const emailOk = !emailRaw || EMAIL_RE.test(emailRaw);
+        if (!emailOk) warns.push("email inválido → omitido");
+        const whatsappRaw = get("whatsapp");
+        const whatsappDigits = whatsappRaw.replace(/[^\d]/g, "");
+        const whatsappOk = !whatsappRaw || whatsappDigits.length >= 8;
+        if (!whatsappOk) warns.push("whatsapp inválido → omitido");
 
         const name = get("name");
         const ok = name.length > 0;
@@ -85,19 +104,20 @@ export function ImportForm() {
           city: get("city") || "Santiago",
           country: get("country") || "Chile",
           instagram: get("instagram"),
-          whatsapp: get("whatsapp"),
-          email: get("email"),
+          whatsapp: whatsappOk ? whatsappRaw : "",
+          email: emailOk ? emailRaw : "",
           website: get("website"),
           contact_person: get("contact_person"),
           contact_role: get("contact_role"),
           music_style: get("music_style"),
           main_channel,
           status,
-          score: safeScore,
+          ...(scoreVal !== undefined ? { score: scoreVal } : {}),
           notes: get("notes"),
           source: "csv_import",
           _ok: ok,
           _error: ok ? undefined : "Sin nombre",
+          _warn: warns.length ? warns.join(" · ") : undefined,
         };
       });
 
@@ -118,18 +138,24 @@ export function ImportForm() {
       setMessage("No hay filas válidas para importar.");
       return;
     }
-    // Strip _ok and _error before sending
+    // Strip campos de UI antes de enviar
     const rows: ContactInsert[] = valid.map((row) => {
-      const { _ok, _error, ...rest } = row;
+      const { _ok, _error, _warn, ...rest } = row;
       void _ok;
       void _error;
+      void _warn;
       return rest;
     });
 
     startTransition(async () => {
       const result = await importContactsAction(rows);
       if (result.ok) {
-        setMessage(`✓ ${result.data.inserted} contactos importados.`);
+        const { inserted, skipped } = result.data;
+        setMessage(
+          `✓ ${inserted} contactos importados${
+            skipped ? ` · ${skipped} omitidos (ya existían)` : ""
+          }.`
+        );
         setPreview(null);
         setCsv("");
         router.push("/crm");
@@ -198,12 +224,16 @@ Club La Feria,club,Santiago,..."
                   <td className="px-3 py-2 text-fg-muted">{r.type}</td>
                   <td className="px-3 py-2 text-fg-muted">{r.city || "—"}</td>
                   <td className="px-3 py-2 text-fg-muted">{r.status}</td>
-                  <td className="px-3 py-2 text-fg-muted">{r.score}</td>
+                  <td className="px-3 py-2 text-fg-muted">
+                    {typeof r.score === "number" ? r.score : "auto"}
+                  </td>
                   <td className="px-3 py-2">
-                    {r._ok ? (
-                      <span className="text-success">OK</span>
-                    ) : (
+                    {!r._ok ? (
                       <span className="text-danger">{r._error}</span>
+                    ) : r._warn ? (
+                      <span className="text-warning" title={r._warn}>OK ⚠</span>
+                    ) : (
+                      <span className="text-success">OK</span>
                     )}
                   </td>
                 </tr>
