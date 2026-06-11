@@ -5,7 +5,7 @@ import {
   updateBookingStatus,
   updateBookingWorkflow,
 } from "@/lib/queries/presskit";
-import { createContact } from "@/lib/queries/contacts";
+import { createContact, deleteContact } from "@/lib/queries/contacts";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus, ContactInsert } from "@/types/database";
@@ -102,11 +102,19 @@ export async function convertBookingToContactAction(
 
     // Actualizar booking — Sprint 20: el nuevo status equivalente a "convertido"
     // es 'respondido' (se creó contacto, aún no es agendado ni cotizado oficial).
-    await supabase
+    const { error: linkErr } = await supabase
       .from("booking_form_submissions")
       .update({ status: "respondido", created_contact_id: contact.id })
       .eq("id", bookingId)
       .eq("user_id", user.id);
+    if (linkErr) {
+      // Antes este UPDATE no se chequeaba: si fallaba, el contacto quedaba
+      // creado pero el booking sin linkear → un reintento creaba OTRO contacto
+      // (duplicado). Rollback del contacto recién creado para que el reintento
+      // arranque limpio.
+      await deleteContact(contact.id).catch(() => {});
+      throw new Error("No se pudo vincular el contacto al booking. Reintenta.");
+    }
 
     revalidatePath("/press-kit");
     revalidatePath(`/press-kit/bookings/${bookingId}`);

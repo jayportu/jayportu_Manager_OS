@@ -12,6 +12,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchSoundCloudProfile } from "./soundcloud";
 import { fetchYouTubeChannel } from "./youtube";
+import { santiagoToday, santiagoToUtcISO } from "@/lib/tz";
 
 interface AccountRow {
   id: string;
@@ -74,19 +75,37 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
       throw new Error(`Plataforma "${acc.platform}" no soporta auto-sync aún`);
     }
 
-    // Insertar snapshot con source='auto'
-    const { error: snapErr } = await admin
+    // Snapshot idempotente POR DÍA (hora Chile): si ya hay uno auto de hoy
+    // para este user+plataforma, lo ACTUALIZAMOS en vez de insertar otro. Antes
+    // varias corridas el mismo día (cron + manual, reintentos) duplicaban
+    // snapshots → el delta day-over-day comparaba dos del mismo día y daba 0.
+    const snapshotRow = {
+      user_id: acc.user_id,
+      platform: acc.platform,
+      followers,
+      total_posts: trackOrVideoCount,
+      notes,
+      source: "auto",
+      ...snapshotExtras,
+    };
+    const todayStartUtc = santiagoToUtcISO(santiagoToday(), "00:00:00");
+    const { data: todaySnap } = await admin
       .from("platform_snapshots")
-      .insert({
-        user_id: acc.user_id,
-        platform: acc.platform,
-        followers,
-        total_posts: trackOrVideoCount,
-        notes,
-        source: "auto",
-        ...snapshotExtras,
-      });
-    if (snapErr) throw new Error(`Snapshot insert: ${snapErr.message}`);
+      .select("id")
+      .eq("user_id", acc.user_id)
+      .eq("platform", acc.platform)
+      .eq("source", "auto")
+      .gte("snapshot_at", todayStartUtc)
+      .order("snapshot_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { error: snapErr } = todaySnap
+      ? await admin
+          .from("platform_snapshots")
+          .update(snapshotRow)
+          .eq("id", (todaySnap as { id: string }).id)
+      : await admin.from("platform_snapshots").insert(snapshotRow);
+    if (snapErr) throw new Error(`Snapshot upsert: ${snapErr.message}`);
 
     // Actualizar platform_accounts con resultado
     await admin
