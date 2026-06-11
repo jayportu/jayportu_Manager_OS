@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Inter, Space_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const anton = Anton({
@@ -81,6 +82,9 @@ export default function RootLayout({
         className={`${anton.variable} ${inter.variable} ${spaceMono.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
       >
         {children}
+        {/* Vercel Web Analytics — tráfico anónimo (visitas, páginas, referrers).
+            No-op hasta habilitar Web Analytics en el dashboard de Vercel. */}
+        <Analytics />
       </body>
     </html>
   );
