@@ -73,13 +73,15 @@ export async function POST(request: Request) {
     const admin = createAdminClient();
     const { data: profile } = await admin
       .from("dj_profile")
-      .select("user_id")
+      .select("user_id, account_status")
       .eq("user_id", user_id)
       .maybeSingle();
 
-    if (!profile) {
+    // A1: no registrar eventos de DJs inexistentes ni suspendidos/baneados
+    // (su press kit ya está oculto; esto cierra el POST directo).
+    if (!profile || (profile as { account_status?: string }).account_status !== "active") {
       return NextResponse.json(
-        { error: "user_id no existe" },
+        { error: "user_id no válido" },
         { status: 404 }
       );
     }

@@ -148,7 +148,8 @@ export async function getUpcomingPublicEvents(limit = 12): Promise<FeedEvent[]> 
       .from("event_rsvps")
       .select("event_id")
       .eq("status", "going")
-      .in("event_id", eventIds),
+      .in("event_id", eventIds)
+      .limit(100000), // sin esto el default 1000 subcontaba "N van" del feed
   ]);
 
   const djById = new Map<string, {
@@ -441,7 +442,8 @@ export async function notifyFansOfEvent(eventId: string): Promise<number> {
     .from("event_rsvps")
     .select("id, email, name, event_id")
     .eq("notify_future", true)
-    .in("event_id", ids);
+    .in("event_id", ids)
+    .limit(100000); // sin esto el default 1000 cortaba la lista de fans a avisar
 
   // Distinct por email, excluyendo los de este mismo evento. Guardamos un id de
   // RSVP por fan para armar su link de baja (A4).

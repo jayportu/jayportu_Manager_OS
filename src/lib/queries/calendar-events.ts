@@ -42,8 +42,11 @@ export async function listMyEvents(opts?: {
 
   const { data, error } = await q
     .order("start_at", { ascending: true })
-    .limit(opts?.limit ?? 200);
-  if (error) return [];
+    .limit(opts?.limit ?? 1000); // 200 cortaba calendarios grandes en silencio
+  if (error) {
+    console.error("listMyEvents error:", error.message);
+    return [];
+  }
   return data as CalendarEventRow[];
 }
 
