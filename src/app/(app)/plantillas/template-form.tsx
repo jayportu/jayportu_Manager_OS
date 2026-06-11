@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ interface Props {
 
 export function TemplateForm({ initial }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(initial?.name || "");
   const [category, setCategory] = useState<TemplateCategory>(
@@ -105,7 +107,13 @@ export function TemplateForm({ initial }: Props) {
 
   async function handleDelete() {
     if (!initial) return;
-    if (!confirm(`¿Borrar la plantilla "${initial.name}"?`)) return;
+    const { ok } = await confirm({
+      title: "¿Borrar esta plantilla?",
+      message: initial.name,
+      variant: "danger",
+      confirmLabel: "Borrar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const result = await deleteTemplateAction(initial.id);
       if (result.ok) {

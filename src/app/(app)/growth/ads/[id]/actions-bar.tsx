@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { SelectNative } from "@/components/ui/select-native";
 import {
@@ -21,6 +22,7 @@ interface Props {
 
 export function GrowthCampaignActions({ campaignId, status }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
 
   function changeStatus(newStatus: GrowthCampaignStatus) {
@@ -31,13 +33,14 @@ export function GrowthCampaignActions({ campaignId, status }: Props) {
     });
   }
 
-  function handleDelete() {
-    if (
-      !confirm(
-        "¿Borrar esta campaña? Los posts asociados quedan en /growth/posts (sin campaña)."
-      )
-    )
-      return;
+  async function handleDelete() {
+    const { ok } = await confirm({
+      title: "¿Borrar esta campaña?",
+      message: "Los posts asociados quedan en /growth/posts (sin campaña).",
+      variant: "danger",
+      confirmLabel: "Borrar campaña",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deleteGrowthCampaignAction(campaignId);
     });

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { SelectNative } from "@/components/ui/select-native";
 import {
@@ -21,6 +22,7 @@ interface Props {
 
 export function CampaignActions({ campaignId, status }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
 
   function changeStatus(newStatus: CampaignStatus) {
@@ -31,13 +33,14 @@ export function CampaignActions({ campaignId, status }: Props) {
     });
   }
 
-  function handleDelete() {
-    if (
-      !confirm(
-        "¿Borrar esta campaña? Los contactos no se borran del CRM, solo se quitan de la campaña."
-      )
-    )
-      return;
+  async function handleDelete() {
+    const { ok } = await confirm({
+      title: "¿Borrar esta campaña?",
+      message: "Los contactos no se borran del CRM, solo se quitan de la campaña.",
+      variant: "danger",
+      confirmLabel: "Borrar campaña",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deleteCampaignAction(campaignId);
       // deleteCampaignAction hace redirect("/campanas")

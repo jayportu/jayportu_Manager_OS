@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,7 @@ interface Props {
 
 export function PlatformAccountsSection({ accounts }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -53,13 +55,14 @@ export function PlatformAccountsSection({ accounts }: Props) {
     });
   }
 
-  function removeSC() {
-    if (
-      !confirm(
-        "¿Quitar la cuenta de SoundCloud? Los snapshots ya guardados quedan, pero deja de sincronizar."
-      )
-    )
-      return;
+  async function removeSC() {
+    const { ok } = await confirm({
+      title: "¿Quitar la cuenta de SoundCloud?",
+      message: "Los snapshots ya guardados quedan, pero deja de sincronizar.",
+      variant: "warning",
+      confirmLabel: "Quitar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deletePlatformAccountAction("soundcloud");
       setScUsername("");
@@ -89,13 +92,14 @@ export function PlatformAccountsSection({ accounts }: Props) {
     });
   }
 
-  function removeYT() {
-    if (
-      !confirm(
-        "¿Quitar la cuenta de YouTube? Los snapshots ya guardados quedan, pero deja de sincronizar."
-      )
-    )
-      return;
+  async function removeYT() {
+    const { ok } = await confirm({
+      title: "¿Quitar la cuenta de YouTube?",
+      message: "Los snapshots ya guardados quedan, pero deja de sincronizar.",
+      variant: "warning",
+      confirmLabel: "Quitar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deletePlatformAccountAction("youtube");
       setYtHandle("");

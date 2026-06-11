@@ -4,10 +4,12 @@ import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { seedTemplatesAction } from "./actions";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Sparkles } from "lucide-react";
 
 export function SeedButton() {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
 
   function handleSeed() {
@@ -16,7 +18,13 @@ export function SeedButton() {
       if (result.ok) {
         router.refresh();
       } else {
-        alert(`Error: ${result.error}`);
+        await confirm({
+          title: "Error",
+          message: result.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       }
     });
   }

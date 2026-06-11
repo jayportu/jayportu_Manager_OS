@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Check, Pause, Trash2 } from "lucide-react";
 import {
   completeFollowUpAction,
@@ -17,6 +18,7 @@ interface Props {
 
 export function RecurrentesActions({ followUpId, seriesId, contactId }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
 
   function handleComplete() {
@@ -26,26 +28,28 @@ export function RecurrentesActions({ followUpId, seriesId, contactId }: Props) {
     });
   }
 
-  function handlePause() {
-    if (
-      !confirm(
-        "¿Pausar la recurrencia? El follow-up actual queda pendiente, pero no se generan los siguientes."
-      )
-    )
-      return;
+  async function handlePause() {
+    const { ok } = await confirm({
+      title: "¿Pausar la recurrencia?",
+      message: "El follow-up actual queda pendiente, pero no se generan los siguientes.",
+      variant: "warning",
+      confirmLabel: "Pausar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await pauseRecurrenceAction(seriesId, contactId);
       router.refresh();
     });
   }
 
-  function handleDelete() {
-    if (
-      !confirm(
-        "¿Eliminar TODA la serie? Esto borra el follow-up actual y el historial completo. No se puede deshacer."
-      )
-    )
-      return;
+  async function handleDelete() {
+    const { ok } = await confirm({
+      title: "¿Eliminar TODA la serie?",
+      message: "Borra el follow-up actual y el historial completo. No se puede deshacer.",
+      variant: "danger",
+      confirmLabel: "Eliminar serie",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deleteRecurrenceSeriesAction(seriesId, contactId);
       router.refresh();
