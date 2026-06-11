@@ -83,7 +83,11 @@ export async function getCampaignDashboard(
       .select("resend_id,event_type,occurred_at")
       .eq("campaign_id", campaignId)
       .order("occurred_at", { ascending: false })
-      .limit(3000),
+      // Los KPIs (delivered/opened/clicked) cuentan distinct resend_id sobre
+      // ESTAS filas. El cap de 3000 subcontaba la campaña grande (861 envíos ×
+      // varias aperturas c/u supera 3000) → metrics truncadas. 50k queda muy
+      // por sobre cualquier campaña real (scoped a un campaign_id).
+      .limit(50000),
   ]);
 
   const sends = (sendsRes.data ?? []) as SendRow[];

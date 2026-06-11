@@ -21,6 +21,9 @@ export interface SiteTraffic {
   /** Embudo de adquisición en la ventana. */
   funnel: { anonSessions: number; betaRequests: number; newAccounts: number };
   recent: { path: string; is_registered: boolean; created_at: string }[];
+  /** true si se alcanzó el tope de filas → los totales son parciales (sesgados
+   *  hacia lo reciente). Señal honesta hasta migrar a agregación SQL. */
+  partial: boolean;
 }
 
 function santiagoDay(iso: string): string {
@@ -47,6 +50,8 @@ function refSource(referrer: string | null): string {
   }
 }
 
+const ROW_CAP = 20000;
+
 export async function getSiteTraffic(days = 7): Promise<SiteTraffic> {
   const admin = createAdminClient();
   const cutoff = new Date(Date.now() - days * 86400000).toISOString();
@@ -56,7 +61,7 @@ export async function getSiteTraffic(days = 7): Promise<SiteTraffic> {
     .select("session_id, path, is_registered, referrer, created_at")
     .gte("created_at", cutoff)
     .order("created_at", { ascending: false })
-    .limit(20000);
+    .limit(ROW_CAP);
 
   const rows = (error ? [] : data ?? []) as {
     session_id: string;
@@ -144,5 +149,6 @@ export async function getSiteTraffic(days = 7): Promise<SiteTraffic> {
       is_registered: r.is_registered,
       created_at: r.created_at,
     })),
+    partial: rows.length >= ROW_CAP,
   };
 }

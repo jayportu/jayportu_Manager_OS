@@ -84,6 +84,12 @@ export default async function TraficoPage({ searchParams }: PageProps) {
         </div>
       ) : (
         <>
+          {t.partial && (
+            <div className="border-2 border-warning bg-warning/10 p-3 mb-5 font-mono text-[11px] text-ink">
+              ⚠ Datos parciales: el rango supera el tope de eventos que se leen de
+              una vez, así que los totales están sesgados hacia lo más reciente.
+            </div>
+          )}
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
             <Kpi label="Visitas" value={t.totalViews} sub={`${t.sessions} sesiones`} />
