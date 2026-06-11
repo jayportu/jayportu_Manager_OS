@@ -123,6 +123,17 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] ⚪ Paginación CRM a escala · acciones masivas · duplicar plantilla · validación formato (email/WhatsApp) · botón PNG tracklist (BUG-02) · dedup/idempotencia en crons · drill-down posts→campaña en Growth
 - [ ] 📋 RA-4 Panel multi-entidad (último — cambio de arquitectura mayor)
 
+### 🚀 TRACCIÓN — automatización + manual (2026-06-11 →)
+
+> **Marco:** marketplace de 2 lados. La oferta (DJs) ya viene por la campaña (861, 70/día hasta 15-jun). El cuello de botella es la **demanda (bookers)**. Motor más barato: cada DJ con perfil completo es un **nodo de distribución** (comparte su press kit `/p` y eventos `/e` a su audiencia IG/WhatsApp → llegan fans y bookers). Flywheel: DJ comparte → llegan bookers → contratan → al DJ le va bien → comparte más.
+>
+> **Plan en 3 capas:** (1) MEDIR · (2) ACTIVAR la oferta · (3) SEMBRAR la demanda.
+
+- [x] 🤖 **Activación automática — nudge de onboarding incompleto (capa 2, PR #110, DORMIDO).** Correo único "termina tu perfil" a DJs que crearon cuenta y dejaron el onboarding a medias hace +24h, con los ítems que faltan (dinámico, del score de completitud). Migración 0051 (`onboarding_nudge_sent_at`, one-shot idempotente) en prod. Cron `/api/onboarding-nudge/cron` (CRON_SECRET, GitHub Actions diario 14:00 UTC) + preview en `/admin/onboarding-nudge` (pestaña "Nudge"). **Sale dormido (dry-run) — no manda nada hasta `ONBOARDING_NUDGE_ENABLED=true` en Vercel.** Verificado en prod: 401 sin auth, dry-run con auth, 0 candidatos hoy (los activos ya completaron). Activar = ver la lista en /admin → poner el flag.
+- [ ] 📊 **MEDIR — pulso de beta (capa 1, pendiente).** El panel `/admin/trafico` ya cubre tráfico→conversión; falta el lado **DJs invitados → registrados → perfil completo + bookers activos + contactos/pitches**. Saber dónde está la fuga antes de empujar. Candidato a automatizar como **digest semanal por correo** a Jaime+Fer (mismo patrón de cron).
+- [ ] 🤝 **SEMBRAR — Founding Bookers a mano (capa 3, NO automatizar).** Invitar 10–20 bookers reales (clubes/productoras/organizadores) con el token VIP, uno a uno. Concierge a propósito: outreach frío masivo = spam, mata la confianza. Manual de Jaime.
+- [ ] 🟢 **Activar la oferta que ya hay (manual, complementa el nudge).** Empujar a los ~13 DJs activos a perfil completo + un evento publicado (cada uno = nodo de distribución hoy).
+
 **Siguiente paso — RETOMAR (post 2026-06-11):**
 
 > **Estado al cierre del 2026-06-11:** producto construido, blindado y con **analítica + cara de fans** lista. Listo para meterle tracción.
@@ -137,9 +148,11 @@ Es la primera impresión de cualquier booker que se invite.
 > 1. **Habilitar Web Analytics** en el dashboard de Vercel (sin eso, el `<Analytics />` no reporta).
 > 2. Probar el **flujo de fan real en prod**: un DJ publica un show → abrir `/e/<token>` en incógnito (sin login) → hacer RSVP → confirmar que ya **no** rebota a /login (el fix recién va a prod). Esto valida el happy path que el classifier no me dejó sembrar localmente.
 >
-> **▶ Próximo gran paso:** completar el **"pulso de beta"** — el panel de tráfico ya cubre tráfico→conversión; falta el lado **DJs invitados → registrados → perfil completo + bookers activos + contactos/pitches** para saber dónde empujar. Es lo que más mueve la aguja ahora.
+> **▶ Próximo gran paso (decidido 2026-06-11):** entramos en fase **TRACCIÓN** (ver sección 🚀 arriba). Ya shippeado: nudge de onboarding automático (dormido). Siguiente candidato: **pulso de beta** (medir el embudo DJs invitados→registrados→perfil completo) — idealmente como digest semanal automático. En paralelo, manual de Jaime: Founding Bookers + activar los 13 DJs.
 >
-> **Otras opciones:** empujar la beta a mano (Founding bookers curados, ayudar a DJs a completar perfil) · CSP-strict-nonces (opcional, no bloquea).
+> **2 cosas que dependen de ti (cuando quieras encender):**
+> 1. **Habilitar Web Analytics** en el dashboard de Vercel (sin eso el `<Analytics />` no reporta).
+> 2. **Encender el nudge**: ver la lista en `/admin` → pestaña "Nudge", luego `ONBOARDING_NUDGE_ENABLED=true` en Vercel.
 
 **En stand-by (decisiones tomadas):** **Fase 4 · suscripción** (hasta fin de beta) · DROP no intermedia pagos booker↔DJ (descartado) · 2FA (descartado) · M10 double opt-in del fan (diferido a escala). **Backlog:** v2 parte 2 (embeddings), sueltos de Fase 5 (S22/música/Productor), RA-4.
 
