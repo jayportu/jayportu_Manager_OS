@@ -460,11 +460,12 @@ export async function markReceivedPitchesViewed(): Promise<void> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase
+  const { error } = await supabase
     .from("venue_pitches")
     .update({ viewed_at: new Date().toISOString() })
     .eq("booker_user_id", user.id)
     .is("viewed_at", null);
+  if (error) console.error("[booker] markReceivedPitchesViewed:", error.message);
 }
 
 /**

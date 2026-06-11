@@ -56,7 +56,7 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
           POSTS<span className="text-orange">.</span>
         </h1>
         <p className="text-sm text-fg-muted mt-2 max-w-2xl">
-          Planeá qué postear y cuándo. Drag &amp; drop entre columnas para cambiar
+          Planea qué postear y cuándo. Drag &amp; drop entre columnas para cambiar
           estado: idea → borrador → programado → publicado.
         </p>
         <div className="mt-4 flex gap-2 flex-wrap items-center">

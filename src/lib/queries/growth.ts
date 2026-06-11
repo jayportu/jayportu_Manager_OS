@@ -205,11 +205,12 @@ export async function updateGrowthCampaign(
 
 export async function deleteGrowthCampaign(id: string): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
-  await supabase
+  const { error } = await supabase
     .from("growth_campaigns")
     .delete()
     .eq("user_id", user.id)
     .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 // ─── Content posts ────────────────────────────────────────────────────
@@ -300,11 +301,12 @@ export async function updateContentPost(
 
 export async function deleteContentPost(id: string): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
-  await supabase
+  const { error } = await supabase
     .from("content_posts")
     .delete()
     .eq("user_id", user.id)
     .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 // ─── Platform snapshots ───────────────────────────────────────────────
@@ -368,11 +370,12 @@ export async function createSnapshot(
 
 export async function deleteSnapshot(id: string): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
-  await supabase
+  const { error } = await supabase
     .from("platform_snapshots")
     .delete()
     .eq("user_id", user.id)
     .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 // ─── Dashboard helpers ────────────────────────────────────────────────

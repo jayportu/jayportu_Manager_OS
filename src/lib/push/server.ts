@@ -81,10 +81,11 @@ export async function sendPushToUser(
         payloadStr
       );
       result.sent++;
-      await admin
+      const { error: touchErr } = await admin
         .from("push_subscriptions")
         .update({ last_used_at: new Date().toISOString(), last_error: null })
         .eq("id", sub.id);
+      if (touchErr) console.error("[push] update last_used_at:", touchErr.message);
     } catch (e) {
       const statusCode =
         typeof e === "object" && e !== null && "statusCode" in e
@@ -94,15 +95,17 @@ export async function sendPushToUser(
 
       // 404/410 = subscription muerta → borrar
       if (statusCode === 404 || statusCode === 410) {
-        await admin
+        const { error: delErr } = await admin
           .from("push_subscriptions")
           .delete()
           .eq("id", sub.id);
+        if (delErr) console.error("[push] delete dead sub:", delErr.message);
       } else {
-        await admin
+        const { error: errUpd } = await admin
           .from("push_subscriptions")
           .update({ last_error: msg.slice(0, 500) })
           .eq("id", sub.id);
+        if (errUpd) console.error("[push] update last_error:", errUpd.message);
       }
       result.failed++;
       result.errors.push({ endpoint: sub.endpoint, error: msg });

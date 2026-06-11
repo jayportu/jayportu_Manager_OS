@@ -56,7 +56,7 @@ export async function upsertThreadCache(input: {
   contact_id?: string | null;
 }): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
-  await supabase
+  const { error } = await supabase
     .from("gmail_threads_cache")
     .upsert(
       {
@@ -73,6 +73,7 @@ export async function upsertThreadCache(input: {
       },
       { onConflict: "user_id,thread_id" }
     );
+  if (error) console.error("[gmail] upsertThreadCache:", error.message);
 }
 
 export async function associateThreadToContact(
@@ -80,9 +81,10 @@ export async function associateThreadToContact(
   contactId: string | null
 ): Promise<void> {
   const { supabase, user } = await getUserOrThrow();
-  await supabase
+  const { error } = await supabase
     .from("gmail_threads_cache")
     .update({ contact_id: contactId })
     .eq("user_id", user.id)
     .eq("thread_id", threadId);
+  if (error) console.error("[gmail] associateThreadToContact:", error.message);
 }

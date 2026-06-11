@@ -25,7 +25,7 @@ function getAccessToken(): string {
   const token = process.env.MP_ACCESS_TOKEN;
   if (!token) {
     throw new Error(
-      "MP_ACCESS_TOKEN no configurado. Agregalo en .env.local (TEST) o en Vercel (PROD)."
+      "MP_ACCESS_TOKEN no configurado. Agrégalo en .env.local (TEST) o en Vercel (PROD)."
     );
   }
   return token;

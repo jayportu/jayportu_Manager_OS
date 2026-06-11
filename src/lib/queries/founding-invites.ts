@@ -103,18 +103,20 @@ export async function listFoundingInvites(): Promise<FoundingInvite[]> {
 
 export async function markFoundingInviteSent(id: string): Promise<void> {
   const admin = createAdminClient();
-  await admin
+  const { error } = await admin
     .from("founding_invites")
     .update({ invite_sent_at: new Date().toISOString() })
     .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function revokeFoundingInvite(id: string): Promise<void> {
   const admin = createAdminClient();
-  await admin
+  const { error } = await admin
     .from("founding_invites")
     .update({ status: "revoked", invite_token: null, updated_at: new Date().toISOString() })
     .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 // ─── Consumo (single-use) ─────────────────────────────────────────────────
