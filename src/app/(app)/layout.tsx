@@ -17,6 +17,7 @@ import {
   isLegacyBetaUser,
 } from "@/lib/queries/subscription";
 import { isMpConfigured } from "@/lib/mercadopago/client";
+import { ConfirmProvider } from "@/components/admin/confirm-dialog";
 
 /**
  * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
@@ -116,6 +117,7 @@ export default async function AppLayout({
   ]);
 
   return (
+    <ConfirmProvider>
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar fijo (desktop) — se mantiene en su lugar, scrollea internamente si hace falta */}
       <Sidebar
@@ -169,5 +171,6 @@ export default async function AppLayout({
         />
       )}
     </div>
+    </ConfirmProvider>
   );
 }

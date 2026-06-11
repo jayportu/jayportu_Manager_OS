@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, X, ExternalLink } from "lucide-react";
 import {
@@ -20,7 +21,11 @@ interface Props {
 
 export function LeadActions({ leadId, status, promotedContactId }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
+
+  const alertError = (msg: string) =>
+    confirm({ title: "Error", message: msg, confirmLabel: "Entendido", hideCancel: true, variant: "danger" });
 
   if (status === "added_to_crm" && promotedContactId) {
     return (
@@ -38,7 +43,7 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
       if (r.ok) {
         router.push(`/crm/${r.data.contact_id}`);
       } else {
-        alert(`Error: ${r.error}`);
+        await alertError(r.error);
       }
     });
   }
@@ -47,7 +52,7 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
     startTransition(async () => {
       const r = await updateLeadStatusAction(leadId, "dismissed");
       if (!r.ok) {
-        alert(`Error: ${r.error}`);
+        await alertError(r.error);
         return;
       }
       router.refresh();
@@ -55,11 +60,16 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
   }
 
   async function handleDelete() {
-    if (!confirm("¿Borrar este lead?")) return;
+    const { ok } = await confirm({
+      title: "¿Borrar este lead?",
+      variant: "danger",
+      confirmLabel: "Borrar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const r = await deleteLeadAction(leadId);
       if (!r.ok) {
-        alert(`Error: ${r.error}`);
+        await alertError(r.error);
         return;
       }
       router.refresh();

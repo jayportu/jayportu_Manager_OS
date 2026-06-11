@@ -36,6 +36,9 @@ export interface ConfirmOptions {
   reasonPlaceholder?: string;
   /** Palabra que el admin debe escribir para habilitar el botón (ej. "ELIMINAR"). */
   typeToConfirm?: string;
+  /** Modo "aviso": oculta Cancelar y muestra solo el botón de confirmar
+   *  (reemplaza window.alert con un modal de marca). */
+  hideCancel?: boolean;
 }
 
 export interface ConfirmResult {
@@ -167,13 +170,15 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             {err && <div className="text-[12px] text-danger mt-2">{err}</div>}
 
             <div className="flex justify-end gap-2 mt-4">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-2 border-2 border-ink bg-white hover:bg-cream transition-colors"
-              >
-                {opts.cancelLabel || "Cancelar"}
-              </button>
+              {!opts.hideCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-2 border-2 border-ink bg-white hover:bg-cream transition-colors"
+                >
+                  {opts.cancelLabel || "Cancelar"}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onConfirm}

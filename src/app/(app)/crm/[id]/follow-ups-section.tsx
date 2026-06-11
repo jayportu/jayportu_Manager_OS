@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,7 @@ interface Props {
 
 export function FollowUpsSection({ contactId, followUps }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [note, setNote] = useState("");
@@ -68,7 +70,13 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
         setIsRecurring(false);
         router.refresh();
       } else {
-        alert(`No se pudo crear el follow-up: ${result.error}`);
+        await confirm({
+          title: "No se pudo crear el follow-up",
+          message: result.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
       }
     });
   }
@@ -81,7 +89,12 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("¿Borrar este follow-up?")) return;
+    const { ok } = await confirm({
+      title: "¿Borrar este follow-up?",
+      variant: "danger",
+      confirmLabel: "Borrar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await deleteFollowUpAction(id, contactId);
       router.refresh();
@@ -89,12 +102,14 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
   }
 
   async function handlePauseSeries(seriesId: string) {
-    if (
-      !confirm(
-        "¿Pausar la recurrencia? El follow-up actual queda pendiente pero no se genera el siguiente al cerrarlo."
-      )
-    )
-      return;
+    const { ok } = await confirm({
+      title: "¿Pausar la recurrencia?",
+      message:
+        "El follow-up actual queda pendiente pero no se genera el siguiente al cerrarlo.",
+      variant: "warning",
+      confirmLabel: "Pausar",
+    });
+    if (!ok) return;
     startTransition(async () => {
       await pauseRecurrenceAction(seriesId, contactId);
       router.refresh();
