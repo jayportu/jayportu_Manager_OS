@@ -1,6 +1,7 @@
 import { assertAdmin } from "@/lib/queries/admin";
 import { getSiteTraffic } from "@/lib/queries/site-analytics";
 import Link from "next/link";
+import { LiveRefresher } from "./live-refresher";
 
 export const dynamic = "force-dynamic";
 
@@ -44,9 +45,13 @@ export default async function TraficoPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
+      <LiveRefresher intervalSec={15} />
       <div className="mb-6 border-2 border-ink bg-white p-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — ADMIN · TRÁFICO
+        <div className="flex items-center justify-between gap-3">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
+            — ADMIN · TRÁFICO
+          </div>
+          <LiveBadge />
         </div>
         <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
           TRÁFICO<span className="text-orange">.</span>
@@ -156,9 +161,12 @@ export default async function TraficoPage({ searchParams }: PageProps) {
 
           {/* Tiempo real */}
           <div className="border-2 border-ink bg-white p-5">
-            <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
-              — Últimas visitas (tiempo real)
-            </h2>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
+                — Últimas visitas (tiempo real)
+              </h2>
+              <LiveBadge />
+            </div>
             <div className="divide-y divide-ink/10">
               {t.recent.map((r, i) => (
                 <div key={i} className="flex items-center gap-3 py-1.5 text-[12px]">
@@ -180,6 +188,19 @@ export default async function TraficoPage({ searchParams }: PageProps) {
         </>
       )}
     </div>
+  );
+}
+
+/** Indicador pulsante "EN VIVO" (puro CSS). El refresco lo hace LiveRefresher. */
+function LiveBadge() {
+  return (
+    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-success">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75 animate-ping" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+      </span>
+      En vivo
+    </span>
   );
 }
 
