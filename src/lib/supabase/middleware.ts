@@ -13,6 +13,8 @@ const PUBLIC_PATHS = [
   "/favicon.ico",
   "/p/", // press kit públicos
   "/dj", // Sprint 20 — directorio público de DJs
+  "/e/", // RA-7 — página pública de evento + RSVP de fans (sin cuenta)
+  "/eventos", // feed público de eventos para fans
   "/b/", // Bloque B — vista tokenizada del booker sin login
   "/beta", // Sprint 23.5 — formulario solicitud beta
   "/api/beta", // Sprint 23.5 — submit del formulario beta
@@ -22,6 +24,7 @@ const PUBLIC_PATHS = [
   "/robots.txt", // Sprint 20 — robots
   "/api/track", // tracking endpoint (press kit)
   "/api/site-track", // tráfico del sitio (pageviews anónimos → /admin/trafico)
+  "/api/event-rsvp", // RA-7 — submit del RSVP de fans (sin cuenta)
   "/api/booking", // formulario público
   "/api/gmail/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/growth/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
