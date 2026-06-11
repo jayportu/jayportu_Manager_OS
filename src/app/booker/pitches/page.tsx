@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { listReceivedPitches } from "@/lib/queries/booker";
-import { relativeTime } from "@/lib/format";
+import { relativeTime, isSupabaseStorageUrl } from "@/lib/format";
 import { Send, CalendarClock } from "lucide-react";
 import { PitchPressKitLink } from "./pitch-presskit-link";
 
@@ -60,7 +60,7 @@ export default async function PitchesPage() {
             return (
               <article key={p.id} className="border-2 border-ink bg-white p-5">
                 <div className="flex items-start gap-3">
-                  {p.avatar_url ? (
+                  {isSupabaseStorageUrl(p.avatar_url) ? (
                     <Image
                       src={p.avatar_url}
                       alt={p.artist_name}

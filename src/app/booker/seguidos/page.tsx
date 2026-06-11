@@ -7,7 +7,7 @@ import {
   type FeedUpdate,
 } from "@/lib/queries/booker";
 import { Plus, Bell, Heart } from "lucide-react";
-import { relativeTime } from "@/lib/format";
+import { relativeTime, isSupabaseStorageUrl } from "@/lib/format";
 import { NotifyToggleIcon } from "@/components/booker/notify-toggle-icon";
 
 export const dynamic = "force-dynamic";
@@ -112,7 +112,7 @@ export default async function BookerSeguidosPage() {
                 href={`/p/${dj.public_slug}`}
                 className="group border-2 border-ink bg-white overflow-hidden hover:bg-cream/40 transition-colors"
               >
-                {dj.hero_image_url ? (
+                {isSupabaseStorageUrl(dj.hero_image_url) ? (
                   <div className="relative w-full aspect-[4/3] border-b-2 border-ink">
                     <Image
                       src={dj.hero_image_url}

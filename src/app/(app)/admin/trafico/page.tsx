@@ -175,7 +175,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
             </div>
             <div className="divide-y divide-ink/10">
               {t.recent.map((r, i) => (
-                <div key={i} className="flex items-center gap-3 py-1.5 text-[12px]">
+                <div key={`${r.created_at}-${r.path}-${i}`} className="flex items-center gap-3 py-1.5 text-[12px]">
                   <span className="font-mono text-fg-subtle w-12 shrink-0">{fmtTime(r.created_at)}</span>
                   <span
                     className={`font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border shrink-0 ${
