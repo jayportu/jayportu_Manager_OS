@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, Inter, Space_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SiteTracker } from "@/components/site-tracker";
 import "./globals.css";
 
 const anton = Anton({
@@ -85,6 +86,8 @@ export default function RootLayout({
         {/* Vercel Web Analytics — tráfico anónimo (visitas, páginas, referrers).
             No-op hasta habilitar Web Analytics en el dashboard de Vercel. */}
         <Analytics />
+        {/* Beacon propio → site_events → panel /admin/trafico (registrado vs anónimo). */}
+        <SiteTracker />
       </body>
     </html>
   );

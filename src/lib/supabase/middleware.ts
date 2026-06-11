@@ -20,7 +20,8 @@ const PUBLIC_PATHS = [
   "/privacy", // Security #7 — política privacidad pública (footer landing/login, Google OAuth, Ley 19.628)
   "/sitemap.xml", // Sprint 20 — sitemap dinámico
   "/robots.txt", // Sprint 20 — robots
-  "/api/track", // tracking endpoint
+  "/api/track", // tracking endpoint (press kit)
+  "/api/site-track", // tráfico del sitio (pageviews anónimos → /admin/trafico)
   "/api/booking", // formulario público
   "/api/gmail/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
   "/api/growth/sync-cron", // cron endpoint (protegido con CRON_SECRET en header)
