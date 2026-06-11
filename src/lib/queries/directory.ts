@@ -217,7 +217,10 @@ export async function listPublicDjs(
     });
   }
 
-  return result.slice(0, params.limit ?? 200);
+  // Sin `limit` explícito devolvemos TODO el set filtrado (la lectura base ya
+  // está acotada a 2000). Antes había un cap mudo de 200 → el contador de /dj y
+  // /booker/buscar mentía y DJs reales quedaban invisibles al pasar de 200.
+  return params.limit ? result.slice(0, params.limit) : result;
 }
 
 /**
