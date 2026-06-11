@@ -144,15 +144,16 @@ Es la primera impresión de cualquier booker que se invite.
 > - **Feed de eventos para fans** `/eventos` + sección en el landing (PR #86) — lo que ven los fans sin cuenta.
 > - **🐛 Fix:** RA-7 estaba roto para fans anónimos en prod (`/e/`, `/api/event-rsvp`, `/eventos` daban 307→login). Corregido en el mismo PR #86.
 >
-> **⚠️ Verificar tras el deploy de hoy:**
-> 1. **Habilitar Web Analytics** en el dashboard de Vercel (sin eso, el `<Analytics />` no reporta).
-> 2. Probar el **flujo de fan real en prod**: un DJ publica un show → abrir `/e/<token>` en incógnito (sin login) → hacer RSVP → confirmar que ya **no** rebota a /login (el fix recién va a prod). Esto valida el happy path que el classifier no me dejó sembrar localmente.
+> **⚠️ Verificar:**
+> 1. **Web Analytics** ✅ encendido y verificado (`/_vercel/insights/script.js` → 200).
+> 2. Probar el **flujo de fan real en prod** (sigue pendiente): un DJ publica un show → abrir `/e/<token>` en incógnito (sin login) → hacer RSVP → confirmar que ya **no** rebota a /login. Valida el happy path que el classifier no me dejó sembrar localmente.
 >
 > **▶ Próximo gran paso (decidido 2026-06-11):** entramos en fase **TRACCIÓN** (ver sección 🚀 arriba). Ya shippeado: nudge de onboarding automático (dormido). Siguiente candidato: **pulso de beta** (medir el embudo DJs invitados→registrados→perfil completo) — idealmente como digest semanal automático. En paralelo, manual de Jaime: Founding Bookers + activar los 13 DJs.
 >
-> **2 cosas que dependen de ti (cuando quieras encender):**
-> 1. **Habilitar Web Analytics** en el dashboard de Vercel (sin eso el `<Analytics />` no reporta).
-> 2. **Encender el nudge**: ver la lista en `/admin` → pestaña "Nudge", luego `ONBOARDING_NUDGE_ENABLED=true` en Vercel.
+> **Web Analytics:** ✅ ya encendido por Jaime (2026-06-11, verificado en prod: `/_vercel/insights/script.js` → 200).
+>
+> **Pendiente que depende de ti (cuando quieras encender):**
+> - **El nudge de onboarding**: ver la lista en `/admin` → pestaña "Nudge", luego `ONBOARDING_NUDGE_ENABLED=true` en Vercel.
 
 **En stand-by (decisiones tomadas):** **Fase 4 · suscripción** (hasta fin de beta) · DROP no intermedia pagos booker↔DJ (descartado) · 2FA (descartado) · M10 double opt-in del fan (diferido a escala). **Backlog:** v2 parte 2 (embeddings), sueltos de Fase 5 (S22/música/Productor), RA-4.
 
