@@ -46,7 +46,7 @@ export default async function ThreadDetailPage({ params }: PageProps) {
     );
   }
 
-  if (!thread || !thread.messages) {
+  if (!thread || !thread.messages || thread.messages.length === 0) {
     return (
       <div className="p-6 md:p-10 max-w-3xl mx-auto">
         <Link

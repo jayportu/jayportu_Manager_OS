@@ -14,6 +14,10 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+/** Recorta a un máximo (endpoint anónimo → no aceptar payloads enormes). */
+const clip = (s: string | undefined | null, n: number): string =>
+  (s ?? "").trim().slice(0, n);
+
 interface BookingBody {
   user_id?: string;
   name?: string;
@@ -87,15 +91,15 @@ export async function POST(request: Request) {
 
   const submission = await createBookingSubmission({
     user_id,
-    name: name.trim(),
-    email: body.email?.trim() || "",
-    phone: body.phone?.trim() || "",
-    event_type: body.event_type?.trim() || "",
+    name: clip(name, 120),
+    email: clip(body.email, 200),
+    phone: clip(body.phone, 40),
+    event_type: clip(body.event_type, 80),
     event_date: body.event_date || null,
-    venue: body.venue?.trim() || "",
-    message: body.message?.trim() || "",
-    referrer: ref,
-    user_agent: ua,
+    venue: clip(body.venue, 160),
+    message: clip(body.message, 2000),
+    referrer: clip(ref, 500),
+    user_agent: clip(ua, 500),
     booker_user_id: bookerUserId,
   });
 
