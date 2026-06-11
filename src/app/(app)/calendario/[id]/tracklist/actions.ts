@@ -96,12 +96,14 @@ export async function reorderTracksAction(
     const { supabase, user } = await getUserOrThrow();
     // Actualizar uno por uno (poco probable que sean > 80)
     for (const t of ordered) {
-      await supabase
+      const { error } = await supabase
         .from("tracklist_tracks")
         .update({ sort_order: t.sort_order })
         .eq("user_id", user.id)
         .eq("tracklist_id", tracklistId)
         .eq("id", t.id);
+      // Antes un update fallido era mudo y el resto seguía → orden a medias.
+      if (error) throw new Error(error.message);
     }
     await recomputeTracklistKpis(tracklistId);
     revalidatePath("/calendario/[id]/tracklist", "page");
