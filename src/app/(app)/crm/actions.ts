@@ -74,7 +74,7 @@ export async function deleteContactAction(id: string): Promise<void> {
 
 export async function importContactsAction(
   rows: ContactInsert[]
-): Promise<Result<{ inserted: number }>> {
+): Promise<Result<{ inserted: number; skipped: number }>> {
   try {
     const r = await bulkInsertContacts(rows);
     revalidatePath("/crm");

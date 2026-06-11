@@ -293,12 +293,53 @@ export async function deleteContact(id: string): Promise<void> {
 
 export async function bulkInsertContacts(
   rows: ContactInsert[]
-): Promise<{ inserted: number }> {
+): Promise<{ inserted: number; skipped: number }> {
   const { supabase, user } = await getUserOrThrow();
-  if (rows.length === 0) return { inserted: 0 };
-  // Auto-score cada fila
+  if (rows.length === 0) return { inserted: 0, skipped: 0 };
+
+  // Dedup: contra los contactos existentes del user Y dentro del propio lote
+  // (antes re-importar el mismo CSV duplicaba todo). Clave = nombre+ciudad
+  // normalizados; email no vacío como clave secundaria.
+  const { data: existing } = await supabase
+    .from("contacts")
+    .select("name, city, email")
+    .eq("user_id", user.id);
+  const nameKey = (n?: string | null, c?: string | null) =>
+    `${(n ?? "").trim().toLowerCase()}|${(c ?? "").trim().toLowerCase()}`;
+  const seenNames = new Set<string>();
+  const seenEmails = new Set<string>();
+  for (const e of (existing ?? []) as {
+    name: string;
+    city: string | null;
+    email: string | null;
+  }[]) {
+    seenNames.add(nameKey(e.name, e.city));
+    if (e.email) seenEmails.add(e.email.trim().toLowerCase());
+  }
+
+  const fresh: ContactInsert[] = [];
+  let skipped = 0;
+  for (const r of rows) {
+    const nk = nameKey(r.name, r.city);
+    const ek = r.email ? r.email.trim().toLowerCase() : "";
+    if (seenNames.has(nk) || (ek && seenEmails.has(ek))) {
+      skipped++;
+      continue;
+    }
+    seenNames.add(nk);
+    if (ek) seenEmails.add(ek);
+    fresh.push(r);
+  }
+  if (fresh.length === 0) return { inserted: 0, skipped };
+
   const payload = await Promise.all(
-    rows.map(async (r) => {
+    fresh.map(async (r) => {
+      // Respetar el score que vino en el CSV (si la columna lo trajo); si no,
+      // auto-score. Antes SIEMPRE se auto-scoreaba → el score del CSV que el
+      // preview mostraba se perdía en silencio.
+      if (typeof r.score === "number") {
+        return { ...r, score: r.score, score_reason: "Importado del CSV", user_id: user.id };
+      }
       const { score, score_reason } = await applyAutoScore(null, r, 0, null);
       return { ...r, score, score_reason, user_id: user.id };
     })
@@ -308,7 +349,7 @@ export async function bulkInsertContacts(
     .insert(payload)
     .select("id");
   if (error) throw new Error(error.message);
-  return { inserted: data?.length ?? 0 };
+  return { inserted: data?.length ?? 0, skipped };
 }
 
 export async function countContacts(): Promise<{
