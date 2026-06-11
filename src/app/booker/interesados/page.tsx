@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { listInterestedDjs } from "@/lib/queries/booker";
-import { relativeTime } from "@/lib/format";
+import { relativeTime, isSupabaseStorageUrl } from "@/lib/format";
 import { Star, ArrowRight } from "lucide-react";
 
 /**
@@ -62,7 +62,7 @@ export default async function InteresadosPage() {
                 key={dj.dj_user_id}
                 className="border-2 border-ink bg-white p-4 flex items-center gap-3"
               >
-                {dj.avatar_url ? (
+                {isSupabaseStorageUrl(dj.avatar_url) ? (
                   <Image
                     src={dj.avatar_url}
                     alt={dj.artist_name}
