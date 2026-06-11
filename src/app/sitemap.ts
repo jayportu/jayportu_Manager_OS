@@ -49,6 +49,12 @@ function buildSitemap(
       priority: 0.9,
     },
     {
+      url: `${SITE}/eventos`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
       url: `${SITE}/login`,
       lastModified: new Date(),
       changeFrequency: "monthly",
