@@ -9,6 +9,28 @@ import type {
 } from "@/types/database";
 import { computeScoreForContact } from "@/lib/scoring";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * Backstop server-side: limpia email/whatsapp con formato inválido antes de
+ * persistir (no guardar basura). Lenient a propósito (clear, no throw) para no
+ * romper a ningún caller — ej. convertir un booking con email raro. Aplica a
+ * createContact y bulkInsertContacts → "validación en servidor" cubierta sin
+ * importar la vía de entrada (form manual, import o conversión de booking).
+ */
+function sanitizeContactInput<T extends ContactInsert>(input: T): T {
+  const out = { ...input };
+  if (typeof out.email === "string") {
+    const e = out.email.trim();
+    out.email = e && EMAIL_RE.test(e) ? e : "";
+  }
+  if (typeof out.whatsapp === "string") {
+    const w = out.whatsapp.trim();
+    out.whatsapp = w && w.replace(/[^\d]/g, "").length >= 8 ? w : "";
+  }
+  return out;
+}
+
 /**
  * Calcula y aplica el score automático a un patch de contacto.
  * Se usa al insertar y al actualizar.
@@ -209,8 +231,9 @@ export async function getContact(id: string): Promise<Contact | null> {
   return data as Contact;
 }
 
-export async function createContact(input: ContactInsert): Promise<Contact> {
+export async function createContact(rawInput: ContactInsert): Promise<Contact> {
   const { supabase, user } = await getUserOrThrow();
+  const input = sanitizeContactInput(rawInput); // backstop email/whatsapp server-side
   // Auto-score
   const { score, score_reason } = await applyAutoScore(null, input, 0, null);
   const { data, error } = await supabase
@@ -319,7 +342,8 @@ export async function bulkInsertContacts(
 
   const fresh: ContactInsert[] = [];
   let skipped = 0;
-  for (const r of rows) {
+  for (const raw of rows) {
+    const r = sanitizeContactInput(raw); // backstop email/whatsapp server-side
     const nk = nameKey(r.name, r.city);
     const ek = r.email ? r.email.trim().toLowerCase() : "";
     if (seenNames.has(nk) || (ek && seenEmails.has(ek))) {
