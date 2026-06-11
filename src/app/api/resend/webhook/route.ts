@@ -74,16 +74,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false }, { status: 500 });
   }
 
+  const svixTimestamp = req.headers.get("svix-timestamp") ?? "";
   const ok = verifySvix(
     secret,
     payload,
     req.headers.get("svix-id") ?? "",
-    req.headers.get("svix-timestamp") ?? "",
+    svixTimestamp,
     req.headers.get("svix-signature") ?? ""
   );
   if (!ok) {
     console.warn("[resend-webhook] firma inválida");
     return NextResponse.json({ ok: false, error: "invalid signature" }, { status: 401 });
+  }
+  // Anti-replay (RFC svix): rechazar timestamps fuera de ±5 min. Sin esto, una
+  // request firmada capturada podía re-enviarse indefinidamente.
+  const tsSec = Number(svixTimestamp);
+  if (!Number.isFinite(tsSec) || Math.abs(Date.now() / 1000 - tsSec) > 300) {
+    console.warn("[resend-webhook] timestamp fuera de tolerancia (replay?)");
+    return NextResponse.json({ ok: false, error: "stale timestamp" }, { status: 401 });
   }
 
   let evt: { type?: string; created_at?: string; data?: Record<string, unknown> };

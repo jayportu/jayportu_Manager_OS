@@ -7,12 +7,16 @@
  */
 import { createClient } from "@/lib/supabase/server";
 import { sendPushToUser } from "@/lib/push/server";
+import { rateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-export async function POST() {
+export async function POST(request: Request) {
+  const limit = rateLimit(request, { key: "push-test", max: 10, windowMs: 60_000 });
+  if (!limit.ok) return NextResponse.json({ error: "Demasiados intentos" }, { status: 429 });
+
   const supabase = await createClient();
   const {
     data: { user },

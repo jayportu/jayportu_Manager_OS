@@ -73,11 +73,15 @@ export async function submitCounterofferAction(
     };
   }
 
+  // Endpoint alcanzable con solo el token → acotar tamaños y rango (anti-abuso;
+  // el cambio de status a 'contraofertado' ya limita a una contraoferta).
+  const safeAmount =
+    typeof amount === "number" && amount > 0 ? Math.min(amount, 1_000_000_000) : null;
   const updatePayload: Record<string, unknown> = {
     status: "contraofertado",
-    counter_amount_clp: amount && amount > 0 ? amount : null,
+    counter_amount_clp: safeAmount,
     counter_event_date: eventDate || null,
-    counter_message: (message ?? "").trim(),
+    counter_message: (message ?? "").trim().slice(0, 2000),
     counter_at: new Date().toISOString(),
   };
 
