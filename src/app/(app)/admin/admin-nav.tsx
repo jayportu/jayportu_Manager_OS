@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 
 const SECTIONS: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin", label: "Usuarios", exact: true },
+  { href: "/admin/pulso", label: "Pulso" },
   { href: "/admin/trafico", label: "Tráfico" },
   { href: "/admin/beta-requests", label: "Solicitudes" },
   { href: "/admin/bookers", label: "Bookers" },
