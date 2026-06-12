@@ -7,6 +7,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = [
   "/login",
+  "/logout", // el handler limpia sesión y manda al landing (/) — sin esto el
+             // middleware rebotaba un /logout sin sesión a /login
   "/signup", // /signup/booker es público (Bloque B)
   "/auth",
   "/_next",
