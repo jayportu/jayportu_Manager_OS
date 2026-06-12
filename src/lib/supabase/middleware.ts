@@ -52,6 +52,23 @@ const FOUNDING_COOKIE = "dropfounding_invite_token"; // Fase 2 · Founding Booke
 const INVITE_TTL = 60 * 60 * 24 * 7;
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+
+  // /login y /signup* necesitan contexto de sesión: redirigen a un usuario ya
+  // logueado fuera de esas pantallas y setean cookies de invite/founding abajo.
+  const needsAuthContext =
+    pathname === "/login" || pathname.startsWith("/signup");
+
+  // El resto de rutas públicas (páginas crawleables /dj /eventos /e/ /b/, pixeles
+  // /api/track y /api/site-track, webhooks, sitemap/robots, sw/manifest…) NO
+  // necesita validar sesión. Nos saltamos getUser() para no gastar una llamada a
+  // Supabase + un evento de Observability en CADA hit de bot/crawler/pixel — que
+  // es la enorme mayoría del tráfico (análisis de uso Vercel, jun 2026).
+  if (isPublic && !needsAuthContext) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -79,9 +96,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   // Sprint 23.5 — Invite flow:
   // /login?invite=<UUID> → guardamos el token en cookie HttpOnly. El cookie
