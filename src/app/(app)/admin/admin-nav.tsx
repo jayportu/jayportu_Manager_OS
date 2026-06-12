@@ -17,6 +17,7 @@ const SECTIONS: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin/feedback", label: "Feedback" },
   { href: "/admin/analytics", label: "Analytics" },
   { href: "/admin/email-campaigns", label: "Campañas" },
+  { href: "/admin/bajas", label: "Bajas" },
   { href: "/admin/correo", label: "Correo" },
   { href: "/admin/beta-reminder", label: "Recordatorio" },
   { href: "/admin/onboarding-nudge", label: "Nudge" },
