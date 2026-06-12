@@ -16,6 +16,7 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { addSuppression, looksLikeUnsubscribe } from "@/lib/queries/suppressions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -149,6 +150,11 @@ export async function POST(req: Request) {
       console.error("[resend-webhook] inbound insert", res.error.message);
       return NextResponse.json({ ok: false }, { status: 500 });
     }
+    // Si el correo entrante pide la baja ("bajar"/"unsubscribe"), suprimir al
+    // remitente → no se le vuelve a escribir en campañas.
+    if (fromEmail && looksLikeUnsubscribe(`${subject} ${text}`)) {
+      await addSuppression(fromEmail, "unsubscribe", "reply-bajar");
+    }
     return NextResponse.json({ ok: true, inbound: true });
   }
 
@@ -204,6 +210,11 @@ export async function POST(req: Request) {
       snd: snd.error?.message,
     });
     return NextResponse.json({ ok: false }, { status: 500 });
+  }
+
+  // Rebote duro o queja de spam → a la Lista de bajas (nunca reenviar).
+  if ((shortType === "bounced" || shortType === "complained") && toEmail) {
+    await addSuppression(toEmail, shortType, "webhook");
   }
 
   return NextResponse.json({ ok: true });
