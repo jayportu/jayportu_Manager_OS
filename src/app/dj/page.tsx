@@ -21,21 +21,36 @@ interface PageProps {
   }>;
 }
 
-export const metadata: Metadata = {
-  title: "DROP. · Directorio de DJs en Latam",
-  description:
-    "Catálogo público de DJs en Chile, Argentina, Perú y resto de Latam. Filtra por género (techno, house, deep, tech, minimal, dnb), ciudad y disponibilidad. Contacta directo sin comisión.",
-  openGraph: {
-    title: "DROP. · Directorio de DJs",
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  // Vistas filtradas (?q ?city ?genres ?avail): contenido duplicado + trampa de
+  // crawler. noindex (pero follow, para que igual descubra los /p/[slug]). El
+  // robots.txt ya las bloquea; esto saca de Google las combinaciones ya indexadas.
+  const hasFilters = !!(
+    sp.q ||
+    sp.city ||
+    (sp.genres && sp.genres.trim().length > 0) ||
+    sp.avail === "1"
+  );
+  return {
+    title: "DROP. · Directorio de DJs en Latam",
     description:
-      "Encuentra DJs de techno, house, deep y más en Latam. Sin intermediarios.",
-    url: "https://dropgigs.com/dj",
-    type: "website",
-  },
-  alternates: {
-    canonical: "https://dropgigs.com/dj",
-  },
-};
+      "Catálogo público de DJs en Chile, Argentina, Perú y resto de Latam. Filtra por género (techno, house, deep, tech, minimal, dnb), ciudad y disponibilidad. Contacta directo sin comisión.",
+    openGraph: {
+      title: "DROP. · Directorio de DJs",
+      description:
+        "Encuentra DJs de techno, house, deep y más en Latam. Sin intermediarios.",
+      url: "https://dropgigs.com/dj",
+      type: "website",
+    },
+    alternates: {
+      canonical: "https://dropgigs.com/dj",
+    },
+    ...(hasFilters ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 function buildHref(
   current: Record<string, string | undefined>,
