@@ -1,0 +1,45 @@
+name: Pulso de beta (weekly digest)
+
+# Resumen semanal del embudo de beta (DJs invitados→registrados→perfil completo
+# + demanda + engagement) a Jaime + Fer. Lunes 13:00 UTC (09:00 Santiago).
+#
+# DORMIDO por defecto: el endpoint corre en dry-run (no manda nada) hasta que
+# PULSO_DIGEST_TO (lista de correos separada por comas) esté en Vercel.
+#
+# Secrets (mismos que los otros workflows): CRON_SECRET, APP_URL.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit pulso digest endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::APP_URL o CRON_SECRET no configurados en GitHub Secrets"
+            exit 1
+          fi
+
+          echo "Calling $APP_URL/api/pulso/cron"
+          HTTP_CODE=$(curl -s -o /tmp/pulso-response.json -w "%{http_code}" \
+            -X GET "$APP_URL/api/pulso/cron" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            --max-time 90)
+
+          echo "HTTP $HTTP_CODE"
+          echo "--- Response ---"
+          cat /tmp/pulso-response.json
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::pulso cron failed with status $HTTP_CODE"
+            exit 1
+          fi
