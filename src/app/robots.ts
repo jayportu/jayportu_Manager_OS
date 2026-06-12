@@ -16,6 +16,11 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: ["/", "/dj", "/p/"],
         disallow: [
+          // Filtros del directorio (?q ?city ?genres ?avail): cada chip de género
+          // y cada card generan links con combinaciones → espacio de crawl casi
+          // infinito ("trampa de crawler"). Sin esto los bots golpeaban /dj ~1M
+          // veces/12h (análisis uso Vercel jun 2026). /dj limpio sigue indexable.
+          "/dj?",
           "/api/",
           "/dashboard",
           "/crm",
