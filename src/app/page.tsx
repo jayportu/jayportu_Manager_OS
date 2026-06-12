@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { Search } from "lucide-react";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import {
   listPublicDjs,
   listPublicGenres,
+  listPublicCities,
   getLandingRanking,
   type PublicDjProfile,
 } from "@/lib/queries/directory";
@@ -89,22 +91,34 @@ export default async function RootPage() {
   }
 
   // ── Data real para el landing (todo deriva de la lectura base cacheada) ──
-  const [suena, ranking, genres, collectionsRaw, eventos] = await Promise.all([
-    listPublicDjs({ sort: "recent", limit: 8 }),
-    getLandingRanking(5),
-    listPublicGenres(),
-    Promise.all(
-      COLLECTIONS.map(async (c) => ({
-        ...c,
-        count: (await listPublicDjs({ genres: c.genres })).length,
-      }))
-    ),
-    getUpcomingPublicEvents(4),
-  ]);
+  const [suenaRaw, ranking, genres, cities, allDjs, collectionsRaw, eventos] =
+    await Promise.all([
+      listPublicDjs({ sort: "recent", limit: 8 }),
+      getLandingRanking(5),
+      listPublicGenres(),
+      listPublicCities(),
+      listPublicDjs({}), // total real del directorio (para la línea de tracción)
+      Promise.all(
+        COLLECTIONS.map(async (c) => ({
+          ...c,
+          count: (await listPublicDjs({ genres: c.genres })).length,
+        }))
+      ),
+      getUpcomingPublicEvents(4),
+    ]);
   const topGenres = genres.slice(0, 5);
   const collections = collectionsRaw.filter((c) => c.count > 0).slice(0, 3);
   const genresHref = (gs: string[]) =>
     `/dj?genres=${encodeURIComponent(gs.join(","))}`;
+  // Foto-first: las cards con foto adelante (evita la "pared de iniciales").
+  const suena = [...suenaRaw].sort(
+    (a, b) =>
+      (isSupabaseStorageUrl(b.avatar_url) || isSupabaseStorageUrl(b.hero_image_url) ? 1 : 0) -
+      (isSupabaseStorageUrl(a.avatar_url) || isSupabaseStorageUrl(a.hero_image_url) ? 1 : 0)
+  );
+  // Línea de tracción en el hero: solo cuando hay masa real (decisión: ≥25 DJs).
+  const TRACTION_MIN = 25;
+  const showTraction = allDjs.length >= TRACTION_MIN;
 
   return (
     <main className="bg-cream text-ink">
@@ -120,18 +134,31 @@ export default async function RootPage() {
             <span>The DJ OS</span>
           </div>
           <h1 className="mt-3" style={{ fontFamily: ANTON, fontSize: "clamp(40px,6vw,78px)", lineHeight: 0.95, maxWidth: "15ch" }}>
-            La escena no cabe<br />en un grupo de WhatsApp<span className="text-orange">.</span>
+            La escena no cabe<br className="hidden md:inline" /> en un grupo de WhatsApp<span className="text-orange">.</span>
           </h1>
           <p className="mt-5 text-[17px] text-fg-muted" style={{ maxWidth: "52ch" }}>
             Perfiles reales, sets que puedes escuchar y contacto directo con el artista. Sin comisión, sin intermediarios y sin perseguir a nadie por DM.
           </p>
 
-          {/* afordancia de búsqueda — chips = géneros reales del directorio */}
+          {/* Línea de tracción real — solo cuando hay masa (≥25 DJs) */}
+          {showTraction && (
+            <div className="mt-5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-fg-muted flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="text-ink">{allDjs.length}</span> DJs
+              <span className="text-orange">·</span>
+              <span className="text-ink">{cities.length}</span> {cities.length === 1 ? "ciudad" : "ciudades"}
+              <span className="text-orange">·</span> sin comisión
+            </div>
+          )}
+
+          {/* Afordancia de búsqueda — la barra es un Link real a /dj; los chips
+              son géneros reales del directorio. */}
           {topGenres.length > 0 && (
             <div className="mt-7 flex flex-wrap gap-2 items-center bg-white border-2 border-ink p-3 max-w-[720px]">
-              <span className="flex-1 min-w-[170px] font-mono text-[12px] uppercase tracking-[0.04em] text-fg-subtle">Busca por sonido o ciudad…</span>
-              {topGenres.map((g, i) => (
-                <Link key={g.genre} href={genresHref([g.genre])} className={`font-mono text-[10px] font-bold uppercase tracking-[0.06em] border-2 border-ink px-2.5 py-1 transition-colors ${i === 0 ? "bg-orange" : "bg-cream hover:bg-orange"}`}>
+              <Link href="/dj" className="flex-1 min-w-[170px] flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.04em] text-fg-subtle hover:text-ink transition-colors">
+                <Search className="w-3.5 h-3.5 shrink-0" /> Busca por sonido o ciudad…
+              </Link>
+              {topGenres.map((g) => (
+                <Link key={g.genre} href={genresHref([g.genre])} className="font-mono text-[10px] font-bold uppercase tracking-[0.06em] border-2 border-ink px-2.5 py-1 bg-cream hover:bg-orange transition-colors">
                   {g.genre}
                 </Link>
               ))}
@@ -142,9 +169,9 @@ export default async function RootPage() {
           <div className="grid md:grid-cols-2 mt-10 border-2 border-ink">
             <div className="bg-ink text-cream p-7 md:p-8 border-b-2 md:border-b-0 md:border-r-2 border-orange">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">— Eres DJ</div>
-              <h3 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: "clamp(28px,3.4vw,40px)", lineHeight: 0.95 }}>
+              <h2 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: "clamp(28px,3.4vw,40px)", lineHeight: 0.95 }}>
                 Toma el control<br />de tu carrera<span className="text-orange">.</span>
-              </h3>
+              </h2>
               <p className="text-sm opacity-90 mb-4">El sistema operativo para DJs independientes: tu press kit, tus bookings y tu carrera en un solo lugar.</p>
               <Link href="/beta" className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-orange text-ink border-2 border-orange font-mono text-[12px] font-bold uppercase tracking-[0.14em] hover:bg-cream hover:border-cream transition-colors">
                 Solicitar invitación →
@@ -155,9 +182,9 @@ export default async function RootPage() {
             </div>
             <div className="bg-white text-ink p-7 md:p-8">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">— Eres booker</div>
-              <h3 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: "clamp(28px,3.4vw,40px)", lineHeight: 0.95 }}>
+              <h2 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: "clamp(28px,3.4vw,40px)", lineHeight: 0.95 }}>
                 Encuentra al DJ<br />indicado<span className="text-orange">.</span>
-              </h3>
+              </h2>
               <p className="text-sm text-fg-muted mb-4">Filtra por género, ciudad, disponibilidad y presupuesto. Escucha antes de escribir. Envía tu solicitud directo, sin comisión.</p>
               <Link href="/dj" className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-ink text-cream border-2 border-ink font-mono text-[12px] font-bold uppercase tracking-[0.14em] hover:bg-orange hover:text-ink transition-colors">
                 Buscar DJs →
@@ -178,14 +205,16 @@ export default async function RootPage() {
             <Link href="/dj" className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] border-b-2 border-orange pb-0.5 hover:text-orange transition-colors">Ver todo el directorio →</Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-            {suena.map((dj) => <SuenaCard key={dj.user_id} dj={dj} />)}
+            {suena.map((dj, i) => (
+              <SuenaCard key={dj.user_id} dj={dj} className={i >= 4 ? "max-sm:hidden" : ""} />
+            ))}
           </div>
         </section>
       )}
 
       {/* CAPA 2.5 · PRÓXIMOS EVENTOS (para los fans — RSVP sin cuenta) */}
       {eventos.length > 0 && (
-        <section id="eventos" className="border-y-2 border-ink bg-white">
+        <section id="eventos" className="scroll-mt-[78px] border-y-2 border-ink bg-white">
           <div className="max-w-[1140px] mx-auto px-6 py-16">
             <div className="flex items-end justify-between gap-4 mb-2.5">
               <h2 style={{ fontFamily: ANTON, fontSize: 34, lineHeight: 0.9 }}>PRÓXIMOS EVENTOS</h2>
@@ -202,8 +231,9 @@ export default async function RootPage() {
       )}
 
       {/* CAPA 3 · CURADURÍA + RANKING */}
-      {(collections.length > 0 || ranking.items.length > 0) && (
-        <section id="curaduria" className="border-y-2 border-ink" style={{ background: "#E8E1D3" }}>
+      {(collections.length > 0 ||
+        (ranking.mode === "followed" && ranking.items.length > 0)) && (
+        <section id="curaduria" className="scroll-mt-[78px] border-y-2 border-ink" style={{ background: "#E8E1D3" }}>
           <div className="max-w-[1140px] mx-auto px-6 py-16">
             {collections.length > 0 && (
               <>
@@ -226,7 +256,7 @@ export default async function RootPage() {
               </>
             )}
 
-            {ranking.items.length > 0 && (
+            {ranking.mode === "followed" && ranking.items.length > 0 && (
               <>
                 <div className="mb-5"><h2 style={{ fontFamily: ANTON, fontSize: 28, lineHeight: 0.9 }}>{ranking.label.toUpperCase()}</h2></div>
                 <div className="border-2 border-ink bg-white">
@@ -254,7 +284,7 @@ export default async function RootPage() {
       )}
 
       {/* CAPA 4 · CÓMO FUNCIONA */}
-      <section id="conexion" className="bg-white border-b-2 border-ink">
+      <section id="conexion" className="scroll-mt-[78px] bg-white border-b-2 border-ink">
         <div className="max-w-[1140px] mx-auto px-6 py-16">
           <div className="mb-7"><h2 style={{ fontFamily: ANTON, fontSize: 34, lineHeight: 0.9 }}>BUSCA. ESCUCHA. CONTACTA.</h2></div>
           <div className="grid md:grid-cols-3 gap-3.5">
@@ -275,12 +305,12 @@ export default async function RootPage() {
       </section>
 
       {/* CAPA 5 · TODO LO QUE INCLUYE (detalle; CTA liviano, no repite el del hero) */}
-      <section id="incluye" className="max-w-[1140px] mx-auto px-6 py-16">
+      <section id="incluye" className="scroll-mt-[78px] max-w-[1140px] mx-auto px-6 py-16">
         <div className="mb-7"><h2 style={{ fontFamily: ANTON, fontSize: 34, lineHeight: 0.9 }}>TODO LO QUE INCLUYE</h2></div>
         <div className="grid md:grid-cols-2 gap-[18px]">
           <div className="bg-ink text-cream border-2 border-ink p-7 md:p-8">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">— Para DJs · The DJ OS</div>
-            <h3 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: 30, lineHeight: 0.95 }}>Toma el control de tu carrera.</h3>
+            <h3 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: 30, lineHeight: 0.95 }}>Tu press kit, tus fechas, tu data<span className="text-orange">.</span></h3>
             <ul className="mb-4">
               {[
                 "Press kit público en /p/tu-nombre — un link que se ve profesional",
@@ -324,7 +354,7 @@ export default async function RootPage() {
 
 /** Tarjeta de "Suena ahora" — server, sin client JS. Toda la tarjeta enlaza al
  *  press kit. Badge real: "Nuevo" (alta <14 días) o "Internacional" (país ≠ CL). */
-function SuenaCard({ dj }: { dj: PublicDjProfile }) {
+function SuenaCard({ dj, className = "" }: { dj: PublicDjProfile; className?: string }) {
   const initials = dj.artist_name.split(" ").filter(Boolean).slice(0, 2).map((s) => s[0]).join("").toUpperCase();
   const cardImg = [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
   const isNew = dj.created_at && Date.now() - new Date(dj.created_at).getTime() < 14 * 86400000;
@@ -332,26 +362,28 @@ function SuenaCard({ dj }: { dj: PublicDjProfile }) {
   const tag = isNew ? "Nuevo" : isIntl ? "Internacional" : null;
 
   return (
-    <Link href={`/p/${dj.public_slug}`} className="group border-2 border-ink bg-white flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all">
+    <Link href={`/p/${dj.public_slug}`} className={`group border-2 border-ink bg-white flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all ${className}`}>
       <div className="relative aspect-square bg-ink flex items-center justify-center overflow-hidden border-b-2 border-ink">
         {cardImg ? (
           <Image src={cardImg} alt={dj.artist_name} fill sizes="(max-width:640px) 50vw, 280px" className="object-cover" quality={85} />
         ) : (
           <span style={{ fontFamily: ANTON, fontSize: 44, color: "#F4EFE7" }}>{initials || "DJ"}<span style={{ color: "#FF5C00" }}>.</span></span>
         )}
-        {tag && <span className="absolute top-0 left-0 font-mono text-[9px] font-bold uppercase tracking-[0.1em] bg-orange text-ink px-2 py-0.5">{tag}</span>}
+        {/* Disponible = badge PRIMARIO sólido (unificado con /dj; legible sobre foto) */}
         {dj.is_available_now && (
-          <span className="absolute top-2 right-2 flex items-center gap-1 font-mono text-[9px] font-bold text-cream">
-            <span className="w-2 h-2 rounded-full bg-success" />Disponible
-          </span>
+          <span className="absolute top-0 left-0 font-mono text-[9px] font-bold uppercase tracking-[0.1em] bg-orange text-ink px-2 py-0.5 border-r-2 border-b-2 border-ink">★ Disponible</span>
+        )}
+        {/* Nuevo/Internacional = secundario blanco/tinta */}
+        {tag && (
+          <span className="absolute top-0 right-0 font-mono text-[9px] font-bold uppercase tracking-[0.1em] bg-white text-ink px-2 py-0.5 border-l-2 border-b-2 border-ink">{tag}</span>
         )}
       </div>
       <div className="p-3">
-        {dj.genres[0] && <div className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-orange">{dj.genres[0]}</div>}
-        <div className="mt-0.5" style={{ fontFamily: ANTON, fontSize: 18 }}>{dj.artist_name}</div>
+        {dj.genres[0] && <div className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-fg-muted truncate">{dj.genres[0]}</div>}
+        <div className="mt-0.5 truncate" style={{ fontFamily: ANTON, fontSize: 20, textTransform: "uppercase" }}>{dj.artist_name}</div>
         <div className="flex items-center justify-between mt-2 font-mono text-[11px] text-fg-subtle">
           <span className="truncate">{dj.city || "—"}{dj.country ? `, ${dj.country.toUpperCase()}` : ""}</span>
-          <span className="text-ink font-bold group-hover:text-orange transition-colors">Ver →</span>
+          <span className="text-ink font-bold group-hover:text-orange transition-colors shrink-0 ml-2">Ver →</span>
         </div>
       </div>
     </Link>
