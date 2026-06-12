@@ -32,7 +32,11 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex-1" />
-        <span className="hidden md:inline font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">THE DJ OS</span>
+        {/* "Entrar" degradado a link (es para usuarios que vuelven, no
+            adquisición); el CTA fuerte es "Soy DJ" → /beta. */}
+        <Link href="/login" className="hidden md:inline font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-cream/70 hover:text-orange transition-colors">
+          Entrar
+        </Link>
         {/* Menú móvil (sin JS): <details> como disclosure. Se cierra solo al
             navegar porque cada página re-renderiza el header. */}
         <details className="md:hidden relative">
@@ -52,10 +56,16 @@ export function SiteHeader() {
                 {l.label}
               </Link>
             ))}
+            <Link
+              href="/login"
+              className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-cream/80 hover:bg-orange hover:text-ink border-t border-orange/40 transition-colors"
+            >
+              Entrar
+            </Link>
           </div>
         </details>
-        <Link href="/login" className="px-4 py-2 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
-          Entrar
+        <Link href="/beta" className="px-4 py-2 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
+          Soy DJ
         </Link>
       </div>
     </header>

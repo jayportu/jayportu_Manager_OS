@@ -8,6 +8,7 @@ import {
   getDropPicks,
 } from "@/lib/queries/directory";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
+import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
 import { isSupabaseStorageUrl } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -102,30 +103,10 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Header público */}
-      <header className="border-b-2 border-ink bg-cream px-6 md:px-10 py-5 flex items-center justify-between gap-4 flex-wrap">
-        <Link href="/dj" className="select-none flex items-baseline gap-3">
-          <span
-            style={{
-              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-              fontSize: "36px",
-              lineHeight: 0.85,
-              color: "#0A0A0A",
-            }}
-          >
-            DROP<span style={{ color: "#FF5C00" }}>.</span>
-          </span>
-          <span className="font-mono text-[10px] font-bold tracking-[0.15em] text-fg-muted hidden sm:inline">
-            — THE DJ OS
-          </span>
-        </Link>
-        <Link
-          href="/login"
-          className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3 py-2 border-2 border-ink bg-ink text-orange hover:bg-orange hover:text-ink transition-colors"
-        >
-          SOY DJ · CREAR PERFIL
-        </Link>
-      </header>
+      {/* Header público compartido (mismo nav/CTA que el landing y /eventos) —
+          antes /dj tenía un header propio sin nav y con un CTA "Soy DJ"→/login
+          (audiencia y destino equivocados para quien busca DJs). */}
+      <SiteHeader />
 
       <main className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Hero */}
@@ -306,25 +287,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-ink text-cream mt-12 py-8 px-6 md:px-10 border-t-4 border-orange">
-        <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <Link href="/dj" className="select-none">
-            <span
-              style={{
-                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-                fontSize: "30px",
-                color: "#F4EFE7",
-              }}
-            >
-              DROP<span style={{ color: "#FF5C00" }}>.</span>
-            </span>
-          </Link>
-          <div className="font-mono text-[10px] tracking-wider text-fg-subtle">
-            DROP. · THE DJ OS · DIRECTORIO PÚBLICO LATAM
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {/* JSON-LD para SEO.
           Security: usamos dangerouslySetInnerHTML porque <script> es la
@@ -404,7 +367,7 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             src={cardImg}
             alt={dj.artist_name}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 360px"
             className="object-cover"
             quality={85}
           />
