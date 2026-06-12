@@ -135,6 +135,11 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] 🤝 **SEMBRAR — Founding Bookers a mano (capa 3, NO automatizar).** Invitar 10–20 bookers reales (clubes/productoras/organizadores) con el token VIP, uno a uno. Concierge a propósito: outreach frío masivo = spam, mata la confianza. Manual de Jaime.
 - [ ] 🟢 **Activar la oferta que ya hay (manual, complementa el nudge).** Empujar a los ~13 DJs activos a perfil completo + un evento publicado (cada uno = nodo de distribución hoy).
 
+- [x] 📉 **Pulso de beta · diagnóstico (2026-06-12).** Cruce read-only (`scripts/pulso_beta.mjs`): ola 1 entregó ~705 y convirtió **~0 cuentas** (0 signups, 3 beta_requests de la lista). **La fuga NO es alcance — es la fricción del signup gated** (el CTA fue `/beta` = pedir acceso + esperar aprobación manual + 2º correo). Ver [[pulso-beta-conversion]] en memoria.
+- [x] 🔧 **Fix de fricción + ola 2 preparada (2026-06-12).** Se reusó el flujo vivo `/login?invite=<token>` (sin código nuevo): **809 DJs pre-aprobados** con link mágico de 1 clic (lista limpiada: 9 typos `.con→.com`, basura + dedup). 80% Gmail → "Continuar con Google" = 1 clic. Mockups aprobados (`drop_ola2_invitacion_nuevos_mockup.html` con asunto A; reactivación). Sender `scripts/send_ola2.py` (per-recipient link + respeta bajas). **Pendiente disparar:** test 50 → 70/día (post 15-jun; ola 1 termina ~15-jun).
+- [x] 🚫 **Lista de bajas (PR #120, prod 2026-06-12).** `email_suppressions` + `/admin/bajas` (un solo lugar) + webhook auto-suprime rebotes/quejas/"bajar" + `/api/unsubscribe?email=` real + link de baja por persona. Migración 0052 (sembró 48 rebotes ola 1). Los senders consultan la lista siempre.
+- [x] 🔁 **Reactivación beta inicial ENVIADA (2026-06-12).** 9 testers reales (excluido admin/Fer/test/bajas) → link a `/login`, asunto "lo que nos pediste ya está en DROP.". 9/9 entregados, 0 rebotes. *(Decisión: el "bloqueo automático al mes/15 días" NO existe aún — billing en stand-by; corte manual para pocas cuentas. Construir el corte real = mini-dev pendiente si se quiere para los 809.)*
+
 **Siguiente paso — RETOMAR (post 2026-06-11):**
 
 > **Estado al cierre del 2026-06-11:** producto construido, blindado y con **analítica + cara de fans** lista. Listo para meterle tracción.
