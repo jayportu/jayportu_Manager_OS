@@ -124,7 +124,24 @@ export function wrapEmail(opts: {
  * Usa el mismo estilo que el de followUpdates (consistencia).
  */
 export function ctaButton(label: string, url: string): string {
-  return `<a href="${url}" style="display:inline-block; padding:14px 22px; background:${INK}; color:${ORANGE}; text-decoration:none; font-family:${FONT_MONO}; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; border:2px solid ${INK}; border-radius:2px;">${escapeHtml(label)} →</a>`;
+  return `<a href="${safeUrl(url)}" style="display:inline-block; padding:14px 22px; background:${INK}; color:${ORANGE}; text-decoration:none; font-family:${FONT_MONO}; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; border:2px solid ${INK}; border-radius:2px;">${escapeHtml(label)} →</a>`;
+}
+
+/**
+ * Saneamiento de URLs antes de meterlas en un href de un correo.
+ * - Solo permite esquemas http(s) → bloquea javascript:, data:, etc.
+ * - Escapa comillas/ángulos → no se puede romper fuera del atributo href.
+ * Hoy todas las URLs se arman server-side desde slugs/tokens (no input de
+ * usuario), pero esto blinda el día que alguna derive de algo editable.
+ */
+export function safeUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return "#";
+    return escapeHtml(u.toString());
+  } catch {
+    return "#";
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -156,7 +173,7 @@ export function foundingInviteEmailHtml(input: {
                 ${ctaButton("Crear mi cuenta Founding", input.inviteUrl)}
               </p>
               <p style="font-size:13px; color:${MUTED}; margin:0 0 24px 0;">
-                Si el botón no funciona, copia este link: ${input.inviteUrl}
+                Si el botón no funciona, copia este link: ${escapeHtml(input.inviteUrl)}
               </p>
               <p style="font-size:14px; color:${MUTED}; margin:0 0 20px 0;">
                 Importante: crea la cuenta con <strong>este mismo correo</strong> para que tu acceso Founding quede activado automáticamente.
@@ -225,7 +242,7 @@ export function betaInviteEmailHtml(input: {
                 ${ctaButton("Activar mi cuenta", input.inviteUrl)}
               </p>
               <p style="font-size:13px; color:${MUTED}; margin:0 0 24px 0;">
-                Si el botón no funciona, copia este link: ${input.inviteUrl}
+                Si el botón no funciona, copia este link: ${escapeHtml(input.inviteUrl)}
               </p>
               <p style="font-size:15px; margin:0 0 16px 0;">
                 Una vez dentro, vas a poder gestionar tus contactos, llevar tu calendario, ver el crecimiento de tus redes y tener un press kit público en un link compartible.
@@ -303,7 +320,7 @@ export function needsBetaRequestEmailHtml(input: {
                 ${ctaButton("Solicitar acceso a la beta", input.betaUrl)}
               </p>
               <p style="font-size:13px; color:${MUTED}; margin:0 0 24px 0;">
-                Si el botón no funciona, copia este link: ${input.betaUrl}
+                Si el botón no funciona, copia este link: ${escapeHtml(input.betaUrl)}
               </p>
               <p style="font-size:15px; margin:0 0 16px 0;">
                 Cuando recibamos tu solicitud te aprobamos y te llega un invite con tu acceso directo a la beta de 15 días.
@@ -448,7 +465,7 @@ export function bugFixFollowupEmailHtml(input: {
       (p) => `
                 <li style="margin:0 0 10px 0;">
                   <strong>${escapeHtml(p.label)}</strong><br/>
-                  <a href="${p.url}" style="color:${INK}; text-decoration:underline; font-size:13px;">${p.url}</a>
+                  <a href="${safeUrl(p.url)}" style="color:${INK}; text-decoration:underline; font-size:13px;">${escapeHtml(p.url)}</a>
                 </li>`
     )
     .join("");

@@ -10,6 +10,7 @@ import {
 } from "@/lib/queries/campaigns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 import type {
   CampaignInsert,
   CampaignStatus,
@@ -28,6 +29,8 @@ export async function createCampaignAction(
   input: CampaignInsert & { contact_ids?: string[] }
 ): Promise<Result<{ id: string }>> {
   try {
+    // Mandar campañas como DROP siendo baneado = riesgo de marca/spam.
+    await assertBetaActive();
     const c = await createCampaign(input);
     if (input.contact_ids && input.contact_ids.length > 0) {
       await addContactsToCampaign(c.id, input.contact_ids);
@@ -45,6 +48,7 @@ export async function updateCampaignStatusAction(
   status: CampaignStatus
 ): Promise<Result> {
   try {
+    await assertBetaActive();
     await updateCampaign(id, {
       status,
       ended_at:

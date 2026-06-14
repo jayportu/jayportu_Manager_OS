@@ -14,6 +14,7 @@ import "server-only";
  */
 
 import { Resend } from "resend";
+import { signUnsubscribeToken } from "./unsubscribe-token";
 
 let cached: Resend | null = null;
 
@@ -50,12 +51,17 @@ export interface SendEmailInput {
  * - List-Unsubscribe-Post: indica que la URL acepta POST one-click.
  * - Precedence: bulk → marca como "automated mail" (mejor que ausencia).
  */
-function buildAntiSpamHeaders(): Record<string, string> {
+function buildAntiSpamHeaders(recipient: string): Record<string, string> {
   const supportEmail = process.env.RESEND_REPLY_TO || "hola@dropgigs.com";
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
+  // Token firmado por destinatario → /api/unsubscribe deriva el email del token
+  // (no se confía en un ?email= arbitrario). Esto además hace que el one-click
+  // de Gmail/Yahoo funcione de verdad: antes la URL iba sin email.
+  const token = signUnsubscribeToken(recipient);
+  const unsubUrl = `${siteUrl}/api/unsubscribe?u=${token}`;
   return {
-    "List-Unsubscribe": `<mailto:${supportEmail}?subject=unsubscribe>, <${siteUrl}/api/unsubscribe>`,
+    "List-Unsubscribe": `<mailto:${supportEmail}?subject=unsubscribe>, <${unsubUrl}>`,
     "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
   };
 }
@@ -80,7 +86,7 @@ export async function sendEmail(
       text: input.text,
       replyTo: input.replyTo,
       attachments: input.attachments,
-      headers: buildAntiSpamHeaders(),
+      headers: buildAntiSpamHeaders(input.to),
     });
     if (res.error) {
       return { ok: false, error: res.error.message };

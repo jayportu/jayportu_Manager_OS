@@ -103,14 +103,17 @@ export function BookerTopBar({ fullName, email }: Props) {
               </div>
             </div>
           </div>
-          <Link
-            href="/logout"
-            className="p-2 border-2 border-cream/20 hover:border-orange hover:text-orange transition-colors"
-            aria-label="Salir"
-            title="Salir"
-          >
-            <LogOut className="w-4 h-4" />
-          </Link>
+          {/* POST (no GET): /logout solo cierra sesión por POST → evita CSRF de logout. */}
+          <form method="POST" action="/logout">
+            <button
+              type="submit"
+              className="p-2 border-2 border-cream/20 hover:border-orange hover:text-orange transition-colors block"
+              aria-label="Salir"
+              title="Salir"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </form>
         </div>
       </div>
     </header>

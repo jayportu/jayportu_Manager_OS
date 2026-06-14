@@ -21,7 +21,12 @@ interface Props {
 
 export function SubscriptionRequiredModal({ reason }: Props) {
   function handleLogout() {
-    window.location.href = "/logout";
+    // POST (no GET): /logout solo cierra sesión por POST para evitar CSRF de logout.
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/logout";
+    document.body.appendChild(form);
+    form.submit();
   }
 
   const copy = COPY[reason];

@@ -9,14 +9,31 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { getPitchTokenBalance } from "@/lib/queries/booker";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 
 type Result =
   | { ok: true; interested: boolean }
   | { ok: false; error: string };
 
+/**
+ * Guard de escritura → devuelve el mensaje de error en vez de lanzar, para
+ * encajar con el tipo Result de estas actions. Bloquea cuentas
+ * suspendidas/baneadas y beta expirada.
+ */
+async function guardOrError(): Promise<string | null> {
+  try {
+    await assertBetaActive();
+    return null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "No autorizado.";
+  }
+}
+
 export async function toggleVenueInterestAction(
   bookerUserId: string
 ): Promise<Result> {
+  const blocked = await guardOrError();
+  if (blocked) return { ok: false, error: blocked };
   const supabase = await createClient();
   const {
     data: { user },
@@ -63,6 +80,8 @@ export async function sendPitchAction(
   message: string,
   availability: string
 ): Promise<PitchResult> {
+  const blocked = await guardOrError();
+  if (blocked) return { ok: false, error: blocked };
   const supabase = await createClient();
   const {
     data: { user },
