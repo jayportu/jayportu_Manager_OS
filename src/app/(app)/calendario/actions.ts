@@ -267,15 +267,17 @@ export async function syncEventsAction(): Promise<
       pulled++;
     }
 
-    // Actualizar last_sync_at en gmail_connections
+    // Actualizar last_sync_at en gmail_connections. La tabla de tokens solo se
+    // toca con service_role (migración 0056); aislamos por el .eq("user_id").
     try {
       const { createClient } = await import("@/lib/supabase/server");
+      const { createAdminClient } = await import("@/lib/supabase/admin");
       const supabase = await createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        await supabase
+        await createAdminClient()
           .from("gmail_connections")
           .update({ last_sync_at: new Date().toISOString() })
           .eq("user_id", user.id);

@@ -59,8 +59,12 @@ export async function GET(request: Request) {
       Date.now() + tokens.expires_in * 1000
     ).toISOString();
 
-    // Upsert (en caso de reconectar)
-    const { error } = await supabase
+    // Upsert (en caso de reconectar). Tokens OAuth → se escriben con
+    // service_role; la migración 0056 quitó las policies que los exponían al
+    // cliente (ver nota en lib/gmail/client.ts).
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const admin = createAdminClient();
+    const { error } = await admin
       .from("gmail_connections")
       .upsert({
         user_id: user.id,

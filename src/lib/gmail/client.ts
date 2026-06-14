@@ -4,11 +4,22 @@
  */
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { refreshAccessToken } from "./oauth";
 import type { GmailConnection } from "@/types/database";
 
 const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
 
+// SEGURIDAD (auditoría 2026-06-13): la tabla gmail_connections guarda los
+// tokens OAuth de Google (acceso al correo del DJ). Las leíamos/escribíamos con
+// el client de sesión (anon key), lo que dejaba que el dueño los leyera DIRECTO
+// desde el navegador vía PostgREST (`GET /rest/v1/gmail_connections`). Un XSS o
+// una extensión maliciosa podía exfiltrar el refresh token (acceso permanente,
+// sobrevive al cambio de clave). Ahora los tokens SOLO se tocan con el client
+// service_role en el servidor, y la migración 0056 quita las policies que los
+// exponían al cliente. La aislación por usuario la garantiza el `.eq("user_id")`
+// explícito en cada query (service_role bypasea RLS, así que el filtro es la
+// única barrera — no se puede omitir).
 async function getUserOrThrow() {
   const supabase = await createClient();
   const {
@@ -26,8 +37,9 @@ export async function getGmailToken(): Promise<{
   accessToken: string;
   googleEmail: string;
 } | null> {
-  const { supabase, user } = await getUserOrThrow();
-  const { data, error } = await supabase
+  const { user } = await getUserOrThrow();
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("gmail_connections")
     .select("*")
     .eq("user_id", user.id)
@@ -48,7 +60,7 @@ export async function getGmailToken(): Promise<{
     const newExpiresAt = new Date(
       Date.now() + fresh.expires_in * 1000
     ).toISOString();
-    await supabase
+    await admin
       .from("gmail_connections")
       .update({
         access_token: fresh.access_token,
@@ -64,8 +76,9 @@ export async function getGmailToken(): Promise<{
 }
 
 export async function deleteGmailConnection(): Promise<void> {
-  const { supabase, user } = await getUserOrThrow();
-  await supabase.from("gmail_connections").delete().eq("user_id", user.id);
+  const { user } = await getUserOrThrow();
+  const admin = createAdminClient();
+  await admin.from("gmail_connections").delete().eq("user_id", user.id);
 }
 
 // ─── Gmail API wrappers ───────────────────────────────────────────────
