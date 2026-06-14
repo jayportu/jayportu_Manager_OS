@@ -52,6 +52,12 @@ export async function POST(request: Request) {
   if (!body.ql) {
     return NextResponse.json({ error: "Falta ql" }, { status: 400 });
   }
+  // Cota de tamaño: una consulta Overpass legítima de la app es chica (<2 KB).
+  // Sin tope, un usuario logueado podría mandar una query gigante/abusiva y
+  // hacer que baneen la IP de salida en los mirrors compartidos.
+  if (body.ql.length > 8192) {
+    return NextResponse.json({ error: "Consulta demasiado larga" }, { status: 413 });
+  }
 
   const formBody = new URLSearchParams({ data: body.ql });
   const errors: string[] = [];

@@ -95,12 +95,15 @@ export default async function CuentaSuspendidaPage() {
           {" "}desde el email de tu cuenta.
         </p>
 
-        <Link
-          href="/logout"
-          className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
-        >
-          ← Cerrar sesión
-        </Link>
+        {/* POST (no GET): /logout solo cierra sesión por POST → evita CSRF de logout. */}
+        <form method="POST" action="/logout">
+          <button
+            type="submit"
+            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
+          >
+            ← Cerrar sesión
+          </button>
+        </form>
       </div>
     </div>
   );

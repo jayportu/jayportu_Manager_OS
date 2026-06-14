@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { unsubscribeFanByRsvp } from "@/lib/queries/events";
 import { addSuppression } from "@/lib/queries/suppressions";
+import { verifyUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 
 /**
  * Endpoint para el header List-Unsubscribe (Gmail/Yahoo bulk sender
@@ -9,8 +10,10 @@ import { addSuppression } from "@/lib/queries/suppressions";
  *
  * Dos usos:
  *   - `?rsvp=<uuid>`  → fan de un show (RA-7): apaga notify_future de su RSVP.
- *   - `?email=<email>` → baja de campaña: lo agrega a email_suppressions (los
- *     scripts de envío la consultan siempre → no se le vuelve a escribir).
+ *   - `?u=<token>`    → baja de campaña: el token firmado (HMAC) lleva el email
+ *     dentro. Lo verificamos y damos de baja ESE email → un atacante no puede
+ *     suprimir a terceros pasando un email arbitrario. Lo agrega a
+ *     email_suppressions (los scripts de envío la consultan siempre).
  *
  * IMPORTANTE — el GET NO muta estado. Los clientes de correo y antivirus
  * hacen GET-prefetch de los links: si la baja se ejecutara en el GET, un
@@ -66,18 +69,25 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return new NextResponse(null, { status: 429 });
 
   const rsvp = request.nextUrl.searchParams.get("rsvp");
-  const email = request.nextUrl.searchParams.get("email");
+  const token = request.nextUrl.searchParams.get("u");
   if (rsvp) {
     await unsubscribeFanByRsvp(rsvp);
     return htmlResponse(pageDone("fan"));
   }
-  if (email && email.includes("@")) {
-    // Baja de campaña: queda en la Lista de bajas → los envíos la respetan.
-    await addSuppression(email, "unsubscribe", "list-unsubscribe");
+  if (token) {
+    // El email sale del token firmado, no de un parámetro arbitrario.
+    const email = verifyUnsubscribeToken(token);
+    if (email) {
+      await addSuppression(email, "unsubscribe", "list-unsubscribe");
+    } else {
+      // Token inválido/forjado: no suprimimos, pero mostramos la misma página
+      // (no damos un oráculo de validez).
+      console.warn("[unsubscribe] token inválido");
+    }
     return htmlResponse(pageDone("email"));
   }
   // One-click sin parámetro útil (algunos clientes): no podemos identificar.
-  console.log("[unsubscribe] POST one-click sin rsvp/email");
+  console.log("[unsubscribe] POST one-click sin rsvp/token");
   return htmlResponse(pageDone("email"));
 }
 

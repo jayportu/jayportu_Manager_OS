@@ -26,14 +26,18 @@ export const dynamic = "force-dynamic";
  *   manifest = `id:<data.id>;request-id:<x-request-id>;ts:<ts>;`
  *   hash esperado = HMAC-SHA256(manifest, MP_WEBHOOK_SECRET)
  *
- * Si MP_WEBHOOK_SECRET no está seteado (entorno dev sin config),
- * permitimos pasar pero logueamos warning. En prod siempre debe estar.
+ * Si MP_WEBHOOK_SECRET no está seteado, RECHAZAMOS (fail-closed). Antes
+ * dejábamos pasar sin firma "para dev", pero eso significaba que en cualquier
+ * entorno sin el secret (preview, misconfig en prod) un atacante podía POSTear
+ * notificaciones forjadas y disparar el handler. El secret debe estar seteado
+ * en todos los entornos donde MP alcance el endpoint (mismo patrón que el
+ * webhook de Resend, que también falla cerrado).
  */
 function verifySignature(req: NextRequest, dataId: string): boolean {
   const secret = process.env.MP_WEBHOOK_SECRET;
   if (!secret) {
-    console.warn("[mp-webhook] MP_WEBHOOK_SECRET no configurado — skip verify");
-    return true;
+    console.error("[mp-webhook] MP_WEBHOOK_SECRET no configurado — rechazando");
+    return false;
   }
   const signature = req.headers.get("x-signature") || "";
   const requestId = req.headers.get("x-request-id") || "";

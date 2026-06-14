@@ -5,6 +5,7 @@ import {
   notifyFansOfEvent,
   setEventTicketUrl,
 } from "@/lib/queries/events";
+import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { revalidatePath } from "next/cache";
 
 export async function publishEventAction(
@@ -13,6 +14,12 @@ export async function publishEventAction(
   | { ok: true; token: string | null; notified: number }
   | { ok: false; error: string }
 > {
+  // Publicar emailea a los fans opt-in → bloquear cuentas suspendidas/beta expirada.
+  try {
+    await assertBetaActive();
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "No autorizado." };
+  }
   const res = await setEventPublished(eventId, true);
   if (!res.ok) return res;
 

@@ -2,25 +2,21 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 /**
- * Cerrar sesión vía GET/POST a /logout.
- * - Borra la sesión Supabase
- * - Redirige al LANDING público (/) — no a /login. El landing es la cara
- *   pública (con su botón "Entrar" para volver a loguearse); aterrizar en
- *   /login tras cerrar sesión se sentía como un callejón.
+ * Cerrar sesión vía POST a /logout. Redirige al LANDING público (/).
  *
- * Útil para tener un endpoint explícito que se puede invocar desde cualquier lado:
- * <a href="/logout">Cerrar sesión</a>
+ * SEGURIDAD: solo el POST cierra sesión. Antes el GET también lo hacía, lo
+ * que permitía un CSRF de logout (un `<img src="/logout">` o link malicioso
+ * desconectaba al usuario sin su intención). El GET ahora solo redirige al
+ * landing sin tocar la sesión — inofensivo. Todos los botones "Cerrar sesión"
+ * de la app hacen POST (formulario o fetch).
  */
-async function signOutAndRedirect(request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  return NextResponse.redirect(new URL("/", request.url));
+  return NextResponse.redirect(new URL("/", request.url), { status: 303 });
 }
 
+// GET no muta sesión: redirige al landing (mata el vector de CSRF por prefetch/img).
 export async function GET(request: Request) {
-  return signOutAndRedirect(request);
-}
-
-export async function POST(request: Request) {
-  return signOutAndRedirect(request);
+  return NextResponse.redirect(new URL("/", request.url));
 }
