@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { GmailConnection, GmailThreadCache } from "@/types/database";
 
 async function getUserOrThrow() {
@@ -12,10 +13,13 @@ async function getUserOrThrow() {
 }
 
 export async function getMyGmailConnection(): Promise<GmailConnection | null> {
-  const { supabase, user } = await getUserOrThrow();
+  const { user } = await getUserOrThrow();
+  // Tokens OAuth → solo se leen con service_role (ver nota en lib/gmail/client.ts).
+  // La aislación la da el .eq("user_id") explícito.
+  const admin = createAdminClient();
   // maybeSingle: "sin fila" NO es error (antes .single() tiraba PGRST116 y se
   // trataba CUALQUIER error —RLS/red/multiple— como "no conectado", silencioso).
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from("gmail_connections")
     .select("*")
     .eq("user_id", user.id)
