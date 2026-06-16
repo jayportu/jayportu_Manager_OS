@@ -775,6 +775,142 @@ Recibes este correo porque sigues a ${input.djArtistName} con avisos activados. 
 }
 
 // ---------------------------------------------------------------------------
+// 6. Booking Confirmed — aviso al DJ
+// ---------------------------------------------------------------------------
+
+export function bookingConfirmedDjEmailHtml(input: {
+  djArtistName: string;
+  bookerName: string;
+  eventDate: string;
+  venue?: string;
+  amountClp?: number;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, bookerName, eventDate, venue, amountClp, dashboardUrl } = input;
+  const venueLine = venue
+    ? `<p style="font-size:15px; margin:0 0 8px 0;"><strong>Lugar:</strong> ${escapeHtml(venue)}</p>`
+    : "";
+  const amountLine = amountClp
+    ? `<p style="font-size:15px; margin:0 0 0 0;"><strong>Monto:</strong> $${amountClp.toLocaleString("es-CL")} CLP</p>`
+    : "";
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">Tienes un evento confirmado. Aquí el resumen:</p>
+              <div style="background:#f9f7f4; border:1px solid ${BORDER}; border-radius:4px; padding:16px 20px; margin:0 0 20px 0;">
+                <p style="font-size:15px; margin:0 0 8px 0;"><strong>Booker:</strong> ${escapeHtml(bookerName)}</p>
+                ${eventDate ? `<p style="font-size:15px; margin:0 0 8px 0;"><strong>Fecha:</strong> ${escapeHtml(eventDate)}</p>` : ""}
+                ${venueLine}
+                ${amountLine}
+              </div>
+              <p style="font-size:15px; margin:0 0 24px 0;">${ctaButton("Ver en DROP.", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">Suerte con el show,<br>DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `Evento agendado — ${bookerName}`,
+    preheader: `Tienes un show confirmado con ${bookerName}${eventDate ? ` el ${eventDate}` : ""}.`,
+    content,
+    footerReason: "Recibes este aviso porque administras tu agenda en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookingConfirmedDjEmailText(input: {
+  djArtistName: string;
+  bookerName: string;
+  eventDate: string;
+  venue?: string;
+  amountClp?: number;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, bookerName, eventDate, venue, amountClp, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    "Tienes un evento confirmado:",
+    "",
+    `Booker: ${bookerName}`,
+    eventDate ? `Fecha: ${eventDate}` : "",
+    venue ? `Lugar: ${venue}` : "",
+    amountClp ? `Monto: $${amountClp.toLocaleString("es-CL")} CLP` : "",
+    "",
+    `Ver en DROP.: ${dashboardUrl}`,
+    "",
+    "Suerte con el show,",
+    "DROP. Team",
+    "",
+    "--",
+    "DROP. — The DJ OS — Santiago, Chile — dropgigs.com",
+    "Recibes este aviso porque administras tu agenda en DROP. (dropgigs.com).",
+  ]
+    .filter((l) => l !== null && l !== undefined)
+    .join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 7. Booking Confirmed — aviso al booker
+// ---------------------------------------------------------------------------
+
+export function bookingConfirmedBookerEmailHtml(input: {
+  bookerName: string;
+  djArtistName: string;
+  eventDate: string;
+  venue?: string;
+  pressKitUrl: string;
+}): string {
+  const { bookerName, djArtistName, eventDate, venue, pressKitUrl } = input;
+  const venueLine = venue
+    ? `<p style="font-size:15px; margin:0 0 0 0;"><strong>Lugar:</strong> ${escapeHtml(venue)}</p>`
+    : "";
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">Tu solicitud fue aceptada. Aquí el resumen de tu evento:</p>
+              <div style="background:#f9f7f4; border:1px solid ${BORDER}; border-radius:4px; padding:16px 20px; margin:0 0 20px 0;">
+                <p style="font-size:15px; margin:0 0 8px 0;"><strong>DJ:</strong> ${escapeHtml(djArtistName)}</p>
+                ${eventDate ? `<p style="font-size:15px; margin:0 0 8px 0;"><strong>Fecha:</strong> ${escapeHtml(eventDate)}</p>` : ""}
+                ${venueLine}
+              </div>
+              <p style="font-size:15px; margin:0 0 16px 0;">Para coordinar los detalles finales, contáctate directamente con el DJ.</p>
+              <p style="font-size:15px; margin:0 0 24px 0;">${ctaButton("Ver perfil del DJ", pressKitUrl)}</p>
+              <p style="font-size:15px; margin:0;">Saludos,<br>DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `Tu evento con ${djArtistName} está confirmado`,
+    preheader: `${djArtistName} aceptó tu solicitud${eventDate ? ` para el ${eventDate}` : ""}.`,
+    content,
+    footerReason: `Recibes este aviso porque enviaste una solicitud de booking a ${djArtistName} a través de DROP. (dropgigs.com).`,
+  });
+}
+
+export function bookingConfirmedBookerEmailText(input: {
+  bookerName: string;
+  djArtistName: string;
+  eventDate: string;
+  venue?: string;
+  pressKitUrl: string;
+}): string {
+  const { bookerName, djArtistName, eventDate, venue, pressKitUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    "Tu solicitud fue aceptada.",
+    "",
+    `DJ: ${djArtistName}`,
+    eventDate ? `Fecha: ${eventDate}` : "",
+    venue ? `Lugar: ${venue}` : "",
+    "",
+    "Para coordinar los detalles finales, contáctate directamente con el DJ.",
+    "",
+    `Ver perfil del DJ: ${pressKitUrl}`,
+    "",
+    "Saludos,",
+    "DROP. Team",
+    "",
+    "--",
+    "DROP. — The DJ OS — Santiago, Chile — dropgigs.com",
+    `Recibes este aviso porque enviaste una solicitud de booking a ${djArtistName} a través de DROP. (dropgigs.com).`,
+  ]
+    .filter((l) => l !== null && l !== undefined)
+    .join("\n");
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
