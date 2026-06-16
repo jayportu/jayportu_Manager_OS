@@ -3,7 +3,7 @@ import { assertAdmin } from "@/lib/queries/admin";
 import { getInbox, getInboundEmail } from "@/lib/queries/inbox";
 import { relativeTime, dateTime } from "@/lib/format";
 import { AutoRefresh } from "../email-campaigns/auto-refresh";
-import { archiveEmail, deleteEmail, restoreEmail } from "./actions";
+import { archiveEmail, deleteEmail, restoreEmail, markEmailUnread, deleteForever } from "./actions";
 import { ReplyForm } from "./reply-form";
 import { Compose } from "./compose";
 import { MarkRead } from "./mark-read";
@@ -135,6 +135,16 @@ export default async function CorreoPage({
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   {!isTrash && !isSent && (
+                    <form action={markEmailUnread.bind(null, selected.id, folder)}>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                      >
+                        <Mail className="w-3.5 h-3.5" /> Marcar no leído
+                      </button>
+                    </form>
+                  )}
+                  {!isTrash && !isSent && (
                     <form action={archiveEmail.bind(null, selected.id)}>
                       <button
                         type="submit"
@@ -145,14 +155,25 @@ export default async function CorreoPage({
                     </form>
                   )}
                   {isTrash ? (
-                    <form action={restoreEmail.bind(null, selected.id)}>
-                      <button
-                        type="submit"
-                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" /> Restaurar
-                      </button>
-                    </form>
+                    <>
+                      <form action={restoreEmail.bind(null, selected.id)}>
+                        <button
+                          type="submit"
+                          className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" /> Restaurar
+                        </button>
+                      </form>
+                      <form action={deleteForever.bind(null, selected.id)}>
+                        <button
+                          type="submit"
+                          className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-[#b42318]"
+                          style={{ color: "#b42318" }}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Eliminar definitivamente
+                        </button>
+                      </form>
+                    </>
                   ) : (
                     <form action={deleteEmail.bind(null, selected.id)}>
                       <button
