@@ -7,6 +7,14 @@ import {
 } from "@/lib/queries/presskit";
 import { createContact, deleteContact } from "@/lib/queries/contacts";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail, isResendConfigured } from "@/lib/email/resend";
+import {
+  bookingConfirmedDjEmailHtml,
+  bookingConfirmedDjEmailText,
+  bookingConfirmedBookerEmailHtml,
+  bookingConfirmedBookerEmailText,
+} from "@/lib/email/templates";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus, ContactInsert } from "@/types/database";
 
@@ -19,6 +27,109 @@ function errResult(e: unknown): { ok: false; error: string } {
     ok: false,
     error: e instanceof Error ? e.message : "Error desconocido",
   };
+}
+
+async function sendBookingConfirmedEmails(bookingId: string): Promise<void> {
+  if (!isResendConfigured()) return;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: booking } = await supabase
+      .from("booking_form_submissions")
+      .select("name, email, event_date, venue, quoted_amount_clp")
+      .eq("id", bookingId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!booking) return;
+
+    const admin = createAdminClient();
+    const { data: djRaw } = await admin
+      .from("dj_profile")
+      .select("artist_name, public_email, slug")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const djProfile = djRaw as {
+      artist_name?: string;
+      public_email?: string;
+      slug?: string;
+    } | null;
+    const b = booking as {
+      name?: string;
+      email?: string;
+      event_date?: string;
+      venue?: string;
+      quoted_amount_clp?: number;
+    };
+
+    const djEmail = djProfile?.public_email || user.email;
+    const djArtistName = djProfile?.artist_name ?? "DJ";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dropgigs.com";
+    const dashboardUrl = `${siteUrl}/press-kit/bookings/${bookingId}`;
+    const pressKitUrl = djProfile?.slug
+      ? `${siteUrl}/dj/${djProfile.slug}`
+      : siteUrl;
+
+    let eventDateLabel = "";
+    if (b.event_date && /^\d{4}-\d{2}-\d{2}$/.test(b.event_date)) {
+      const [y, m, d] = b.event_date.split("-").map(Number);
+      eventDateLabel = new Date(y, m - 1, d).toLocaleDateString("es-CL", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    }
+
+    if (djEmail) {
+      await sendEmail({
+        to: djEmail,
+        subject: `Evento agendado — ${b.name ?? "booker"}`,
+        html: bookingConfirmedDjEmailHtml({
+          djArtistName,
+          bookerName: b.name ?? "booker",
+          eventDate: eventDateLabel,
+          venue: b.venue ?? undefined,
+          amountClp: b.quoted_amount_clp ?? undefined,
+          dashboardUrl,
+        }),
+        text: bookingConfirmedDjEmailText({
+          djArtistName,
+          bookerName: b.name ?? "booker",
+          eventDate: eventDateLabel,
+          venue: b.venue ?? undefined,
+          amountClp: b.quoted_amount_clp ?? undefined,
+          dashboardUrl,
+        }),
+      });
+    }
+
+    if (b.email) {
+      await sendEmail({
+        to: b.email,
+        subject: `Tu evento con ${djArtistName} está confirmado`,
+        html: bookingConfirmedBookerEmailHtml({
+          bookerName: b.name ?? "hola",
+          djArtistName,
+          eventDate: eventDateLabel,
+          venue: b.venue ?? undefined,
+          pressKitUrl,
+        }),
+        text: bookingConfirmedBookerEmailText({
+          bookerName: b.name ?? "hola",
+          djArtistName,
+          eventDate: eventDateLabel,
+          venue: b.venue ?? undefined,
+          pressKitUrl,
+        }),
+      });
+    }
+  } catch (e) {
+    console.error("[booking-confirmed-emails]", e);
+  }
 }
 
 export async function updateSlugAction(slug: string): Promise<Result> {
@@ -143,6 +254,9 @@ export async function updateBookingWorkflowAction(
 ): Promise<Result<{ followUpId?: string; calendarEventId?: string }>> {
   try {
     const result = await updateBookingWorkflow(bookingId, patch);
+    if (patch.status === "agendado") {
+      await sendBookingConfirmedEmails(bookingId);
+    }
     revalidatePath("/press-kit");
     revalidatePath(`/press-kit/bookings/${bookingId}`);
     revalidatePath("/crm");
@@ -211,6 +325,8 @@ export async function acceptCounterofferAction(
       quoted_amount_clp: finalAmount,
       event_date: finalDate,
     });
+
+    await sendBookingConfirmedEmails(bookingId);
 
     // C5 — Push notification al booker si tiene cuenta logueada
     if (booking.booker_user_id) {
