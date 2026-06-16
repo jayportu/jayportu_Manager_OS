@@ -295,7 +295,67 @@ Recibes este email porque solicitaste acceso a la beta en dropgigs.com/beta.`;
 }
 
 // ---------------------------------------------------------------------------
-// 2. Needs Beta Request (cuentas huérfanas)
+// 2. Beta Rejection
+// ---------------------------------------------------------------------------
+
+export function betaRejectionEmailHtml(input: {
+  artistName: string;
+  reason?: string;
+}): string {
+  const reasonHtml = input.reason
+    ? `<p style="font-size:15px; margin:0 0 16px 0;">${escapeHtml(input.reason)}</p>`
+    : "";
+
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">
+                Hola ${escapeHtml(input.artistName)},
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Gracias por tu interés en DROP. Revisamos tu solicitud y por ahora no podemos abrirte acceso a la beta.
+              </p>
+              ${reasonHtml}
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                La beta está muy limitada en cupo y estamos siendo selectivos para poder dar una buena experiencia a cada usuario. Esto no es un juicio sobre tu trabajo como DJ.
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                Si tienes preguntas, puedes responder este correo directamente.
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:${ORANGE};">.</span> Team
+              </p>`;
+
+  return wrapEmail({
+    title: "Tu solicitud a DROP.",
+    preheader: `Hola ${input.artistName}, te escribimos sobre tu solicitud a DROP.`,
+    content,
+    footerReason:
+      "Recibes este email porque solicitaste acceso a la beta de DROP. en dropgigs.com/beta.",
+  });
+}
+
+export function betaRejectionEmailText(input: {
+  artistName: string;
+  reason?: string;
+}): string {
+  const reasonText = input.reason ? `\n${input.reason}\n` : "";
+  return `Hola ${input.artistName},
+
+Gracias por tu interés en DROP. Revisamos tu solicitud y por ahora no podemos abrirte acceso a la beta.
+${reasonText}
+La beta está muy limitada en cupo y estamos siendo selectivos para poder dar una buena experiencia a cada usuario. Esto no es un juicio sobre tu trabajo como DJ.
+
+Si tienes preguntas, puedes responder este correo directamente.
+
+Saludos,
+DROP. Team
+
+--
+DROP. — The DJ OS — Santiago, Chile — dropgigs.com`;
+}
+
+// ---------------------------------------------------------------------------
+// 3. Needs Beta Request (cuentas huérfanas)
 // ---------------------------------------------------------------------------
 
 export function needsBetaRequestEmailHtml(input: {
