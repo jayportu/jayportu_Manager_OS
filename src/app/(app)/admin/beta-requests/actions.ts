@@ -15,6 +15,8 @@ import { sendEmail, isResendConfigured } from "@/lib/email/resend";
 import {
   betaInviteEmailHtml,
   betaInviteEmailText,
+  betaRejectionEmailHtml,
+  betaRejectionEmailText,
 } from "@/lib/email/templates";
 import type { BetaRequestStatus } from "@/types/database";
 
@@ -149,7 +151,18 @@ export async function rejectBetaRequestAction(
 ): Promise<Result<null>> {
   try {
     await assertAdmin();
-    await updateBetaRequestStatus(id, "rejected", reason);
+    const updated = await updateBetaRequestStatus(id, "rejected", reason);
+    if (isResendConfigured()) {
+      const html = betaRejectionEmailHtml({ artistName: updated.artist_name, reason });
+      const text = betaRejectionEmailText({ artistName: updated.artist_name, reason });
+      await sendEmail({
+        to: updated.email,
+        subject: "Tu solicitud a DROP.",
+        html,
+        text,
+        replyTo: process.env.RESEND_REPLY_TO || undefined,
+      });
+    }
     revalidatePath("/admin/beta-requests");
     return { ok: true, data: null };
   } catch (e) {
