@@ -155,6 +155,27 @@ export async function POST(req: Request) {
     if (fromEmail && looksLikeUnsubscribe(`${subject} ${text}`)) {
       await addSuppression(fromEmail, "unsubscribe", "reply-bajar");
     }
+    // Reenvío a Gmail — copia de monitoreo, no bloquea si falla.
+    const forwardTo = process.env.INBOUND_FORWARD_EMAIL;
+    if (forwardTo && process.env.RESEND_API_KEY) {
+      const bodyHtml = html
+        ? `<p style="color:#666;font-size:12px">De: ${fromRaw} → ${toEmail}</p><hr>${html}`
+        : `<pre>${text}</pre>`;
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "DROP. Inbox <hola@dropgigs.com>",
+          to: [forwardTo],
+          subject: `[DROP. inbox] ${subject}`,
+          html: bodyHtml,
+          reply_to: fromEmail || undefined,
+        }),
+      }).catch((e) => console.warn("[resend-webhook] forward fail", e));
+    }
     return NextResponse.json({ ok: true, inbound: true });
   }
 
