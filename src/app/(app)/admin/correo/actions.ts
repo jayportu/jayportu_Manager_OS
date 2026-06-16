@@ -5,6 +5,7 @@
  * hola@dropgigs.com (sendEmail usa RESEND_FROM_EMAIL). Todo gateado por admin.
  */
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/queries/admin";
 import { sendEmail } from "@/lib/email/resend";
@@ -64,6 +65,24 @@ export async function markEmailRead(id: string): Promise<void> {
   revalidatePath("/admin/correo");
 }
 
+/**
+ * Vuelve a marcar un correo como NO leído (read_at = null). Tras actualizar,
+ * vuelve a la lista de la carpeta (sin `id` seleccionado) — si no, el
+ * <MarkRead/> del panel de lectura lo volvería a marcar leído al instante.
+ */
+export async function markEmailUnread(id: string, folder: string): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("inbound_emails")
+    .update({ read_at: null })
+    .eq("id", id);
+  if (error) console.error("[inbox] markEmailUnread:", error.message);
+  revalidatePath("/admin/correo");
+  const safe = ["inbox", "sent", "archived", "trash"].includes(folder) ? folder : "inbox";
+  redirect(`/admin/correo?folder=${safe}`);
+}
+
 export async function archiveEmail(id: string): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
@@ -94,6 +113,20 @@ export async function restoreEmail(id: string): Promise<void> {
   const { error } = await admin.from("inbound_emails").update({ folder: "inbox" }).eq("id", id);
   if (error) console.error("[inbox] restoreEmail:", error.message);
   revalidatePath("/admin/correo");
+}
+
+/**
+ * Borra el correo de forma definitiva (DELETE real en la BD). Solo se ofrece
+ * desde la Papelera. Tras borrar, el correo ya no existe → vuelve a la lista
+ * de la Papelera para no dejar el panel de lectura colgado.
+ */
+export async function deleteForever(id: string): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from("inbound_emails").delete().eq("id", id);
+  if (error) console.error("[inbox] deleteForever:", error.message);
+  revalidatePath("/admin/correo");
+  redirect("/admin/correo?folder=trash");
 }
 
 export interface ReplyState {
