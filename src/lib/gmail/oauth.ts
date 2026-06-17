@@ -6,10 +6,10 @@
  *   API continuo (refresh tokens). Para llamar Gmail API necesitamos
  *   manejo manual de tokens.
  *
- * Scopes que pedimos:
- *   - gmail.readonly: leer hilos + mensajes
- *   - gmail.compose: crear borradores
- *   - gmail.send: enviar mensajes (requerirá confirmación de Jaime)
+ * Scopes que pedimos (solo SENSIBLES, ver scopes.ts):
+ *   - userinfo.email: email del usuario
+ *   - gmail.send: enviar correos (NO lee la bandeja)
+ *   - calendar.events: sincronizar calendario
  */
 
 export const GOOGLE_OAUTH_AUTH_URL =
@@ -51,9 +51,7 @@ export function getMissingScopes(grantedScopeStr: string | null | undefined): st
 export function describeMissingScopes(missing: string[]): string[] {
   const map: Record<string, string> = {
     "https://www.googleapis.com/auth/userinfo.email": "tu email",
-    "https://www.googleapis.com/auth/gmail.readonly": "leer Gmail",
-    "https://www.googleapis.com/auth/gmail.compose": "componer borradores",
-    "https://www.googleapis.com/auth/gmail.send": "enviar Gmail",
+    "https://www.googleapis.com/auth/gmail.send": "enviar correos",
     "https://www.googleapis.com/auth/calendar.events": "Google Calendar",
   };
   return missing.map((s) => map[s] || s.split("/").pop() || s);

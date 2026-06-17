@@ -57,6 +57,46 @@ export async function deleteInteraction(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+/**
+ * Correos salientes recientes (canal email, dirección out). Alimenta el panel
+ * "Correos enviados" de la sección Correo. Cada envío desde el compositor
+ * registra una interaction email/out sobre el contacto destinatario.
+ */
+export async function listSentEmails(
+  limit = 8
+): Promise<
+  Array<{ id: string; note: string; happened_at: string; contact_name: string | null }>
+> {
+  const { supabase, user } = await getUserOrThrow();
+  const { data, error } = await supabase
+    .from("interactions")
+    .select("id, note, happened_at, contacts(name)")
+    .eq("user_id", user.id)
+    .eq("channel", "email")
+    .eq("direction", "out")
+    .order("happened_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.error("listSentEmails error:", error);
+    return [];
+  }
+  type Row = {
+    id: string;
+    note: string;
+    happened_at: string;
+    contacts: { name: string | null } | { name: string | null }[] | null;
+  };
+  return ((data ?? []) as unknown as Row[]).map((r) => {
+    const c = Array.isArray(r.contacts) ? r.contacts[0] : r.contacts;
+    return {
+      id: r.id,
+      note: r.note,
+      happened_at: r.happened_at,
+      contact_name: c?.name ?? null,
+    };
+  });
+}
+
 export async function listRecentInteractions(
   limit = 20
 ): Promise<(Interaction & { contact_name?: string })[]> {
