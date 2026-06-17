@@ -552,12 +552,12 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             type="button"
             onClick={() => update("show_fee", !form.show_fee)}
             aria-label="Mostrar fee"
-            className={`shrink-0 w-14 h-7 border-2 border-ink relative transition-colors ${
+            className={`shrink-0 w-14 h-7 border-2 border-ink rounded-full relative transition-colors ${
               form.show_fee ? "bg-orange" : "bg-cream"
             }`}
           >
             <span
-              className={`absolute top-0.5 w-5 h-5 bg-ink transition-all ${
+              className={`absolute top-0.5 w-5 h-5 bg-ink rounded-full transition-all ${
                 form.show_fee ? "left-7" : "left-0.5"
               }`}
             />
