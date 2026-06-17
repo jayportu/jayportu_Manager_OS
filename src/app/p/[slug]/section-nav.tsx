@@ -28,7 +28,9 @@ export function SectionNav({ sections }: { sections: NavSection[] }) {
       className="bg-white border-b-2 border-ink sticky top-0 z-30"
       aria-label="Secciones del press kit"
     >
-      <div className="max-w-6xl mx-auto flex overflow-x-auto">
+      {/* pl-2/md:pl-6 → el texto del primer tab queda alineado con el
+          contenido del hero y del body (que usan px-6/md:px-12). */}
+      <div className="max-w-6xl mx-auto flex overflow-x-auto pl-2 md:pl-6">
         {sections.map((s, i) => {
           const isActive = active === s.id;
           const isLast = i === sections.length - 1;

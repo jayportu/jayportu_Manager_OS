@@ -198,78 +198,85 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Foto de perfil (click → tamaño real) */}
-          {isSupabaseStorageUrl(profile.avatar_url) && (
-            <AvatarLightbox
-              src={profile.avatar_url}
-              alt={artistName}
-              className="mt-6 block w-20 h-20 md:w-28 md:h-28"
-            />
-          )}
+          {/* Fila principal: nombre (izq) + géneros (der, al costado en
+              desktop). En mobile los géneros van debajo, en fila. */}
+          <div className="md:flex md:items-end md:justify-between md:gap-10">
+            <div className="md:min-w-0">
+              {/* Foto de perfil (click → tamaño real) */}
+              {isSupabaseStorageUrl(profile.avatar_url) && (
+                <AvatarLightbox
+                  src={profile.avatar_url}
+                  alt={artistName}
+                  className="mt-6 block w-20 h-20 md:w-28 md:h-28"
+                />
+              )}
 
-          {/* Hero title */}
-          <h1 className="font-display leading-[0.85] tracking-tight mt-3 text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px]">
-            {heroLines.map((line, i) => (
-              <span key={i} className="block">
-                {line}
-                {i === heroLines.length - 1 && (
-                  <span className="text-orange">.</span>
-                )}
-              </span>
-            ))}
-          </h1>
+              {/* Hero title */}
+              <h1 className="font-display leading-[0.85] tracking-tight mt-3 text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px]">
+                {heroLines.map((line, i) => (
+                  <span key={i} className="block">
+                    {line}
+                    {i === heroLines.length - 1 && (
+                      <span className="text-orange">.</span>
+                    )}
+                  </span>
+                ))}
+              </h1>
 
-          {/* Badge verificado (Fase 1 · 1A) — señal de confianza para el booker */}
-          {profile.verified_at && (
-            <div className="mt-4 inline-flex items-center gap-1.5 border-2 border-orange bg-orange text-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
-              ✓ Verificado por DROP.
+              {/* Badge verificado (Fase 1 · 1A) — señal de confianza */}
+              {profile.verified_at && (
+                <div className="mt-4 inline-flex items-center gap-1.5 border-2 border-orange bg-orange text-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
+                  ✓ Verificado por DROP.
+                </div>
+              )}
+
+              {/* Tagline */}
+              {profile.tagline && (
+                <p className="mt-5 text-base md:text-lg max-w-2xl text-cream/80">
+                  {profile.tagline}
+                </p>
+              )}
+
+              {/* Alias / proyectos (Fase 1 · 1D) */}
+              {profile.aliases && profile.aliases.length > 0 && (
+                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-cream/60">
+                  AKA {profile.aliases.join(" · ")}
+                </p>
+              )}
+
+              {/* Sprint RA-3 — Toggle "Seguir con avisos" (solo se
+                  renderiza cuando el visitante es un booker logueado). */}
+              <div className="max-w-md">
+                <FollowNotifyToggle
+                  djUserId={profile.user_id}
+                  djArtistName={artistName}
+                />
+              </div>
             </div>
-          )}
 
-          {/* Tagline */}
-          {profile.tagline && (
-            <p className="mt-5 text-base md:text-lg max-w-2xl text-cream/80">
-              {profile.tagline}
-            </p>
-          )}
-
-          {/* Alias / proyectos (Fase 1 · 1D) */}
-          {profile.aliases && profile.aliases.length > 0 && (
-            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-cream/60">
-              AKA {profile.aliases.join(" · ")}
-            </p>
-          )}
-
-          {/* Géneros + ciudad como labels outline cream */}
-          <div className="mt-6 flex flex-wrap gap-1.5">
-            {profile.genres.slice(0, 4).map((g) => (
-              <span
-                key={g}
-                className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream"
-              >
-                {g}
-              </span>
-            ))}
-            {profile.city && (
-              <span className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream">
-                {profile.city}
-                {profile.country ? ` · ${profile.country}` : ""}
-              </span>
-            )}
-            {profile.record_label && (
-              <span className="font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 border border-cream text-cream">
-                Sello · {profile.record_label}
-              </span>
-            )}
-          </div>
-
-          {/* Sprint RA-3 — Toggle "Seguir con avisos" (solo se renderiza
-              cuando el visitante es un booker logueado). */}
-          <div className="max-w-md">
-            <FollowNotifyToggle
-              djUserId={profile.user_id}
-              djArtistName={artistName}
-            />
+            {/* Géneros + ciudad + sello — al costado (derecha) y más grandes
+                en desktop; en mobile en fila debajo del nombre. */}
+            <div className="mt-7 md:mt-0 md:shrink-0 md:max-w-[42%] flex flex-wrap md:flex-col md:items-end gap-2">
+              {profile.genres.slice(0, 4).map((g) => (
+                <span
+                  key={g}
+                  className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-cream"
+                >
+                  {g}
+                </span>
+              ))}
+              {profile.city && (
+                <span className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-cream">
+                  {profile.city}
+                  {profile.country ? ` · ${profile.country}` : ""}
+                </span>
+              )}
+              {profile.record_label && (
+                <span className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-cream">
+                  Sello · {profile.record_label}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </header>
