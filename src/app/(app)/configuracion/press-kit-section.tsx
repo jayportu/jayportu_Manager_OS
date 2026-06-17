@@ -14,8 +14,9 @@ import {
   ExternalLink,
   Wand2,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import {
-  uploadPressKitPdfAction,
+  setPressKitPdfUrlAction,
   deletePressKitPdfAction,
   setPressKitModeAction,
 } from "./press-kit-actions";
@@ -61,23 +62,63 @@ export function PressKitSection({
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
-      setError("El archivo supera 25 MB");
+      setError(
+        `El archivo pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. Máximo permitido: 25 MB.`
+      );
       e.target.value = "";
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     startTransition(async () => {
-      const r = await uploadPressKitPdfAction(formData);
-      if (r.ok) {
-        setInfo("PDF subido. Tu press kit ahora muestra el PDF tal cual.");
-        router.refresh();
-      } else {
-        setError(r.error);
+      try {
+        // Subida DIRECTA a Supabase Storage desde el navegador (no por el
+        // Server Action) → el byte del PDF no pasa por la función de Vercel y
+        // se evita el tope de 4.5 MB que rompía PDFs grandes con el críptico
+        // "An unexpected response was received from the server" (mismo bug que
+        // tenía el avatar, arreglado en PR #141).
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          setError("Tu sesión expiró. Recarga la página e intenta de nuevo.");
+          return;
+        }
+
+        const safeName = sanitizeFilename(file.name);
+        const path = `${user.id}/${Date.now()}-${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from("press-kits")
+          .upload(path, file, {
+            contentType: "application/pdf",
+            cacheControl: "3600",
+            upsert: false,
+          });
+        if (upErr) {
+          setError(`No se pudo subir el PDF: ${upErr.message}`);
+          return;
+        }
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("press-kits").getPublicUrl(path);
+
+        // Guardar la URL en el perfil (payload mínimo → sin límite de body).
+        const r = await setPressKitPdfUrlAction(publicUrl, file.name, file.size);
+        if (r.ok) {
+          setInfo("PDF subido. Tu press kit ahora muestra el PDF tal cual.");
+          router.refresh();
+        } else {
+          setError(r.error);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? `No se pudo subir el PDF: ${err.message}`
+            : "No se pudo subir el PDF. Vuelve a intentarlo."
+        );
+      } finally {
+        e.target.value = "";
       }
-      e.target.value = "";
     });
   }
 
@@ -311,4 +352,17 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+/** Path-safe: quita acentos/espacios, deja solo a-z0-9._- y asegura .pdf. */
+function sanitizeFilename(name: string): string {
+  const noAccents = name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+  const cleaned = noAccents
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 100);
+  return cleaned.endsWith(".pdf") ? cleaned : `${cleaned}.pdf`;
 }
