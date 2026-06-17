@@ -12,17 +12,20 @@ function err(e: unknown): { ok: false; error: string } {
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB (techo acordado para foto de perfil)
 const BUCKET = "avatars";
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 /**
- * Sube una foto de perfil al bucket Storage 'avatars' y actualiza
- * dj_profile.avatar_url. Si ya había una foto, borra la anterior para
- * no acumular archivos huérfanos.
+ * Guarda la URL del avatar ya subido. El archivo se sube DIRECTO a Supabase
+ * Storage desde el navegador (ver avatar-upload.tsx), no por este action — así
+ * el byte de la imagen NUNCA pasa por el Server Action y se evita el tope de
+ * 4.5 MB de request de Vercel (que rompía la subida de fotos grandes con el
+ * críptico "An unexpected response was received from the server").
+ *
+ * Acá solo: validamos que la URL sea de nuestro bucket, borramos la foto
+ * anterior (evita huérfanos) y actualizamos dj_profile.avatar_url.
  */
-export async function uploadAvatarAction(
-  formData: FormData
+export async function setAvatarUrlAction(
+  url: string
 ): Promise<Result<{ url: string }>> {
   try {
     const supabase = await createClient();
@@ -31,69 +34,32 @@ export async function uploadAvatarAction(
     } = await supabase.auth.getUser();
     if (!user) return { ok: false, error: "No autenticado" };
 
-    const file = formData.get("file");
-    if (!(file instanceof File)) {
-      return { ok: false, error: "Archivo no enviado" };
-    }
-    if (file.size === 0) {
-      return { ok: false, error: "El archivo está vacío" };
-    }
-    if (file.size > MAX_BYTES) {
-      return {
-        ok: false,
-        error: `La imagen supera 10 MB (es ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
-      };
-    }
-    if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
-      return { ok: false, error: "Solo se permiten imágenes JPG, PNG o WebP" };
+    // Seguridad: solo aceptamos URLs públicas de NUESTRO bucket de avatars,
+    // y que apunten a la carpeta del propio usuario.
+    const path = extractStoragePath(url);
+    if (!path || !path.startsWith(`${user.id}/`)) {
+      return { ok: false, error: "URL de imagen inválida" };
     }
 
-    // Borrar foto anterior si existe (evita acumular archivos huérfanos)
-    const { data: prevProfile } = await supabase
+    // Borrar foto anterior si cambió (evita acumular archivos huérfanos)
+    const { data: prev } = await supabase
       .from("dj_profile")
       .select("avatar_url")
       .eq("user_id", user.id)
       .maybeSingle();
-
-    if (prevProfile?.avatar_url) {
-      const oldPath = extractStoragePath(prevProfile.avatar_url);
-      if (oldPath) {
-        await supabase.storage.from(BUCKET).remove([oldPath]);
-      }
+    if (prev?.avatar_url && prev.avatar_url !== url) {
+      const oldPath = extractStoragePath(prev.avatar_url);
+      if (oldPath) await supabase.storage.from(BUCKET).remove([oldPath]);
     }
 
-    // Nombre único: {user_id}/{timestamp}.{ext}
-    const ext = extFromType(file.type);
-    const path = `${user.id}/${Date.now()}.${ext}`;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const { error: upErr } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, arrayBuffer, {
-        contentType: file.type,
-        // 1 año: el path lleva timestamp único ({user_id}/{Date.now()}.ext),
-        // así que la URL cambia en cada subida y no hay riesgo de servir una
-        // foto vieja. Cachear largo deja que el CDN de Vercel y el navegador
-        // eviten re-bajar el archivo → menos egress de Supabase.
-        cacheControl: "31536000",
-        upsert: false,
-      });
-    if (upErr) {
-      return { ok: false, error: `Upload: ${upErr.message}` };
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(BUCKET).getPublicUrl(path);
-
-    await updateMyProfile({ avatar_url: publicUrl });
+    await updateMyProfile({ avatar_url: url });
 
     revalidatePath("/dashboard");
     revalidatePath("/configuracion");
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
     revalidateTag("public-djs");
-    return { ok: true, data: { url: publicUrl } };
+    return { ok: true, data: { url } };
   } catch (e) {
     return err(e);
   }
@@ -137,12 +103,6 @@ export async function deleteAvatarAction(): Promise<Result> {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────
-
-function extFromType(mime: string): string {
-  if (mime === "image/png") return "png";
-  if (mime === "image/webp") return "webp";
-  return "jpg";
-}
 
 /**
  * Convierte la URL pública del Storage a su path interno (bucket-relative).
