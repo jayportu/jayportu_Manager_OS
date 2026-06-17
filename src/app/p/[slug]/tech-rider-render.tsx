@@ -26,7 +26,7 @@ export function TechRiderRender({ items, hospitalityNote }: Props) {
   return (
     <details className="group">
       <summary className="cursor-pointer flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-2 list-none">
-        <span>Tech rider</span>
+        <span>Ver equipo detallado</span>
         <span className="text-fg-muted group-open:rotate-180 transition-transform">
           ▾
         </span>

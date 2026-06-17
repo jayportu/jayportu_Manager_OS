@@ -519,7 +519,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             profile.tech_rider_alt ||
             profile.hospitality ? (
               <section id="rider" className="mb-10 scroll-mt-20">
-                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4 text-orange">
                   — TECH RIDER
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -557,7 +557,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               </section>
             ) : hasStructuredRider ? (
               <section id="rider" className="mb-10 scroll-mt-20">
-                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4 text-orange">
                   — TECH RIDER
                 </div>
                 <StagePlot

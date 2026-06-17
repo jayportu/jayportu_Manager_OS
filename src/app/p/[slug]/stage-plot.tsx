@@ -1,7 +1,7 @@
 /**
  * Sprint 21 — Stage plot Tier 2: SVG estático que se rellena con datos del
- * rider del DJ. Layout fijo (mixer al centro, CDJs a los costados, monitores
- * arriba). Las etiquetas se sacan de los items reproduccion/mixer/monitores.
+ * rider del DJ. Vista superior de la cabina: el DJ va DETRÁS de los decks
+ * (fila única alineada: CDJs + mixer al centro) y la audiencia AL FRENTE.
  *
  * Es "Tier 2" porque no es un editor visual drag&drop (eso sería Tier 3),
  * pero ya muestra una imagen pro en lugar de un párrafo de texto.
@@ -25,10 +25,10 @@ export function StagePlot({ items, artistName }: Props) {
     (i) => i.category === "monitores" && !i.is_alternative
   );
 
-  // Cantidad total de CDJs (suma quantity)
   const cdjCount = reproduccion.reduce((sum, i) => sum + i.quantity, 0);
   const cdjName = reproduccion[0]?.name || "CDJ";
   const mixerName = mixers[0]?.name || "MIXER";
+  const mixerQty = mixers[0]?.quantity ?? 1;
   const monitorName = monitores[0]?.name || "MONITOR";
   const monitorCount = monitores.reduce((sum, i) => sum + i.quantity, 0) || 2;
 
@@ -37,11 +37,32 @@ export function StagePlot({ items, artistName }: Props) {
     return null;
   }
 
-  // Distribución de CDJs alrededor del mixer.
-  // Si hay 2 CDJs: uno a cada lado. Si hay 3+: 2 izq, 1 der + extras a los costados.
-  // Vamos a renderizar máximo 4 CDJs (caso real). Anchura del SVG: 600.
   const cdjsToRender = Math.min(Math.max(cdjCount, 2), 4);
-  const cdjPositions = computeCDJPositions(cdjsToRender);
+
+  // Fila única alineada: mitad de los CDJs, MIXER al centro, resto de CDJs.
+  // Todo a la misma altura → nunca se enciman.
+  const leftCount = Math.ceil(cdjsToRender / 2);
+  const CDJ_W = 90;
+  const MIXER_W = 108;
+  const GAP = 10;
+  const slots: Array<{ kind: "cdj" | "mixer" }> = [];
+  for (let i = 0; i < leftCount; i++) slots.push({ kind: "cdj" });
+  slots.push({ kind: "mixer" });
+  for (let i = 0; i < cdjsToRender - leftCount; i++) slots.push({ kind: "cdj" });
+
+  const rowWidth =
+    slots.reduce((w, s) => w + (s.kind === "mixer" ? MIXER_W : CDJ_W), 0) +
+    GAP * (slots.length - 1);
+  const ROW_Y = 170;
+  const BOX_H = 78;
+  let cursor = (600 - rowWidth) / 2;
+  let cdjNum = 0;
+  const placed = slots.map((s) => {
+    const w = s.kind === "mixer" ? MIXER_W : CDJ_W;
+    const x = cursor;
+    cursor += w + GAP;
+    return { kind: s.kind, x, w, num: s.kind === "cdj" ? ++cdjNum : 0 };
+  });
 
   return (
     <div className="my-6 border-2 border-ink bg-cream overflow-hidden">
@@ -54,16 +75,16 @@ export function StagePlot({ items, artistName }: Props) {
         </div>
       </div>
       <svg
-        viewBox="0 0 600 380"
+        viewBox="0 0 600 360"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-auto bg-cream"
         role="img"
-        aria-label={`Stage plot de ${artistName}: ${cdjsToRender} ${cdjName}, ${mixerName}, ${monitorCount} ${monitorName}`}
+        aria-label={`Stage plot de ${artistName}: ${cdjsToRender} ${cdjName}, ${mixerName}, ${Math.min(monitorCount, 2)} ${monitorName}. El DJ va detrás de los decks, la audiencia al frente.`}
       >
-        {/* Marco "audiencia" */}
+        {/* ── ATRÁS: monitores side-fill + DJ ── */}
         <text
           x="300"
-          y="20"
+          y="18"
           textAnchor="middle"
           className="fill-ink/40 font-mono"
           fontSize="11"
@@ -73,147 +94,40 @@ export function StagePlot({ items, artistName }: Props) {
           ↑ MONITORES SIDE-FILL ↑
         </text>
 
-        {/* Monitores arriba */}
-        <g>
-          {Array.from({ length: Math.min(monitorCount, 2) }).map((_, i) => {
-            const x = i === 0 ? 130 : 410;
-            return (
-              <g key={`mon-${i}`}>
-                <polygon
-                  points={`${x},50 ${x + 60},50 ${x + 50},85 ${x + 10},85`}
-                  fill="#0A0A0A"
-                  stroke="#0A0A0A"
-                  strokeWidth="2"
-                />
-                <text
-                  x={x + 30}
-                  y="72"
-                  textAnchor="middle"
-                  fill="#F4EFE7"
-                  fontSize="9"
-                  fontFamily="ui-monospace,monospace"
-                  fontWeight="700"
-                >
-                  MON
-                </text>
-              </g>
-            );
-          })}
-        </g>
+        {Array.from({ length: Math.min(monitorCount, 2) }).map((_, i) => {
+          const x = i === 0 ? 110 : 430;
+          return (
+            <g key={`mon-${i}`}>
+              <polygon
+                points={`${x},34 ${x + 60},34 ${x + 50},66 ${x + 10},66`}
+                fill="#0A0A0A"
+                stroke="#0A0A0A"
+                strokeWidth="2"
+              />
+              <text
+                x={x + 30}
+                y="55"
+                textAnchor="middle"
+                fill="#F4EFE7"
+                fontSize="10"
+                fontFamily="ui-monospace,monospace"
+                fontWeight="700"
+              >
+                MON
+              </text>
+            </g>
+          );
+        })}
 
-        {/* Mesa / superficie */}
-        <rect
-          x="50"
-          y="120"
-          width="500"
-          height="180"
-          fill="none"
-          stroke="#0A0A0A"
-          strokeWidth="2"
-          strokeDasharray="6 4"
-        />
-        <text
-          x="55"
-          y="135"
-          fill="#0A0A0A"
-          fontSize="9"
-          fontFamily="ui-monospace,monospace"
-          opacity="0.5"
-        >
-          MESA / SUPERFICIE
-        </text>
-
-        {/* Mixer al centro */}
+        {/* DJ — detrás de los decks (mira hacia la audiencia, abajo) */}
         <g>
-          <rect
-            x="240"
-            y="180"
-            width="120"
-            height="80"
-            fill="#FF5C00"
-            stroke="#0A0A0A"
-            strokeWidth="3"
-          />
+          <circle cx="300" cy="96" r="16" fill="#FF5C00" stroke="#0A0A0A" strokeWidth="2" />
           <text
             x="300"
-            y="215"
+            y="100"
             textAnchor="middle"
             fill="#0A0A0A"
             fontSize="11"
-            fontFamily="ui-monospace,monospace"
-            fontWeight="700"
-          >
-            MIXER
-          </text>
-          <text
-            x="300"
-            y="232"
-            textAnchor="middle"
-            fill="#0A0A0A"
-            fontSize="9"
-            fontFamily="ui-monospace,monospace"
-          >
-            {truncate(mixerName, 16)}
-          </text>
-          <text
-            x="300"
-            y="248"
-            textAnchor="middle"
-            fill="#0A0A0A"
-            fontSize="8"
-            fontFamily="ui-monospace,monospace"
-            opacity="0.7"
-          >
-            {mixers[0]?.quantity ?? 1}×
-          </text>
-        </g>
-
-        {/* CDJs */}
-        {cdjPositions.map((pos, idx) => (
-          <g key={`cdj-${idx}`}>
-            <rect
-              x={pos.x}
-              y={pos.y}
-              width="90"
-              height="80"
-              fill="#0A0A0A"
-              stroke="#0A0A0A"
-              strokeWidth="2"
-            />
-            <text
-              x={pos.x + 45}
-              y={pos.y + 32}
-              textAnchor="middle"
-              fill="#F4EFE7"
-              fontSize="10"
-              fontFamily="ui-monospace,monospace"
-              fontWeight="700"
-            >
-              CDJ {idx + 1}
-            </text>
-            <text
-              x={pos.x + 45}
-              y={pos.y + 50}
-              textAnchor="middle"
-              fill="#F4EFE7"
-              fontSize="8"
-              fontFamily="ui-monospace,monospace"
-              opacity="0.8"
-            >
-              {truncate(cdjName, 14)}
-            </text>
-          </g>
-        ))}
-
-        {/* DJ ubicación */}
-        <g>
-          <circle cx="300" cy="320" r="14" fill="#FF5C00" stroke="#0A0A0A" strokeWidth="2" />
-          <text
-            x="300"
-            y="324"
-            textAnchor="middle"
-            fill="#0A0A0A"
-            fontSize="10"
             fontFamily="ui-monospace,monospace"
             fontWeight="700"
           >
@@ -221,10 +135,115 @@ export function StagePlot({ items, artistName }: Props) {
           </text>
         </g>
 
-        {/* Audiencia */}
+        {/* ── MESA / superficie con los decks ── */}
+        <rect
+          x="40"
+          y="130"
+          width="520"
+          height="160"
+          fill="none"
+          stroke="#0A0A0A"
+          strokeWidth="2"
+          strokeDasharray="6 4"
+        />
+        <text
+          x="48"
+          y="146"
+          fill="#0A0A0A"
+          fontSize="10"
+          fontFamily="ui-monospace,monospace"
+          opacity="0.5"
+        >
+          MESA / SUPERFICIE
+        </text>
+
+        {/* Decks: fila alineada CDJ … MIXER … CDJ */}
+        {placed.map((p, idx) =>
+          p.kind === "mixer" ? (
+            <g key={`slot-${idx}`}>
+              <rect
+                x={p.x}
+                y={ROW_Y}
+                width={p.w}
+                height={BOX_H}
+                fill="#FF5C00"
+                stroke="#0A0A0A"
+                strokeWidth="3"
+              />
+              <text
+                x={p.x + p.w / 2}
+                y={ROW_Y + 30}
+                textAnchor="middle"
+                fill="#0A0A0A"
+                fontSize="12"
+                fontFamily="ui-monospace,monospace"
+                fontWeight="700"
+              >
+                MIXER
+              </text>
+              <text
+                x={p.x + p.w / 2}
+                y={ROW_Y + 48}
+                textAnchor="middle"
+                fill="#0A0A0A"
+                fontSize="9"
+                fontFamily="ui-monospace,monospace"
+              >
+                {truncate(mixerName, 16)}
+              </text>
+              <text
+                x={p.x + p.w / 2}
+                y={ROW_Y + 64}
+                textAnchor="middle"
+                fill="#0A0A0A"
+                fontSize="9"
+                fontFamily="ui-monospace,monospace"
+                opacity="0.7"
+              >
+                {mixerQty}×
+              </text>
+            </g>
+          ) : (
+            <g key={`slot-${idx}`}>
+              <rect
+                x={p.x}
+                y={ROW_Y}
+                width={p.w}
+                height={BOX_H}
+                fill="#0A0A0A"
+                stroke="#0A0A0A"
+                strokeWidth="2"
+              />
+              <text
+                x={p.x + p.w / 2}
+                y={ROW_Y + 32}
+                textAnchor="middle"
+                fill="#F4EFE7"
+                fontSize="11"
+                fontFamily="ui-monospace,monospace"
+                fontWeight="700"
+              >
+                CDJ {p.num}
+              </text>
+              <text
+                x={p.x + p.w / 2}
+                y={ROW_Y + 50}
+                textAnchor="middle"
+                fill="#F4EFE7"
+                fontSize="9"
+                fontFamily="ui-monospace,monospace"
+                opacity="0.85"
+              >
+                {truncate(cdjName, 13)}
+              </text>
+            </g>
+          )
+        )}
+
+        {/* ── AL FRENTE: audiencia (el DJ la mira) ── */}
         <text
           x="300"
-          y="360"
+          y="332"
           textAnchor="middle"
           className="fill-ink/40 font-mono"
           fontSize="11"
@@ -234,11 +253,6 @@ export function StagePlot({ items, artistName }: Props) {
           ↓ AUDIENCIA ↓
         </text>
       </svg>
-
-      <div className="px-4 py-3 border-t-2 border-ink bg-cream text-[10px] font-mono text-fg-muted">
-        Layout estándar de cabina. {cdjsToRender}× CDJ + 1× mixer + {Math.min(monitorCount, 2)}× monitor.
-        Auto-generado desde tu tech rider.
-      </div>
     </div>
   );
 }
@@ -246,32 +260,4 @@ export function StagePlot({ items, artistName }: Props) {
 function truncate(s: string, max: number): string {
   if (s.length <= max) return s;
   return s.slice(0, max - 1) + "…";
-}
-
-function computeCDJPositions(count: number): Array<{ x: number; y: number }> {
-  // Posiciones x,y de cada CDJ alrededor del mixer (que está en x=240..360).
-  // y default = 180 (alineado con mixer)
-  switch (count) {
-    case 2:
-      return [
-        { x: 130, y: 180 },
-        { x: 380, y: 180 },
-      ];
-    case 3:
-      // 2 izquierda apilados + 1 derecha
-      return [
-        { x: 80, y: 130 },
-        { x: 130, y: 180 },
-        { x: 380, y: 180 },
-      ];
-    case 4:
-    default:
-      // 2 izquierda + 2 derecha
-      return [
-        { x: 80, y: 130 },
-        { x: 130, y: 180 },
-        { x: 380, y: 180 },
-        { x: 430, y: 130 },
-      ];
-  }
 }
