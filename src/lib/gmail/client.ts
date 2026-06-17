@@ -8,6 +8,7 @@
  * restringidos que requerían.
  */
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { refreshAccessToken } from "./oauth";
@@ -88,26 +89,6 @@ export async function deleteGmailConnection(): Promise<void> {
 
 // ─── Gmail API: enviar ────────────────────────────────────────────────
 
-async function gmailFetch<T = unknown>(
-  path: string,
-  init?: RequestInit
-): Promise<T> {
-  const token = await getGmailToken();
-  if (!token) throw new Error("Gmail no conectado");
-  const res = await fetch(`${GMAIL_API_BASE}${path}`, {
-    ...init,
-    headers: {
-      ...(init?.headers || {}),
-      Authorization: `Bearer ${token.accessToken}`,
-    },
-  });
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`Gmail API ${res.status}: ${txt}`);
-  }
-  return (await res.json()) as T;
-}
-
 /** Codifica un string a base64url (sin padding), como lo pide la Gmail API. */
 function toBase64Url(str: string): string {
   return Buffer.from(str, "utf-8")
@@ -117,40 +98,91 @@ function toBase64Url(str: string): string {
     .replace(/=+$/, "");
 }
 
+/** Header con tildes/ñ → encoded-word UTF-8 (RFC 2047), si no es ASCII. */
+function encodeHeaderWord(str: string): string {
+  return /[^\x00-\x7F]/.test(str)
+    ? `=?UTF-8?B?${Buffer.from(str, "utf-8").toString("base64")}?=`
+    : str;
+}
+
+/** base64 de un string UTF-8, partido en líneas de 76 chars (RFC 2045). */
+function b64Body(str: string): string {
+  return Buffer.from(str, "utf-8")
+    .toString("base64")
+    .replace(/(.{76})/g, "$1\r\n");
+}
+
+function htmlEscape(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 /**
- * Envía un correo desde la cuenta del usuario (scope gmail.send).
- * El From lo pone Gmail automáticamente (la cuenta autenticada). La copia
- * queda en la carpeta "Enviados" del propio Gmail del usuario.
+ * Texto plano → HTML simple y limpio (sin imágenes ni tracking — eso es lo
+ * que mejor entra a bandeja de entrada en correos 1:1). Línea en blanco =
+ * nuevo párrafo; saltos simples = <br>.
+ */
+function textToHtml(text: string): string {
+  const paras = text
+    .split(/\n{2,}/)
+    .map((p) => `<p style="margin:0 0 12px">${htmlEscape(p).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#222">${paras}</div>`;
+}
+
+/**
+ * Envía un correo desde la cuenta del usuario (scope gmail.send) como
+ * multipart/alternative (texto + HTML), con el nombre del DJ como remitente.
+ * Gmail firma el mensaje con DKIM de la cuenta autenticada; la copia queda en
+ * la carpeta "Enviados" del propio Gmail del usuario.
  */
 export async function sendEmail(args: {
   to: string;
   subject: string;
   bodyText: string;
+  fromName?: string | null;
 }): Promise<{ id: string; threadId: string }> {
-  const raw = toBase64Url(buildMimeMessage(args));
-  return gmailFetch<{ id: string; threadId: string }>("/messages/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ raw }),
-  });
-}
+  const token = await getGmailToken();
+  if (!token) throw new Error("Gmail no conectado");
 
-function buildMimeMessage(args: {
-  to: string;
-  subject: string;
-  bodyText: string;
-}): string {
-  // Subject con tildes/ñ → encoded-word UTF-8 para no romper el header.
-  const subject = /[^\x00-\x7F]/.test(args.subject)
-    ? `=?UTF-8?B?${Buffer.from(args.subject, "utf-8").toString("base64")}?=`
-    : args.subject;
-  const lines = [
+  const from = args.fromName
+    ? `${encodeHeaderWord(args.fromName)} <${token.googleEmail}>`
+    : token.googleEmail;
+
+  const boundary = `=_drop_${randomUUID()}`;
+  const mime = [
+    `From: ${from}`,
     `To: ${args.to}`,
-    `Subject: ${subject}`,
+    `Subject: ${encodeHeaderWord(args.subject)}`,
     "MIME-Version: 1.0",
-    'Content-Type: text/plain; charset="UTF-8"',
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
     "",
-    args.bodyText,
-  ];
-  return lines.join("\r\n");
+    `--${boundary}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    "Content-Transfer-Encoding: base64",
+    "",
+    b64Body(args.bodyText),
+    "",
+    `--${boundary}`,
+    'Content-Type: text/html; charset="UTF-8"',
+    "Content-Transfer-Encoding: base64",
+    "",
+    b64Body(textToHtml(args.bodyText)),
+    "",
+    `--${boundary}--`,
+    "",
+  ].join("\r\n");
+
+  const res = await fetch(`${GMAIL_API_BASE}/messages/send`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ raw: toBase64Url(mime) }),
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`Gmail API ${res.status}: ${txt}`);
+  }
+  return (await res.json()) as { id: string; threadId: string };
 }
