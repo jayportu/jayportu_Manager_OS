@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 export const revalidate = 60;
 import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
+import { GatedContact } from "./gated-contact";
 import { BookingForm } from "./booking-form";
 import { SoundcloudEmbed, YoutubeEmbed, SetEmbed } from "./embeds";
 import { TechRiderRender } from "./tech-rider-render";
@@ -16,7 +17,7 @@ import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { FollowNotifyToggle } from "@/components/booker/follow-notify-toggle";
-import { whatsappLink, normalizeUrl, isSupabaseStorageUrl } from "@/lib/format";
+import { normalizeUrl, isSupabaseStorageUrl } from "@/lib/format";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -127,8 +128,10 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     return true;
   })();
 
-  const wa = whatsappLink(profile.whatsapp);
-  const email = profile.public_email;
+  // El email/WhatsApp NO se renderizan en el HTML público (página cacheada):
+  // se sirven gated por cuenta de booker vía <GatedContact>. Acá solo sabemos
+  // si el DJ tiene contacto para decidir si mostrar esa sección.
+  const hasContact = !!(profile.public_email || profile.whatsapp);
   const ig = profile.instagram_url;
   const sc = profile.soundcloud_url;
   const yt = profile.youtube_url;
@@ -573,8 +576,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
           <aside id="contacto" className="scroll-mt-20">
             <div className="md:sticky md:top-20">
               {/* Sprint RA-1 — Información de reserva destacada (estilo RA).
-                  Si el DJ tiene email/whatsapp, se muestran como texto claro
-                  antes de los botones de acción. */}
+                  Fee/Agenda son públicos; el email/WhatsApp van GATED por
+                  cuenta de booker vía <GatedContact> (no salen al HTML). */}
               {/* Confiabilidad (Fase 1 · 1F) — checklist de confianza arriba */}
               {trustChecks.length > 0 && (
                 <div className="bg-white border-2 border-ink p-4 mb-4">
@@ -594,89 +597,45 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 </div>
               )}
 
-              {(email || profile.whatsapp || feeLabel || profile.available_note) && (
+              {(hasContact || feeLabel || profile.available_note) && (
                 <div className="bg-white border-2 border-ink p-4 mb-4">
                   <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
                     — INFORMACIÓN DE RESERVA
                   </div>
-                  <div className="space-y-1 text-sm">
-                    {email && (
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
-                          Email
-                        </span>
-                        <TrackedLink
-                          href={`mailto:${email}`}
-                          userId={profile.user_id}
-                          event="click_email"
-                          className="font-medium text-ink hover:text-orange transition-colors break-all"
-                        >
-                          {email}
-                        </TrackedLink>
-                      </div>
-                    )}
-                    {profile.whatsapp && wa && (
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
-                          WhatsApp
-                        </span>
-                        <TrackedLink
-                          href={wa}
-                          userId={profile.user_id}
-                          event="click_whatsapp"
-                          external
-                          className="font-medium text-ink hover:text-orange transition-colors"
-                        >
-                          +{profile.whatsapp.replace(/[^0-9]/g, "")}
-                        </TrackedLink>
-                      </div>
-                    )}
-                    {feeLabel && (
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
-                          Fee ref.
-                        </span>
-                        <span className="font-medium text-ink">{feeLabel}</span>
-                      </div>
-                    )}
-                    {profile.available_note && (
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
-                          Agenda
-                        </span>
-                        <span className="font-medium text-ink">
-                          {profile.available_note}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  {(feeLabel || profile.available_note) && (
+                    <div className="space-y-1 text-sm">
+                      {feeLabel && (
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+                            Fee ref.
+                          </span>
+                          <span className="font-medium text-ink">{feeLabel}</span>
+                        </div>
+                      )}
+                      {profile.available_note && (
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+                            Agenda
+                          </span>
+                          <span className="font-medium text-ink">
+                            {profile.available_note}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {hasContact && (
+                    <div className={feeLabel || profile.available_note ? "mt-3" : ""}>
+                      <GatedContact djUserId={profile.user_id} />
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Acciones rápidas arriba */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {wa && (
-                  <TrackedLink
-                    href={wa}
-                    userId={profile.user_id}
-                    event="click_whatsapp"
-                    external
-                    className="inline-flex items-center justify-center h-10 px-3 bg-ink text-orange border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-orange hover:text-ink transition-colors"
-                  >
-                    WhatsApp
-                  </TrackedLink>
-                )}
-                {email && (
-                  <TrackedLink
-                    href={`mailto:${email}`}
-                    userId={profile.user_id}
-                    event="click_email"
-                    className="inline-flex items-center justify-center h-10 px-3 bg-white border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
-                  >
-                    Email
-                  </TrackedLink>
-                )}
-                {ig && (
+              {/* Instagram es público; WhatsApp/Email van gated dentro de
+                  <GatedContact> y no se exponen en el HTML público. */}
+              {ig && (
+                <div className="flex flex-wrap gap-2 mb-4">
                   <TrackedLink
                     href={normalizeUrl(ig)}
                     userId={profile.user_id}
@@ -686,8 +645,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   >
                     Instagram
                   </TrackedLink>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Botón "Ver press kit (PDF)" — solo si el DJ subió un PDF.
                   Antes el PDF reemplazaba toda la página; ahora es un
@@ -735,10 +694,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
         {/* ── Footer ─────────────────────────────────────── */}
         <footer className="mt-16 pt-6 border-t-2 border-ink flex flex-wrap justify-between items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em] text-fg-subtle">
-          <div>
-            {profile.artist_name}
-            {email ? ` · ${email}` : ""}
-          </div>
+          <div>{profile.artist_name}</div>
           <div className="opacity-60">DROP. · THE DJ OS</div>
         </footer>
       </main>
