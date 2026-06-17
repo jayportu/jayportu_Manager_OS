@@ -2,6 +2,7 @@
 
 import { sendEmail } from "@/lib/gmail/client";
 import { addInteraction } from "@/lib/queries/interactions";
+import { getMyProfile } from "@/lib/queries/dj-profile";
 import { revalidatePath } from "next/cache";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,8 +23,16 @@ export async function sendEmailAction(args: {
   if (!subject) return { ok: false, error: "Falta el asunto." };
   if (!body) return { ok: false, error: "El mensaje está vacío." };
 
+  let fromName: string | null = null;
   try {
-    await sendEmail({ to, subject, bodyText: body });
+    const profile = await getMyProfile();
+    fromName = profile?.artist_name?.trim() || null;
+  } catch {
+    // sin perfil → Gmail usa el nombre por defecto de la cuenta
+  }
+
+  try {
+    await sendEmail({ to, subject, bodyText: body, fromName });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Error desconocido";
     // Mensaje claro si el token perdió permisos / expiró.
