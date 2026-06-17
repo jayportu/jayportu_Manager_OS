@@ -9,6 +9,7 @@ export const revalidate = 60;
 import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
 import { GatedContact } from "./gated-contact";
+import { SectionNav, type NavSection } from "./section-nav";
 import { BookingForm } from "./booking-form";
 import { SoundcloudEmbed, YoutubeEmbed, SetEmbed } from "./embeds";
 import { TechRiderRender } from "./tech-rider-render";
@@ -138,6 +139,20 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const sp = profile.spotify_url;
   const web = profile.website;
 
+  // Secciones del nav sticky (scroll-spy resalta la activa en naranjo).
+  const navSections: NavSection[] = [
+    { id: "bio", label: "— BIO", primary: true },
+    ...(sc || yt || sp || web || hasFeaturedSets
+      ? [{ id: "musica", label: "Música" }]
+      : []),
+    ...(hasStructuredRider ||
+    profile.tech_rider_ideal ||
+    profile.tech_rider_alt
+      ? [{ id: "rider", label: "Tech rider" }]
+      : []),
+    { id: "contacto", label: "Contacto" },
+  ];
+
   // Acortar nombre para hero (line-break si tiene 2+ palabras)
   const artistName = profile.artist_name || "DJ";
   const artistParts = artistName.trim().split(/\s+/);
@@ -259,44 +274,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* ═══ TABS row brutalist (anchors a secciones) ═══ */}
-      <nav
-        className="bg-white border-b-2 border-ink sticky top-0 z-30"
-        aria-label="Secciones del press kit"
-      >
-        <div className="max-w-6xl mx-auto flex overflow-x-auto">
-          <a
-            href="#bio"
-            className="font-display text-base md:text-lg leading-none px-4 md:px-6 py-3.5 bg-orange border-r-2 border-ink hover:bg-orange/90 transition-colors whitespace-nowrap"
-          >
-            — BIO
-          </a>
-          {(sc || yt || sp || web || hasFeaturedSets) && (
-            <a
-              href="#musica"
-              className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 border-r-2 border-ink hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
-            >
-              Música
-            </a>
-          )}
-          {(hasStructuredRider ||
-            profile.tech_rider_ideal ||
-            profile.tech_rider_alt) && (
-            <a
-              href="#rider"
-              className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 border-r-2 border-ink hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
-            >
-              Tech rider
-            </a>
-          )}
-          <a
-            href="#contacto"
-            className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg-muted px-4 md:px-6 py-4 hover:bg-cream hover:text-ink transition-colors whitespace-nowrap"
-          >
-            Contacto
-          </a>
-        </div>
-      </nav>
+      {/* ═══ TABS row brutalist (anchors a secciones, scroll-spy) ═══ */}
+      <SectionNav sections={navSections} />
 
       {/* ═══ BODY · grid 2fr / 1fr ═══ */}
       <main className="max-w-6xl mx-auto px-6 md:px-12 py-10 md:py-16">
@@ -653,22 +632,34 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   complemento opcional al perfil generado. Abre en pestaña
                   nueva para no perder el contexto del perfil. */}
               {hasPdfPressKit && (
-                <a
-                  href={profile.press_kit_pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-ink text-cream border-2 border-ink p-5 hover:bg-cream hover:text-ink transition-colors"
-                >
-                  <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-                    — PRESS KIT
+                <>
+                  <a
+                    href={profile.press_kit_pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block bg-orange text-ink border-2 border-ink p-5 hover:bg-ink hover:text-orange transition-colors"
+                  >
+                    <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
+                      — PRESS KIT
+                    </div>
+                    <div className="font-display text-2xl md:text-3xl leading-none mt-2 mb-3 flex items-center gap-2">
+                      <span>Ver press kit.</span>
+                      <span className="text-xl">↗</span>
+                    </div>
+                    <div className="font-mono text-[10px] uppercase tracking-wider opacity-70">
+                      Mi press kit en PDF · abre en pestaña nueva
+                    </div>
+                  </a>
+
+                  {/* Separación visual entre el press kit y el contacto */}
+                  <div className="flex items-center gap-3 my-5">
+                    <span className="flex-1 h-0.5 bg-ink/20" />
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-subtle">
+                      o contáctame
+                    </span>
+                    <span className="flex-1 h-0.5 bg-ink/20" />
                   </div>
-                  <div className="font-display text-2xl md:text-3xl leading-none mt-2 mb-3">
-                    Ver press kit<span className="text-orange">.</span>
-                  </div>
-                  <div className="font-mono text-[10px] uppercase tracking-wider opacity-70">
-                    ↗ Mi press kit en PDF · abre en pestaña nueva
-                  </div>
-                </a>
+                </>
               )}
 
               {/* Form de booking — card clara con acentos naranjos (más

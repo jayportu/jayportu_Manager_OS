@@ -93,9 +93,11 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
     <form onSubmit={handleSubmit} onFocus={handleFocus} className="space-y-4">
       {/* Orden "datos del gig primero": Nombre → Fecha → Tipo → Venue →
           Email → WhatsApp → Mensaje. Así el DJ ve al toque cuándo/qué/dónde. */}
-      <div className="grid md:grid-cols-2 gap-4">
+      {/* items-stretch + label con altura fija (min-h) → los inputs de cada
+          fila quedan alineados aunque una etiqueta ocupe 2 líneas. */}
+      <div className="grid md:grid-cols-2 gap-4 items-end">
         <div className="space-y-2">
-          <Label htmlFor="name">Nombre *</Label>
+          <Label htmlFor="name" className="flex items-end min-h-[30px] leading-tight">Nombre *</Label>
           <Input
             id="name"
             required
@@ -105,7 +107,7 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="event_date">Fecha (si la tienes)</Label>
+          <Label htmlFor="event_date" className="flex items-end min-h-[30px] leading-tight">Fecha (si la tienes)</Label>
           <Input
             id="event_date"
             type="date"
@@ -115,9 +117,9 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4 items-end">
         <div className="space-y-2">
-          <Label htmlFor="event_type">Tipo de evento</Label>
+          <Label htmlFor="event_type" className="flex items-end min-h-[30px] leading-tight">Tipo de evento</Label>
           <Input
             id="event_type"
             value={form.event_type}
@@ -126,7 +128,7 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="venue">Venue / lugar</Label>
+          <Label htmlFor="venue" className="flex items-end min-h-[30px] leading-tight">Venue / lugar</Label>
           <Input
             id="venue"
             value={form.venue}
@@ -136,9 +138,9 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4 items-end">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className="flex items-end min-h-[30px] leading-tight">Email</Label>
           <Input
             id="email"
             type="email"
@@ -148,7 +150,7 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="phone">WhatsApp / Teléfono</Label>
+          <Label htmlFor="phone" className="flex items-end min-h-[30px] leading-tight">WhatsApp / Teléfono</Label>
           <Input
             id="phone"
             value={form.phone}
