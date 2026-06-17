@@ -146,6 +146,21 @@ export default function PrivacyPage() {
             en tu cuenta de DROP. Puedes desconectar Google en cualquier momento
             desde Configuración.
           </p>
+          <p>
+            El uso y la transferencia que DROP. hace de la información recibida
+            de las APIs de Google se ajusta a la{" "}
+            <a
+              href="https://developers.google.com/terms/api-services-user-data-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:underline"
+            >
+              Política de Datos de Usuario de los Servicios API de Google
+            </a>
+            , incluyendo los requisitos de Uso Limitado (Limited Use). No usamos
+            los datos de Gmail para publicidad ni los transferimos a terceros,
+            salvo lo necesario para operar la integración que activaste.
+          </p>
         </Section>
 
         <Section title="Para qué los usamos">

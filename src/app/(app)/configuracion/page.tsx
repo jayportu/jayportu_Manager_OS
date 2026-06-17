@@ -110,10 +110,11 @@ export default async function ConfiguracionPage() {
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Gmail</h2>
+        <h2 className="text-lg font-semibold mb-2">Correo</h2>
         <p className="text-sm text-fg-muted mb-4">
-          Conecta tu cuenta de Gmail para leer hilos, asociarlos al CRM y
-          crear borradores. Setup gratis con Google Cloud Console.
+          Conecta tu cuenta de Google para enviar correos a tus contactos del
+          CRM y sincronizar tu calendario. DROP. no lee tu bandeja. Setup
+          gratis con Google Cloud Console.
         </p>
         <GmailSetup
           serverConfigured={gmailConfigured}

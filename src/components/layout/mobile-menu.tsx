@@ -53,7 +53,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/press-kit", label: "Press kit", icon: FileImage },
   { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
-  { href: "/gmail", label: "Gmail", icon: Mail },
+  { href: "/gmail", label: "Correo", icon: Mail },
   { href: "/growth", label: "Growth", icon: TrendingUp },
   { href: "/configuracion", label: "Configuración", icon: Settings },
 ];
