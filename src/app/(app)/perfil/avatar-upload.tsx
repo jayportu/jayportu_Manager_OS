@@ -3,7 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { uploadAvatarAction, deleteAvatarAction } from "./avatar-actions";
+import { createClient } from "@/lib/supabase/client";
+import { setAvatarUrlAction, deleteAvatarAction } from "./avatar-actions";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
 
 interface AvatarUploadProps {
@@ -38,21 +39,51 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
       return;
     }
     startTransition(async () => {
-      // try/catch defensivo: si el Server Action lanza un error no-controlado
-      // (ej. body limit del framework, network drop), evitamos que se vuelva
-      // un Application Error global que tira toda la página.
       try {
         // Comprimir antes de subir: la foto del celular (2-10 MB) se
-        // redimensiona a 1024px WebP (~150-300 KB) en el browser. Esto baja
-        // el egress de Supabase (Vercel baja un original liviano una sola
-        // vez) y el peso del zoom a tamaño real. Si falla, sube el original.
+        // redimensiona a 1600px WebP (~150-400 KB) en el browser → baja el
+        // egress de Supabase. Si la compresión falla (ej. Safari sin WebP),
+        // sube el original; ya NO importa el peso porque va directo a Storage.
         const toUpload = await compressAvatar(file);
-        const formData = new FormData();
-        formData.set("file", toUpload);
-        const res = await uploadAvatarAction(formData);
+
+        // Subida DIRECTA a Supabase Storage desde el navegador (no por el
+        // Server Action) → el byte de la imagen no pasa por la función de
+        // Vercel y se evita el tope de 4.5 MB que rompía fotos grandes.
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          setError("Tu sesión expiró. Recarga la página e intenta de nuevo.");
+          return;
+        }
+        const ext =
+          toUpload.type === "image/png"
+            ? "png"
+            : toUpload.type === "image/webp"
+            ? "webp"
+            : "jpg";
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("avatars")
+          .upload(path, toUpload, {
+            contentType: toUpload.type,
+            cacheControl: "31536000",
+            upsert: false,
+          });
+        if (upErr) {
+          setError(`No se pudo subir la imagen: ${upErr.message}`);
+          return;
+        }
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("avatars").getPublicUrl(path);
+
+        // Guardar la URL en el perfil (payload mínimo → sin límite de body).
+        const res = await setAvatarUrlAction(publicUrl);
         if (res.ok) {
-          setUrl(res.data.url);
-          onChange?.(res.data.url);
+          setUrl(publicUrl);
+          onChange?.(publicUrl);
           router.refresh();
         } else {
           setError(res.error);
@@ -61,7 +92,7 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
         setError(
           e instanceof Error
             ? `No se pudo subir la imagen: ${e.message}`
-            : "No se pudo subir la imagen. Intenta con una más liviana o vuelve a intentarlo."
+            : "No se pudo subir la imagen. Vuelve a intentarlo."
         );
       } finally {
         if (inputRef.current) inputRef.current.value = "";
