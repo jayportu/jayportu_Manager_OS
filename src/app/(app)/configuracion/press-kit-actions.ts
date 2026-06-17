@@ -12,20 +12,29 @@ function err(e: unknown): { ok: false; error: string } {
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 
-const MAX_BYTES = 25 * 1024 * 1024; // 25 MB (mismo límite del bucket, migración 0025)
 const BUCKET = "press-kits";
 
 /**
- * Sube un PDF al bucket Storage y actualiza dj_profile:
+ * Guarda la URL del PDF ya subido y actualiza dj_profile:
  *   press_kit_mode = 'pdf'
  *   press_kit_pdf_url
  *   press_kit_pdf_filename
  *   press_kit_pdf_size_bytes
  *
- * Si ya había un PDF, lo borra antes para no acumular archivos huérfanos.
+ * El PDF se sube DIRECTO a Supabase Storage desde el navegador (ver
+ * press-kit-section.tsx), NO por este action — así el byte del archivo nunca
+ * pasa por el Server Action y se evita el tope de 4.5 MB de request de Vercel
+ * (que rompía PDFs grandes con el críptico "An unexpected response was
+ * received from the server", mismo bug que tenía el avatar — PR #141).
+ *
+ * Acá solo: validamos que la URL sea de nuestro bucket y de la carpeta del
+ * propio usuario, borramos el PDF anterior (evita huérfanos) y actualizamos
+ * dj_profile.
  */
-export async function uploadPressKitPdfAction(
-  formData: FormData
+export async function setPressKitPdfUrlAction(
+  url: string,
+  filename: string,
+  sizeBytes: number
 ): Promise<Result<{ url: string }>> {
   try {
     const supabase = await createClient();
@@ -34,68 +43,38 @@ export async function uploadPressKitPdfAction(
     } = await supabase.auth.getUser();
     if (!user) return { ok: false, error: "No autenticado" };
 
-    const file = formData.get("file");
-    if (!(file instanceof File)) {
-      return { ok: false, error: "Archivo no enviado" };
-    }
-    if (file.size === 0) {
-      return { ok: false, error: "El archivo está vacío" };
-    }
-    if (file.size > MAX_BYTES) {
-      return {
-        ok: false,
-        error: `El archivo supera 25 MB (es ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
-      };
-    }
-    if (file.type !== "application/pdf") {
-      return { ok: false, error: "Solo se permiten archivos PDF" };
+    // Seguridad: solo aceptamos URLs públicas de NUESTRO bucket de press-kits,
+    // y que apunten a la carpeta del propio usuario.
+    const path = extractStoragePath(url);
+    if (!path || !path.startsWith(`${user.id}/`)) {
+      return { ok: false, error: "URL de PDF inválida" };
     }
 
-    // Borrar PDF anterior si existe (evita acumular archivos huérfanos)
+    // Borrar PDF anterior si cambió (evita acumular archivos huérfanos)
     const { data: prevProfile } = await supabase
       .from("dj_profile")
       .select("press_kit_pdf_url")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (prevProfile?.press_kit_pdf_url) {
+    if (prevProfile?.press_kit_pdf_url && prevProfile.press_kit_pdf_url !== url) {
       const oldPath = extractStoragePath(prevProfile.press_kit_pdf_url);
       if (oldPath) {
         await supabase.storage.from(BUCKET).remove([oldPath]);
       }
     }
 
-    // Nombre único: {user_id}/{timestamp}-{sanitized}.pdf
-    const safeName = sanitizeFilename(file.name);
-    const path = `${user.id}/${Date.now()}-${safeName}`;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const { error: upErr } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, arrayBuffer, {
-        contentType: "application/pdf",
-        cacheControl: "3600",
-        upsert: false,
-      });
-    if (upErr) {
-      return { ok: false, error: `Upload: ${upErr.message}` };
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(BUCKET).getPublicUrl(path);
-
     await updateMyProfile({
       press_kit_mode: "pdf",
-      press_kit_pdf_url: publicUrl,
-      press_kit_pdf_filename: file.name.slice(0, 200),
-      press_kit_pdf_size_bytes: file.size,
+      press_kit_pdf_url: url,
+      press_kit_pdf_filename: (filename || "press-kit.pdf").slice(0, 200),
+      press_kit_pdf_size_bytes: Math.max(0, Math.floor(Number(sizeBytes) || 0)),
     });
 
     revalidatePath("/configuracion");
     revalidatePath("/press-kit");
     revalidatePath("/p/[slug]", "page");
-    return { ok: true, data: { url: publicUrl } };
+    return { ok: true, data: { url } };
   } catch (e) {
     return err(e);
   }
@@ -181,20 +160,6 @@ export async function setPressKitModeAction(
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────
-
-function sanitizeFilename(name: string): string {
-  // Quitar acentos, espacios → -, solo a-z0-9-_.
-  const noAccents = name
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
-  const cleaned = noAccents.replace(/[^a-z0-9._-]+/g, "-").replace(/-+/g, "-");
-  // Asegurar extensión .pdf
-  if (!cleaned.endsWith(".pdf")) {
-    return `${cleaned}.pdf`;
-  }
-  return cleaned.slice(0, 100); // tope de 100 chars
-}
 
 /**
  * Convierte la URL pública del Storage a su path interno (bucket-relative).
