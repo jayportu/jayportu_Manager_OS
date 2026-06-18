@@ -63,6 +63,11 @@ export async function POST(req: Request) {
         { status: 409 }
       );
     }
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+    // No filtrar detalle interno al cliente; loguear server-side.
+    console.error("[nps] createNpsResponse failed:", e);
+    return NextResponse.json(
+      { ok: false, error: "No se pudo guardar tu respuesta." },
+      { status: 500 }
+    );
   }
 }

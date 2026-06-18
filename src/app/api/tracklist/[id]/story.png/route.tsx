@@ -367,10 +367,10 @@ export async function GET(_req: Request, { params }: Params) {
     }
   );
   } catch (e) {
-    // Si algo falla en el render, devolver mensaje plain para debugging.
-    // En el cliente verás el texto en lugar de un PNG roto silenciosamente.
-    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-    return new Response(`Error generando imagen: ${msg}`, {
+    // No exponer detalle interno (nombre/mensaje de error) al cliente; loguear
+    // server-side para debugging y devolver un texto genérico (auditoría 2026-06-18).
+    console.error("[story.png] render failed:", e);
+    return new Response("Error generando imagen.", {
       status: 500,
       headers: { "Content-Type": "text/plain" },
     });

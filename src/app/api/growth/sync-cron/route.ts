@@ -9,6 +9,7 @@
  */
 import { syncAllAutoAccounts } from "@/lib/integrations/sync-job";
 import { NextResponse } from "next/server";
+import { safeEqual } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-  if (auth !== `Bearer ${expected}`) {
+  if (!safeEqual(auth, `Bearer ${expected}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

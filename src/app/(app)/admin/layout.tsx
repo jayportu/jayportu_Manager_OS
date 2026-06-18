@@ -7,12 +7,19 @@
  */
 import { AdminNav } from "./admin-nav";
 import { ConfirmProvider } from "@/components/admin/confirm-dialog";
+import { assertAdmin } from "@/lib/queries/admin";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Piso de seguridad (auditoría 2026-06-18): además del assertAdmin() que llama
+  // cada page, el layout gatea como red de seguridad. Así, si una página /admin
+  // nueva olvida el chequeo, igual no expone el backoffice. assertAdmin() redirige
+  // a /login (sin sesión) o /dashboard (no-admin).
+  await assertAdmin();
+
   return (
     <ConfirmProvider>
       <AdminNav />

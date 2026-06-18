@@ -68,7 +68,10 @@ export async function POST(req: Request) {
   if (dataUrl && dataUrl.startsWith("data:image/")) {
     try {
       // data:image/jpeg;base64,XXXX...
-      const match = dataUrl.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+      // Allowlist explícita de MIME (auditoría 2026-06-18): solo png/jpeg/webp.
+      // El bucket es privado y se sirve por signed URL, pero acotar el tipo evita
+      // guardar formatos inesperados (ej. svg) desde un cliente manipulado.
+      const match = dataUrl.match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
       if (match) {
         const mime = match[1];
         const ext = mime.split("/")[1] || "jpg";
@@ -104,8 +107,10 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ ok: true });
   } catch (e) {
+    // No filtrar detalle interno (schema/Postgres) al cliente; loguear server-side.
+    console.error("[feedback] createFeedbackReport failed:", e);
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "Error" },
+      { ok: false, error: "No se pudo guardar el feedback." },
       { status: 500 }
     );
   }

@@ -8,6 +8,7 @@
  */
 import { NextResponse } from "next/server";
 import { getPulso } from "@/lib/queries/pulso";
+import { safeEqual } from "@/lib/cron-auth";
 import { sendEmail, isResendConfigured } from "@/lib/email/resend";
 import { wrapEmail, ctaButton } from "@/lib/email/templates";
 
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
   if (!expected) {
     return NextResponse.json({ ok: false, error: "CRON_SECRET no configurado" }, { status: 500 });
   }
-  if ((req.headers.get("authorization") || "") !== `Bearer ${expected}`) {
+  if (!safeEqual(req.headers.get("authorization") || "", `Bearer ${expected}`)) {
     return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
   }
 

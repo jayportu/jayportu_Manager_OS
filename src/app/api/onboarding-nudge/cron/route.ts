@@ -8,6 +8,7 @@
  */
 import { NextResponse } from "next/server";
 import { runOnboardingNudge } from "@/lib/queries/onboarding-nudge";
+import { safeEqual } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
     );
   }
   const auth = req.headers.get("authorization") || "";
-  if (auth !== `Bearer ${expected}`) {
+  if (!safeEqual(auth, `Bearer ${expected}`)) {
     return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
   }
 
