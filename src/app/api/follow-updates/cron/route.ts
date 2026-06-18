@@ -24,6 +24,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { safeEqual } from "@/lib/cron-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, isResendConfigured } from "@/lib/email/resend";
 import {
@@ -127,7 +128,7 @@ export async function GET(req: Request) {
     );
   }
   const auth = req.headers.get("authorization") || "";
-  if (auth !== `Bearer ${expected}`) {
+  if (!safeEqual(auth, `Bearer ${expected}`)) {
     return NextResponse.json(
       { ok: false, error: "No autorizado" },
       { status: 401 }

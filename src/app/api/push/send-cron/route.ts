@@ -16,6 +16,7 @@
  * en lugar de apilar. No envía si no hay nada relevante.
  */
 import { createAdminClient } from "@/lib/supabase/admin";
+import { safeEqual } from "@/lib/cron-auth";
 import { sendPushToUser, type PushPayload } from "@/lib/push/server";
 import { NextResponse } from "next/server";
 
@@ -244,7 +245,7 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-  if (auth !== `Bearer ${expected}`) {
+  if (!safeEqual(auth, `Bearer ${expected}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
