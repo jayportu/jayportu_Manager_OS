@@ -44,11 +44,14 @@ export function BuscarCard({
   dj,
   filters,
   favorited = false,
+  isLive = false,
 }: {
   dj: PublicDjProfile;
   filters?: BuscarFilters;
   /** Estado de favorito provisto por el server (evita el fetch por-card). */
   favorited?: boolean;
+  /** DJ activo en la app ahora mismo (heartbeat < 3 min) → badge "● LIVE". */
+  isLive?: boolean;
 }) {
   const [showSet, setShowSet] = useState(false);
 
@@ -106,6 +109,16 @@ export function BuscarCard({
             initialFavorited={favorited}
           />
         </div>
+        {/* Badge LIVE: el DJ está conectado ahora → respuesta al instante. */}
+        {isLive && (
+          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 bg-ink text-orange border border-orange px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
+            <span
+              className="w-[6px] h-[6px] bg-orange rounded-full animate-blink"
+              aria-hidden="true"
+            />
+            LIVE
+          </span>
+        )}
       </div>
 
       {/* Cuerpo */}
