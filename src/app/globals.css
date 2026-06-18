@@ -57,7 +57,11 @@
   }
 
   html, body {
-    overflow-x: hidden;
+    /* clip (no hidden): evita el scroll horizontal igual que hidden, pero
+       NO crea un scroll-container → así `position: sticky` (header del sitio,
+       nav del press kit) sigue funcionando. Con `hidden` el header se
+       despegaba y scrolleaba en vez de quedar fijo arriba. */
+    overflow-x: clip;
     width: 100%;
   }
   body {
