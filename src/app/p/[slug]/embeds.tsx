@@ -157,7 +157,7 @@ export function YoutubeEmbed({
       href={safeUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-ink bg-ink text-cream font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-orange hover:text-ink transition-colors"
+      className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-ink bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
     >
       <span aria-hidden="true">▶</span> Ver canal en YouTube
     </a>

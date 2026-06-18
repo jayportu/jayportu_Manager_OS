@@ -476,7 +476,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                         userId={profile.user_id}
                         event="click_spotify"
                         external
-                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-white hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
                       >
                         Spotify →
                       </TrackedLink>
@@ -487,7 +487,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                         userId={profile.user_id}
                         event="click_website"
                         external
-                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-white hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
                       >
                         Website →
                       </TrackedLink>
