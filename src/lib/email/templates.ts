@@ -1298,6 +1298,456 @@ export function weeklyDigestAdminEmailText(input: {
 }
 
 // ---------------------------------------------------------------------------
+// 14. Post-evento: Review al booker (día +2)
+// ---------------------------------------------------------------------------
+
+export function postEventoBookerReviewEmailHtml(input: {
+  bookerName: string;
+  djArtistName: string;
+  eventDate: string;
+  reviewUrl: string;
+}): string {
+  const { bookerName, djArtistName, eventDate, reviewUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Esperamos que tu evento del <strong>${escapeHtml(eventDate)}</strong> con
+                <strong>${escapeHtml(djArtistName)}</strong> haya salido perfecto.
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0; color:${MUTED};">
+                ¿Cómo te fue? Tu opinión ayuda a otros bookers a elegir mejor y
+                le da visibilidad a los DJs que se lucen.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Dejar mi review", reviewUrl)}</p>
+              <p style="font-size:15px; margin:0;">Gracias,<br>DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `¿Cómo te fue con ${djArtistName}? Deja tu review`,
+    preheader: `Tu evento ya pasó. Cuéntanos cómo estuvo.`,
+    content,
+    footerReason: `Recibes este mensaje porque contrataste a ${djArtistName} a través de DROP. (dropgigs.com).`,
+  });
+}
+
+export function postEventoBookerReviewEmailText(input: {
+  bookerName: string;
+  djArtistName: string;
+  eventDate: string;
+  reviewUrl: string;
+}): string {
+  const { bookerName, djArtistName, eventDate, reviewUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    `Esperamos que tu evento del ${eventDate} con ${djArtistName} haya salido perfecto.`,
+    "",
+    "¿Cómo te fue? Tu opinión ayuda a otros bookers y le da visibilidad a los DJs que se lucen.",
+    "",
+    `Dejar mi review: ${reviewUrl}`,
+    "",
+    "--",
+    `Recibes este mensaje porque contrataste a ${djArtistName} a través de DROP. (dropgigs.com).`,
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 15. Post-evento: Nudge al DJ para fotos/reels (día +7)
+// ---------------------------------------------------------------------------
+
+export function postEventoDjFotosEmailHtml(input: {
+  djArtistName: string;
+  eventDate: string;
+  venue?: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, eventDate, venue, dashboardUrl } = input;
+  const venueLabel = venue ? ` en ${escapeHtml(venue)}` : "";
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Ya pasó una semana desde tu toque del <strong>${escapeHtml(eventDate)}</strong>${venueLabel}.
+              </p>
+              <p style="font-size:15px; margin:0 0 20px 0; color:${MUTED};">
+                Si tienes fotos o reels, súbelos a tu press kit ahora que el evento está fresco.
+                El contenido visual es lo que más convierte a bookers nuevos.
+              </p>
+              <div style="background:${CREAM}; border-radius:6px; padding:16px 20px; margin:0 0 24px 0;">
+                <p style="font-size:13px; color:${MUTED}; margin:0 0 8px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">Tip</p>
+                <p style="font-size:14px; color:${INK}; margin:0;">
+                  Un press kit con fotos de eventos reales recibe hasta 3× más solicitudes que uno sin contenido.
+                </p>
+              </div>
+              <p style="margin:0 0 24px 0;">${ctaButton("Subir fotos a mi press kit", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Sube las fotos de tu último toque",
+    preheader: "Ya pasó una semana — el contenido fresco convierte más.",
+    content,
+    footerReason: "Recibes este recordatorio porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  });
+}
+
+export function postEventoDjFotosEmailText(input: {
+  djArtistName: string;
+  eventDate: string;
+  venue?: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, eventDate, venue, dashboardUrl } = input;
+  const venueLabel = venue ? ` en ${venue}` : "";
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    `Ya pasó una semana desde tu toque del ${eventDate}${venueLabel}.`,
+    "",
+    "Si tienes fotos o reels, súbelos a tu press kit ahora que el evento está fresco.",
+    "El contenido visual es lo que más convierte a bookers nuevos.",
+    "",
+    `Subir fotos: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este recordatorio porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 16. Retención: 30 días sin booking recibido
+// ---------------------------------------------------------------------------
+
+export function djRetencion30DiasEmailHtml(input: {
+  djArtistName: string;
+  profileUrl: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, profileUrl, dashboardUrl } = input;
+  const tips = [
+    ["Foto profesional", "El 80% de los bookers mira primero la foto. Una buena imagen lo cambia todo."],
+    ["Bio con estilo y géneros", "Explica qué tipo de eventos tocas y en qué eres diferente."],
+    ["Comparte tu press kit", "El link de tu perfil es tu tarjeta de presentación. Agrégalo a tu bio de IG."],
+  ];
+  const tipsHtml = tips.map(([title, desc]) => `
+    <tr>
+      <td style="padding:12px 0; border-bottom:1px solid ${BORDER};">
+        <p style="font-size:14px; font-weight:600; color:${INK}; margin:0 0 4px 0;">${title}</p>
+        <p style="font-size:13px; color:${MUTED}; margin:0;">${desc}</p>
+      </td>
+    </tr>`).join("");
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Llevas un mes sin recibir nuevos bookings. Estas pequeñas mejoras en tu perfil pueden hacer una gran diferencia:
+              </p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+                ${tipsHtml}
+              </table>
+              <p style="margin:0 0 12px 0;">${ctaButton("Revisar mi press kit", profileUrl)}</p>
+              <p style="margin:0 0 24px 0;"><a href="${escapeHtml(dashboardUrl)}" style="font-size:13px; color:${MUTED};">Ver mi dashboard</a></p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Algunos tips para conseguir tu próximo booking",
+    preheader: "Pequeños cambios en tu perfil pueden atraer más bookers.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  });
+}
+
+export function djRetencion30DiasEmailText(input: {
+  djArtistName: string;
+  profileUrl: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, profileUrl, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    "Llevas un mes sin recibir nuevos bookings. Algunos tips:",
+    "",
+    "1. Foto profesional — El 80% de los bookers mira primero la foto.",
+    "2. Bio con estilo y géneros — Explica qué tipo de eventos tocas.",
+    "3. Comparte tu press kit — Agrégalo a tu bio de IG.",
+    "",
+    `Revisar mi press kit: ${profileUrl}`,
+    `Dashboard: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 17. Retención: 60 días sin actividad (reengagement)
+// ---------------------------------------------------------------------------
+
+export function djRetencion60DiasEmailHtml(input: {
+  djArtistName: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, dashboardUrl } = input;
+  const novedades = [
+    "Nuevo sistema de seguimientos en el CRM",
+    "Smart Match — bookers que buscan tu estilo",
+    "Press kit con sección de sets y mixes",
+  ];
+  const novedadesHtml = novedades.map(n => `
+    <li style="font-size:14px; color:${MUTED}; margin-bottom:8px;">${n}</li>`).join("");
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Hace un tiempo que no te vemos por acá. Mientras estabas afuera, DROP. creció bastante.
+              </p>
+              <p style="font-size:13px; color:${MUTED}; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO}; margin:0 0 12px 0;">Novedades</p>
+              <ul style="padding-left:20px; margin:0 0 24px 0;">
+                ${novedadesHtml}
+              </ul>
+              <p style="margin:0 0 24px 0;">${ctaButton("Volver a DROP.", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">Te esperamos,<br>DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Hace tiempo que no te vemos — novedades en DROP.",
+    preheader: "Smart Match, CRM mejorado y más. Echa un vistazo.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  });
+}
+
+export function djRetencion60DiasEmailText(input: {
+  djArtistName: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    "Hace un tiempo que no te vemos por acá. Mientras estabas afuera, DROP. creció bastante.",
+    "",
+    "Novedades:",
+    "- Nuevo sistema de seguimientos en el CRM",
+    "- Smart Match — bookers que buscan tu estilo",
+    "- Press kit con sección de sets y mixes",
+    "",
+    `Volver a DROP.: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 18. Retención: Aniversario en DROP.
+// ---------------------------------------------------------------------------
+
+export function djAniversarioEmailHtml(input: {
+  djArtistName: string;
+  yearsLabel: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, yearsLabel, dashboardUrl } = input;
+  const content = `
+              <p style="font-size:11px; color:${ORANGE}; font-family:${FONT_MONO}; text-transform:uppercase; letter-spacing:0.15em; margin:0 0 8px 0;">Aniversario</p>
+              <p style="font-size:26px; font-weight:700; color:${INK}; margin:0 0 20px 0; line-height:1.2;">
+                ${escapeHtml(yearsLabel)} en DROP<span style="color:${ORANGE};">.</span>
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; color:${MUTED}; margin:0 0 24px 0;">
+                Hoy se cumple exactamente ${escapeHtml(yearsLabel)} desde que te sumaste a DROP.
+                Gracias por ser parte de esto desde el principio.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ver mi perfil", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">Con cariño,<br>DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `${yearsLabel} en DROP. — feliz aniversario`,
+    preheader: `Hoy se cumple ${yearsLabel} desde que te sumaste. Gracias.`,
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  });
+}
+
+export function djAniversarioEmailText(input: {
+  djArtistName: string;
+  yearsLabel: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, yearsLabel, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    `Hoy se cumple exactamente ${yearsLabel} desde que te sumaste a DROP.`,
+    "Gracias por ser parte de esto desde el principio.",
+    "",
+    `Ver mi perfil: ${dashboardUrl}`,
+    "",
+    "--",
+    "Con cariño, DROP. Team (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 19. Operaciones: DJ suspendido — notificación al afectado
+// ---------------------------------------------------------------------------
+
+export function djSuspendidoEmailHtml(input: {
+  djArtistName: string;
+  reason?: string;
+  contactEmail: string;
+}): string {
+  const { djArtistName, reason, contactEmail } = input;
+  const reasonBlock = reason
+    ? `<div style="background:${CREAM}; border-left:3px solid ${ORANGE}; padding:14px 18px; border-radius:4px; margin:0 0 24px 0;">
+        <p style="font-size:13px; color:${MUTED}; margin:0 0 4px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">Motivo</p>
+        <p style="font-size:14px; color:${INK}; margin:0;">${escapeHtml(reason)}</p>
+       </div>`
+    : "";
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Tu cuenta en DROP. ha sido <strong>suspendida temporalmente</strong> por nuestro equipo de moderación.
+              </p>
+              ${reasonBlock}
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Si crees que esto es un error o quieres más información, escríbenos a
+                <a href="mailto:${escapeHtml(contactEmail)}" style="color:${INK};">${escapeHtml(contactEmail)}</a>
+                y lo revisamos.
+              </p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Tu cuenta en DROP. ha sido suspendida",
+    preheader: "Información importante sobre tu cuenta.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  });
+}
+
+export function djSuspendidoEmailText(input: {
+  djArtistName: string;
+  reason?: string;
+  contactEmail: string;
+}): string {
+  const { djArtistName, reason, contactEmail } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    "Tu cuenta en DROP. ha sido suspendida temporalmente por nuestro equipo de moderación.",
+    ...(reason ? ["", `Motivo: ${reason}`] : []),
+    "",
+    `Si crees que esto es un error, escríbenos a ${contactEmail}.`,
+    "",
+    "--",
+    "DROP. Team (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 20. Operaciones: Nuevo booker — email de bienvenida
+// ---------------------------------------------------------------------------
+
+export function bookerBienvenidaEmailHtml(input: {
+  bookerName: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, searchUrl } = input;
+  const pasos = [
+    ["Busca tu DJ", "Filtra por estilo, ciudad y disponibilidad."],
+    ["Envía una solicitud", "Sin compromiso. El DJ te cotiza directamente."],
+    ["Confirma y listo", "Coordinen los detalles y el evento está agendado."],
+  ];
+  const pasosHtml = pasos.map(([title, desc], i) => `
+    <tr>
+      <td style="padding:14px 0; border-bottom:1px solid ${BORDER}; vertical-align:top;">
+        <span style="font-size:11px; color:${ORANGE}; font-family:${FONT_MONO}; font-weight:700; margin-right:8px;">0${i + 1}</span>
+        <strong style="font-size:14px; color:${INK};">${title}</strong>
+        <p style="font-size:13px; color:${MUTED}; margin:4px 0 0 0;">${desc}</p>
+      </td>
+    </tr>`).join("");
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Bienvenido a DROP<span style="color:${ORANGE};">.</span> — la forma más directa de contratar DJs en Chile.
+              </p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+                ${pasosHtml}
+              </table>
+              <p style="margin:0 0 24px 0;">${ctaButton("Buscar DJs", searchUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Bienvenido a DROP. — encuentra tu DJ",
+    preheader: "Contrata DJs en Chile de forma directa y sin intermediarios.",
+    content,
+    footerReason: "Recibes este mensaje porque creaste una cuenta en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookerBienvenidaEmailText(input: {
+  bookerName: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, searchUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    "Bienvenido a DROP. — la forma más directa de contratar DJs en Chile.",
+    "",
+    "Cómo funciona:",
+    "01. Busca tu DJ — filtra por estilo, ciudad y disponibilidad.",
+    "02. Envía una solicitud — sin compromiso. El DJ te cotiza directamente.",
+    "03. Confirma y listo — coordinen los detalles y el evento está agendado.",
+    "",
+    `Buscar DJs: ${searchUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque creaste una cuenta en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 21. Operaciones: Error spike — alerta admin
+// ---------------------------------------------------------------------------
+
+export function adminErrorSpikeEmailHtml(input: {
+  errorCount: number;
+  windowLabel: string;
+  adminUrl: string;
+}): string {
+  const { errorCount, windowLabel, adminUrl } = input;
+  const color = errorCount > 50 ? "#D93025" : ORANGE;
+  const content = `
+              <p style="font-size:11px; color:${color}; font-family:${FONT_MONO}; text-transform:uppercase; letter-spacing:0.15em; margin:0 0 8px 0;">Alerta de errores</p>
+              <p style="font-size:26px; font-weight:700; color:${INK}; margin:0 0 20px 0;">
+                ${errorCount} errores en ${escapeHtml(windowLabel)}
+              </p>
+              <p style="font-size:15px; color:${MUTED}; margin:0 0 24px 0;">
+                Se detectó un aumento inusual de errores en producción.
+                Revisa los logs para identificar la causa.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ver logs en Vercel", adminUrl)}</p>
+              <p style="font-size:13px; color:${MUTED}; margin:0;">
+                Este alerta se dispara automáticamente cuando hay más de 20 errores en 1 hora.
+              </p>`;
+  return wrapEmail({
+    title: `Alerta: ${errorCount} errores detectados`,
+    preheader: `${errorCount} errores en ${windowLabel} — revisar logs.`,
+    content,
+    footerReason: "Reporte automático de DROP. (dropgigs.com).",
+  });
+}
+
+export function adminErrorSpikeEmailText(input: {
+  errorCount: number;
+  windowLabel: string;
+  adminUrl: string;
+}): string {
+  const { errorCount, windowLabel, adminUrl } = input;
+  return [
+    `ALERTA: ${errorCount} errores en ${windowLabel}`,
+    "",
+    "Se detectó un aumento inusual de errores en producción.",
+    "Revisa los logs para identificar la causa.",
+    "",
+    `Logs Vercel: ${adminUrl}`,
+    "",
+    "--",
+    "Reporte automático de DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -1308,4 +1758,725 @@ export function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+// ---------------------------------------------------------------------------
+// 22. Booking: booker no responde cotización en 3 días
+// ---------------------------------------------------------------------------
+
+export function bookerNoRespondeEmailHtml(input: {
+  djArtistName: string;
+  bookerName: string;
+  sentAtLabel: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, bookerName, sentAtLabel, dashboardUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Enviaste tu cotización a <strong>${escapeHtml(bookerName)}</strong> el ${escapeHtml(sentAtLabel)}
+                y todavía no hay respuesta.
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                A veces un mensaje directo hace la diferencia. Si tienes su contacto, este es buen momento para hacer un seguimiento.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ver el booking", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `${bookerName} aún no respondió tu cotización`,
+    preheader: "Llevas 3 días esperando respuesta. Puede ser momento de hacer seguimiento.",
+    content,
+    footerReason: "Recibes este aviso porque tienes un booking pendiente en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookerNoRespondeEmailText(input: {
+  djArtistName: string;
+  bookerName: string;
+  sentAtLabel: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, bookerName, sentAtLabel, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    `Enviaste tu cotización a ${bookerName} el ${sentAtLabel} y todavía no hay respuesta.`,
+    "Si tienes su contacto, este es buen momento para hacer un seguimiento directo.",
+    "",
+    `Ver el booking: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este aviso porque tienes un booking pendiente en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 23. Booking: confirmación de cancelación al booker
+// ---------------------------------------------------------------------------
+
+export function bookingCanceladoEmailHtml(input: {
+  bookerName: string;
+  djArtistName: string;
+  eventDate: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, djArtistName, eventDate, searchUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Tu solicitud para el evento del <strong>${escapeHtml(eventDate)}</strong>
+                con <strong>${escapeHtml(djArtistName)}</strong> fue cancelada.
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Si aún necesitas un DJ para ese día, hay otros artistas disponibles en DROP.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Buscar otro DJ", searchUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Tu booking fue cancelado",
+    preheader: "¿Necesitas otro DJ? Hay opciones disponibles.",
+    content,
+    footerReason: `Recibes este aviso porque enviaste una solicitud a ${djArtistName} a través de DROP. (dropgigs.com).`,
+  });
+}
+
+export function bookingCanceladoEmailText(input: {
+  bookerName: string;
+  djArtistName: string;
+  eventDate: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, djArtistName, eventDate, searchUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    `Tu solicitud para el evento del ${eventDate} con ${djArtistName} fue cancelada.`,
+    "Si aún necesitas un DJ para ese día, hay otros artistas disponibles en DROP.",
+    "",
+    `Buscar otro DJ: ${searchUrl}`,
+    "",
+    "--",
+    `Recibes este aviso porque enviaste una solicitud a ${djArtistName} a través de DROP. (dropgigs.com).`,
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 24. CRM: follow-up vence mañana
+// ---------------------------------------------------------------------------
+
+export function followUpProximoEmailHtml(input: {
+  djArtistName: string;
+  contactName: string;
+  dueDateLabel: string;
+  note: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, contactName, dueDateLabel, note } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 20px 0;">
+                Tienes un seguimiento programado para <strong>mañana</strong> con <strong>${escapeHtml(contactName)}</strong>.
+              </p>
+              <div style="background:${CREAM}; border-radius:6px; padding:18px 20px; margin:0 0 28px 0;">
+                <p style="font-size:11px; color:${MUTED}; margin:0 0 6px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">Fecha · ${escapeHtml(dueDateLabel)}</p>
+                <p style="font-size:14px; color:${INK}; margin:0; font-style:italic;">"${escapeHtml(note)}"</p>
+              </div>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ir al CRM", input.dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `Seguimiento mañana con ${contactName}`,
+    preheader: `Recordatorio: tienes un follow-up pendiente para ${dueDateLabel}.`,
+    content,
+    footerReason: "Recibes este recordatorio porque tienes seguimientos activos en DROP. (dropgigs.com).",
+  });
+}
+
+export function followUpProximoEmailText(input: {
+  djArtistName: string;
+  contactName: string;
+  dueDateLabel: string;
+  note: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, contactName, dueDateLabel, note, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    `Tienes un seguimiento programado para mañana (${dueDateLabel}) con ${contactName}.`,
+    `Nota: "${note}"`,
+    "",
+    `Ir al CRM: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este recordatorio porque tienes seguimientos activos en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 25. CRM: contacto sin actividad en 90 días
+// ---------------------------------------------------------------------------
+
+export function contactoInactivoEmailHtml(input: {
+  djArtistName: string;
+  contactName: string;
+  lastActivityLabel: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, contactName, lastActivityLabel, dashboardUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                No hay actividad con <strong>${escapeHtml(contactName)}</strong> desde <strong>${escapeHtml(lastActivityLabel)}</strong>.
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                ¿Vale la pena retomar el contacto? Un mensaje corto puede reactivar la relación.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ver contacto", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `${contactName} lleva 90 días sin actividad`,
+    preheader: "Puede ser momento de retomar el contacto.",
+    content,
+    footerReason: "Recibes este aviso porque tienes contactos en tu CRM de DROP. (dropgigs.com).",
+  });
+}
+
+export function contactoInactivoEmailText(input: {
+  djArtistName: string;
+  contactName: string;
+  lastActivityLabel: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, contactName, lastActivityLabel, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    `No hay actividad con ${contactName} desde ${lastActivityLabel}.`,
+    "¿Vale la pena retomar el contacto? Un mensaje corto puede reactivar la relación.",
+    "",
+    `Ver contacto: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este aviso porque tienes contactos en tu CRM de DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 26. Calendario: recordatorio 7 días antes del show
+// ---------------------------------------------------------------------------
+
+export function eventoEn7DiasEmailHtml(input: {
+  djArtistName: string;
+  eventDate: string;
+  venue?: string;
+  amountClp?: number;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, eventDate, venue, amountClp, dashboardUrl } = input;
+  const venueRow = venue
+    ? `<tr><td style="padding:10px 0; border-bottom:1px solid ${BORDER};"><span style="font-size:11px; color:${MUTED}; text-transform:uppercase; font-family:${FONT_MONO};">Lugar</span><p style="font-size:14px; color:${INK}; margin:4px 0 0 0;">${escapeHtml(venue)}</p></td></tr>`
+    : "";
+  const amountRow = amountClp
+    ? `<tr><td style="padding:10px 0;"><span style="font-size:11px; color:${MUTED}; text-transform:uppercase; font-family:${FONT_MONO};">Monto acordado</span><p style="font-size:14px; color:${INK}; font-weight:600; margin:4px 0 0 0;">$${amountClp.toLocaleString("es-CL")} CLP</p></td></tr>`
+    : "";
+  const content = `
+              <p style="font-size:11px; color:${ORANGE}; font-family:${FONT_MONO}; text-transform:uppercase; letter-spacing:0.15em; margin:0 0 8px 0;">Faltan 7 días</p>
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 20px 0;">Tu próximo evento es en una semana. Aquí tienes todos los detalles:</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER}; border-radius:6px; padding:4px 16px; margin:0 0 28px 0;">
+                <tr><td style="padding:10px 0; border-bottom:1px solid ${BORDER};"><span style="font-size:11px; color:${MUTED}; text-transform:uppercase; font-family:${FONT_MONO};">Fecha</span><p style="font-size:14px; color:${INK}; font-weight:600; margin:4px 0 0 0;">${escapeHtml(eventDate)}</p></td></tr>
+                ${venueRow}
+                ${amountRow}
+              </table>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ver en mi calendario", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: `Tu evento es en 7 días — ${eventDate}`,
+    preheader: "Repasa los detalles antes del show.",
+    content,
+    footerReason: "Recibes este recordatorio porque tienes un evento agendado en DROP. (dropgigs.com).",
+  });
+}
+
+export function eventoEn7DiasEmailText(input: {
+  djArtistName: string;
+  eventDate: string;
+  venue?: string;
+  amountClp?: number;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, eventDate, venue, amountClp, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    `Tu próximo evento es el ${eventDate}.`,
+    ...(venue ? [`Lugar: ${venue}`] : []),
+    ...(amountClp ? [`Monto: $${amountClp.toLocaleString("es-CL")} CLP`] : []),
+    "",
+    `Ver en mi calendario: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este recordatorio porque tienes un evento agendado en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 27. Press kit: DJ sin slug configurado
+// ---------------------------------------------------------------------------
+
+export function djSinSlugEmailHtml(input: {
+  djArtistName: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, dashboardUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Tu press kit todavía no tiene una URL personalizada. En este momento tu link es
+                largo y difícil de recordar.
+              </p>
+              <div style="background:${CREAM}; border-radius:6px; padding:16px 20px; margin:0 0 24px 0;">
+                <p style="font-size:13px; color:${MUTED}; margin:0 0 6px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">Con tu slug</p>
+                <p style="font-size:15px; color:${INK}; font-weight:600; font-family:${FONT_MONO}; margin:0;">dropgigs.com/dj/<span style="color:${ORANGE};">tu-nombre</span></p>
+              </div>
+              <p style="margin:0 0 24px 0;">${ctaButton("Configurar mi URL", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Tu press kit no tiene URL personalizada",
+    preheader: "dropgigs.com/dj/tu-nombre — configúralo en 30 segundos.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  });
+}
+
+export function djSinSlugEmailText(input: {
+  djArtistName: string;
+  dashboardUrl: string;
+}): string {
+  const { djArtistName, dashboardUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    "Tu press kit todavía no tiene una URL personalizada.",
+    "Con un slug queda así: dropgigs.com/dj/tu-nombre",
+    "",
+    `Configurar mi URL: ${dashboardUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 28. Press kit: booker guardó tu perfil en favoritos
+// ---------------------------------------------------------------------------
+
+export function bookerFavoritoEmailHtml(input: {
+  djArtistName: string;
+  profileUrl: string;
+}): string {
+  const { djArtistName, profileUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djArtistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Alguien guardó tu perfil en favoritos. Están evaluando DJs para un evento.
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Este es buen momento para asegurarte de que tu press kit esté actualizado.
+                Los bookers comparan varios perfiles antes de decidir.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Ver mi press kit", profileUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Alguien guardó tu perfil",
+    preheader: "Un booker te tiene en su lista. Asegúrate de que tu perfil esté al día.",
+    content,
+    footerReason: "Recibes este aviso porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookerFavoritoEmailText(input: {
+  djArtistName: string;
+  profileUrl: string;
+}): string {
+  const { djArtistName, profileUrl } = input;
+  return [
+    `Hola ${djArtistName},`,
+    "",
+    "Alguien guardó tu perfil en favoritos. Están evaluando DJs para un evento.",
+    "Buen momento para revisar que tu press kit esté actualizado.",
+    "",
+    `Ver mi press kit: ${profileUrl}`,
+    "",
+    "--",
+    "Recibes este aviso porque tienes una cuenta activa en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 29. Admin: solicitud beta sin revisar en 48h
+// ---------------------------------------------------------------------------
+
+export function betaSinRevisarEmailHtml(input: {
+  pendingCount: number;
+  oldestLabel: string;
+  adminUrl: string;
+}): string {
+  const { pendingCount, oldestLabel, adminUrl } = input;
+  const content = `
+              <p style="font-size:11px; color:${ORANGE}; font-family:${FONT_MONO}; text-transform:uppercase; letter-spacing:0.15em; margin:0 0 8px 0;">Pendiente de revisión</p>
+              <p style="font-size:26px; font-weight:700; color:${INK}; margin:0 0 20px 0;">
+                ${pendingCount} solicitud${pendingCount > 1 ? "es" : ""} sin revisar
+              </p>
+              <p style="font-size:15px; color:${MUTED}; margin:0 0 24px 0;">
+                La más antigua lleva esperando desde <strong style="color:${INK};">${escapeHtml(oldestLabel)}</strong>.
+                Los DJs esperan respuesta — aprobar o rechazar rápido genera mejor impresión.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Revisar solicitudes", adminUrl)}</p>`;
+  return wrapEmail({
+    title: `${pendingCount} solicitud${pendingCount > 1 ? "es" : ""} beta sin revisar`,
+    preheader: `La más antigua lleva desde ${oldestLabel}. Entra a revisarlas.`,
+    content,
+    footerReason: "Reporte automático de DROP. (dropgigs.com).",
+  });
+}
+
+export function betaSinRevisarEmailText(input: {
+  pendingCount: number;
+  oldestLabel: string;
+  adminUrl: string;
+}): string {
+  const { pendingCount, oldestLabel, adminUrl } = input;
+  return [
+    `Tienes ${pendingCount} solicitud${pendingCount > 1 ? "es" : ""} beta sin revisar.`,
+    `La más antigua lleva esperando desde ${oldestLabel}.`,
+    "",
+    `Revisar: ${adminUrl}`,
+    "",
+    "--",
+    "Reporte automático de DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 30. Onboarding: DJ recién aprobado — primeros pasos
+// ---------------------------------------------------------------------------
+
+export function djOnboardingEmailHtml(input: {
+  djArtistName: string;
+  dashboardUrl: string;
+  pressKitUrl: string;
+}): string {
+  const { djArtistName, dashboardUrl, pressKitUrl } = input;
+  const pasos = [
+    ["01", "Sube tu foto", "La primera impresión lo es todo. Usa una foto de alta calidad."],
+    ["02", "Escribe tu bio", "Cuéntale a los bookers qué tipo de eventos tocas y cuál es tu estilo."],
+    ["03", "Agrega tus géneros y ciudad", "Así apareces en las búsquedas de bookers cercanos."],
+    ["04", "Configura tu URL", `Tu link quedará así: ${pressKitUrl}`],
+    ["05", "Comparte tu press kit", "Agrégalo a tu bio de Instagram. Cada visita es un posible booking."],
+  ];
+  const pasosHtml = pasos.map(([num, title, desc]) => `
+    <tr>
+      <td style="padding:14px 0; border-bottom:1px solid ${BORDER}; vertical-align:top;">
+        <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+          <td style="width:32px; vertical-align:top; padding-top:2px;">
+            <span style="font-size:11px; color:${ORANGE}; font-family:${FONT_MONO}; font-weight:700;">${num}</span>
+          </td>
+          <td>
+            <p style="font-size:14px; font-weight:600; color:${INK}; margin:0 0 3px 0;">${title}</p>
+            <p style="font-size:13px; color:${MUTED}; margin:0;">${escapeHtml(desc)}</p>
+          </td>
+        </tr></table>
+      </td>
+    </tr>`).join("");
+  const content = `
+              <p style="font-size:11px; color:${ORANGE}; font-family:${FONT_MONO}; text-transform:uppercase; letter-spacing:0.15em; margin:0 0 8px 0;">Bienvenido a DROP.</p>
+              <p style="font-size:24px; font-weight:700; color:${INK}; margin:0 0 20px 0; line-height:1.2;">
+                Hola ${escapeHtml(djArtistName)},<br>estás dentro.
+              </p>
+              <p style="font-size:15px; color:${MUTED}; margin:0 0 24px 0;">
+                Tu cuenta está aprobada. Sigue estos 5 pasos para empezar a recibir bookings:
+              </p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px 0;">
+                ${pasosHtml}
+              </table>
+              <p style="margin:0 0 24px 0;">${ctaButton("Completar mi perfil", dashboardUrl)}</p>
+              <p style="font-size:15px; margin:0;">
+                Cualquier duda, responde este email.<br>
+                DROP<span style="color:${ORANGE};">.</span> Team
+              </p>`;
+  return wrapEmail({
+    title: "Tu acceso a DROP. está listo — 5 pasos para empezar",
+    preheader: "Cuenta aprobada. Completa tu perfil y empieza a recibir bookings.",
+    content,
+    footerReason: "Recibes este mensaje porque tu solicitud a DROP. fue aprobada (dropgigs.com).",
+  });
+}
+
+export function djOnboardingEmailText(input: {
+  djArtistName: string;
+  dashboardUrl: string;
+  pressKitUrl: string;
+}): string {
+  const { djArtistName, dashboardUrl, pressKitUrl } = input;
+  return [
+    `Hola ${djArtistName}, estás dentro.`,
+    "",
+    "Tu cuenta está aprobada. 5 pasos para empezar:",
+    "",
+    "01. Sube tu foto — la primera impresión lo es todo.",
+    "02. Escribe tu bio — cuéntale a los bookers tu estilo.",
+    "03. Agrega géneros y ciudad — para aparecer en búsquedas.",
+    `04. Configura tu URL — quedará: ${pressKitUrl}`,
+    "05. Comparte tu press kit — agrégalo a tu bio de IG.",
+    "",
+    `Completar mi perfil: ${dashboardUrl}`,
+    "",
+    "Cualquier duda, responde este email.",
+    "--",
+    "DROP. Team (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 31. Retención booker: sin booking enviado en 7 días
+// ---------------------------------------------------------------------------
+
+export function bookerSinBookingEmailHtml(input: {
+  bookerName: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, searchUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Llevas una semana en DROP. y todavía no enviaste ninguna solicitud.
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 20px 0;">
+                Enviar una solicitud no tiene costo ni compromiso — el DJ te cotiza directamente
+                y tú decides si seguir o no.
+              </p>
+              <div style="background:${CREAM}; border-radius:6px; padding:16px 20px; margin:0 0 28px 0;">
+                <p style="font-size:13px; color:${MUTED}; margin:0 0 4px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">Tip</p>
+                <p style="font-size:14px; color:${INK}; margin:0;">
+                  Filtra por ciudad y género para encontrar el DJ ideal para tu evento.
+                </p>
+              </div>
+              <p style="margin:0 0 24px 0;">${ctaButton("Buscar DJs", searchUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "¿Todavía buscando DJ?",
+    preheader: "Enviar una solicitud no tiene costo. El DJ te cotiza directo.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookerSinBookingEmailText(input: {
+  bookerName: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, searchUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    "Llevas una semana en DROP. y todavía no enviaste ninguna solicitud.",
+    "Enviar una solicitud no tiene costo ni compromiso — el DJ te cotiza directamente.",
+    "",
+    `Buscar DJs: ${searchUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 32. Beta request rechazada — notif al DJ con opción de apelar
+// ---------------------------------------------------------------------------
+
+export function betaRechazadaEmailHtml(input: {
+  artistName: string;
+  rejectReason?: string;
+  betaUrl: string;
+}): string {
+  const { artistName, rejectReason, betaUrl } = input;
+  const reasonBlock = rejectReason
+    ? `<div style="background:${CREAM}; border-radius:6px; padding:16px 20px; margin:0 0 24px 0;">
+                <p style="font-size:13px; color:${MUTED}; margin:0 0 4px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">Motivo</p>
+                <p style="font-size:14px; color:${INK}; margin:0;">${escapeHtml(rejectReason)}</p>
+              </div>`
+    : "";
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(artistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Revisamos tu solicitud para unirte a DROP. y por ahora no pudimos darte acceso.
+              </p>
+              ${reasonBlock}
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Si crees que hay un error o quieres compartir más contexto sobre tu proyecto,
+                puedes apelar directamente. Revisamos cada caso con atención.
+              </p>
+              <p style="margin:0 0 28px 0;">${ctaButton("Apelar mi solicitud", betaUrl)}</p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                También puedes volver a postular más adelante cuando tengas más material
+                de tu trabajo (sets, redes, presentaciones).
+              </p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Sobre tu solicitud a DROP.",
+    preheader: "Revisamos tu postulación. Aquí tienes los detalles.",
+    content,
+    footerReason: "Recibes este mensaje porque postulaste a DROP. (dropgigs.com).",
+  });
+}
+
+export function betaRechazadaEmailText(input: {
+  artistName: string;
+  rejectReason?: string;
+  betaUrl: string;
+}): string {
+  const { artistName, rejectReason, betaUrl } = input;
+  return [
+    `Hola ${artistName},`,
+    "",
+    "Revisamos tu solicitud para unirte a DROP. y por ahora no pudimos darte acceso.",
+    ...(rejectReason ? ["", `Motivo: ${rejectReason}`] : []),
+    "",
+    "Si crees que hay un error o quieres compartir más contexto, puedes apelar.",
+    "",
+    `Apelar mi solicitud: ${betaUrl}`,
+    "",
+    "También puedes volver a postular más adelante con más material de tu trabajo.",
+    "",
+    "--",
+    "Recibes este mensaje porque postulaste a DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 33. DJ hito 10 bookings — felicitación por milestone
+// ---------------------------------------------------------------------------
+
+export function djHito10BookingsEmailHtml(input: {
+  djName: string;
+  profileUrl: string;
+}): string {
+  const { djName, profileUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(djName)},</p>
+              <div style="text-align:center; margin:0 0 32px 0;">
+                <p style="font-size:48px; margin:0 0 8px 0; line-height:1;">🎉</p>
+                <p style="font-size:22px; font-weight:700; color:${INK}; margin:0; letter-spacing:-0.02em;">
+                  10 bookings recibidos
+                </p>
+              </div>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Acabas de alcanzar un hito real. Tu perfil en DROP. ha generado
+                <strong>10 solicitudes de booking</strong> — lo que significa que hay gente
+                que te busca, te encuentra y quiere trabajar contigo.
+              </p>
+              <div style="background:${CREAM}; border-radius:6px; padding:16px 20px; margin:0 0 24px 0; border-left:3px solid ${ORANGE};">
+                <p style="font-size:14px; color:${INK}; margin:0;">
+                  Un perfil completo con fotos, géneros y audio samples convierte
+                  hasta <strong>3× más</strong> que uno sin contenido. Sigue sumando.
+                </p>
+              </div>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Revisa tu inbox — puede que haya solicitudes nuevas esperando respuesta.
+              </p>
+              <p style="margin:0 0 28px 0;">${ctaButton("Ver mi perfil", profileUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "10 bookings. Un hito real.",
+    preheader: "Tu perfil generó 10 solicitudes. Así se construye una carrera.",
+    content,
+    footerReason: "Recibes este mensaje porque eres DJ en DROP. (dropgigs.com).",
+  });
+}
+
+export function djHito10BookingsEmailText(input: {
+  djName: string;
+  profileUrl: string;
+}): string {
+  const { djName, profileUrl } = input;
+  return [
+    `Hola ${djName},`,
+    "",
+    "🎉 10 bookings recibidos",
+    "",
+    "Acabas de alcanzar un hito real. Tu perfil en DROP. ha generado 10 solicitudes de booking",
+    "— lo que significa que hay gente que te busca, te encuentra y quiere trabajar contigo.",
+    "",
+    "Un perfil completo convierte hasta 3× más que uno sin contenido. Sigue sumando.",
+    "",
+    "Revisa tu inbox — puede que haya solicitudes nuevas esperando respuesta.",
+    "",
+    `Ver mi perfil: ${profileUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque eres DJ en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// 34. Booker inactivo 30d sin booking — win-back
+// ---------------------------------------------------------------------------
+
+export function bookerInactivo30dEmailHtml(input: {
+  bookerName: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, searchUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Han pasado 30 días desde que te registraste en DROP. y todavía no
+                has enviado ninguna solicitud de booking.
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 20px 0;">
+                Quizás no encontraste el DJ que buscabas, o el evento se pospuso,
+                o simplemente no tuviste tiempo. Lo entendemos.
+              </p>
+              <div style="background:${CREAM}; border-radius:6px; padding:16px 20px; margin:0 0 28px 0;">
+                <p style="font-size:13px; color:${MUTED}; margin:0 0 8px 0; text-transform:uppercase; letter-spacing:0.1em; font-family:${FONT_MONO};">DJs disponibles ahora</p>
+                <p style="font-size:14px; color:${INK}; margin:0;">
+                  Nuevos perfiles se suman cada semana. Filtra por ciudad, género y
+                  disponibilidad para encontrar exactamente lo que necesitas.
+                </p>
+              </div>
+              <p style="margin:0 0 28px 0;">${ctaButton("Ver DJs disponibles", searchUrl)}</p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Enviar una solicitud es gratis y sin compromiso — el DJ te cotiza
+                y tú decides.
+              </p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "¿Sigues buscando DJ?",
+    preheader: "Nuevos DJs disponibles. Sin costo ni compromiso para cotizar.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookerInactivo30dEmailText(input: {
+  bookerName: string;
+  searchUrl: string;
+}): string {
+  const { bookerName, searchUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    "Han pasado 30 días desde que te registraste en DROP. y todavía no has enviado ninguna solicitud.",
+    "",
+    "Quizás no encontraste el DJ que buscabas, o el evento se pospuso. Lo entendemos.",
+    "",
+    "Nuevos perfiles se suman cada semana. Filtra por ciudad, género y disponibilidad.",
+    "",
+    `Ver DJs disponibles: ${searchUrl}`,
+    "",
+    "Enviar una solicitud es gratis y sin compromiso — el DJ te cotiza y tú decides.",
+    "",
+    "--",
+    "Recibes este mensaje porque tienes una cuenta en DROP. (dropgigs.com).",
+  ].join("\n");
 }
