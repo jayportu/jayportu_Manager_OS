@@ -151,6 +151,31 @@ export const getPublicDjsBase = unstable_cache(
   { revalidate: 300, tags: ["public-djs"] }
 );
 
+/** Ventana de presencia: un DJ se considera "LIVE" si su último latido fue
+ *  dentro de estos minutos (el heartbeat pinguea cada ~60s). */
+const LIVE_WINDOW_MS = 3 * 60 * 1000;
+
+/**
+ * user_ids de los DJs activos AHORA (último heartbeat < LIVE_WINDOW). NO se
+ * cachea —a diferencia de la base del directorio— porque la presencia tiene
+ * que ser fresca para que el badge "LIVE" signifique algo. Query barata:
+ * filtra en SQL por last_active_at (índice parcial) y trae solo user_id.
+ */
+export async function listLiveDjUserIds(): Promise<Set<string>> {
+  const admin = createAdminClient();
+  const since = new Date(Date.now() - LIVE_WINDOW_MS).toISOString();
+  const { data, error } = await admin
+    .from("dj_profile")
+    .select("user_id")
+    .eq("account_status", "active")
+    .gt("last_active_at", since);
+  if (error) {
+    console.error("listLiveDjUserIds error:", error);
+    return new Set();
+  }
+  return new Set((data ?? []).map((r: { user_id: string }) => r.user_id));
+}
+
 /**
  * Lista los DJs públicos aplicando filtros EN MEMORIA sobre la lectura base
  * cacheada. Ordenado por disponibilidad por default.

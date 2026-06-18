@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
+import { PresenceHeartbeat } from "@/components/dj/presence-heartbeat";
 import { Topbar } from "@/components/layout/topbar";
 import { MobileMenu } from "@/components/layout/mobile-menu";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
@@ -118,6 +119,8 @@ export default async function AppLayout({
 
   return (
     <ConfirmProvider>
+    {/* Latido de presencia: marca al DJ como "LIVE" para los bookers. */}
+    <PresenceHeartbeat />
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar fijo (desktop) — se mantiene en su lugar, scrollea internamente si hace falta */}
       <Sidebar

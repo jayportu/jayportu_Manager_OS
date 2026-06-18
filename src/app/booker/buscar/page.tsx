@@ -3,6 +3,7 @@ import {
   listPublicDjs,
   listPublicGenres,
   listPublicCities,
+  listLiveDjUserIds,
 } from "@/lib/queries/directory";
 import { getMyFavoriteDjIds } from "@/lib/queries/booker";
 import { BuscarCard } from "./buscar-card";
@@ -45,7 +46,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
     ? parseInt(sp.budget.replace(/\D/g, ""), 10) || undefined
     : undefined;
 
-  const [djs, allGenres, allCities, favIds] = await Promise.all([
+  const [djs, allGenres, allCities, favIds, liveIds] = await Promise.all([
     listPublicDjs({
       search: sp.q,
       city: sp.city,
@@ -56,6 +57,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
     listPublicGenres(),
     listPublicCities(),
     getMyFavoriteDjIds(),
+    listLiveDjUserIds(),
   ]);
 
   const availableCount = djs.filter((d) => d.is_available_now).length;
@@ -209,6 +211,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
               dj={d}
               filters={{ q: sp.q, city: sp.city, avail: sp.avail, budget: sp.budget }}
               favorited={favIds.has(d.user_id)}
+              isLive={liveIds.has(d.user_id)}
             />
           ))}
         </div>
