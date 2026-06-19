@@ -17,6 +17,7 @@ interface PageProps {
     genres?: string;
     avail?: string;
     budget?: string;
+    date?: string;
   }>;
 }
 
@@ -52,6 +53,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       city: sp.city,
       genres: activeGenres.length > 0 ? activeGenres : undefined,
       onlyAvailable: sp.avail === "1",
+      availableOn: sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : undefined,
       budget: budgetNum && budgetNum > 0 ? budgetNum : undefined,
     }),
     listPublicGenres(),
@@ -104,7 +106,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
           — FILTROS
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_170px_160px_150px_auto] gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_150px_150px_150px_140px_auto] gap-2">
           <input
             type="search"
             name="q"
@@ -140,6 +142,13 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             placeholder="Presupuesto $"
             defaultValue={sp.budget ?? ""}
             className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+          />
+          <input
+            type="date"
+            name="date"
+            title="Libre en esta fecha"
+            defaultValue={sp.date ?? ""}
+            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
           />
           <button
             type="submit"
@@ -194,6 +203,12 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       {/* Resultados */}
       <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
         — {djs.length} {djs.length === 1 ? "RESULTADO" : "RESULTADOS"}
+        {sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) && (
+          <span className="text-fg-muted">
+            {" "}
+            · LIBRES EL {sp.date.split("-").reverse().join("/")}
+          </span>
+        )}
       </div>
 
       {djs.length === 0 ? (
@@ -209,7 +224,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             <BuscarCard
               key={d.user_id}
               dj={d}
-              filters={{ q: sp.q, city: sp.city, avail: sp.avail, budget: sp.budget }}
+              filters={{ q: sp.q, city: sp.city, avail: sp.avail, budget: sp.budget, date: sp.date }}
               favorited={favIds.has(d.user_id)}
               isLive={liveIds.has(d.user_id)}
             />

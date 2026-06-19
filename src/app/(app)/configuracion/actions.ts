@@ -37,6 +37,10 @@ export async function saveProfileAction(
       normalized.youtube_url = normalizeUrl(normalized.youtube_url);
     if (typeof normalized.spotify_url === "string")
       normalized.spotify_url = normalizeUrl(normalized.spotify_url);
+    if (typeof normalized.beatport_url === "string")
+      normalized.beatport_url = normalizeUrl(normalized.beatport_url);
+    if (typeof normalized.bandcamp_url === "string")
+      normalized.bandcamp_url = normalizeUrl(normalized.bandcamp_url);
     if (typeof normalized.website === "string")
       normalized.website = normalizeUrl(normalized.website);
 

@@ -11,9 +11,13 @@ import { TrackedLink } from "./tracked-link";
 import { GatedContact } from "./gated-contact";
 import { SectionNav, type NavSection } from "./section-nav";
 import { BookingForm } from "./booking-form";
-import { SoundcloudEmbed, YoutubeEmbed, SetEmbed } from "./embeds";
+import { SoundcloudEmbed, YoutubeEmbed, SetEmbed, SpotifyEmbed } from "./embeds";
 import { TechRiderRender } from "./tech-rider-render";
-import { StagePlot } from "./stage-plot";
+import { StagePlot } from "@/components/tech-rider/stage-plot";
+import { GearCards } from "@/components/tech-rider/gear-cards";
+import { parseRiderText, hasCabinItems } from "@/lib/tech-rider/parse";
+import { AvailabilityCalendar } from "@/components/availability/availability-calendar";
+import { getPublicBusyDates } from "@/lib/queries/availability";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
@@ -76,6 +80,19 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const riderItems = await listPublicRiderItems(profile.user_id);
   const hasStructuredRider = riderItems.length > 0;
 
+  // Capa 2 — parseamos el tech rider en texto libre (lo que el DJ ya escribe)
+  // a items estructurados para auto-generar el stage plot + tarjetas de gear,
+  // sin pedirle ningún formulario. El texto crudo se sigue mostrando intacto.
+  const parsedRiderItems = parseRiderText(profile.tech_rider_ideal);
+  const showRiderVisual = parsedRiderItems.length > 0;
+  const showStagePlot = hasCabinItems(parsedRiderItems);
+
+  // Feature 3 — días ocupados (de gigs/bloqueos sincronizados) para el
+  // calendario de disponibilidad. Solo fechas, sin detalles del evento.
+  const busyDates = await getPublicBusyDates(profile.user_id);
+  const showAvailabilityCalendar =
+    !!profile.available_from || busyDates.length > 0;
+
   // Sprint RA-1 — stats públicos de gigs (sin RLS via service_role).
   const gigStats = await getPublicGigStats(profile.user_id);
   const hasGigData =
@@ -137,13 +154,18 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const sc = profile.soundcloud_url;
   const yt = profile.youtube_url;
   const sp = profile.spotify_url;
+  const bp = profile.beatport_url;
+  const bc = profile.bandcamp_url;
   const web = profile.website;
 
   // Secciones del nav sticky (scroll-spy resalta la activa en naranjo).
   const navSections: NavSection[] = [
     { id: "bio", label: "— BIO", primary: true },
-    ...(sc || yt || sp || web || hasFeaturedSets
+    ...(sc || yt || sp || bp || bc || web || hasFeaturedSets
       ? [{ id: "musica", label: "Música" }]
+      : []),
+    ...(showAvailabilityCalendar
+      ? [{ id: "disponibilidad", label: "Disponibilidad" }]
       : []),
     ...(hasStructuredRider ||
     profile.tech_rider_ideal ||
@@ -420,7 +442,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             )}
 
             {/* ── MÚSICA ── */}
-            {(sc || yt || sp || web || hasFeaturedSets) && (
+            {(sc || yt || sp || bp || bc || web || hasFeaturedSets) && (
               <section id="musica" className="mb-10 scroll-mt-20">
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
                   — MÚSICA
@@ -468,17 +490,41 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   </div>
                 )}
 
-                {(sp || web) && (
+                {sp && (
+                  <div className="mb-6">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2">
+                      Spotify
+                    </div>
+                    <SpotifyEmbed
+                      url={sp}
+                      userId={profile.user_id}
+                      onClickEvent="click_spotify"
+                    />
+                  </div>
+                )}
+
+                {(bp || bc || web) && (
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {sp && (
+                    {bp && (
                       <TrackedLink
-                        href={normalizeUrl(sp)}
+                        href={normalizeUrl(bp)}
                         userId={profile.user_id}
-                        event="click_spotify"
+                        event="click_beatport"
                         external
                         className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
                       >
-                        Spotify →
+                        Beatport →
+                      </TrackedLink>
+                    )}
+                    {bc && (
+                      <TrackedLink
+                        href={normalizeUrl(bc)}
+                        userId={profile.user_id}
+                        event="click_bandcamp"
+                        external
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                      >
+                        Bandcamp →
                       </TrackedLink>
                     )}
                     {web && (
@@ -497,6 +543,25 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               </section>
             )}
 
+            {/* ── DISPONIBILIDAD ── */}
+            {showAvailabilityCalendar && (
+              <section id="disponibilidad" className="mb-10 scroll-mt-20">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4 text-orange">
+                  — DISPONIBILIDAD
+                </div>
+                <AvailabilityCalendar
+                  availableFrom={profile.available_from}
+                  availableUntil={profile.available_until}
+                  busyDates={busyDates}
+                />
+                {profile.available_note && (
+                  <p className="mt-4 text-sm text-fg-muted leading-relaxed border-l-2 border-orange pl-3">
+                    {profile.available_note}
+                  </p>
+                )}
+              </section>
+            )}
+
             {/* ── TECH RIDER ── */}
             {/* Prioridad: el texto simple IDEAL/ALTERNATIVO (lo que el DJ edita
                 en Configuración) manda. El rider estructurado + stage plot queda
@@ -508,11 +573,23 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4 text-orange">
                   — TECH RIDER
                 </div>
+
+                {/* Capa 2 — visual auto-generado desde el texto del rider:
+                    diagrama de cabina + tarjetas de gear. RTP solo muestra
+                    fotos sueltas; acá mostramos el layout real de la cabina. */}
+                {showStagePlot && (
+                  <StagePlot
+                    items={parsedRiderItems}
+                    artistName={profile.artist_name}
+                  />
+                )}
+                {showRiderVisual && <GearCards items={parsedRiderItems} />}
+
                 <div className="grid md:grid-cols-2 gap-4">
                   {profile.tech_rider_ideal && (
                     <div className="p-4 border-2 border-ink bg-white">
                       <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
-                        IDEAL
+                        IDEAL · texto
                       </div>
                       <div className="text-sm whitespace-pre-wrap leading-relaxed">
                         {profile.tech_rider_ideal}

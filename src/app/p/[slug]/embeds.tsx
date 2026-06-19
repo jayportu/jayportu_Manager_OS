@@ -131,15 +131,15 @@ export function YoutubeEmbed({
   }, [tracked, userId, onClickEvent]);
 
   const safeUrl = normalizeUrl(url);
-  const videoId = extractYouTubeVideoId(safeUrl);
+  const embedSrc = youtubeEmbedSrc(safeUrl);
 
-  if (videoId) {
+  if (embedSrc) {
     return (
       <div className="aspect-video rounded-lg overflow-hidden border border-border bg-bg-panel">
         <iframe
           width="100%"
           height="100%"
-          src={`https://www.youtube.com/embed/${videoId}`}
+          src={embedSrc}
           title="YouTube video"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -149,7 +149,7 @@ export function YoutubeEmbed({
     );
   }
 
-  // Fallback (URL de canal/playlist sin video embebible): botón claro en vez
+  // Fallback (URL de canal sin video/playlist embebible): botón claro en vez
   // de un link de texto, para que se note que es accionable.
   if (!safeUrl) return null;
   return (
@@ -164,19 +164,137 @@ export function YoutubeEmbed({
   );
 }
 
+/**
+ * Devuelve el src del iframe de YouTube reproducible para una URL, o null si
+ * no hay nada que reproducir (ej. link de canal).
+ * Soporta video suelto, video dentro de playlist, playlist completa y lives.
+ */
+function youtubeEmbedSrc(url: string): string | null {
+  if (!url) return null;
+  const videoId = extractYouTubeVideoId(url);
+  const listId = extractYouTubePlaylistId(url);
+
+  // Video (con o sin playlist asociada) → reproduce el video.
+  if (videoId) {
+    return (
+      `https://www.youtube.com/embed/${videoId}` +
+      (listId ? `?list=${encodeURIComponent(listId)}` : "")
+    );
+  }
+  // Playlist sin video puntual → reproduce la playlist como serie.
+  // Solo prefijos de playlists reales (PL/UU/OL/FL/LL); listas "radio" (RD…)
+  // no embeben bien, así que caen al botón.
+  if (listId && /^(PL|UU|OL|FL|LL)/.test(listId)) {
+    return `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(
+      listId
+    )}`;
+  }
+  return null;
+}
+
 function extractYouTubeVideoId(url: string): string | null {
-  // Soporta: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/embed/ID
+  // Soporta: youtu.be/ID, watch?v=ID, /embed/ID, /shorts/ID, /live/ID
   const patterns = [
     /youtu\.be\/([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/watch\?(?:[^#]*&)?v=([a-zA-Z0-9_-]{11})/,
     /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
     /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/,
   ];
   for (const p of patterns) {
     const m = url.match(p);
     if (m) return m[1];
   }
   return null;
+}
+
+function extractYouTubePlaylistId(url: string): string | null {
+  const m = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+/**
+ * Spotify embed. Acepta URL (open.spotify.com/...) o URI (spotify:track:ID)
+ * de track, álbum, playlist, artista, episodio o show. Si no reconoce nada
+ * embebible, degrada a un botón link.
+ */
+export function SpotifyEmbed({
+  url,
+  userId,
+  onClickEvent,
+}: {
+  url: string;
+  userId: string;
+  onClickEvent: PresskitEventType;
+}) {
+  const [tracked, setTracked] = useState(false);
+  useEffect(() => {
+    if (tracked) return;
+    setTracked(true);
+    void fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, event: onClickEvent }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [tracked, userId, onClickEvent]);
+
+  const info = spotifyEmbedInfo(url);
+
+  if (!info) {
+    const link = normalizeUrl(url);
+    if (!link) return null;
+    return (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-ink bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+      >
+        Escuchar en Spotify →
+      </a>
+    );
+  }
+
+  // Track/episodio: player compacto. Álbum/playlist/artista/show: alto completo.
+  const height = info.type === "track" || info.type === "episode" ? 152 : 352;
+
+  return (
+    <iframe
+      src={`https://open.spotify.com/embed/${info.type}/${info.id}`}
+      width="100%"
+      height={height}
+      style={{ borderRadius: 12 }}
+      frameBorder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy"
+      title="Spotify player"
+    />
+  );
+}
+
+function spotifyEmbedInfo(
+  raw: string
+): { type: string; id: string } | null {
+  const s = (raw ?? "").trim();
+  if (!s) return null;
+  // URI: spotify:track:ID
+  const uri = s.match(
+    /spotify:(track|album|playlist|artist|episode|show):([a-zA-Z0-9]+)/i
+  );
+  if (uri) return { type: uri[1].toLowerCase(), id: uri[2] };
+  try {
+    const u = new URL(normalizeUrl(s));
+    if (!/(^|\.)spotify\.com$/i.test(u.hostname)) return null;
+    // Soporta prefijo de locale: /intl-es/track/ID
+    const m = u.pathname.match(
+      /\/(?:intl-[a-z]{2}\/)?(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/i
+    );
+    if (m) return { type: m[1].toLowerCase(), id: m[2] };
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 /**

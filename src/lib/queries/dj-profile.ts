@@ -22,7 +22,8 @@ const EDITABLE_PROFILE_FIELDS = [
   // Identidad pública
   "artist_name", "tagline", "bio_short", "bio_long", "genres", "city", "country",
   // Canales / redes
-  "instagram_url", "soundcloud_url", "youtube_url", "spotify_url", "website",
+  "instagram_url", "soundcloud_url", "youtube_url", "spotify_url",
+  "beatport_url", "bandcamp_url", "website",
   "featured_sets", "brands_worked", "aliases", "record_label",
   // Fee opt-in
   "show_fee", "fee_min", "fee_max",

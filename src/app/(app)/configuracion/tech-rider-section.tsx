@@ -17,11 +17,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ListPlus } from "lucide-react";
 import { saveProfileAction } from "./actions";
+import { RiderVisualPreview } from "@/components/tech-rider/preview";
 
 interface Props {
   initialIdeal: string;
   initialAlt: string;
   initialHospitality: string;
+  artistName?: string;
 }
 
 const IDEAL_EXAMPLE = `1x Pioneer DJM-900NXS
@@ -42,6 +44,7 @@ export function TechRiderSection({
   initialIdeal,
   initialAlt,
   initialHospitality,
+  artistName,
 }: Props) {
   const router = useRouter();
   const [ideal, setIdeal] = useState(initialIdeal ?? "");
@@ -135,6 +138,8 @@ export function TechRiderSection({
         disabled={isPending}
         rows={4}
       />
+
+      <RiderVisualPreview idealText={ideal} artistName={artistName} />
 
       <div className="flex items-center gap-3">
         <Button

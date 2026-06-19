@@ -77,6 +77,7 @@ export default async function ConfiguracionPage() {
           initialIdeal={profile.tech_rider_ideal}
           initialAlt={profile.tech_rider_alt}
           initialHospitality={profile.hospitality}
+          artistName={profile.artist_name}
         />
       </div>
 
