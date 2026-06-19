@@ -18,6 +18,8 @@ import { GearCards } from "@/components/tech-rider/gear-cards";
 import { parseRiderText, hasCabinItems } from "@/lib/tech-rider/parse";
 import { AvailabilityCalendar } from "@/components/availability/availability-calendar";
 import { getPublicBusyDates } from "@/lib/queries/availability";
+import { BandcampReleases } from "./bandcamp-releases";
+import { getBandcampReleases } from "@/lib/integrations/bandcamp";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
@@ -93,6 +95,12 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const showAvailabilityCalendar =
     !!profile.available_from || busyDates.length > 0;
 
+  // #3 — auto-discografía: releases de Bandcamp (cacheado 1 día). Beatport no
+  // se auto-importa (Cloudflare lo bloquea server-side) → queda como link.
+  const bandcampReleases = profile.bandcamp_url
+    ? await getBandcampReleases(profile.bandcamp_url)
+    : [];
+
   // Sprint RA-1 — stats públicos de gigs (sin RLS via service_role).
   const gigStats = await getPublicGigStats(profile.user_id);
   const hasGigData =
@@ -158,6 +166,30 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const bc = profile.bandcamp_url;
   const web = profile.website;
 
+  // JSON-LD (SEO #4) — el DJ como MusicGroup para rich results en Google.
+  // genre + sameAs (redes) + image son las señales fuertes; location = ciudad.
+  const ldImage = [
+    profile.hero_image_url,
+    profile.avatar_url,
+    profile.logo_url,
+  ].find((u) => typeof u === "string" && u.startsWith("https://"));
+  const ldSameAs = [ig, sc, yt, sp, bp, bc, web].filter(
+    (u): u is string => typeof u === "string" && u.startsWith("https://")
+  );
+  const presskitJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    name: profile.artist_name,
+    url: `https://dropgigs.com/p/${profile.public_slug}`,
+    ...(ldImage ? { image: ldImage } : {}),
+    ...(profile.genres.length > 0 ? { genre: profile.genres } : {}),
+    ...(profile.bio_short || profile.tagline
+      ? { description: profile.bio_short || profile.tagline }
+      : {}),
+    ...(ldSameAs.length > 0 ? { sameAs: ldSameAs } : {}),
+    ...(profile.city ? { location: { "@type": "Place", name: profile.city } } : {}),
+  };
+
   // Secciones del nav sticky (scroll-spy resalta la activa en naranjo).
   const navSections: NavSection[] = [
     { id: "bio", label: "— BIO", primary: true },
@@ -187,6 +219,15 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     <div className="min-h-screen bg-cream text-ink">
       {/* Beacon: registra view al montar */}
       <TrackBeacon userId={profile.user_id} event="view" />
+
+      {/* JSON-LD (SEO). dangerouslySetInnerHTML + escape de "<" (igual que /dj):
+          el JSON viene de data del DJ; JSON.stringify no escapa "</script>". */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(presskitJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
 
       {/* ═══ HERO ink full-width brutalist ═══ */}
       <header className="relative bg-ink text-cream border-b-4 border-orange overflow-hidden">
@@ -502,6 +543,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     />
                   </div>
                 )}
+
+                <BandcampReleases releases={bandcampReleases} />
 
                 {(bp || bc || web) && (
                   <div className="flex flex-wrap gap-2 mt-4">

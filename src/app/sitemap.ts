@@ -6,7 +6,12 @@
  *  - URL por cada DJ público (/p/[slug])
  */
 import type { MetadataRoute } from "next";
-import { listPublicDjs } from "@/lib/queries/directory";
+import {
+  listPublicDjs,
+  listPublicGenres,
+  listPublicCities,
+} from "@/lib/queries/directory";
+import { slugify } from "@/lib/slug";
 
 // Dominio canónico. Usa NEXT_PUBLIC_SITE_URL en producción y fallback al
 // dominio público dropgigs.com. Si cambia el dominio, basta con setear
@@ -24,16 +29,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Si la DB no está accesible (build-time), devolver solo las páginas estáticas
   // para que el build no falle.
   let djs: Awaited<ReturnType<typeof listPublicDjs>> = [];
+  let genres: Awaited<ReturnType<typeof listPublicGenres>> = [];
+  let cities: Awaited<ReturnType<typeof listPublicCities>> = [];
   try {
-    djs = await listPublicDjs({ limit: 500 });
+    [djs, genres, cities] = await Promise.all([
+      listPublicDjs({ limit: 500 }),
+      listPublicGenres(),
+      listPublicCities(),
+    ]);
   } catch {
     djs = [];
+    genres = [];
+    cities = [];
   }
-  return buildSitemap(djs);
+  return buildSitemap(djs, genres, cities);
 }
 
 function buildSitemap(
-  djs: Awaited<ReturnType<typeof listPublicDjs>>
+  djs: Awaited<ReturnType<typeof listPublicDjs>>,
+  genres: Awaited<ReturnType<typeof listPublicGenres>> = [],
+  cities: Awaited<ReturnType<typeof listPublicCities>> = []
 ): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -69,5 +84,19 @@ function buildSitemap(
     priority: d.is_available_now ? 0.8 : 0.6,
   }));
 
-  return [...staticPages, ...djPages];
+  // SEO #4 — facetas indexables de género/ciudad (long-tail).
+  const genrePages: MetadataRoute.Sitemap = genres.map((g) => ({
+    url: `${SITE}/dj/genero/${slugify(g.genre)}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+  const cityPages: MetadataRoute.Sitemap = cities.map((c) => ({
+    url: `${SITE}/dj/ciudad/${slugify(c.city)}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...djPages, ...genrePages, ...cityPages];
 }
