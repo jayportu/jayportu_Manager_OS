@@ -198,6 +198,7 @@ Es la primera impresión de cualquier booker que se invite.
 **RA-2 Parte A · DROP Picks** (~3-4h, bajo riesgo) — fila curada de DJs destacados en `/dj` con toggle ⭐ desde admin. Detalle en sección 11.
 
 ### Decisiones abiertas que destraban sprints
+- **🎯 Capa 1 · MODELO DE MONETIZACIÓN — POR DECIDIR (estratégico, no código).** Tras shippear la **Capa 2** (features de presskit para igualar/superar al competidor: tech rider visual, catálogo música, disponibilidad por fecha — PR #148, en prod 2026-06-19) y revisar **readytoplay.club** (competidor 1:1 en Chile: **gratis para el DJ + 5% comisión por booking**, sin suscripción), toca revisar **cómo cobra DROP**. Hoy: suscripción DJ $9.990/mes (Fase 4, en pausa) — pero la ola 1 convirtió ~0 (la fuga es el muro de pago + signup gated). **Opciones a comparar lado a lado:** (a) mantener suscripción con **tier free de entrada**; (b) **gratis + comisión cobrable** (estilo Fintoc) en vez de suscripción; (c) híbrido. Trade-off: su 5% es casi inexigible (pago directo → disintermediación), pero su modelo gratis baja la fricción de entrada; nuestra suscripción es cobrable pero frena adquisición. **Próximo paso: armar las opciones con números antes de tocar código.** (Contexto completo: memoria `competidor_readytoplay`.)
 - **Q02** Firma electrónica (define S18.5) — simple click-wrap recomendado.
 - **Q03** Gateway de pago: ✅ **decidido MercadoPago** (S19 ya construido, esperando prod).
 - **Lanzar registro de Booker** (backend listo, hoy en "Próximamente").
