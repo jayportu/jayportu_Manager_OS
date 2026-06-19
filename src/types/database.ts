@@ -21,6 +21,9 @@ export interface DjProfile {
   soundcloud_url: string;
   youtube_url: string;
   spotify_url: string;
+  /** Catálogo/discografía: links a tiendas de música. Capa 2. */
+  beatport_url: string;
+  bandcamp_url: string;
   website: string;
   /** Sets/mixes destacados (varios). URLs SoundCloud/Mixcloud/YouTube. Fase 1 · 1B. */
   featured_sets: string[];
@@ -352,6 +355,8 @@ export const PRESSKIT_EVENT_TYPES = [
   "click_soundcloud",
   "click_youtube",
   "click_spotify",
+  "click_beatport",
+  "click_bandcamp",
   "click_website",
   "click_tech_rider",
   "form_open",
@@ -378,6 +383,8 @@ export const PRESSKIT_EVENT_LABELS: Record<PresskitEventType, string> = {
   click_soundcloud: "Click SoundCloud",
   click_youtube: "Click YouTube",
   click_spotify: "Click Spotify",
+  click_beatport: "Click Beatport",
+  click_bandcamp: "Click Bandcamp",
   click_website: "Click Website",
   click_tech_rider: "Click Tech Rider",
   form_open: "Abrió formulario",

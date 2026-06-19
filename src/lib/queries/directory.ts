@@ -17,6 +17,7 @@ import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { computeCompleteness } from "@/lib/match/completeness";
 import { santiagoToday } from "@/lib/tz";
+import { getBusyUserIdsOnDate } from "@/lib/queries/availability";
 import type { DjProfile } from "@/types/database";
 
 export interface PublicDjProfile {
@@ -63,6 +64,8 @@ export interface ListDirectoryParams {
   genres?: string[];
   /** Si true, solo DJs disponibles HOY. */
   onlyAvailable?: boolean;
+  /** Solo DJs libres ESE día (YYYY-MM-DD): dentro de su ventana y sin gig/bloqueo. */
+  availableOn?: string;
   /** Presupuesto del booker (CLP): excluye DJs cuyo fee_min publicado lo supera. */
   budget?: number;
   /** Sort: 'available' (disponibles primero), 'name' (alfabético) o 'recent'
@@ -219,6 +222,16 @@ export async function listPublicDjs(
   }
   if (params.onlyAvailable) {
     result = result.filter((d) => d.is_available_now);
+  }
+  if (params.availableOn) {
+    const on = params.availableOn;
+    // 1) dentro de la ventana de disponibilidad ese día
+    result = result.filter((d) =>
+      calcIsAvailable(d.available_from, d.available_until, on)
+    );
+    // 2) restar los que tienen gig/bloqueo ese día (deriva de calendar_events)
+    const busy = await getBusyUserIdsOnDate(result.map((d) => d.user_id), on);
+    if (busy.size > 0) result = result.filter((d) => !busy.has(d.user_id));
   }
   if (typeof params.budget === "number" && params.budget > 0) {
     const b = params.budget;

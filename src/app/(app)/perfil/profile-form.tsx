@@ -111,6 +111,8 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       soundcloud_url: form.soundcloud_url,
       youtube_url: form.youtube_url,
       spotify_url: form.spotify_url,
+      beatport_url: form.beatport_url,
+      bandcamp_url: form.bandcamp_url,
       website: form.website,
       featured_sets: form.featured_sets,
       brands_worked: form.brands_worked,
@@ -357,6 +359,24 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
               value={form.spotify_url ?? ""}
               onChange={(e) => update("spotify_url", e.target.value)}
               placeholder="https://open.spotify.com/artist/..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="beatport_url">Beatport URL</Label>
+            <Input
+              id="beatport_url"
+              value={form.beatport_url ?? ""}
+              onChange={(e) => update("beatport_url", e.target.value)}
+              placeholder="https://www.beatport.com/artist/..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bandcamp_url">Bandcamp URL</Label>
+            <Input
+              id="bandcamp_url"
+              value={form.bandcamp_url ?? ""}
+              onChange={(e) => update("bandcamp_url", e.target.value)}
+              placeholder="https://tunombre.bandcamp.com"
             />
           </div>
           <div className="space-y-2 md:col-span-2">

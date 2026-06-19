@@ -27,7 +27,7 @@ function feeLabel(dj: PublicDjProfile): string | null {
   return null;
 }
 
-type BuscarFilters = { q?: string; city?: string; avail?: string; budget?: string };
+type BuscarFilters = { q?: string; city?: string; avail?: string; budget?: string; date?: string };
 
 /** href del chip de género preservando los filtros activos (no resetearlos). */
 function genreHref(g: string, filters?: BuscarFilters): string {
@@ -36,6 +36,7 @@ function genreHref(g: string, filters?: BuscarFilters): string {
   if (filters?.city) p.set("city", filters.city);
   if (filters?.avail) p.set("avail", filters.avail);
   if (filters?.budget) p.set("budget", filters.budget);
+  if (filters?.date) p.set("date", filters.date);
   p.set("genres", g.toLowerCase());
   return `/booker/buscar?${p.toString()}`;
 }
