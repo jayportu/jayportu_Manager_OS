@@ -16,6 +16,7 @@ import { computeCompleteness } from "@/lib/match/completeness";
 import { isSupabaseStorageUrl } from "@/lib/format";
 import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
 import { EventCard } from "@/components/public/event-card";
+import { FuncionalidadesSection } from "@/components/public/funcionalidades-section";
 
 /**
  * Landing público (arquitectura editorial estilo RA) — ALIMENTADO POR DATA REAL.
@@ -227,6 +228,9 @@ export default async function RootPage() {
           </div>
         </section>
       )}
+
+      {/* CAPA 2.3 · FUNCIONALIDADES — muestra el producto (vitrina + back-office) */}
+      <FuncionalidadesSection />
 
       {/* CAPA 2.5 · PRÓXIMOS EVENTOS (para los fans — RSVP sin cuenta) */}
       {eventos.length > 0 && (
