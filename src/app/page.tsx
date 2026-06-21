@@ -116,6 +116,16 @@ export default async function RootPage() {
       (isSupabaseStorageUrl(b.avatar_url) || isSupabaseStorageUrl(b.hero_image_url) ? 1 : 0) -
       (isSupabaseStorageUrl(a.avatar_url) || isSupabaseStorageUrl(a.hero_image_url) ? 1 : 0)
   );
+  // Preview del hero: un press kit REAL destacado (DJ con foto + idealmente
+  // verificado y con géneros). Linkea a su press kit. Si no hay DJs, se omite.
+  const hasPhoto = (d: PublicDjProfile) =>
+    isSupabaseStorageUrl(d.avatar_url) || isSupabaseStorageUrl(d.hero_image_url);
+  const heroDj =
+    suena.find((d) => hasPhoto(d) && d.is_verified && d.genres.length > 0) ??
+    suena.find((d) => hasPhoto(d) && d.genres.length > 0) ??
+    suena.find(hasPhoto) ??
+    suena[0] ??
+    null;
   // Línea de tracción en el hero: solo cuando hay masa real (decisión: ≥25 DJs).
   const TRACTION_MIN = 25;
   const showTraction = allDjs.length >= TRACTION_MIN;
@@ -128,6 +138,8 @@ export default async function RootPage() {
       <section className="relative overflow-hidden border-b-2 border-ink">
         <span aria-hidden className="absolute pointer-events-none select-none" style={{ right: -50, bottom: -150, fontFamily: ANTON, fontSize: 380, lineHeight: 0.7, color: "rgba(255,92,0,0.06)" }}>D.</span>
         <div className="max-w-[1140px] mx-auto px-6 py-16 relative z-10">
+         <div className="lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:items-center">
+          <div>
           <div className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-orange flex items-center gap-3">
             <span>DROP<span className="text-orange">.</span></span>
             <span className="w-[60px] h-px bg-orange/40" />
@@ -164,6 +176,14 @@ export default async function RootPage() {
               ))}
             </div>
           )}
+
+          </div>{/* /columna izquierda */}
+          {heroDj && (
+            <div className="hidden lg:block">
+              <HeroPresskitPreview dj={heroDj} />
+            </div>
+          )}
+         </div>{/* /grid hero */}
 
           {/* DOS PUERTAS (único lugar con CTA fuerte) */}
           <div className="grid md:grid-cols-2 mt-10 border-2 border-ink">
@@ -354,6 +374,57 @@ export default async function RootPage() {
 
 /** Tarjeta de "Suena ahora" — server, sin client JS. Toda la tarjeta enlaza al
  *  press kit. Badge real: "Nuevo" (alta <14 días) o "Internacional" (país ≠ CL). */
+/** Preview del hero: réplica del press kit real de un DJ destacado, linkeada
+ *  a su página. Llena la mitad derecha del hero (antes vacía) mostrando el
+ *  producto de verdad — foto, nombre, géneros, disponibilidad. */
+function HeroPresskitPreview({ dj }: { dj: PublicDjProfile }) {
+  const initials = dj.artist_name.split(" ").filter(Boolean).slice(0, 2).map((s) => s[0]).join("").toUpperCase();
+  const cardImg = [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
+  return (
+    <Link
+      href={`/p/${dj.public_slug}`}
+      aria-label={`Ver el press kit de ${dj.artist_name}`}
+      className="group relative block border-2 border-ink bg-ink text-cream overflow-hidden shadow-[10px_10px_0_#0A0A0A] hover:shadow-[14px_14px_0_#FF5C00] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+    >
+      <span aria-hidden className="absolute pointer-events-none select-none" style={{ right: -8, bottom: -42, fontFamily: ANTON, fontSize: 150, lineHeight: 0.8, color: "rgba(255,92,0,0.09)" }}>DJ</span>
+      <div className="relative z-10 p-6 border-b-4 border-orange">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">— Press Kit · Vol. 01</span>
+          {dj.is_available_now && (
+            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] bg-orange text-ink px-2 py-0.5">● Disponible</span>
+          )}
+        </div>
+        <div className="mt-4 w-16 h-16 rounded-full border-[3px] border-orange overflow-hidden bg-black relative flex items-center justify-center shrink-0">
+          {cardImg ? (
+            <Image src={cardImg} alt={dj.artist_name} fill sizes="64px" className="object-cover" quality={85} />
+          ) : (
+            <span style={{ fontFamily: ANTON, fontSize: 20 }}>{initials || "DJ"}</span>
+          )}
+        </div>
+        <div className="mt-3" style={{ fontFamily: ANTON, fontSize: "clamp(34px,3.6vw,52px)", lineHeight: 0.86 }}>
+          {dj.artist_name}<span className="text-orange">.</span>
+        </div>
+        {dj.is_verified && (
+          <span className="inline-block mt-2.5 font-mono text-[8px] font-bold uppercase tracking-[0.06em] bg-orange text-ink px-2 py-0.5">✓ Verificado por DROP.</span>
+        )}
+        {(dj.genres.length > 0 || dj.city) && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {dj.genres.slice(0, 4).map((g) => (
+              <span key={g} className="font-mono text-[9px] font-bold uppercase tracking-[0.05em] border border-cream/25 px-2 py-1">{g}</span>
+            ))}
+            {dj.city && (
+              <span className="font-mono text-[9px] font-bold uppercase tracking-[0.05em] border border-cream/25 px-2 py-1">{dj.city}</span>
+            )}
+          </div>
+        )}
+        <div className="mt-4 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-cream/55 group-hover:text-orange transition-colors">
+          Así se ve tu press kit en DROP →
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function SuenaCard({ dj, className = "" }: { dj: PublicDjProfile; className?: string }) {
   const initials = dj.artist_name.split(" ").filter(Boolean).slice(0, 2).map((s) => s[0]).join("").toUpperCase();
   const cardImg = [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
