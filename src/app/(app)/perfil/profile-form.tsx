@@ -36,6 +36,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   const [form, setForm] = useState<DjProfile>(initialProfile);
   const [genreInput, setGenreInput] = useState("");
   const [setUrlInput, setSetUrlInput] = useState("");
+  const [releaseInput, setReleaseInput] = useState("");
   const [aliasInput, setAliasInput] = useState("");
   const [brandInput, setBrandInput] = useState("");
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
@@ -70,6 +71,19 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
   function removeSet(u: string) {
     update("featured_sets", (form.featured_sets ?? []).filter((x) => x !== u));
+  }
+
+  function addRelease(u: string) {
+    const trimmed = u.trim();
+    if (!trimmed) return;
+    const current = form.beatport_releases ?? [];
+    if (current.includes(trimmed) || current.length >= 6) return;
+    update("beatport_releases", [...current, trimmed]);
+    setReleaseInput("");
+  }
+
+  function removeRelease(u: string) {
+    update("beatport_releases", (form.beatport_releases ?? []).filter((x) => x !== u));
   }
 
   function addAlias(v: string) {
@@ -115,6 +129,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       bandcamp_url: form.bandcamp_url,
       website: form.website,
       featured_sets: form.featured_sets,
+      beatport_releases: form.beatport_releases,
       brands_worked: form.brands_worked,
       aliases: form.aliases,
       record_label: form.record_label,
@@ -437,6 +452,60 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
               type="button"
               variant="outline"
               onClick={() => addSet(setUrlInput)}
+            >
+              Agregar
+            </Button>
+          </div>
+        )}
+      </Card>
+
+      {/* Discografía · Beatport */}
+      <Card className="p-6 space-y-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          Discografía · Beatport
+        </h2>
+        <p className="text-sm text-fg-muted">
+          Hasta 6 releases de Beatport para mostrar en tu press kit. Pega el link
+          del track o release (ej: beatport.com/track/...) y se embebe el player
+          oficial — con preview, BPM y tonalidad.
+        </p>
+        {(form.beatport_releases ?? []).length > 0 && (
+          <div className="space-y-2">
+            {(form.beatport_releases ?? []).map((s) => (
+              <div
+                key={s}
+                className="flex items-center gap-2 border border-border px-3 py-2 text-sm"
+              >
+                <span className="flex-1 truncate text-fg-muted">{s}</span>
+                <button
+                  type="button"
+                  onClick={() => removeRelease(s)}
+                  className="hover:text-fg shrink-0"
+                  aria-label={`Quitar ${s}`}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {(form.beatport_releases ?? []).length < 6 && (
+          <div className="flex gap-2">
+            <Input
+              value={releaseInput}
+              onChange={(e) => setReleaseInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addRelease(releaseInput);
+                }
+              }}
+              placeholder="Pega el link de Beatport y Enter"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => addRelease(releaseInput)}
             >
               Agregar
             </Button>
