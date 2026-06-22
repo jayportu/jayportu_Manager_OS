@@ -24,7 +24,7 @@ const EDITABLE_PROFILE_FIELDS = [
   // Canales / redes
   "instagram_url", "soundcloud_url", "youtube_url", "spotify_url",
   "beatport_url", "bandcamp_url", "website",
-  "featured_sets", "brands_worked", "aliases", "record_label",
+  "featured_sets", "beatport_releases", "brands_worked", "aliases", "record_label",
   // Fee opt-in
   "show_fee", "fee_min", "fee_max",
   // Contacto público

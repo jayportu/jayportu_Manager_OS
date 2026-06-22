@@ -24,6 +24,8 @@ export interface DjProfile {
   /** Catálogo/discografía: links a tiendas de música. Capa 2. */
   beatport_url: string;
   bandcamp_url: string;
+  /** Releases de Beatport destacados (URLs) → player oficial embebido. */
+  beatport_releases: string[];
   website: string;
   /** Sets/mixes destacados (varios). URLs SoundCloud/Mixcloud/YouTube. Fase 1 · 1B. */
   featured_sets: string[];

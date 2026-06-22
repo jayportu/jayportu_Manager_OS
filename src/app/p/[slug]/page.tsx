@@ -11,7 +11,7 @@ import { TrackedLink } from "./tracked-link";
 import { GatedContact } from "./gated-contact";
 import { SectionNav, type NavSection } from "./section-nav";
 import { BookingForm } from "./booking-form";
-import { SoundcloudEmbed, YoutubeEmbed, SetEmbed, SpotifyEmbed } from "./embeds";
+import { SoundcloudEmbed, YoutubeEmbed, SetEmbed, SpotifyEmbed, BeatportEmbed } from "./embeds";
 import { TechRiderRender } from "./tech-rider-render";
 import { StagePlot } from "@/components/tech-rider/stage-plot";
 import { GearCards } from "@/components/tech-rider/gear-cards";
@@ -165,6 +165,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const bp = profile.beatport_url;
   const bc = profile.bandcamp_url;
   const web = profile.website;
+  const beatportReleases = (profile.beatport_releases ?? []).filter(Boolean);
 
   // JSON-LD (SEO #4) — el DJ como MusicGroup para rich results en Google.
   // genre + sameAs (redes) + image son las señales fuertes; location = ciudad.
@@ -193,7 +194,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   // Secciones del nav sticky (scroll-spy resalta la activa en naranjo).
   const navSections: NavSection[] = [
     { id: "bio", label: "— BIO", primary: true },
-    ...(sc || yt || sp || bp || bc || web || hasFeaturedSets
+    ...(sc || yt || sp || bp || bc || web || hasFeaturedSets || beatportReleases.length > 0
       ? [{ id: "musica", label: "Música" }]
       : []),
     ...(showAvailabilityCalendar
@@ -483,7 +484,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
             )}
 
             {/* ── MÚSICA ── */}
-            {(sc || yt || sp || bp || bc || web || hasFeaturedSets) && (
+            {(sc || yt || sp || bp || bc || web || hasFeaturedSets || beatportReleases.length > 0) && (
               <section id="musica" className="mb-10 scroll-mt-20">
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
                   — MÚSICA
@@ -545,6 +546,19 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 )}
 
                 <BandcampReleases releases={bandcampReleases} />
+
+                {beatportReleases.length > 0 && (
+                  <div className="mb-6">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2">
+                      Releases en Beatport
+                    </div>
+                    <div className="space-y-2">
+                      {beatportReleases.map((u) => (
+                        <BeatportEmbed key={u} url={u} />
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {(bp || bc || web) && (
                   <div className="flex flex-wrap gap-2 mt-4">

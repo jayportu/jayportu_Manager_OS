@@ -365,6 +365,51 @@ function mixcloudFeed(url: string): string | null {
 }
 
 /**
+ * Beatport: player oficial embebido (embed.beatport.com). Carga client-side,
+ * así que NO lo afecta el Cloudflare que bloquea el scraping server-side.
+ * El DJ pega el link del track/release; extraemos id + tipo. Iframe puro
+ * (sin tracking por-render para no inflar; el botón del artista ya trackea).
+ */
+export function BeatportEmbed({ url }: { url: string }) {
+  const info = beatportEmbedInfo(url);
+  if (!info) {
+    const link = normalizeUrl(url);
+    if (!link || !/beatport\.com/i.test(link)) return null;
+    return (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+      >
+        <span className="text-sm text-fg-muted">Ver en Beatport →</span>
+      </a>
+    );
+  }
+  const height = info.type === "track" ? 88 : 300;
+  return (
+    <iframe
+      src={`https://embed.beatport.com/?id=${info.id}&type=${info.type}`}
+      width="100%"
+      height={height}
+      frameBorder="0"
+      loading="lazy"
+      title="Beatport player"
+      className="block rounded-lg overflow-hidden border border-border"
+    />
+  );
+}
+
+function beatportEmbedInfo(raw: string): { id: string; type: string } | null {
+  if (!raw) return null;
+  // .../track/slug/123  ·  .../release/slug/123  ·  .../chart/slug/123 (+ /es/ locale)
+  const m = raw.match(
+    /beatport\.com\/(?:[a-z]{2}\/)?(track|release|chart)\/[^/]+\/(\d+)/i
+  );
+  return m ? { type: m[1].toLowerCase(), id: m[2] } : null;
+}
+
+/**
  * Set destacado (Fase 1 · 1B): detecta la plataforma por la URL y embebe
  * SoundCloud / Mixcloud / YouTube. Fallback a link si no la reconoce.
  */
