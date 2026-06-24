@@ -61,6 +61,8 @@ interface SidebarProps {
   contactCount?: number;
   /** Gigs (shows) agendados en el mes actual. undefined → "—". */
   gigsThisMonth?: number;
+  /** "Lugares" solo se muestra si hay venues verificados (si no, lleva a página vacía). */
+  showLugares?: boolean;
 }
 
 export function Sidebar({
@@ -70,8 +72,12 @@ export function Sidebar({
   avatarUrl,
   contactCount,
   gigsThisMonth,
+  showLugares = true,
 }: SidebarProps) {
   const pathname = usePathname();
+  const navItems = showLugares
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((i) => i.href !== "/lugares");
   const displayName = artistName && artistName.trim().length > 0
     ? artistName.trim().toUpperCase()
     : "TU NOMBRE";
@@ -167,7 +173,7 @@ export function Sidebar({
 
       {/* Nav items (scrollea si el nav es más alto que el espacio disponible) */}
       <nav className="relative z-10 flex flex-col flex-1 min-h-0 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, icon: Icon, comingSoon }) => {
+        {navItems.map(({ href, label, icon: Icon, comingSoon }) => {
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href));
