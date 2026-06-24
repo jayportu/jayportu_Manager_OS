@@ -101,6 +101,47 @@ export interface FeedEvent {
 }
 
 /**
+ * ¿Hay al menos un evento público PRÓXIMO de un DJ activo? Se usa para
+ * mostrar/ocultar "Eventos" del nav público (UX): mientras no haya eventos el
+ * enlace no aparece (nadie cae en una página vacía) y vuelve solo al publicarse
+ * el primero. Cacheado por-request → header y footer comparten la misma query.
+ * Usa los mismos filtros que getUpcomingPublicEvents (is_public + public_token +
+ * próximo + DJ con account_status='active') para que nav y feed estén alineados.
+ */
+export const hasUpcomingPublicEvents = cache(
+  async function hasUpcomingPublicEvents(): Promise<boolean> {
+    const admin = createAdminClient();
+    const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const { data: rows } = await admin
+      .from("calendar_events")
+      .select("user_id, start_at, end_at")
+      .eq("is_public", true)
+      .not("public_token", "is", null)
+      .gte("start_at", since)
+      .order("start_at", { ascending: true })
+      .limit(50);
+
+    const now = Date.now();
+    const upcoming = (
+      (rows ?? []) as { user_id: string; start_at: string; end_at: string | null }[]
+    ).filter((e) => new Date(e.end_at ?? e.start_at).getTime() >= now);
+    if (upcoming.length === 0) return false;
+
+    // Solo cuenta si el dueño está activo (un DJ suspendido no puebla el feed).
+    const userIds = Array.from(new Set(upcoming.map((e) => e.user_id)));
+    const { data: djs } = await admin
+      .from("dj_profile")
+      .select("user_id")
+      .in("user_id", userIds)
+      .eq("account_status", "active");
+    const activeIds = new Set(
+      ((djs ?? []) as { user_id: string }[]).map((d) => d.user_id)
+    );
+    return upcoming.some((e) => activeIds.has(e.user_id));
+  }
+);
+
+/**
  * Feed de eventos públicos PRÓXIMOS (de cualquier DJ activo), para los fans
  * sin cuenta. Soonest-first. Incluye eventos en curso (terminan a futuro) para
  * que un after de hoy no desaparezca a medianoche. DJs suspendidos/baneados se

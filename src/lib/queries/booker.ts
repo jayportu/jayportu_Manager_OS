@@ -8,9 +8,29 @@
  *     bookings": linkeamos retroactivamente por email.
  */
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { santiagoMonthStartUtcISO } from "@/lib/tz";
 import type { BookingSubmission } from "@/types/database";
+
+/**
+ * ¿Hay al menos un lugar verificado en el directorio? Se usa para mostrar/ocultar
+ * "Lugares" del sidebar (UX): mientras no haya venues el ítem no aparece (no lleva
+ * a una página vacía) y vuelve solo al verificarse el primero. Cacheado por-request.
+ * Mismos filtros que listDirectoryVenues (in_directory + verified_at).
+ */
+export const hasDirectoryVenues = cache(
+  async function hasDirectoryVenues(): Promise<boolean> {
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const admin = createAdminClient();
+    const { count } = await admin
+      .from("booker_accounts")
+      .select("user_id", { count: "exact", head: true })
+      .eq("in_directory", true)
+      .not("verified_at", "is", null);
+    return (count ?? 0) > 0;
+  }
+);
 
 export interface BookerAccount {
   user_id: string;

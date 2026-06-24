@@ -12,6 +12,7 @@ import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { GoogleScopeBanner } from "@/components/gmail/google-scope-banner";
 import { getBetaState } from "@/lib/beta-status";
 import { consumeBetaInviteIfAny } from "@/lib/queries/beta-invite";
+import { hasDirectoryVenues } from "@/lib/queries/booker";
 import {
   getOrCreateSubscription,
   evaluateSubscriptionAccess,
@@ -103,19 +104,22 @@ export default async function AppLayout({
     now.getMonth() + 1,
     1
   ).toISOString();
-  const [{ count: contactCount }, { count: gigsThisMonth }] = await Promise.all([
-    supabase
-      .from("contacts")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id),
-    supabase
-      .from("calendar_events")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("type", "show")
-      .gte("start_at", monthStart)
-      .lt("start_at", nextMonth),
-  ]);
+  const [{ count: contactCount }, { count: gigsThisMonth }, showLugares] =
+    await Promise.all([
+      supabase
+        .from("contacts")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      supabase
+        .from("calendar_events")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("type", "show")
+        .gte("start_at", monthStart)
+        .lt("start_at", nextMonth),
+      // "Lugares" solo en el sidebar si hay venues verificados (si no, página vacía).
+      hasDirectoryVenues(),
+    ]);
 
   return (
     <ConfirmProvider>
@@ -130,6 +134,7 @@ export default async function AppLayout({
         avatarUrl={profile?.avatar_url ?? null}
         contactCount={contactCount ?? undefined}
         gigsThisMonth={gigsThisMonth ?? undefined}
+        showLugares={showLugares}
       />
       {/* Columna derecha: topbar fijo arriba + main scrolleable */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">

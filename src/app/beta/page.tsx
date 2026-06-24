@@ -19,7 +19,7 @@ export default function BetaPage() {
   return (
     <div className="min-h-screen bg-cream text-ink">
       <header className="border-b-2 border-ink px-6 md:px-10 py-5 flex items-center gap-4">
-        <Logo variant="horizontal" tone="light" size={120} />
+        <Logo variant="horizontal" tone="ink" size={120} />
         <div className="ml-auto flex items-center gap-4">
           <span className="hidden md:inline font-mono text-[10px] uppercase tracking-[0.15em] text-fg-muted">
             Beta · acceso anticipado

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Menu } from "lucide-react";
+import { hasUpcomingPublicEvents } from "@/lib/queries/events";
 
 /**
  * Header + footer públicos, compartidos entre el landing (/) y /eventos.
@@ -17,7 +18,13 @@ const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/#incluye", label: "Para DJs" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  // UX: "Eventos" solo se muestra si hay eventos publicados (si no, lleva a una
+  // página vacía). Vuelve solo al publicarse el primero.
+  const showEvents = await hasUpcomingPublicEvents();
+  const navLinks = showEvents
+    ? NAV_LINKS
+    : NAV_LINKS.filter((l) => l.href !== "/eventos");
   return (
     <header className="sticky top-0 z-50 bg-ink border-b-2 border-orange">
       <div className="max-w-[1140px] mx-auto px-6 h-[62px] flex items-center gap-6">
@@ -25,7 +32,7 @@ export function SiteHeader() {
           DROP<span className="text-orange">.</span>
         </Link>
         <nav className="hidden md:flex gap-6 ml-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
-          {NAV_LINKS.map((l) => (
+          {navLinks.map((l) => (
             <Link key={l.href} href={l.href} className="text-cream/70 hover:text-orange transition-colors">
               {l.label}
             </Link>
@@ -47,7 +54,7 @@ export function SiteHeader() {
             <Menu className="w-6 h-6" />
           </summary>
           <div className="absolute right-0 top-[calc(100%+1px)] z-50 min-w-[190px] bg-ink border-2 border-orange flex flex-col">
-            {NAV_LINKS.map((l) => (
+            {navLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -72,7 +79,13 @@ export function SiteHeader() {
   );
 }
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const showEvents = await hasUpcomingPublicEvents();
+  const explorar: [string, string][] = [
+    ["Buscar DJs", "/dj"],
+    ...(showEvents ? ([["Eventos", "/eventos"]] as [string, string][]) : []),
+    ["Cómo funciona", "/#conexion"],
+  ];
   return (
     <footer className="bg-ink text-cream border-t-2 border-orange">
       <div className="max-w-[1140px] mx-auto px-6 py-14">
@@ -80,7 +93,7 @@ export function SiteFooter() {
           Hecho por la escena, <span className="text-fg-subtle">para la escena.</span>
         </p>
         <div className="flex gap-12 flex-wrap mt-8">
-          <FootCol title="Explorar" links={[["Buscar DJs", "/dj"], ["Eventos", "/eventos"], ["Cómo funciona", "/#conexion"]]} />
+          <FootCol title="Explorar" links={explorar} />
           <FootCol title="Para ti" links={[["Soy DJ", "/beta"], ["Soy booker", "/signup/booker"], ["Entrar", "/login"]]} />
           <FootCol title="drop." links={[["Privacidad", "/privacy"], ["Términos", "/terms"], ["hola@dropgigs.com", "mailto:hola@dropgigs.com"]]} />
           <div className="flex-1" />
