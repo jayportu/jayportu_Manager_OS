@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { saveProfileAction } from "../configuracion/actions";
 import { AvatarUpload } from "./avatar-upload";
 import { computeCompleteness } from "@/lib/match/completeness";
-import { X, TrendingUp } from "lucide-react";
+import { X, TrendingUp, Check, AlertCircle } from "lucide-react";
 
 const GENRE_SUGGESTIONS = [
   "House",
@@ -734,10 +734,19 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       <div className="sticky bottom-0 bg-bg/95 backdrop-blur border border-border rounded-xl p-4 flex items-center justify-between gap-4">
         {message && (
           <div
-            className={`text-sm ${
-              message.type === "ok" ? "text-success" : "text-danger"
+            role="status"
+            aria-live="polite"
+            className={`flex items-center gap-1.5 text-sm font-medium px-2.5 py-1 rounded-md ${
+              message.type === "ok"
+                ? "text-success bg-success/10"
+                : "text-danger bg-danger/10"
             }`}
           >
+            {message.type === "ok" ? (
+              <Check className="w-4 h-4 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 shrink-0" />
+            )}
             {message.text}
           </div>
         )}
