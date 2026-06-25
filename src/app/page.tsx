@@ -148,7 +148,7 @@ export default async function RootPage() {
             La escena no cabe<br className="hidden md:inline" /> en un grupo de WhatsApp<span className="text-orange">.</span>
           </h1>
           <p className="mt-5 text-[17px] text-fg-muted" style={{ maxWidth: "52ch" }}>
-            Perfiles reales, sets que puedes escuchar y contacto directo con el artista. Sin comisión, sin intermediarios y sin perseguir a nadie por DM.
+            DROP es la app donde los DJs arman su press kit y los bookers los encuentran, escuchan y contactan. Directo, sin comisión, sin perseguir a nadie por DM.
           </p>
 
           {/* Línea de tracción real — solo cuando hay masa (≥25 DJs) */}
