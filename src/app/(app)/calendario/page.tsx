@@ -6,7 +6,6 @@ import {
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Calendar, AlertCircle, Download, ListMusic, Globe } from "lucide-react";
 import Link from "next/link";
 import { SyncButton } from "./sync-button";
@@ -53,28 +52,11 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const conn = await getMyGmailConnection();
 
-  // Si no hay conexión Google: mostrar CTA para conectar
-  if (!conn) {
-    return (
-      <div className="p-6 md:p-10 max-w-3xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
-          Calendario
-        </h1>
-        <Card className="p-8 text-center mt-6">
-          <Calendar className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
-          <h3 className="font-semibold text-lg mb-1">Google Calendar no conectado</h3>
-          <p className="text-sm text-fg-muted mb-6 max-w-md mx-auto">
-            Conecta tu Google para sincronizar shows confirmados, reuniones,
-            follow-ups y bloqueos de disponibilidad.
-          </p>
-          <Button asChild>
-            <Link href="/configuracion">Ir a configuración</Link>
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
+  // El calendario funciona sin Google: los eventos viven en la DB (alta manual
+  // con "Nuevo evento" o al agendar un booking). Google es opcional y solo
+  // sincroniza/trae eventos externos. Antes esta página hacía un return temprano
+  // si no había conexión → escondía el calendario manual entero. Ahora el gate
+  // es suave: mostramos todo y, si no hay Google, un banner para conectarlo.
   const now = new Date();
   const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const future120 = new Date(now.getTime() + 120 * 24 * 60 * 60 * 1000);
@@ -98,7 +80,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />
+      {conn && <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />}
 
       {/* Hero brutalist */}
       <div className="border-2 border-ink bg-white p-6 mb-5 relative">
@@ -109,14 +91,29 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           AGENDA<span className="text-orange">.</span>
         </h1>
         <p className="text-sm text-fg-muted mt-2">
-          {upcoming.length} próximos · {past.length} pasados · conectado a{" "}
-          <span className="text-ink">{conn.google_email}</span>
+          {upcoming.length} próximos · {past.length} pasados
+          {conn && (
+            <>
+              {" "}· conectado a{" "}
+              <span className="text-ink">{conn.google_email}</span>
+            </>
+          )}
         </p>
-        <p className="font-mono text-[10px] text-fg-subtle mt-1">
-          Última sync: {relativeTime(conn.last_sync_at)} · auto al abrir
-        </p>
+        {conn ? (
+          <p className="font-mono text-[10px] text-fg-subtle mt-1">
+            Última sync: {relativeTime(conn.last_sync_at)} · auto al abrir
+          </p>
+        ) : (
+          <p className="font-mono text-[10px] text-fg-subtle mt-1">
+            Tip:{" "}
+            <Link href="/configuracion" className="text-orange hover:underline">
+              conecta Google
+            </Link>{" "}
+            para sincronizar tus shows automáticamente (opcional).
+          </p>
+        )}
         <div className="mt-4 flex gap-2 flex-wrap items-center">
-          <SyncButton />
+          {conn && <SyncButton />}
           <NewEventButton />
           <a
             href={`/api/export/finance?from=${now.getFullYear()}-01-01&to=${now.getFullYear() + 1}-01-01`}
@@ -204,11 +201,13 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           <Calendar className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
           <h3 className="font-semibold mb-1">Sin eventos aún</h3>
           <p className="text-sm text-fg-muted mb-5 max-w-md mx-auto">
-            Sincroniza tu Google Calendar para traer eventos existentes, o crea
-            uno nuevo.
+            Crea tu primer evento
+            {conn
+              ? " o sincroniza tu Google Calendar para traer los existentes."
+              : "."}
           </p>
           <div className="flex justify-center gap-2 flex-wrap">
-            <SyncButton />
+            {conn && <SyncButton />}
             <NewEventButton />
           </div>
         </Card>
