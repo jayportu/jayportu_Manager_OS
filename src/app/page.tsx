@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Search } from "lucide-react";
+import { Search, Play } from "lucide-react";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -402,6 +402,34 @@ function HeroPresskitPreview() {
         </div>
         <div className="mt-4 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-cream/55">
           Así se ve tu press kit en DROP.
+        </div>
+      </div>
+      {/* Mini-reproductor (ejemplo): refuerza "escucha el set antes de escribir". */}
+      <div className="relative z-10 p-6">
+        <div className="font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-cream/55 mb-3">
+          — Último set · 58 min
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="w-11 h-11 rounded-full bg-orange text-ink flex items-center justify-center shrink-0">
+            <Play className="w-4 h-4 ml-0.5 fill-ink" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-end gap-[2px] h-8" aria-hidden>
+              {[38, 62, 45, 80, 55, 30, 72, 90, 48, 66, 35, 58, 84, 52, 28, 70, 95, 44, 60, 33, 78, 50, 40, 68, 88, 46, 56, 82, 42, 64, 36, 74].map(
+                (h, i) => (
+                  <span
+                    key={i}
+                    style={{ height: `${h}%` }}
+                    className={i < 13 ? "flex-1 bg-orange" : "flex-1 bg-cream/25"}
+                  />
+                )
+              )}
+            </div>
+            <div className="flex justify-between font-mono text-[9px] text-cream/45 mt-1.5">
+              <span>22:14</span>
+              <span>58:40</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
