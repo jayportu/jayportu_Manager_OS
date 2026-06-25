@@ -82,15 +82,8 @@ export function WelcomeWizard({
         }
       });
     } else if (step === 2) {
-      const hasAny =
-        socials.instagram_url.trim() ||
-        socials.spotify_url.trim() ||
-        socials.youtube_url.trim() ||
-        socials.soundcloud_username.trim();
-      if (!hasAny) {
-        setError("Conecta al menos una red para continuar");
-        return;
-      }
+      // Redes opcionales: se puede saltar (se agregan luego desde el perfil).
+      // Guardamos lo que haya cargado (o nada) y avanzamos.
       startTransition(async () => {
         try {
           await saveSocials(socials);
@@ -222,6 +215,14 @@ export function WelcomeWizard({
                 ? "Guardando…"
                 : step === 3
                 ? "Empezar"
+                : step === 2 &&
+                  !(
+                    socials.instagram_url.trim() ||
+                    socials.spotify_url.trim() ||
+                    socials.youtube_url.trim() ||
+                    socials.soundcloud_username.trim()
+                  )
+                ? "Saltar por ahora"
                 : "Continuar"}
               {!isPending && step < 3 && <ArrowRight className="w-4 h-4" />}
               {!isPending && step === 3 && <Check className="w-4 h-4" />}
@@ -370,8 +371,9 @@ function StepSocials({
           Conecta tu música
         </h1>
         <p className="text-sm text-fg-muted">
-          Al menos una red social. Si pones tu usuario de SoundCloud, la app
-          actualiza tus seguidores automáticamente todos los días.
+          Opcional, pero recomendado. Si pones tu usuario de SoundCloud, la app
+          actualiza tus seguidores automáticamente todos los días. Puedes
+          agregarlas después desde tu perfil.
         </p>
       </div>
 
