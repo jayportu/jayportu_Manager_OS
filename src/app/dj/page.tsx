@@ -171,12 +171,14 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
             <input
               type="search"
               name="q"
+              aria-label="Buscar DJs por nombre, ciudad o tagline"
               placeholder="🔎  Buscar por nombre, ciudad, tagline..."
               defaultValue={sp.q ?? ""}
               className="border-2 border-ink bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
             />
             <select
               name="city"
+              aria-label="Filtrar por ciudad"
               defaultValue={sp.city ?? ""}
               className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
             >
@@ -189,6 +191,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
             </select>
             <select
               name="avail"
+              aria-label="Filtrar por disponibilidad"
               defaultValue={sp.avail ?? ""}
               className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
             >
