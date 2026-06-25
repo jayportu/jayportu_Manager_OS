@@ -111,7 +111,7 @@ export async function SiteFooter() {
 function FootCol({ title, links }: { title: string; links: [string, string][] }) {
   return (
     <div>
-      <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-cream/60 mb-3">{title}</h4>
+      <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-cream/60 mb-3">{title}</h2>
       {links.map(([label, href]) => (
         <a key={label} href={href} className="block font-mono text-[11px] uppercase tracking-[0.06em] text-cream/70 py-1 hover:text-orange transition-colors">{label}</a>
       ))}
