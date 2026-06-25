@@ -98,11 +98,46 @@ export function BetaForm() {
           GRACIAS<span className="text-orange">.</span>
         </h2>
         <p className="text-sm leading-relaxed">
-          Recibimos tu solicitud. Te respondemos en 24-48hrs. Si quedas
-          aprobado te llega un email con el link mágico para entrar.
+          La revisamos a mano (no es un bot) y te escribimos en 24-48 hrs. Si
+          quedas, te llega un email con tu link de acceso.
         </p>
-        <p className="text-xs text-fg-muted mt-4">
-          Mientras tanto, síguenos en{" "}
+
+        {/* Siguiente paso tangible mientras espera — para no enfriar al DJ */}
+        <div className="mt-5 border-t-2 border-ink/10 pt-4">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
+            — Mientras tanto
+          </div>
+          <a
+            href="/dj"
+            className="flex items-center justify-between gap-3 border-2 border-ink bg-white px-4 py-3 hover:bg-ink hover:text-orange transition-colors"
+          >
+            <span className="text-sm font-bold">
+              Mira cómo se ve un press kit real
+            </span>
+            <span aria-hidden>→</span>
+          </a>
+          <div className="mt-4">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted mb-2">
+              Ten esto listo para armar el tuyo en 5 min:
+            </div>
+            <ul className="space-y-1 text-sm">
+              {[
+                "Tu bio corta",
+                "1-2 links de tus sets (SoundCloud / YouTube)",
+                "Una foto tuya",
+                "Tus géneros",
+              ].map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span className="text-orange font-bold">›</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <p className="text-xs text-fg-muted mt-5">
+          Y síguenos en{" "}
           <a
             href="https://instagram.com/drop.gigs"
             target="_blank"
@@ -111,7 +146,7 @@ export function BetaForm() {
           >
             @drop.gigs
           </a>{" "}
-          para updates de la beta.
+          para updates.
         </p>
         <button
           type="button"
