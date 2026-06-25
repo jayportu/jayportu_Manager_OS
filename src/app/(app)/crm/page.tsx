@@ -296,7 +296,8 @@ export default async function CrmPage({ searchParams }: PageProps) {
         </Card>
       ) : (
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Tabla — tablet/desktop (md+) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wider text-fg-muted">
@@ -360,6 +361,44 @@ export default async function CrmPage({ searchParams }: PageProps) {
                 })}
               </tbody>
             </table>
+          </div>
+          {/* Tarjetas — móvil (<md): mismos datos sin scroll horizontal, y con
+              Estado + Último contacto que la tabla ocultaba en pantallas chicas. */}
+          <div className="md:hidden divide-y divide-border">
+            {contacts.map((c) => {
+              const sc = scoreColor(c.score);
+              return (
+                <Link
+                  key={c.id}
+                  href={`/crm/${c.id}`}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-bg-subtle transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center text-xs font-bold shrink-0">
+                    {initials(c.name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-fg truncate">{c.name}</div>
+                    <div className="text-xs text-fg-muted truncate">
+                      {CONTACT_TYPE_LABELS[c.type]}
+                      {c.city ? ` · ${c.city}` : ""}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 border border-ink bg-cream text-ink">
+                        {CONTACT_STATUS_LABELS[c.status]}
+                      </span>
+                      <span className="font-mono text-[10px] text-fg-muted">
+                        {relativeTime(c.last_contact_at)}
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    className={`shrink-0 inline-block min-w-[36px] text-center font-mono text-[11px] font-bold px-2 py-1 ${sc.bg} ${sc.text}`}
+                  >
+                    {c.score}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
           {listTruncated && (
             <div className="px-4 py-3 border-t border-border font-mono text-[11px] text-fg-muted">
