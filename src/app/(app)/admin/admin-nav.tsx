@@ -38,14 +38,14 @@ export function AdminNav() {
         <div className="flex items-center justify-between gap-3 px-4 md:px-6 pt-3">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange hover:text-cream transition-colors"
+            className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange hover:text-white transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Volver a la app
           </Link>
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-cream/50">
-            Backoffice <span className="text-cream/30">›</span>{" "}
-            <span className="text-cream">{current.label}</span>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            Backoffice <span className="text-white/30">›</span>{" "}
+            <span className="text-white">{current.label}</span>
           </div>
         </div>
         {/* pestañas */}
@@ -60,8 +60,8 @@ export function AdminNav() {
                 href={s.href}
                 className={`whitespace-nowrap font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-3 border-b-[3px] transition-colors ${
                   active
-                    ? "bg-orange text-ink border-ink"
-                    : "text-cream/60 border-transparent hover:text-cream"
+                    ? "bg-orange text-ink border-border"
+                    : "text-white/60 border-transparent hover:text-white"
                 }`}
               >
                 {s.label}

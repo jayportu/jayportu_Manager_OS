@@ -217,7 +217,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
       : [artistName];
 
   return (
-    <div className="min-h-screen bg-cream text-ink">
+    <div className="min-h-screen bg-bg text-fg">
       {/* Beacon: registra view al montar */}
       <TrackBeacon userId={profile.user_id} event="view" />
 
@@ -231,7 +231,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
       />
 
       {/* ═══ HERO ink full-width brutalist ═══ */}
-      <header className="relative bg-ink text-cream border-b-4 border-orange overflow-hidden">
+      <header className="relative bg-ink text-white border-b-4 border-orange overflow-hidden">
         {/* Watermark "DJ" gigante */}
         <div
           aria-hidden="true"
@@ -296,14 +296,14 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
               {/* Tagline */}
               {profile.tagline && (
-                <p className="mt-5 text-base md:text-lg max-w-2xl text-cream/80">
+                <p className="mt-5 text-base md:text-lg max-w-2xl text-white/80">
                   {profile.tagline}
                 </p>
               )}
 
               {/* Alias / proyectos (Fase 1 · 1D) */}
               {profile.aliases && profile.aliases.length > 0 && (
-                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-cream/60">
+                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
                   AKA {profile.aliases.join(" · ")}
                 </p>
               )}
@@ -324,19 +324,19 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               {profile.genres.slice(0, 4).map((g) => (
                 <span
                   key={g}
-                  className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-cream"
+                  className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-white"
                 >
                   {g}
                 </span>
               ))}
               {profile.city && (
-                <span className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-cream">
+                <span className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-white">
                   {profile.city}
                   {profile.country ? ` · ${profile.country}` : ""}
                 </span>
               )}
               {profile.record_label && (
-                <span className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-cream">
+                <span className="font-mono text-[11px] md:text-sm font-bold uppercase tracking-wider px-3 md:px-4 py-1 md:py-2 border border-cream text-white">
                   Sello · {profile.record_label}
                 </span>
               )}
@@ -375,7 +375,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   {profile.brands_worked.map((b) => (
                     <span
                       key={b}
-                      className="font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 border-ink bg-bg-panel"
+                      className="font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 border-border bg-bg-panel"
                     >
                       {b}
                     </span>
@@ -389,7 +389,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 · DESDE (estilo RA "stats del artista"). Si no, fallback al
                 stats actual (géneros / rider / base). */}
             <section className="mb-10">
-              <div className="grid grid-cols-3 border-2 border-ink">
+              <div className="grid grid-cols-3 border-2 border-border">
                 {hasGigData ? (
                   <>
                     <StatTile
@@ -440,7 +440,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
                   — PRÓXIMAS FECHAS
                 </div>
-                <ul className="border-2 border-ink divide-y-2 divide-ink">
+                <ul className="border-2 border-border divide-y-2 divide-border">
                   {gigStats.proximos.map((gig) => {
                     const d = new Date(gig.startAt);
                     const dia = d
@@ -452,7 +452,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                       .toUpperCase();
                     return (
                       <li key={gig.id} className="flex items-stretch bg-bg-panel">
-                        <div className="bg-ink text-cream px-4 py-3 flex flex-col items-center justify-center shrink-0 min-w-[72px]">
+                        <div className="bg-ink text-white px-4 py-3 flex flex-col items-center justify-center shrink-0 min-w-[72px]">
                           <span
                             className="font-display leading-none text-2xl"
                             style={{
@@ -568,7 +568,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                         userId={profile.user_id}
                         event="click_beatport"
                         external
-                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
                       >
                         Beatport →
                       </TrackedLink>
@@ -579,7 +579,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                         userId={profile.user_id}
                         event="click_bandcamp"
                         external
-                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
                       >
                         Bandcamp →
                       </TrackedLink>
@@ -590,7 +590,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                         userId={profile.user_id}
                         event="click_website"
                         external
-                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+                        className="inline-flex items-center justify-center h-10 px-4 border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
                       >
                         Website →
                       </TrackedLink>
@@ -644,7 +644,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   {profile.tech_rider_ideal && (
-                    <div className="p-4 border-2 border-ink bg-bg-panel">
+                    <div className="p-4 border-2 border-border bg-bg-panel">
                       <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
                         IDEAL · texto
                       </div>
@@ -654,7 +654,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     </div>
                   )}
                   {profile.tech_rider_alt && (
-                    <div className="p-4 border-2 border-ink bg-bg-panel">
+                    <div className="p-4 border-2 border-border bg-bg-panel">
                       <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
                         ALTERNATIVO
                       </div>
@@ -665,7 +665,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   )}
                 </div>
                 {profile.hospitality && (
-                  <div className="mt-4 p-4 border-2 border-ink bg-bg-panel">
+                  <div className="mt-4 p-4 border-2 border-border bg-bg-panel">
                     <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mb-2 font-bold">
                       HOSPITALITY
                     </div>
@@ -700,7 +700,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                   cuenta de booker vía <GatedContact> (no salen al HTML). */}
               {/* Confiabilidad (Fase 1 · 1F) — checklist de confianza arriba */}
               {trustChecks.length > 0 && (
-                <div className="bg-bg-panel border-2 border-ink p-4 mb-4">
+                <div className="bg-bg-panel border-2 border-border p-4 mb-4">
                   <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
                     — CONFIABILIDAD
                   </div>
@@ -708,7 +708,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     {trustChecks.map((c) => (
                       <li
                         key={c}
-                        className="flex items-center gap-2 text-sm font-medium text-ink"
+                        className="flex items-center gap-2 text-sm font-medium text-fg"
                       >
                         <span className="text-orange font-bold">✓</span> {c}
                       </li>
@@ -718,7 +718,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
               )}
 
               {(hasContact || feeLabel || profile.available_note) && (
-                <div className="bg-bg-panel border-2 border-ink p-4 mb-4">
+                <div className="bg-bg-panel border-2 border-border p-4 mb-4">
                   <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
                     — INFORMACIÓN DE RESERVA
                   </div>
@@ -729,7 +729,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                           <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
                             Fee ref.
                           </span>
-                          <span className="font-medium text-ink">{feeLabel}</span>
+                          <span className="font-medium text-fg">{feeLabel}</span>
                         </div>
                       )}
                       {profile.available_note && (
@@ -737,7 +737,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                           <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
                             Agenda
                           </span>
-                          <span className="font-medium text-ink">
+                          <span className="font-medium text-fg">
                             {profile.available_note}
                           </span>
                         </div>
@@ -761,7 +761,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     userId={profile.user_id}
                     event="click_instagram"
                     external
-                    className="inline-flex items-center justify-center h-10 px-3 bg-bg-panel border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+                    className="inline-flex items-center justify-center h-10 px-3 bg-bg-panel border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
                   >
                     Instagram
                   </TrackedLink>
@@ -778,7 +778,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     href={profile.press_kit_pdf_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block bg-orange text-ink border-2 border-ink p-5 hover:bg-ink hover:text-orange transition-colors"
+                    className="block bg-orange text-ink border-2 border-border p-5 hover:bg-ink hover:text-orange transition-colors"
                   >
                     <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
                       — PRESS KIT
@@ -805,7 +805,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
               {/* Form de booking — card clara con acentos naranjos (más
                   sobria que el bloque 100% naranja anterior). */}
-              <div className="bg-bg-panel border-2 border-ink p-5">
+              <div className="bg-bg-panel border-2 border-border p-5">
                 <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
                   — RESERVAR
                 </div>
@@ -825,7 +825,7 @@ export default async function PresskitPublicPage({ params }: PageProps) {
         </div>
 
         {/* ── Footer ─────────────────────────────────────── */}
-        <footer className="mt-16 pt-6 border-t-2 border-ink flex flex-wrap justify-between items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em] text-fg-subtle">
+        <footer className="mt-16 pt-6 border-t-2 border-border flex flex-wrap justify-between items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em] text-fg-subtle">
           <div>{profile.artist_name}</div>
           <div className="opacity-60">DROP. · THE DJ OS</div>
         </footer>
@@ -844,15 +844,15 @@ function StatTile({
   variant: "white" | "ink" | "orange";
 }) {
   const bg = {
-    white: "bg-bg-panel text-ink",
-    ink: "bg-ink text-cream",
+    white: "bg-bg-panel text-fg",
+    ink: "bg-ink text-white",
     orange: "bg-orange text-ink",
   }[variant];
   const isLast = variant === "orange"; // borde derecho solo si no es la última
   return (
     <div
       className={`${bg} text-center py-4 px-2 ${
-        isLast ? "" : "border-r-2 border-ink"
+        isLast ? "" : "border-r-2 border-border"
       }`}
     >
       <div className="font-display text-4xl md:text-5xl leading-none">

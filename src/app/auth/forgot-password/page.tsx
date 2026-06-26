@@ -51,7 +51,7 @@ export default async function ForgotPasswordPage({ searchParams }: PageProps) {
           <br />
           <a
             href="mailto:hola@dropgigs.com"
-            className="text-ink underline hover:text-orange transition-colors"
+            className="text-fg underline hover:text-orange transition-colors"
           >
             hola@dropgigs.com
           </a>

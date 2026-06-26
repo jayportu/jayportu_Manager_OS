@@ -84,7 +84,7 @@ export function Sidebar({
   const avatarChar = displayName.charAt(0);
 
   return (
-    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-ink text-cream relative overflow-hidden border-r-2 border-orange h-full">
+    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-ink text-white relative overflow-hidden border-r-2 border-orange h-full">
       {/* Watermark D. de fondo */}
       <span
         aria-hidden="true"
@@ -134,7 +134,7 @@ export function Sidebar({
             letterSpacing: "-0.02em",
           }}
         >
-          DROP<span style={{ color: "#FF5C00", marginLeft: "-0.06em" }}>.</span>
+          DROP<span style={{ color: "#E85A0C", marginLeft: "-0.06em" }}>.</span>
         </span>
         <span className="font-mono text-[9px] font-bold tracking-[0.1em] text-orange flex items-center gap-[5px]">
           <span
@@ -146,7 +146,7 @@ export function Sidebar({
       </div>
 
       {/* Manifesto block (donde irá próximo gig cuando haya data) */}
-      <div className="relative z-10 shrink-0 px-[22px] py-[14px] bg-orange text-ink border-b-2 border-ink">
+      <div className="relative z-10 shrink-0 px-[22px] py-[14px] bg-orange text-ink border-b-2 border-border">
         <div className="font-mono text-[9px] font-bold tracking-[0.12em]">
           — THE DJ OS
         </div>
@@ -185,8 +185,8 @@ export function Sidebar({
               className={cn(
                 "group px-[22px] py-[9px] grid grid-cols-[1fr_auto] gap-[10px] items-center transition-colors font-mono text-[12px] font-bold uppercase tracking-[0.08em] border-l-[3px] border-transparent",
                 isActive
-                  ? "bg-orange text-ink border-l-ink"
-                  : "text-[#aaa] hover:text-cream"
+                  ? "bg-orange text-ink border-l-border"
+                  : "text-[#aaa] hover:text-white"
               )}
             >
               <span className="flex items-center">
@@ -199,7 +199,7 @@ export function Sidebar({
                     "shrink-0 overflow-hidden -translate-x-2 opacity-0 w-0 transition-all duration-200 ease-out",
                     "group-hover:translate-x-0 group-hover:opacity-100 group-hover:w-[16px] group-hover:mr-2",
                     isActive
-                      ? "translate-x-0 opacity-100 w-[16px] mr-2 text-ink"
+                      ? "translate-x-0 opacity-100 w-[16px] mr-2 text-fg"
                       : "text-orange"
                   )}
                   strokeWidth={2.25}
@@ -273,7 +273,7 @@ export function Sidebar({
           )}
           <div className="min-w-0 flex-1">
             <div
-              className="text-cream truncate"
+              className="text-white truncate"
               style={{
                 fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                 fontSize: "18px",
@@ -293,7 +293,7 @@ export function Sidebar({
               CONTACTOS
             </div>
             <div
-              className="text-cream"
+              className="text-white"
               style={{
                 fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                 fontSize: "18px",
@@ -309,7 +309,7 @@ export function Sidebar({
               GIGS · MES
             </div>
             <div
-              className="text-cream"
+              className="text-white"
               style={{
                 fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                 fontSize: "18px",
@@ -335,7 +335,7 @@ export function Sidebar({
           >
             <span className="text-orange">→</span>&nbsp; CONTACTO
           </div>
-          <div className="text-cream font-mono text-[11px] mt-[3px] group-hover:text-orange transition-colors truncate">
+          <div className="text-white font-mono text-[11px] mt-[3px] group-hover:text-orange transition-colors truncate">
             hola@dropgigs.com
           </div>
         </a>

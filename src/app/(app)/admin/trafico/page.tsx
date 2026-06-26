@@ -46,7 +46,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <LiveRefresher intervalSec={15} />
-      <div className="mb-6 border-2 border-ink bg-bg-panel p-6">
+      <div className="mb-6 border-2 border-border bg-bg-panel p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
             — ADMIN · TRÁFICO
@@ -67,8 +67,8 @@ export default async function TraficoPage({ searchParams }: PageProps) {
               href={`/admin/trafico?d=${r}`}
               className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
                 days === r
-                  ? "bg-ink text-orange border-ink"
-                  : "border-ink text-ink hover:bg-ink hover:text-orange"
+                  ? "bg-ink text-orange border-border"
+                  : "border-border text-fg hover:bg-ink hover:text-orange"
               }`}
             >
               {r} días
@@ -78,20 +78,20 @@ export default async function TraficoPage({ searchParams }: PageProps) {
       </div>
 
       {t.totalViews === 0 ? (
-        <div className="border-2 border-dashed border-ink/40 bg-cream p-10 text-center text-sm text-fg-muted">
+        <div className="border-2 border-dashed border-border/40 bg-cream p-10 text-center text-sm text-fg-muted">
           Aún sin tráfico registrado en este rango. Empieza a contar desde que se
           desplegó el tracker — dale unas horas (y comparte el link).
         </div>
       ) : (
         <>
           {t.partial && (
-            <div className="border-2 border-warning bg-warning/10 p-3 mb-5 font-mono text-[11px] text-ink">
+            <div className="border-2 border-warning bg-warning/10 p-3 mb-5 font-mono text-[11px] text-fg">
               ⚠ Datos parciales: el rango supera el tope de eventos que se leen de
               una vez, así que los totales están sesgados hacia lo más reciente.
             </div>
           )}
           {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
             <Kpi label="Visitas" value={t.totalViews} sub={`${t.sessions} sesiones`} />
             <Kpi label="Anónimas" value={t.anonSessions} sub="sesiones sin cuenta" highlight />
             <Kpi label="Registrados" value={t.registeredSessions} sub={`${regPct}% de sesiones`} />
@@ -99,7 +99,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
           </div>
 
           {/* Embudo */}
-          <div className="border-2 border-ink bg-bg-panel p-5 mb-5">
+          <div className="border-2 border-border bg-bg-panel p-5 mb-5">
             <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
               — Embudo de conversión ({days}d)
             </h2>
@@ -109,12 +109,12 @@ export default async function TraficoPage({ searchParams }: PageProps) {
               <FunnelStep n="03" label="Cuentas creadas" value={t.funnel.newAccounts} accent />
             </div>
             <p className="font-mono text-[11px] text-fg-subtle mt-3">
-              {"// "}Conversión visita anónima → cuenta: <b className="text-ink">{convPct}%</b>
+              {"// "}Conversión visita anónima → cuenta: <b className="text-fg">{convPct}%</b>
             </p>
           </div>
 
           {/* Visitas por día */}
-          <div className="border-2 border-ink bg-bg-panel p-5 mb-5">
+          <div className="border-2 border-border bg-bg-panel p-5 mb-5">
             <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
               — Visitas por día
             </h2>
@@ -136,7 +136,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
 
           <div className="grid md:grid-cols-2 gap-5 mb-5">
             {/* Páginas top */}
-            <div className="border-2 border-ink bg-bg-panel p-5">
+            <div className="border-2 border-border bg-bg-panel p-5">
               <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
                 — Páginas más vistas
               </h2>
@@ -150,7 +150,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
               </div>
             </div>
             {/* De dónde llegan */}
-            <div className="border-2 border-ink bg-bg-panel p-5">
+            <div className="border-2 border-border bg-bg-panel p-5">
               <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
                 — De dónde llegan
               </h2>
@@ -166,14 +166,14 @@ export default async function TraficoPage({ searchParams }: PageProps) {
           </div>
 
           {/* Tiempo real */}
-          <div className="border-2 border-ink bg-bg-panel p-5">
+          <div className="border-2 border-border bg-bg-panel p-5">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
                 — Últimas visitas (tiempo real)
               </h2>
               <LiveBadge />
             </div>
-            <div className="divide-y divide-ink/10">
+            <div className="divide-y divide-border/10">
               {t.recent.map((r, i) => (
                 <div key={`${r.created_at}-${r.path}-${i}`} className="flex items-center gap-3 py-1.5 text-[12px]">
                   <span className="font-mono text-fg-subtle w-12 shrink-0">{fmtTime(r.created_at)}</span>
@@ -181,7 +181,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
                     className={`font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border shrink-0 ${
                       r.is_registered
                         ? "border-success/40 text-success"
-                        : "border-ink/20 text-fg-muted"
+                        : "border-border/20 text-fg-muted"
                     }`}
                   >
                     {r.is_registered ? "registrado" : "anónimo"}
@@ -222,7 +222,7 @@ function Kpi({
   highlight?: boolean;
 }) {
   return (
-    <div className={`p-4 border-r-2 border-ink last:border-r-0 ${highlight ? "bg-orange" : "bg-bg-panel"}`}>
+    <div className={`p-4 border-r-2 border-border last:border-r-0 ${highlight ? "bg-orange" : "bg-bg-panel"}`}>
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— {label}</div>
       <div className="font-display text-4xl leading-none mt-2">{value}</div>
       {sub && <div className="font-mono text-[9px] text-fg-muted mt-1">{sub}</div>}
@@ -242,8 +242,8 @@ function FunnelStep({
   accent?: boolean;
 }) {
   return (
-    <div className="border-2 border-ink p-3">
-      <div className={`font-display text-3xl leading-none ${accent ? "text-orange" : "text-ink"}`}>
+    <div className="border-2 border-border p-3">
+      <div className={`font-display text-3xl leading-none ${accent ? "text-orange" : "text-fg"}`}>
         {value}
       </div>
       <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mt-1">

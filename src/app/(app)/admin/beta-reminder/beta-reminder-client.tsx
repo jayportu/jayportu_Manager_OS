@@ -80,7 +80,7 @@ export function BetaReminderClient({ recipientCount }: Props) {
       )}
 
       {result && result.ok && (
-        <div className="border-2 border-ink p-3 space-y-3">
+        <div className="border-2 border-border p-3 space-y-3">
           <div className="flex items-center gap-2 text-sm font-bold">
             <CheckCircle2 className="w-4 h-4 text-success" />
             Enviados: {result.sent}

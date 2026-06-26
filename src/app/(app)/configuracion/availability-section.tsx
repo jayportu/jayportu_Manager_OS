@@ -90,7 +90,7 @@ export function AvailabilitySection({ profile }: Props) {
       </div>
 
       {/* Toggle visibilidad en directorio */}
-      <div className="border-2 border-ink p-4 flex items-start gap-3">
+      <div className="border-2 border-border p-4 flex items-start gap-3">
         <div className="shrink-0">
           {hiddenFromDirectory ? (
             <EyeOff className="w-5 h-5 text-fg-muted" />
@@ -111,7 +111,7 @@ export function AvailabilitySection({ profile }: Props) {
         <button
           type="button"
           onClick={() => setHiddenFromDirectory(!hiddenFromDirectory)}
-          className={`shrink-0 w-14 h-7 border-2 border-ink relative transition-colors ${
+          className={`shrink-0 w-14 h-7 border-2 border-border relative transition-colors ${
             hiddenFromDirectory ? "bg-cream" : "bg-orange"
           }`}
         >
@@ -125,13 +125,13 @@ export function AvailabilitySection({ profile }: Props) {
 
       {/* Bloque disponibilidad */}
       <div
-        className={`border-2 border-ink p-4 ${
+        className={`border-2 border-border p-4 ${
           isAvailableNow ? "bg-orange/10" : "bg-cream"
         }`}
       >
         <div className="flex items-center gap-3 mb-3">
           <div
-            className={`w-3 h-3 border-2 border-ink ${
+            className={`w-3 h-3 border-2 border-border ${
               isAvailableNow ? "bg-orange" : "bg-cream"
             }`}
           />
@@ -205,7 +205,7 @@ export function AvailabilitySection({ profile }: Props) {
         seguidores.
       </p>
 
-      <div className="flex justify-end gap-2 pt-2 border-t-2 border-ink">
+      <div className="flex justify-end gap-2 pt-2 border-t-2 border-border">
         <Button onClick={handleSave} disabled={isPending} variant="orange">
           {isPending ? "Guardando…" : "Guardar"}
         </Button>

@@ -148,14 +148,14 @@ export function GearCards({ items }: { items: TechRiderItem[] }) {
         {gear.map((item) => (
           <div
             key={item.id}
-            className="relative flex flex-col items-center text-center gap-2 p-4 border-2 border-ink bg-bg-panel"
+            className="relative flex flex-col items-center text-center gap-2 p-4 border-2 border-border bg-bg-panel"
           >
             {item.quantity > 1 && (
-              <span className="absolute top-2 right-2 font-mono text-[11px] font-bold text-cream bg-orange px-1.5 py-0.5 leading-none">
+              <span className="absolute top-2 right-2 font-mono text-[11px] font-bold text-white bg-orange px-1.5 py-0.5 leading-none">
                 {item.quantity}×
               </span>
             )}
-            <div className="text-ink">
+            <div className="text-fg">
               <GearIcon kind={iconKindFor(item)} />
             </div>
             <div className="text-sm font-semibold leading-tight">{item.name}</div>

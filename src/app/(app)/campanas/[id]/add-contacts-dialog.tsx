@@ -159,7 +159,7 @@ export function AddContactsDialog({
 
             {/* Sprint 19 — Filtro por tags (AND) */}
             {allTags.length > 0 && (
-              <div className="mb-3 p-3 border-2 border-dashed border-ink">
+              <div className="mb-3 p-3 border-2 border-dashed border-border">
                 <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-orange mb-2">
                   — FILTRAR POR TAGS (AND)
                 </div>
@@ -171,14 +171,14 @@ export function AddContactsDialog({
                         type="button"
                         key={t}
                         onClick={() => toggleTag(t)}
-                        className={`inline-flex items-center border-2 border-ink font-mono text-[10px] font-bold lowercase px-2 py-0.5 transition-colors ${
+                        className={`inline-flex items-center border-2 border-border font-mono text-[10px] font-bold lowercase px-2 py-0.5 transition-colors ${
                           active
                             ? "bg-orange text-ink"
                             : "bg-cream hover:bg-orange"
                         }`}
                       >
                         #{t}
-                        {active && <span className="ml-1.5 text-ink/60">×</span>}
+                        {active && <span className="ml-1.5 text-fg/60">×</span>}
                       </button>
                     );
                   })}
@@ -186,7 +186,7 @@ export function AddContactsDialog({
                     <button
                       type="button"
                       onClick={() => setFilterTags(new Set())}
-                      className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-ink"
+                      className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-fg"
                     >
                       limpiar
                     </button>

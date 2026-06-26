@@ -79,7 +79,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
       {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CRM · CONTACTOS{isFiltered ? " · FILTRADOS" : ""}
         </div>
@@ -179,16 +179,16 @@ export default async function CrmPage({ searchParams }: PageProps) {
                     <Link
                       key={t}
                       href={buildHref(sp, { tag: undefined, tags: newTags })}
-                      className="inline-flex items-center gap-1.5 border-2 border-ink bg-orange font-mono text-[10px] font-bold lowercase px-2 py-0.5"
+                      className="inline-flex items-center gap-1.5 border-2 border-border bg-orange font-mono text-[10px] font-bold lowercase px-2 py-0.5"
                     >
                       <span>#{t}</span>
-                      <span className="text-ink/60">×</span>
+                      <span className="text-fg/60">×</span>
                     </Link>
                   );
                 })}
                 <Link
                   href={buildHref(sp, { tag: undefined, tags: undefined })}
-                  className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-ink"
+                  className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-fg"
                 >
                   limpiar
                 </Link>
@@ -210,7 +210,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                       <Link
                         key={t.tag}
                         href={buildHref(sp, { tag: undefined, tags: newTags })}
-                        className="inline-flex items-center gap-1.5 border-2 border-ink bg-bg-subtle font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
+                        className="inline-flex items-center gap-1.5 border-2 border-border bg-bg-subtle font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
                       >
                         <span>#{t.tag}</span>
                         <span className="text-fg-muted">{t.count}</span>
@@ -342,7 +342,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                         {c.city || "—"}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 border-2 border-ink bg-bg-subtle text-fg">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 border-2 border-border bg-bg-subtle text-fg">
                           {CONTACT_STATUS_LABELS[c.status]}
                         </span>
                       </td>
@@ -383,7 +383,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                       {c.city ? ` · ${c.city}` : ""}
                     </div>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 border border-ink bg-bg-subtle text-fg">
+                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 border border-border bg-bg-subtle text-fg">
                         {CONTACT_STATUS_LABELS[c.status]}
                       </span>
                       <span className="font-mono text-[10px] text-fg-muted">

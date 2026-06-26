@@ -77,7 +77,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
       aria-modal="true"
     >
       <div
-        className="w-full max-w-md bg-cream border-[3px] border-ink p-6"
+        className="w-full max-w-md bg-cream border-[3px] border-border p-6"
         style={{ boxShadow: "10px 10px 0 0 #0A0A0A" }}
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
@@ -103,7 +103,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
                   setScore(n);
                   setError(null);
                 }}
-                className={`border-[1.5px] border-ink py-2 font-mono text-sm font-bold transition-colors ${
+                className={`border-[1.5px] border-border py-2 font-mono text-sm font-bold transition-colors ${
                   picked ? "bg-orange" : "bg-bg-panel hover:bg-cream"
                 }`}
                 aria-label={`Score ${n}`}
@@ -129,7 +129,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
               onChange={(e) => setComment(e.target.value)}
               maxLength={1000}
               placeholder="Lo que más te sirvió, lo que aún no termina de convencerte…"
-              className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-none"
+              className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-none"
             />
           </div>
         )}
@@ -145,7 +145,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
             type="button"
             onClick={handleSkip}
             disabled={submitting}
-            className="font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-2 border-2 border-ink/40 text-fg-muted hover:border-ink hover:text-ink transition-colors"
+            className="font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-2 border-2 border-border/40 text-fg-muted hover:border-border hover:text-fg transition-colors"
           >
             Después
           </button>
@@ -153,7 +153,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
             type="button"
             onClick={handleSubmit}
             disabled={submitting || score === null}
-            className="font-mono text-[11px] font-bold uppercase tracking-wider px-4 py-2 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange transition-colors disabled:opacity-50"
+            className="font-mono text-[11px] font-bold uppercase tracking-wider px-4 py-2 border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange transition-colors disabled:opacity-50"
           >
             {submitting ? "Enviando…" : "Enviar"}
           </button>

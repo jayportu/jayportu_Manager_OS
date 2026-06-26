@@ -133,11 +133,11 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
           <AvatarLightbox
             src={url}
             alt="Foto de perfil"
-            className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-ink bg-ink"
+            className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-border bg-ink"
             imgClassName="w-full h-full object-cover transition-transform group-hover:scale-[1.05]"
           />
         ) : (
-          <div className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-ink bg-ink flex items-center justify-center">
+          <div className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-border bg-ink flex items-center justify-center">
             <span
               className="text-orange"
               style={{

@@ -12,8 +12,8 @@ const LAST_UPDATED = TOS_VERSION_LABEL;
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <header className="bg-ink text-cream border-b-2 border-orange py-6 px-6">
+    <div className="min-h-screen bg-bg text-fg">
+      <header className="bg-ink text-white border-b-2 border-orange py-6 px-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
             Para cualquier consulta sobre privacidad o ejercer tus derechos:{" "}
             <a
               href="mailto:hola@dropgigs.com"
-              className="text-ink underline hover:text-orange transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               hola@dropgigs.com
             </a>
@@ -202,13 +202,13 @@ export default function PrivacyPage() {
           <div className="overflow-x-auto -mx-2 my-3">
             <table className="w-full text-[14px]">
               <thead>
-                <tr className="border-b-2 border-ink">
+                <tr className="border-b-2 border-border">
                   <th className="text-left py-2 px-2 font-bold">Proveedor</th>
                   <th className="text-left py-2 px-2 font-bold">Para qué</th>
                   <th className="text-left py-2 px-2 font-bold">Región</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ink/10">
+              <tbody className="divide-y divide-border/10">
                 <tr>
                   <td className="py-2 px-2"><strong>Supabase</strong></td>
                   <td className="py-2 px-2">Autenticación + base de datos + storage</td>
@@ -303,7 +303,7 @@ export default function PrivacyPage() {
               cuenta entera escribiéndonos a{" "}
               <a
                 href="mailto:hola@dropgigs.com"
-                className="text-ink underline hover:text-orange transition-colors"
+                className="text-fg underline hover:text-orange transition-colors"
               >
                 hola@dropgigs.com
               </a>{" "}
@@ -354,7 +354,7 @@ export default function PrivacyPage() {
             DROP. es el mismo identificado como proveedor en nuestros{" "}
             <Link
               href="/terms"
-              className="text-ink underline hover:text-orange transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               Términos de servicio
             </Link>
@@ -372,7 +372,7 @@ export default function PrivacyPage() {
           </p>
         </Section>
 
-        <div className="mt-12 pt-6 border-t-2 border-ink">
+        <div className="mt-12 pt-6 border-t-2 border-border">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg-muted">
             ¿Tienes dudas?{" "}
             <a
@@ -384,7 +384,7 @@ export default function PrivacyPage() {
           </p>
           <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-subtle">
             Ver también:{" "}
-            <Link href="/terms" className="text-ink hover:text-orange transition-colors underline">
+            <Link href="/terms" className="text-fg hover:text-orange transition-colors underline">
               Términos de servicio
             </Link>
           </p>

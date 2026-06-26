@@ -107,8 +107,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const confirmCls = danger
     ? "bg-danger text-white border-danger"
     : warn
-      ? "bg-warning text-ink border-warning"
-      : "bg-orange text-ink border-ink";
+      ? "bg-warning text-fg border-warning"
+      : "bg-orange text-ink border-border";
 
   return (
     <ConfirmContext.Provider value={confirm}>
@@ -120,13 +120,13 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
         >
           <div
             className={`w-full max-w-md bg-bg-panel border-[3px] ${
-              danger ? "border-danger" : "border-ink"
+              danger ? "border-danger" : "border-border"
             } p-5`}
             onClick={(e) => e.stopPropagation()}
           >
             <h2
               className={`font-display text-2xl leading-none ${
-                danger ? "text-danger" : "text-ink"
+                danger ? "text-danger" : "text-fg"
               }`}
             >
               {opts.title}
@@ -148,7 +148,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 placeholder={opts.reasonPlaceholder || "Motivo (obligatorio)…"}
                 rows={3}
                 maxLength={500}
-                className="mt-3 w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-y"
+                className="mt-3 w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-y"
               />
             )}
 
@@ -162,7 +162,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   value={typed}
                   onChange={(e) => setTyped(e.target.value)}
                   placeholder={opts.typeToConfirm}
-                  className="w-full border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-sm focus:outline-none focus:border-danger"
+                  className="w-full border-2 border-border bg-bg-panel px-3 py-2 font-mono text-sm focus:outline-none focus:border-danger"
                 />
               </div>
             )}
@@ -174,7 +174,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-2 border-2 border-ink bg-bg-panel hover:bg-cream transition-colors"
+                  className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-2 border-2 border-border bg-bg-panel hover:bg-cream transition-colors"
                 >
                   {opts.cancelLabel || "Cancelar"}
                 </button>

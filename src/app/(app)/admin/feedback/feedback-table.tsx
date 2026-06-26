@@ -85,8 +85,8 @@ export function FeedbackTable({ initialReports }: Props) {
     const bg = {
       bug: "bg-danger text-white border-danger",
       idea: "bg-info text-white border-info",
-      copy: "bg-warning text-ink border-ink",
-      otro: "bg-cream text-ink border-ink",
+      copy: "bg-warning text-fg border-border",
+      otro: "bg-cream text-fg border-border",
     }[k];
     return (
       <span
@@ -108,8 +108,8 @@ export function FeedbackTable({ initialReports }: Props) {
             key={s}
             type="button"
             onClick={() => setFilter(s)}
-            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-ink transition-colors ${
-              filter === s ? "bg-ink text-cream" : "bg-cream hover:bg-ink/10"
+            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-border transition-colors ${
+              filter === s ? "bg-ink text-white" : "bg-cream hover:bg-ink/10"
             }`}
           >
             {s === "all" ? "Todos" : FEEDBACK_STATUS_LABELS[s]} (
@@ -127,7 +127,7 @@ export function FeedbackTable({ initialReports }: Props) {
         </div>
       )}
 
-      <div className="border-2 border-ink bg-bg-panel">
+      <div className="border-2 border-border bg-bg-panel">
         {filtered.length === 0 && (
           <div className="p-10 text-center text-fg-muted text-sm">
             Sin feedback en este filtro.
@@ -139,7 +139,7 @@ export function FeedbackTable({ initialReports }: Props) {
           const hasUnsavedNote =
             draft !== undefined && draft !== (r.admin_notes || "");
           return (
-            <div key={r.id} className="border-b border-ink/10 px-4 py-3">
+            <div key={r.id} className="border-b border-border/10 px-4 py-3">
               <div className="flex items-start gap-3">
                 <div className="shrink-0 pt-1">{kindBadge(r.kind)}</div>
                 <div className="flex-1 min-w-0">
@@ -161,7 +161,7 @@ export function FeedbackTable({ initialReports }: Props) {
                     {(r.artist_name || r.email) && (
                       <span className="text-fg">
                         ·{" "}
-                        <span className="font-semibold text-ink">
+                        <span className="font-semibold text-fg">
                           {r.artist_name || "—"}
                         </span>
                         {r.email && (
@@ -201,7 +201,7 @@ export function FeedbackTable({ initialReports }: Props) {
                         }
                         rows={2}
                         placeholder="Si lo marcás como 'Resuelto', este texto va al email que el DJ recibe (ej: 'Ya está arreglado. Ahora el calendario muestra siempre la hora chilena, así que tu show 05-jun 21:00 ya aparece bajo el card 05 JUN.'). Si lo dejas vacío, se manda un texto genérico cordial."
-                        className="w-full text-xs px-2.5 py-2 border-2 border-ink bg-cream/30 font-sans leading-relaxed focus:bg-bg-panel focus:outline-none focus:ring-0"
+                        className="w-full text-xs px-2.5 py-2 border-2 border-border bg-cream/30 font-sans leading-relaxed focus:bg-bg-panel focus:outline-none focus:ring-0"
                       />
                       {hasUnsavedNote && (
                         <div className="font-mono text-[10px] text-warning">

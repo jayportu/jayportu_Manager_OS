@@ -12,8 +12,8 @@ const LAST_UPDATED = TOS_VERSION_LABEL;
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <header className="bg-ink text-cream border-b-2 border-orange py-6 px-6">
+    <div className="min-h-screen bg-bg text-fg">
+      <header className="bg-ink text-white border-b-2 border-orange py-6 px-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -83,7 +83,7 @@ export default function TermsPage() {
             Contacto:{" "}
             <a
               href="mailto:hola@dropgigs.com"
-              className="text-ink underline hover:text-orange transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               hola@dropgigs.com
             </a>
@@ -98,7 +98,7 @@ export default function TermsPage() {
             avísanos a{" "}
             <a
               href="mailto:hola@dropgigs.com"
-              className="text-ink underline hover:text-orange transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               hola@dropgigs.com
             </a>{" "}
@@ -248,7 +248,7 @@ export default function TermsPage() {
             Art. 3 bis de la Ley 19.496. Para ejercerlo, escríbenos a{" "}
             <a
               href="mailto:hola@dropgigs.com"
-              className="text-ink underline hover:text-orange transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               hola@dropgigs.com
             </a>{" "}
@@ -314,7 +314,7 @@ export default function TermsPage() {
             cuenta (pídenos a{" "}
             <a
               href="mailto:hola@dropgigs.com"
-              className="text-ink underline hover:text-orange transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               hola@dropgigs.com
             </a>
@@ -345,7 +345,7 @@ export default function TermsPage() {
           </p>
         </Section>
 
-        <div className="mt-12 pt-6 border-t-2 border-ink">
+        <div className="mt-12 pt-6 border-t-2 border-border">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg-muted">
             ¿Tienes dudas?{" "}
             <a
@@ -357,7 +357,7 @@ export default function TermsPage() {
           </p>
           <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-subtle">
             Ver también:{" "}
-            <Link href="/privacy" className="text-ink hover:text-orange transition-colors underline">
+            <Link href="/privacy" className="text-fg hover:text-orange transition-colors underline">
               Política de privacidad
             </Link>
           </p>

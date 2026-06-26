@@ -37,7 +37,7 @@ export default async function BookerSeguidosPage() {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — DJS QUE SIGUES
         </div>
@@ -54,7 +54,7 @@ export default async function BookerSeguidosPage() {
           </h1>
           <Link
             href="/dj"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
           >
             <Plus className="w-4 h-4" />
             Sumar DJs
@@ -87,7 +87,7 @@ export default async function BookerSeguidosPage() {
           </div>
         </section>
       ) : favorites.length > 0 ? (
-        <div className="mb-10 border-2 border-dashed border-ink/30 bg-cream p-6 text-center">
+        <div className="mb-10 border-2 border-dashed border-border/30 bg-cream p-6 text-center">
           <Bell className="w-6 h-6 mx-auto text-fg-muted mb-2" />
           <p className="text-sm text-fg-muted">
             Todavía no hay novedades de los DJs que sigues.
@@ -110,10 +110,10 @@ export default async function BookerSeguidosPage() {
               <Link
                 key={dj.dj_user_id}
                 href={`/p/${dj.public_slug}`}
-                className="group border-2 border-ink bg-bg-panel overflow-hidden hover:bg-cream/40 transition-colors"
+                className="group border-2 border-border bg-bg-panel overflow-hidden hover:bg-cream/40 transition-colors"
               >
                 {isSupabaseStorageUrl(dj.hero_image_url) ? (
-                  <div className="relative w-full aspect-[4/3] border-b-2 border-ink">
+                  <div className="relative w-full aspect-[4/3] border-b-2 border-border">
                     <Image
                       src={dj.hero_image_url}
                       alt={dj.artist_name}
@@ -123,7 +123,7 @@ export default async function BookerSeguidosPage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-full aspect-[4/3] bg-ink text-orange flex items-center justify-center border-b-2 border-ink">
+                  <div className="w-full aspect-[4/3] bg-ink text-orange flex items-center justify-center border-b-2 border-border">
                     <span
                       style={{
                         fontFamily:
@@ -139,7 +139,7 @@ export default async function BookerSeguidosPage() {
                 <div className="p-3">
                   <div className="flex items-start gap-2">
                     <div
-                      className="text-ink truncate flex-1"
+                      className="text-fg truncate flex-1"
                       style={{
                         fontFamily:
                           "var(--font-anton), Impact, system-ui, sans-serif",
@@ -177,7 +177,7 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
       className={`grid grid-cols-[56px_1fr_auto] items-start gap-3 p-3 transition-colors hover:bg-cream/60 ${
         update.unread
           ? "bg-cream border-2 border-orange"
-          : "bg-bg-panel border-2 border-ink"
+          : "bg-bg-panel border-2 border-border"
       }`}
     >
       {/* Avatar */}
@@ -206,7 +206,7 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
       {/* Body */}
       <div className="min-w-0">
         <div
-          className="text-ink truncate"
+          className="text-fg truncate"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
             fontSize: "20px",
@@ -215,7 +215,7 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
         >
           {update.artist_name}
         </div>
-        <div className="text-sm text-ink mt-1">
+        <div className="text-sm text-fg mt-1">
           <span className="text-orange font-bold">{title}</span>
           {detail && <span className="text-fg-muted"> · {detail}</span>}
         </div>
@@ -277,7 +277,7 @@ function formatUpdate(u: FeedUpdate): { title: string; detail: string } {
 
 function EmptyState() {
   return (
-    <div className="border-2 border-dashed border-ink/30 bg-cream p-12 text-center">
+    <div className="border-2 border-dashed border-border/30 bg-cream p-12 text-center">
       <Heart className="w-10 h-10 mx-auto text-orange mb-3" />
       <h2 className="text-lg font-bold mb-1">Todavía no sigues a nadie</h2>
       <p className="text-sm text-fg-muted mb-4 max-w-md mx-auto">
@@ -287,7 +287,7 @@ function EmptyState() {
       </p>
       <Link
         href="/dj"
-        className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-cream font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+        className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
       >
         <Plus className="w-4 h-4" />
         Ver directorio de DJs

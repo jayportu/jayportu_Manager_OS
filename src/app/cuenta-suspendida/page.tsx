@@ -37,7 +37,7 @@ export default async function CuentaSuspendidaPage() {
   const reason = profile?.account_status_reason?.trim() || null;
 
   return (
-    <div className="min-h-screen bg-cream text-ink flex items-center justify-center p-6">
+    <div className="min-h-screen bg-bg text-fg flex items-center justify-center p-6">
       <div className="max-w-lg w-full">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange mb-2">
           — DROP.
@@ -53,14 +53,14 @@ export default async function CuentaSuspendidaPage() {
           <span className="text-orange">.</span>
         </h1>
 
-        <div className="border-2 border-ink bg-bg-panel p-5 mb-6">
+        <div className="border-2 border-border bg-bg-panel p-5 mb-6">
           {isBanned ? (
             <p className="text-sm leading-relaxed">
               Tu cuenta fue cerrada de forma permanente por incumplimiento de
               nuestros{" "}
               <Link
                 href="/terms"
-                className="text-ink underline hover:text-orange transition-colors"
+                className="text-fg underline hover:text-orange transition-colors"
               >
                 Términos de servicio
               </Link>
@@ -75,7 +75,7 @@ export default async function CuentaSuspendidaPage() {
           )}
 
           {reason && (
-            <div className="mt-4 pt-4 border-t border-ink/15">
+            <div className="mt-4 pt-4 border-t border-border/15">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-muted mb-1">
                 — Motivo
               </div>
@@ -99,7 +99,7 @@ export default async function CuentaSuspendidaPage() {
         <form method="POST" action="/logout">
           <button
             type="submit"
-            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
+            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-fg transition-colors"
           >
             ← Cerrar sesión
           </button>

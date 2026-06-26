@@ -7,17 +7,17 @@ const BASE =
 
 const VARIANTS = {
   /** Acción principal / positiva (aprobar, verificar, reactivar). */
-  primary: "bg-orange text-ink border-ink hover:bg-ink hover:text-orange",
+  primary: "bg-orange text-ink border-border hover:bg-ink hover:text-orange",
   /** Acción secundaria fuerte (invitar, enviar). */
-  ink: "bg-ink text-cream border-ink hover:bg-orange hover:text-ink",
+  ink: "bg-ink text-white border-border hover:bg-orange hover:text-ink",
   /** Precaución, reversible (suspender). */
-  warn: "text-warning border-warning bg-warning/5 hover:bg-warning hover:text-ink",
+  warn: "text-warning border-warning bg-warning/5 hover:bg-warning hover:text-fg",
   /** Destructivo reversible (banear, rechazar, revocar). */
   danger: "text-danger border-danger bg-danger/5 hover:bg-danger hover:text-white",
   /** Destructivo irreversible (eliminar). */
   dangerSolid: "bg-danger text-white border-danger hover:opacity-90",
   /** Neutral (refrescar, filtrar, copiar). */
-  neutral: "text-ink border-ink bg-white hover:bg-cream",
+  neutral: "text-fg border-border bg-white hover:bg-cream",
 } as const;
 
 export type AdminBtnVariant = keyof typeof VARIANTS;

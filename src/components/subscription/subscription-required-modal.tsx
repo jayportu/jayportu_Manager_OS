@@ -39,8 +39,8 @@ export function SubscriptionRequiredModal({ reason }: Props) {
       aria-labelledby="subscription-required-title"
     >
       <div
-        className="w-full max-w-lg bg-cream border-[3px] border-ink p-6 md:p-8"
-        style={{ boxShadow: "12px 12px 0 0 #FF5C00" }}
+        className="w-full max-w-lg bg-cream border-[3px] border-border p-6 md:p-8"
+        style={{ boxShadow: "12px 12px 0 0 #E85A0C" }}
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange">
           — {copy.kicker}
@@ -57,7 +57,7 @@ export function SubscriptionRequiredModal({ reason }: Props) {
           {copy.body}
         </p>
 
-        <div className="mt-6 p-4 border-2 border-ink bg-bg-panel">
+        <div className="mt-6 p-4 border-2 border-border bg-bg-panel">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
             — PLAN
           </div>
@@ -78,14 +78,14 @@ export function SubscriptionRequiredModal({ reason }: Props) {
         <div className="mt-6 flex flex-col sm:flex-row gap-2">
           <Link
             href="/suscripcion"
-            className="flex-1 inline-flex items-center justify-center h-11 px-4 bg-ink text-orange border-2 border-ink hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+            className="flex-1 inline-flex items-center justify-center h-11 px-4 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
           >
             Suscribirme →
           </Link>
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center justify-center h-11 px-4 bg-cream text-ink border-2 border-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+            className="inline-flex items-center justify-center h-11 px-4 bg-cream text-fg border-2 border-border hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
           >
             Salir
           </button>

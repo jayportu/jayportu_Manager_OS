@@ -126,7 +126,7 @@ export function VenueCard({
               maxLength={600}
               rows={3}
               placeholder="Quién eres, tu sonido, por qué encajas en este lugar…"
-              className="w-full border-2 border-ink bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent resize-y"
+              className="w-full border-2 border-border bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent resize-y"
             />
             <input
               type="text"
@@ -134,7 +134,7 @@ export function VenueCard({
               onChange={(e) => setAvailability(e.target.value)}
               maxLength={200}
               placeholder="Disponibilidad (ej. viernes y sábados de marzo)"
-              className="w-full border-2 border-ink bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent"
+              className="w-full border-2 border-border bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent"
             />
             <div className="text-[11px] text-fg-subtle">
               Se adjunta tu press kit. Cuesta 🪙1 token (se devuelve si no lo ven en 14 días).

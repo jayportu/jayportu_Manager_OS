@@ -27,7 +27,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-bg-panel p-6">
+      <div className="mb-6 border-2 border-border bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · ANALYTICS · ÚLTIMOS 30 DÍAS
         </div>
@@ -37,8 +37,8 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-6">
-        <div className="bg-orange p-4 border-r-2 border-ink">
+      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-6">
+        <div className="bg-orange p-4 border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
             — BETA ACTIVOS
           </div>
@@ -49,7 +49,7 @@ export default async function AnalyticsPage() {
             de {snap.totalBetaApproved} aprobados
           </div>
         </div>
-        <div className="bg-bg-panel p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
             — RETENCIÓN D7
           </div>
@@ -60,7 +60,7 @@ export default async function AnalyticsPage() {
             {snap.retentionD7.active}/{snap.retentionD7.total} activos
           </div>
         </div>
-        <div className="bg-bg-panel p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
             — NPS PROMEDIO
           </div>
@@ -71,7 +71,7 @@ export default async function AnalyticsPage() {
             {snap.npsCount} respuestas
           </div>
         </div>
-        <div className="bg-ink text-cream p-4">
+        <div className="bg-ink text-white p-4">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
             — RETENCIÓN D15
           </div>
@@ -85,7 +85,7 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Top features */}
-      <div className="border-2 border-ink bg-bg-panel p-6 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 mb-6">
         <h2 className="font-display text-2xl leading-none mb-4">
           TOP FEATURES (POR USERS ÚNICOS)
         </h2>
@@ -102,7 +102,7 @@ export default async function AnalyticsPage() {
                 <div className="w-48 text-sm font-mono shrink-0 truncate">
                   {f.event}
                 </div>
-                <div className="flex-1 h-6 bg-cream border-2 border-ink relative">
+                <div className="flex-1 h-6 bg-cream border-2 border-border relative">
                   <div
                     className="absolute top-0 left-0 h-full bg-orange"
                     style={{ width: `${widthPct}%` }}
@@ -118,13 +118,13 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Funnel */}
-      <div className="border-2 border-ink bg-bg-panel p-6">
+      <div className="border-2 border-border bg-bg-panel p-6">
         <h2 className="font-display text-2xl leading-none mb-4">
           FUNNEL ONBOARDING
         </h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b-2 border-ink font-mono text-[10px] uppercase tracking-wider">
+            <tr className="border-b-2 border-border font-mono text-[10px] uppercase tracking-wider">
               <th className="text-left py-2">Paso</th>
               <th className="text-right py-2 w-24">Users</th>
               <th className="text-right py-2 w-24">%</th>
@@ -132,7 +132,7 @@ export default async function AnalyticsPage() {
           </thead>
           <tbody>
             {snap.onboardingFunnel.map((f) => (
-              <tr key={f.step} className="border-b border-ink/10">
+              <tr key={f.step} className="border-b border-border/10">
                 <td className="py-2.5">{f.step}</td>
                 <td className="py-2.5 text-right font-mono">{f.count}</td>
                 <td className="py-2.5 text-right font-mono">{f.pct}%</td>

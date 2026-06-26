@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 /**
  * DROP — Type Beat theme (brutalist poster)
- * Paleta: CREAM (#F4EFE7) + INK (#0A0A0A) + ORANGE (#FF5C00).
+ * Paleta: CREAM (#F4EFE7) + INK (#0A0A0A) + ORANGE (#E85A0C, canónico).
  * Sin gradientes, sin tonos intermedios. Bordes 2px, sin border-radius
  * por defecto (border-radius global se desactiva via --radius: 0;
  * el `rounded-full` sigue funcionando para avatares).
@@ -134,15 +134,15 @@ const config: Config = {
           "0%, 86%, 100%": { transform: "translate(0, 0)", textShadow: "none" },
           "87%": {
             transform: "translate(-2px, 1px)",
-            textShadow: "2px 0 #FF5C00, -2px 0 #00E0FF",
+            textShadow: "2px 0 #E85A0C, -2px 0 #00E0FF",
           },
           "89%": {
             transform: "translate(2px, -1px)",
-            textShadow: "-2px 0 #FF5C00, 2px 0 #00E0FF",
+            textShadow: "-2px 0 #E85A0C, 2px 0 #00E0FF",
           },
           "91%": {
             transform: "translate(-1px, 0)",
-            textShadow: "2px 0 #FF5C00, -2px 0 #00E0FF",
+            textShadow: "2px 0 #E85A0C, -2px 0 #00E0FF",
           },
           "93%": { transform: "translate(0, 0)", textShadow: "none" },
         },

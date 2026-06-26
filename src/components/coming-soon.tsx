@@ -55,14 +55,14 @@ export function ComingSoon({
           <span className="flex-1 h-px bg-orange/40 max-w-[200px]" />
           {eta && (
             <span className="text-fg-subtle">
-              ETA · <span className="text-ink">{eta}</span>
+              ETA · <span className="text-fg">{eta}</span>
             </span>
           )}
         </div>
 
         {/* Title */}
         <h1
-          className="text-ink"
+          className="text-fg"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
             fontSize: "clamp(48px, 8vw, 88px)",
@@ -80,7 +80,7 @@ export function ComingSoon({
 
         {/* Bullets opcionales */}
         {bullets && bullets.length > 0 && (
-          <div className="mt-8 border-2 border-ink bg-bg-panel p-5">
+          <div className="mt-8 border-2 border-border bg-bg-panel p-5">
             <div className="font-mono text-[10px] font-bold tracking-[0.14em] text-orange uppercase mb-3">
               — Qué tendrá
             </div>
@@ -112,13 +112,13 @@ export function ComingSoon({
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href={ctaHref}
-            className="inline-flex items-center px-5 py-3 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink transition-colors"
+            className="inline-flex items-center px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink transition-colors"
           >
             {ctaLabel} →
           </Link>
           <Link
             href="/dashboard"
-            className="inline-flex items-center px-5 py-3 bg-cream text-ink font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange transition-colors"
+            className="inline-flex items-center px-5 py-3 bg-cream text-fg font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange transition-colors"
           >
             Ver roadmap
           </Link>

@@ -44,9 +44,9 @@ const STATUS_STYLES: Record<
 > = {
   nuevo: { bg: "bg-orange", text: "text-ink", border: "border-orange", tag: "Pendiente de revisión" },
   leido: { bg: "bg-info", text: "text-white", border: "border-info", tag: "Leído por el DJ" },
-  respondido: { bg: "bg-cream", text: "text-ink", border: "border-ink", tag: "Respondido" },
+  respondido: { bg: "bg-cream", text: "text-fg", border: "border-border", tag: "Respondido" },
   cotizado: { bg: "bg-warning", text: "text-white", border: "border-warning", tag: "Cotizado" },
-  contraofertado: { bg: "bg-ink", text: "text-cream", border: "border-ink", tag: "Contraoferta enviada" },
+  contraofertado: { bg: "bg-ink", text: "text-white", border: "border-border", tag: "Contraoferta enviada" },
   agendado: { bg: "bg-success", text: "text-white", border: "border-success", tag: "Agendado ✓" },
   rechazado: { bg: "bg-danger", text: "text-white", border: "border-danger", tag: "No disponible" },
 };
@@ -66,9 +66,9 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
   const style = STATUS_STYLES[booking.status] ?? STATUS_STYLES.nuevo;
 
   return (
-    <main className="min-h-screen bg-cream flex flex-col">
+    <main className="min-h-screen bg-bg flex flex-col">
       {/* Header */}
-      <header className="bg-ink text-cream border-b-2 border-orange py-4 px-6 flex items-center justify-between">
+      <header className="bg-ink text-white border-b-2 border-orange py-4 px-6 flex items-center justify-between">
         <Link
           href="/"
           className="select-none flex items-baseline gap-3 hover:opacity-90 transition-opacity"
@@ -124,7 +124,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
           </div>
 
           {/* DJ contactado */}
-          <div className="border-2 border-ink bg-bg-panel p-5 mb-4">
+          <div className="border-2 border-border bg-bg-panel p-5 mb-4">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-2">
               — DJ CONTACTADO
             </div>
@@ -143,7 +143,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
               {booking.dj_public_slug && (
                 <Link
                   href={`/p/${booking.dj_public_slug}`}
-                  className="font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-2 border-2 border-ink hover:bg-orange transition-colors"
+                  className="font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-2 border-2 border-border hover:bg-orange transition-colors"
                 >
                   Ver press kit →
                 </Link>
@@ -152,7 +152,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
           </div>
 
           {/* Detalles del request */}
-          <div className="border-2 border-ink bg-bg-panel p-5 mb-4 space-y-3">
+          <div className="border-2 border-border bg-bg-panel p-5 mb-4 space-y-3">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">
               — DETALLES DEL REQUEST
             </div>
@@ -166,7 +166,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
             {booking.email && <DetailRow label="Email" value={booking.email} />}
             {booking.phone && <DetailRow label="Teléfono" value={booking.phone} />}
             {booking.message && (
-              <div className="pt-3 border-t border-ink/10">
+              <div className="pt-3 border-t border-border/10">
                 <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-fg-subtle mb-1">
                   Mensaje
                 </div>
@@ -190,7 +190,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
                   fontSize: "40px",
                   lineHeight: 0.9,
                 }}
-                className="text-ink"
+                className="text-fg"
               >
                 ${booking.quoted_amount_clp.toLocaleString("es-CL")} CLP
               </div>
@@ -199,14 +199,14 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
 
           {/* Counteroffer del booker si ya la mandó */}
           {booking.status === "contraofertado" && (
-            <div className="border-2 border-ink bg-ink text-cream p-5 mb-4">
+            <div className="border-2 border-border bg-ink text-white p-5 mb-4">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-1">
                 — TU CONTRAOFERTA
               </div>
               <div className="space-y-1 mt-2">
                 {booking.counter_amount_clp && (
                   <div>
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-cream/60">
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-white/60">
                       Monto:{" "}
                     </span>
                     <span
@@ -234,7 +234,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
                   </p>
                 )}
               </div>
-              <div className="font-mono text-[10px] text-cream/60 mt-3 uppercase tracking-wider">
+              <div className="font-mono text-[10px] text-white/60 mt-3 uppercase tracking-wider">
                 Esperando respuesta del DJ
               </div>
             </div>
@@ -262,13 +262,13 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
               <>
                 <Link
                   href={`/signup/booker?next=${encodeURIComponent(`/b/${token}`)}`}
-                  className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+                  className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
                 >
                   Crear cuenta gratis
                 </Link>
                 <Link
                   href="/login"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-cream text-ink font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-cream text-fg font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange transition-colors"
                 >
                   Ya tengo cuenta
                 </Link>
@@ -277,7 +277,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
             {isOwner && (
               <Link
                 href="/booker/requests"
-                className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange text-ink font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-orange hover:bg-ink hover:text-cream transition-colors"
+                className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange text-ink font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-orange hover:bg-ink hover:text-white transition-colors"
               >
                 Ver todos mis requests →
               </Link>
@@ -295,7 +295,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
         </div>
       </div>
 
-      <footer className="bg-ink text-cream border-t-2 border-orange py-3 px-6 text-center">
+      <footer className="bg-ink text-white border-t-2 border-orange py-3 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · BOOKING SYSTEM · v0.13
         </div>
@@ -310,7 +310,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-subtle pt-1">
         {label}
       </div>
-      <div className="text-ink break-words">{value}</div>
+      <div className="text-fg break-words">{value}</div>
     </div>
   );
 }

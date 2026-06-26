@@ -83,7 +83,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {conn && <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />}
 
       {/* Hero brutalist */}
-      <div className="border-2 border-ink bg-bg-panel p-6 mb-5 relative">
+      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CALENDARIO · GIGS Y EVENTOS
         </div>
@@ -95,7 +95,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           {conn && (
             <>
               {" "}· conectado a{" "}
-              <span className="text-ink">{conn.google_email}</span>
+              <span className="text-fg">{conn.google_email}</span>
             </>
           )}
         </p>
@@ -117,7 +117,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           <NewEventButton />
           <a
             href={`/api/export/finance?from=${now.getFullYear()}-01-01&to=${now.getFullYear() + 1}-01-01`}
-            className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3 py-2 border-2 border-ink bg-cream hover:bg-ink hover:text-orange transition-colors"
+            className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3 py-2 border-2 border-border bg-cream hover:bg-ink hover:text-orange transition-colors"
             download
             title="Exportar CSV de finanzas año actual"
           >
@@ -129,43 +129,43 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
 
       {/* Sprint 19 — KPIs financieros del mes */}
       {kpis.totalGigs > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
-          <div className="bg-success text-white p-4 border-r-2 border-ink">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
+          <div className="bg-bg-panel p-4 border-t-2 border-t-accent border-r-2 border-border border-b-2 md:border-b-0">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — COBRADO ESTE MES
             </div>
-            <div className="font-display text-3xl leading-none mt-2">
+            <div className="font-display text-3xl leading-none mt-2 text-accent">
               {formatClp(kpis.totalCobrado)}
             </div>
-            <div className="font-mono text-[10px] mt-2 opacity-90">
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">
               {kpis.gigsPagados} {kpis.gigsPagados === 1 ? "gig" : "gigs"} CLP
             </div>
           </div>
-          <div className="bg-bg-panel p-4 border-r-2 border-ink">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+          <div className="bg-bg-panel p-4 md:border-r-2 border-border border-b-2 md:border-b-0">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — TOTAL GIGS
             </div>
-            <div className="font-display text-3xl leading-none mt-2">
+            <div className="font-display text-3xl leading-none mt-2 text-fg">
               {kpis.totalGigs.toString().padStart(2, "0")}
             </div>
             <div className="font-mono text-[10px] mt-2 text-fg-muted">
               {kpis.monthLabel.toUpperCase()}
             </div>
           </div>
-          <div className="bg-orange p-4 border-r-2 border-ink">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+          <div className="bg-bg-panel p-4 border-r-2 border-border">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — PROMEDIO / GIG
             </div>
-            <div className="font-display text-3xl leading-none mt-2">
+            <div className="font-display text-3xl leading-none mt-2 text-fg">
               {kpis.avgPerGig > 0 ? formatClp(kpis.avgPerGig) : "—"}
             </div>
-            <div className="font-mono text-[10px] mt-2">SOLO PAGADOS</div>
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">SOLO PAGADOS</div>
           </div>
-          <div className="bg-ink p-4 text-cream">
+          <div className="bg-bg-panel p-4">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-warning">
               — PENDIENTE COBRO
             </div>
-            <div className="font-display text-3xl leading-none mt-2">
+            <div className="font-display text-3xl leading-none mt-2 text-warning">
               {kpis.totalPendiente > 0 ? formatClp(kpis.totalPendiente) : "—"}
             </div>
             <div className="font-mono text-[10px] mt-2 text-warning">
@@ -278,7 +278,7 @@ function EventRow({
   const status: PaymentStatus = ev.payment_status;
 
   // Tinte según estado de pago (solo si tiene amount o status != none)
-  let tint = "border-ink bg-bg-panel";
+  let tint = "border-border bg-bg-panel";
   if (hasAmount && status === "paid") tint = "border-success bg-success/5";
   else if (hasAmount && status === "pending") tint = "border-warning bg-warning/5";
   else if (hasAmount && status === "partial") tint = "border-info bg-info/5";
@@ -297,12 +297,12 @@ function EventRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold truncate">{ev.title}</span>
-            <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream">
+            <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-border bg-cream">
               {CALENDAR_EVENT_TYPE_LABELS[ev.type]}
             </span>
             {hasAmount && (
               <span
-                className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border-2 border-ink ${
+                className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border-2 border-border ${
                   status === "paid"
                     ? "bg-success text-white"
                     : status === "pending"
@@ -329,7 +329,7 @@ function EventRow({
 
           {/* Sprint 19 — Highlight notas privadas del contacto */}
           {privateNote && (
-            <div className="mt-3 p-2.5 bg-ink text-cream border-2 border-ink relative">
+            <div className="mt-3 p-2.5 bg-ink text-white border-2 border-border relative">
               <div className="absolute -top-2 left-3 bg-orange text-ink px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider">
                 🔒 RECUERDA
               </div>
@@ -370,7 +370,7 @@ function EventRow({
           {isShow && (
             <Link
               href={`/calendario/${ev.id}/tracklist`}
-              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
               title="Editar tracklist del set"
             >
               <ListMusic className="w-3 h-3" />
@@ -380,7 +380,7 @@ function EventRow({
           {isShow && (
             <Link
               href={`/calendario/${ev.id}/evento`}
-              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
               title="Publicar como evento público + RSVP"
             >
               <Globe className="w-3 h-3" />

@@ -69,7 +69,7 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
         <h1 className="text-xl font-semibold mb-2">Revisa tu email</h1>
         <p className="text-sm text-fg-muted leading-relaxed">
           Si existe una cuenta con{" "}
-          <span className="font-mono text-ink break-all">{email.trim()}</span>,
+          <span className="font-mono text-fg break-all">{email.trim()}</span>,
           te enviamos un link para restablecer tu contraseña. Revisa tu bandeja
           de entrada (y también la carpeta de spam). El link dura unos minutos.
         </p>

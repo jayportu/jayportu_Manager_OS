@@ -101,7 +101,7 @@ export function FeedbackWidget() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Enviar feedback"
-          className="fixed right-4 bottom-24 md:bottom-4 z-50 inline-flex items-center gap-2 px-4 py-2.5 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-wider shadow-[4px_4px_0_0_var(--ink,#0A0A0A)] hover:translate-y-[-1px] transition-transform"
+          className="fixed right-4 bottom-24 md:bottom-4 z-50 inline-flex items-center gap-2 px-4 py-2.5 bg-orange text-ink border-2 border-border font-mono text-[11px] font-bold uppercase tracking-wider shadow-[4px_4px_0_0_var(--ink,#0A0A0A)] hover:translate-y-[-1px] transition-transform"
           style={{ boxShadow: "4px 4px 0 0 #0A0A0A" }}
         >
           <MessageSquare className="w-4 h-4" />
@@ -111,10 +111,10 @@ export function FeedbackWidget() {
 
       {open && (
         <div
-          className="fixed right-4 bottom-24 md:bottom-4 z-50 w-[min(360px,calc(100vw-32px))] bg-bg-panel border-[3px] border-ink"
+          className="fixed right-4 bottom-24 md:bottom-4 z-50 w-[min(360px,calc(100vw-32px))] bg-bg-panel border-[3px] border-border"
           style={{ boxShadow: "8px 8px 0 0 #0A0A0A" }}
         >
-          <div className="flex items-center justify-between border-b-2 border-ink px-4 py-2.5">
+          <div className="flex items-center justify-between border-b-2 border-border px-4 py-2.5">
             <div className="font-display text-2xl leading-none">
               Feedback<span className="text-orange">.</span>
             </div>
@@ -122,7 +122,7 @@ export function FeedbackWidget() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Cerrar"
-              className="w-7 h-7 flex items-center justify-center hover:bg-ink hover:text-cream transition-colors"
+              className="w-7 h-7 flex items-center justify-center hover:bg-ink hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -147,7 +147,7 @@ export function FeedbackWidget() {
                     key={k}
                     type="button"
                     onClick={() => setKind(k)}
-                    className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-2 border-2 border-ink transition-colors ${
+                    className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-2 border-2 border-border transition-colors ${
                       kind === k ? "bg-orange" : "bg-bg-panel hover:bg-cream"
                     }`}
                   >
@@ -173,7 +173,7 @@ export function FeedbackWidget() {
                       ? "Me ayudaría tener…"
                       : "Tu observación…"
                   }
-                  className="w-full border-2 border-ink bg-bg-panel px-2.5 py-1.5 text-sm focus:outline-none focus:border-orange resize-none"
+                  className="w-full border-2 border-border bg-bg-panel px-2.5 py-1.5 text-sm focus:outline-none focus:border-orange resize-none"
                 />
                 <div className="text-[10px] text-fg-subtle text-right font-mono">
                   {description.length}/2000
@@ -186,7 +186,7 @@ export function FeedbackWidget() {
                   Screenshot (opcional)
                 </label>
                 {screenshot ? (
-                  <div className="border-2 border-ink p-2 flex items-center gap-2">
+                  <div className="border-2 border-border p-2 flex items-center gap-2">
                     <div className="flex-1 min-w-0 text-xs truncate">
                       {screenshotName} · listo
                     </div>
@@ -212,7 +212,7 @@ export function FeedbackWidget() {
               </div>
 
               {/* Metadata auto */}
-              <div className="font-mono text-[10px] text-fg-subtle border-t border-ink/15 pt-2">
+              <div className="font-mono text-[10px] text-fg-subtle border-t border-border/15 pt-2">
                 URL: {pathname}
               </div>
 
@@ -226,7 +226,7 @@ export function FeedbackWidget() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting || !description.trim()}
-                className="w-full inline-flex items-center justify-center gap-2 h-10 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 hover:bg-ink hover:text-orange transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 h-10 bg-orange text-ink border-2 border-border font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 hover:bg-ink hover:text-orange transition-colors"
               >
                 <Send className="w-4 h-4" />
                 {submitting ? "Enviando…" : "Enviar"}

@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 const STATUS_STYLES: Record<string, string> = {
   nuevo: "bg-orange text-ink border-orange",
   leido: "bg-info text-white border-info",
-  respondido: "bg-cream text-ink border-ink",
+  respondido: "bg-cream text-fg border-border",
   cotizado: "bg-warning text-white border-warning",
   agendado: "bg-success text-white border-success",
   rechazado: "bg-danger text-white border-danger",
@@ -29,7 +29,7 @@ export default async function BookerRequestsPage() {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — MIS REQUESTS
         </div>
@@ -46,7 +46,7 @@ export default async function BookerRequestsPage() {
           </h1>
           <Link
             href="/booker/buscar"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
           >
             <Plus className="w-4 h-4" />
             Buscar DJs
@@ -64,11 +64,11 @@ export default async function BookerRequestsPage() {
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => {
-            const styleClass = STATUS_STYLES[b.status] ?? "bg-cream text-ink border-ink";
+            const styleClass = STATUS_STYLES[b.status] ?? "bg-cream text-fg border-border";
             return (
               <article
                 key={b.id}
-                className="border-2 border-ink bg-bg-panel p-5 hover:bg-cream/50 transition-colors"
+                className="border-2 border-border bg-bg-panel p-5 hover:bg-cream/50 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0 flex-1">
@@ -116,7 +116,7 @@ export default async function BookerRequestsPage() {
                   </div>
                   <Link
                     href={`/b/${b.view_token}`}
-                    className="shrink-0 inline-flex items-center gap-2 px-3 py-2 border-2 border-ink font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
+                    className="shrink-0 inline-flex items-center gap-2 px-3 py-2 border-2 border-border font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
                   >
                     Ver detalle
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -133,7 +133,7 @@ export default async function BookerRequestsPage() {
 
 function EmptyState() {
   return (
-    <div className="border-2 border-dashed border-ink bg-bg-panel p-10 text-center">
+    <div className="border-2 border-dashed border-border bg-bg-panel p-10 text-center">
       <Inbox className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
       <h2
         className="leading-tight mb-2"
@@ -150,7 +150,7 @@ function EmptyState() {
       </p>
       <Link
         href="/dj"
-        className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+        className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
       >
         Buscar DJs
         <ArrowRight className="w-4 h-4" />

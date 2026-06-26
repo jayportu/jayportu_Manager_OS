@@ -53,7 +53,7 @@ export function SantisFollowupButton() {
       )}
 
       {result && result.ok && (
-        <div className="border-2 border-ink bg-cream p-3 text-sm flex items-start gap-2">
+        <div className="border-2 border-border bg-cream p-3 text-sm flex items-start gap-2">
           <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
           <div>
             <div className="font-bold">Enviado a {result.email}</div>

@@ -90,7 +90,7 @@ export function BetaForm() {
   // Estado de éxito (form se reemplaza con un thank-you)
   if (result?.ok) {
     return (
-      <div className="border-2 border-ink bg-cream p-6">
+      <div className="border-2 border-border bg-cream p-6">
         <div className="font-mono text-[11px] font-bold uppercase tracking-[0.15em] text-orange mb-3">
           — SOLICITUD ENVIADA
         </div>
@@ -103,13 +103,13 @@ export function BetaForm() {
         </p>
 
         {/* Siguiente paso tangible mientras espera — para no enfriar al DJ */}
-        <div className="mt-5 border-t-2 border-ink/10 pt-4">
+        <div className="mt-5 border-t-2 border-border/10 pt-4">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
             — Mientras tanto
           </div>
           <a
             href="/dj"
-            className="flex items-center justify-between gap-3 border-2 border-ink bg-bg-panel px-4 py-3 hover:bg-ink hover:text-orange transition-colors"
+            className="flex items-center justify-between gap-3 border-2 border-border bg-bg-panel px-4 py-3 hover:bg-ink hover:text-orange transition-colors"
           >
             <span className="text-sm font-bold">
               Mira cómo se ve un press kit real
@@ -151,7 +151,7 @@ export function BetaForm() {
         <button
           type="button"
           onClick={() => setResult(null)}
-          className="mt-5 font-mono text-[10px] uppercase tracking-wider text-fg-muted hover:text-ink"
+          className="mt-5 font-mono text-[10px] uppercase tracking-wider text-fg-muted hover:text-fg"
         >
           ← Enviar otra solicitud
         </button>
@@ -162,7 +162,7 @@ export function BetaForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-2 border-ink bg-cream p-5 space-y-4"
+      className="border-2 border-border bg-cream p-5 space-y-4"
     >
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
         — FORMULARIO DE SOLICITUD

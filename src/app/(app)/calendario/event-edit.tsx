@@ -110,7 +110,7 @@ export function EventEditDialog({ eventId, current }: Props) {
           e.preventDefault();
           setOpen(true);
         }}
-        className="p-1.5 border-2 border-ink bg-cream hover:bg-ink hover:text-orange transition-colors"
+        className="p-1.5 border-2 border-border bg-cream hover:bg-ink hover:text-orange transition-colors"
         title="Editar evento"
       >
         <Pencil className="w-3.5 h-3.5" />
@@ -214,7 +214,7 @@ export function EventEditDialog({ eventId, current }: Props) {
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-ink p-3">
+                <div className="border-2 border-dashed border-border p-3">
                   <p className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
                     📅 Evento de día completo. Para cambiar la fecha,
                     editalo en Google Calendar y sincroniza.
@@ -241,7 +241,7 @@ export function EventEditDialog({ eventId, current }: Props) {
                 </div>
               )}
 
-              <div className="flex justify-between items-center gap-2 pt-3 border-t-2 border-ink">
+              <div className="flex justify-between items-center gap-2 pt-3 border-t-2 border-border">
                 {!confirmDelete ? (
                   <button
                     type="button"
@@ -262,7 +262,7 @@ export function EventEditDialog({ eventId, current }: Props) {
                       type="button"
                       onClick={() => setConfirmDelete(false)}
                       disabled={isPending}
-                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 border-2 border-ink bg-cream hover:bg-ink hover:text-orange transition-colors disabled:opacity-50"
+                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 border-2 border-border bg-cream hover:bg-ink hover:text-orange transition-colors disabled:opacity-50"
                     >
                       No
                     </button>
@@ -270,7 +270,7 @@ export function EventEditDialog({ eventId, current }: Props) {
                       type="button"
                       onClick={handleDelete}
                       disabled={isPending}
-                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 border-2 border-danger bg-danger text-white hover:bg-ink hover:border-ink transition-colors disabled:opacity-50"
+                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 border-2 border-danger bg-danger text-white hover:bg-ink hover:border-border transition-colors disabled:opacity-50"
                     >
                       {isPending ? "Borrando…" : "Sí, borrar"}
                     </button>

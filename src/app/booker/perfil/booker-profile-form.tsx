@@ -199,7 +199,7 @@ export function BookerProfileForm({ initial }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-ink text-cream font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {pending ? "Guardando…" : "Guardar perfil"}
       </button>
@@ -208,7 +208,7 @@ export function BookerProfileForm({ initial }: Props) {
 }
 
 const inputCls =
-  "w-full border-2 border-ink bg-bg-panel px-3 py-2 text-[15px] outline-none focus:border-orange transition-colors";
+  "w-full border-2 border-border bg-bg-panel px-3 py-2 text-[15px] outline-none focus:border-orange transition-colors";
 
 function Section({
   title,
@@ -220,7 +220,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-2 border-ink bg-bg-panel p-5 space-y-4">
+    <div className="border-2 border-border bg-bg-panel p-5 space-y-4">
       <div>
         <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange">
           — {title}
@@ -243,7 +243,7 @@ function Field({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-fg">
         {label}
       </span>
       {children}
@@ -270,18 +270,18 @@ function Toggle({
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`mt-0.5 w-10 h-6 border-2 border-ink shrink-0 relative transition-colors ${
+        className={`mt-0.5 w-10 h-6 border-2 border-border shrink-0 relative transition-colors ${
           checked ? "bg-orange" : "bg-cream"
         }`}
       >
         <span
-          className={`absolute top-0.5 w-4 h-4 bg-bg-panel border border-ink transition-all ${
+          className={`absolute top-0.5 w-4 h-4 bg-bg-panel border border-border transition-all ${
             checked ? "left-[18px]" : "left-0.5"
           }`}
         />
       </button>
       <span className="flex-1">
-        <span className="text-sm font-semibold text-ink">{label}</span>
+        <span className="text-sm font-semibold text-fg">{label}</span>
         {hint && <span className="block text-[11px] text-fg-muted mt-0.5">{hint}</span>}
       </span>
     </label>

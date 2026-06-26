@@ -128,7 +128,7 @@ export function NewGrowthCampaignForm({ baselines, defaultPaid = false }: Props)
           <button
             type="button"
             onClick={() => setIsPaid(false)}
-            className={`p-3 border-2 border-ink text-left transition-colors ${
+            className={`p-3 border-2 border-border text-left transition-colors ${
               !isPaid ? "bg-orange text-ink" : "bg-bg-panel hover:bg-cream"
             }`}
           >
@@ -142,7 +142,7 @@ export function NewGrowthCampaignForm({ baselines, defaultPaid = false }: Props)
           <button
             type="button"
             onClick={() => setIsPaid(true)}
-            className={`p-3 border-2 border-ink text-left transition-colors ${
+            className={`p-3 border-2 border-border text-left transition-colors ${
               isPaid ? "bg-orange text-ink" : "bg-bg-panel hover:bg-cream"
             }`}
           >
@@ -215,11 +215,11 @@ export function NewGrowthCampaignForm({ baselines, defaultPaid = false }: Props)
                     key={p}
                     type="button"
                     onClick={() => togglePlatformAd(p)}
-                    className={`p-2 border-2 border-ink text-left transition-colors flex items-center gap-2 ${
+                    className={`p-2 border-2 border-border text-left transition-colors flex items-center gap-2 ${
                       active ? "bg-orange text-ink" : "bg-bg-panel hover:bg-cream"
                     }`}
                   >
-                    <span className="w-4 h-4 border-2 border-ink flex items-center justify-center text-[10px] font-bold">
+                    <span className="w-4 h-4 border-2 border-border flex items-center justify-center text-[10px] font-bold">
                       {active ? "✓" : ""}
                     </span>
                     <span className="font-mono text-[10px] font-bold uppercase tracking-wider">
@@ -274,7 +274,7 @@ export function NewGrowthCampaignForm({ baselines, defaultPaid = false }: Props)
               <div
                 key={p}
                 className={`p-3 border-2 transition-colors ${
-                  active ? "border-ink bg-cream" : "border-fg-subtle bg-bg-panel"
+                  active ? "border-border bg-cream" : "border-fg-subtle bg-bg-panel"
                 }`}
               >
                 <label className="flex items-center gap-2 cursor-pointer">

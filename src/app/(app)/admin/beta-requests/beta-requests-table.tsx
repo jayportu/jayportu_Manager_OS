@@ -197,10 +197,10 @@ export function BetaRequestsTable({ initialRequests }: Props) {
 
   function statusBadge(s: BetaRequestStatus) {
     const bg = {
-      new: "bg-orange text-ink border-ink",
+      new: "bg-orange text-ink border-border",
       approved: "bg-success text-white border-success",
       rejected: "bg-danger text-white border-danger",
-      waitlist: "bg-warning text-ink border-ink",
+      waitlist: "bg-warning text-fg border-border",
     }[s];
     return (
       <span
@@ -223,8 +223,8 @@ export function BetaRequestsTable({ initialRequests }: Props) {
             key={s}
             type="button"
             onClick={() => setFilter(s)}
-            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-ink transition-colors ${
-              filter === s ? "bg-ink text-cream" : "bg-cream hover:bg-ink/10"
+            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-border transition-colors ${
+              filter === s ? "bg-ink text-white" : "bg-cream hover:bg-ink/10"
             }`}
           >
             {s === "all" ? "Todos" : BETA_REQUEST_STATUS_LABELS[s]} (
@@ -246,10 +246,10 @@ export function BetaRequestsTable({ initialRequests }: Props) {
       )}
 
       {/* Tabla */}
-      <div className="border-2 border-ink bg-bg-panel overflow-x-auto">
+      <div className="border-2 border-border bg-bg-panel overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-cream border-b-2 border-ink font-mono text-[10px] uppercase tracking-wider">
+            <tr className="bg-cream border-b-2 border-border font-mono text-[10px] uppercase tracking-wider">
               <th className="text-left px-3 py-2.5">Solicitud</th>
               <th className="text-left px-3 py-2.5">Géneros</th>
               <th className="text-left px-3 py-2.5">Estado</th>
@@ -275,7 +275,7 @@ export function BetaRequestsTable({ initialRequests }: Props) {
               return (
                 <tr
                   key={r.id}
-                  className="border-b border-ink/10 align-top hover:bg-cream/40"
+                  className="border-b border-border/10 align-top hover:bg-cream/40"
                 >
                   <td className="px-3 py-3">
                     <button
@@ -313,7 +313,7 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                       {r.genres.slice(0, 4).map((g) => (
                         <span
                           key={g}
-                          className="font-mono text-[10px] px-1.5 py-0.5 border border-ink/30 bg-cream"
+                          className="font-mono text-[10px] px-1.5 py-0.5 border border-border/30 bg-cream"
                         >
                           {g}
                         </span>
@@ -412,7 +412,7 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                           type="button"
                           onClick={() => handleDelete(r)}
                           disabled={isPending}
-                          className="h-8 px-2 border-2 border-ink/30 text-fg-muted hover:border-danger hover:text-danger flex items-center justify-center gap-1 text-xs"
+                          className="h-8 px-2 border-2 border-border/30 text-fg-muted hover:border-danger hover:text-danger flex items-center justify-center gap-1 text-xs"
                         >
                           <Trash2 className="w-3 h-3" /> Borrar
                         </button>

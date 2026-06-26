@@ -44,7 +44,7 @@ export default function GlobalError({
               letterSpacing: "-0.02em",
             }}
           >
-            UPS<span style={{ color: "#FF5C00" }}>.</span>
+            UPS<span style={{ color: "#E85A0C" }}>.</span>
           </div>
           <p style={{ fontSize: 15, lineHeight: 1.5, margin: "16px 0 24px" }}>
             Algo se rompió de nuestro lado. Ya quedamos avisados. Prueba de
@@ -54,7 +54,7 @@ export default function GlobalError({
             onClick={() => reset()}
             style={{
               border: "2px solid #0A0A0A",
-              background: "#FF5C00",
+              background: "#E85A0C",
               color: "#0A0A0A",
               padding: "10px 20px",
               fontFamily: "Consolas,'Courier New',monospace",

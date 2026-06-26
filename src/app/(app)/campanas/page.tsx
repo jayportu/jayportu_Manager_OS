@@ -14,11 +14,11 @@ import {
 import { relativeTime } from "@/lib/format";
 
 const STATUS_BADGE: Record<CampaignStatus, string> = {
-  active: "bg-orange text-ink border-ink",
-  paused: "bg-warning text-ink border-ink",
+  active: "bg-orange text-ink border-border",
+  paused: "bg-warning text-fg border-border",
   done: "bg-success text-white border-success",
-  draft: "bg-cream text-ink border-ink",
-  archived: "bg-fg-subtle/20 text-fg-muted border-ink/30",
+  draft: "bg-cream text-fg border-border",
+  archived: "bg-fg-subtle/20 text-fg-muted border-border/30",
 };
 
 interface PageProps {
@@ -46,7 +46,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CAMPAÑAS · PUSH ORGANIZADO
         </div>
@@ -81,10 +81,10 @@ export default async function CampanasPage({ searchParams }: PageProps) {
               <Link
                 key={s}
                 href={`/campanas?status=${s}`}
-                className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-ink transition-colors ${
+                className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-border transition-colors ${
                   isActive
                     ? "bg-ink text-orange"
-                    : "bg-cream text-ink hover:bg-ink hover:text-orange"
+                    : "bg-cream text-fg hover:bg-ink hover:text-orange"
                 }`}
               >
                 {CAMPAIGN_STATUS_LABELS[s]}
@@ -95,7 +95,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
       </div>
 
       {stats.length === 0 ? (
-        <Card className="p-10 text-center border-2 border-ink">
+        <Card className="p-10 text-center border-2 border-border">
           <Megaphone className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
           <h3 className="font-display text-2xl mb-1">
             Sin campañas {sp.status ? `en "${CAMPAIGN_STATUS_LABELS[sp.status]}"` : ""}
@@ -127,9 +127,9 @@ export default async function CampanasPage({ searchParams }: PageProps) {
               <Link
                 key={c.id}
                 href={`/campanas/${c.id}`}
-                className={`block group border-2 border-ink p-5 transition-colors ${
+                className={`block group border-2 border-border p-5 transition-colors ${
                   isDark
-                    ? "bg-ink text-cream hover:bg-ink/90"
+                    ? "bg-ink text-white hover:bg-ink/90"
                     : "bg-bg-panel hover:bg-cream"
                 }`}
               >
@@ -146,7 +146,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                       </span>
                       <h3
                         className={`font-display text-2xl md:text-3xl leading-none group-hover:underline ${
-                          isDark ? "text-cream" : "text-ink"
+                          isDark ? "text-white" : "text-fg"
                         }`}
                       >
                         {c.name}
@@ -161,15 +161,15 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                       <span
                         className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-2 ${
                           isDark
-                            ? "border-cream text-cream"
-                            : "border-ink text-ink"
+                            ? "border-cream text-white"
+                            : "border-border text-fg"
                         }`}
                       >
                         {CAMPAIGN_CHANNEL_LABELS[c.channel]}
                       </span>
                       <span
                         className={`font-mono text-[10px] uppercase tracking-wider ${
-                          isDark ? "text-cream/60" : "text-fg-subtle"
+                          isDark ? "text-white/60" : "text-fg-subtle"
                         }`}
                       >
                         Creada {relativeTime(c.created_at)}
@@ -178,7 +178,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                     {c.goal && (
                       <p
                         className={`text-sm mt-2 ${
-                          isDark ? "text-cream/80" : "text-fg-muted"
+                          isDark ? "text-white/80" : "text-fg-muted"
                         }`}
                       >
                         {c.goal}
@@ -197,7 +197,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                   <div className="mb-3">
                     <div
                       className={`flex justify-between font-mono text-[10px] uppercase tracking-wider mb-1 ${
-                        isDark ? "text-cream" : "text-ink"
+                        isDark ? "text-white" : "text-fg"
                       }`}
                     >
                       <span>Conversión</span>
@@ -205,7 +205,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                     </div>
                     <div
                       className={`h-3 border-2 ${
-                        isDark ? "border-cream bg-ink" : "border-ink bg-cream"
+                        isDark ? "border-cream bg-ink" : "border-border bg-cream"
                       } relative`}
                     >
                       <div
@@ -259,19 +259,19 @@ function KpiInline({
   return (
     <div
       className={`p-2 border-2 ${
-        dark ? "border-cream/40 bg-ink" : "border-ink/30 bg-cream"
+        dark ? "border-cream/40 bg-ink" : "border-border/30 bg-cream"
       }`}
     >
       <div
         className={`font-mono text-[9px] uppercase tracking-wider ${
-          dark ? "text-cream/60" : "text-fg-subtle"
+          dark ? "text-white/60" : "text-fg-subtle"
         }`}
       >
         — {label}
       </div>
       <div
         className={`font-display text-xl leading-none mt-1 ${
-          highlight ? "text-orange" : dark ? "text-cream" : "text-ink"
+          highlight ? "text-orange" : dark ? "text-white" : "text-fg"
         }`}
       >
         {value}

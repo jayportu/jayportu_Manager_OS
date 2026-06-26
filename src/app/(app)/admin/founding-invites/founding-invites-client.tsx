@@ -98,7 +98,7 @@ export function FoundingInvitesClient({
       {/* Form de invitación */}
       <form
         onSubmit={handleInvite}
-        className="border-2 border-ink bg-bg-panel p-4 md:p-5 flex flex-col sm:flex-row gap-3 sm:items-end"
+        className="border-2 border-border bg-bg-panel p-4 md:p-5 flex flex-col sm:flex-row gap-3 sm:items-end"
       >
         <div className="flex-1 space-y-1">
           <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
@@ -110,7 +110,7 @@ export function FoundingInvitesClient({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="hola@venue.com"
-            className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
+            className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
           />
         </div>
         <div className="flex-1 space-y-1">
@@ -122,13 +122,13 @@ export function FoundingInvitesClient({
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Club X / Carlos"
-            className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
+            className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
           />
         </div>
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center justify-center gap-2 h-10 px-4 border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 h-10 px-4 border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50"
         >
           <Send className="w-3.5 h-3.5" />
           {pending ? "Enviando…" : "Invitar"}
@@ -159,11 +159,11 @@ export function FoundingInvitesClient({
 
       {/* Tabla de invitaciones */}
       {invites.length === 0 ? (
-        <div className="border-2 border-dashed border-ink/30 bg-cream p-8 text-center text-sm text-fg-muted">
+        <div className="border-2 border-dashed border-border/30 bg-cream p-8 text-center text-sm text-fg-muted">
           Todavía no hay invitaciones Founding.
         </div>
       ) : (
-        <div className="border-2 border-ink bg-bg-panel overflow-x-auto">
+        <div className="border-2 border-border bg-bg-panel overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-bg-subtle border-b border-border">
               <tr className="text-left text-[10px] uppercase tracking-wider text-fg-muted">
@@ -202,7 +202,7 @@ export function FoundingInvitesClient({
                         <button
                           type="button"
                           onClick={() => copy(inviteLink(inv.invite_token!), inv.id)}
-                          className="inline-flex items-center gap-1 px-2 py-1 border border-ink/40 font-mono text-[9px] uppercase tracking-wider hover:bg-ink hover:text-white transition-colors mr-1"
+                          className="inline-flex items-center gap-1 px-2 py-1 border border-border/40 font-mono text-[9px] uppercase tracking-wider hover:bg-ink hover:text-white transition-colors mr-1"
                           title="Copiar link de invitación"
                         >
                           {copied === inv.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}

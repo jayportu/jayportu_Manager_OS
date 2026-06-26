@@ -106,7 +106,7 @@ export function BookingTimeline({ booking, perspective = "booker" }: Props) {
   events.sort((a, b) => a.at.localeCompare(b.at));
 
   return (
-    <div className="border-2 border-ink bg-bg-panel p-5">
+    <div className="border-2 border-border bg-bg-panel p-5">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-4">
         — TIMELINE
       </div>
@@ -142,12 +142,12 @@ function TimelineNode({
     <li className="relative pl-6">
       <span
         aria-hidden="true"
-        className={`absolute left-0 top-1 w-3 h-3 ${variantClass[event.variant]} border-2 border-ink`}
+        className={`absolute left-0 top-1 w-3 h-3 ${variantClass[event.variant]} border-2 border-border`}
       />
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-subtle">
         {dateTime(event.at)}
       </div>
-      <div className="mt-0.5 text-sm font-semibold text-ink">{event.title}</div>
+      <div className="mt-0.5 text-sm font-semibold text-fg">{event.title}</div>
       {event.detail && (
         <div className="mt-0.5 text-xs text-fg-muted leading-relaxed">
           {event.detail}

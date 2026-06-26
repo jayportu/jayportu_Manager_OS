@@ -66,13 +66,13 @@ export default async function BookerLayout({
   }
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen bg-bg flex flex-col">
       <BookerTopBar
         fullName={booker.full_name || (user.email ?? "Booker")}
         email={user.email ?? ""}
       />
       <main className="flex-1">{children}</main>
-      <footer className="bg-ink text-cream border-t-2 border-orange py-3 px-6 text-center">
+      <footer className="bg-ink text-white border-t-2 border-orange py-3 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · BOOKER PORTAL · v0.13
         </div>

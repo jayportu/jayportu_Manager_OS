@@ -17,7 +17,7 @@ export default async function BookerPerfilPage() {
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — MI PERFIL
         </div>
@@ -37,7 +37,7 @@ export default async function BookerPerfilPage() {
               ✓ Verificado por DROP.
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 border-2 border-ink/30 bg-cream text-fg-muted">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 border-2 border-border/30 bg-cream text-fg-muted">
               Sin verificar
             </span>
           )}

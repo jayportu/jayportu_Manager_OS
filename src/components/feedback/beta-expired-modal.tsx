@@ -30,8 +30,8 @@ export function BetaExpiredModal() {
       aria-labelledby="beta-expired-title"
     >
       <div
-        className="w-full max-w-lg bg-cream border-[3px] border-ink p-6 md:p-8"
-        style={{ boxShadow: "12px 12px 0 0 #FF5C00" }}
+        className="w-full max-w-lg bg-cream border-[3px] border-border p-6 md:p-8"
+        style={{ boxShadow: "12px 12px 0 0 #E85A0C" }}
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange">
           — BETA EXPIRÓ
@@ -59,13 +59,13 @@ export function BetaExpiredModal() {
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center justify-center h-11 px-6 bg-ink text-orange border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:bg-orange hover:text-ink transition-colors"
+            className="inline-flex items-center justify-center h-11 px-6 bg-ink text-orange border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.1em] hover:bg-orange hover:text-ink transition-colors"
           >
             Cerrar sesión
           </button>
         </div>
 
-        <div className="border-t-2 border-ink/15 mt-6 pt-4 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-subtle text-center">
+        <div className="border-t-2 border-border/15 mt-6 pt-4 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-subtle text-center">
           DROP. · THE DJ OS · MADE IN SANTIAGO
         </div>
       </div>

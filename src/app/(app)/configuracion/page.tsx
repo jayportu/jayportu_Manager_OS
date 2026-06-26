@@ -41,7 +41,7 @@ export default async function ConfiguracionPage() {
       {!["active", "expired"].includes(profile?.beta_status ?? "") && (
         <Link
           href="/configuracion/suscripcion"
-          className="block mb-8 p-5 border-2 border-ink bg-bg-panel hover:bg-cream/40 transition-colors group"
+          className="block mb-8 p-5 border-2 border-border bg-bg-panel hover:bg-cream/40 transition-colors group"
         >
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>

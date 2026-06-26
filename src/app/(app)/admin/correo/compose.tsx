@@ -11,7 +11,7 @@ function SubmitBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-ink bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-border bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <Send className="w-3.5 h-3.5" /> {pending ? "Enviando…" : "Enviar"}
     </button>
@@ -41,34 +41,34 @@ function ComposeModal({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="text-fg-muted hover:text-ink"
+            className="text-fg-muted hover:text-fg"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
         <form ref={ref} action={action} className="p-4 space-y-3">
           <div className="font-mono text-[11px] text-fg-muted">
-            De: <span className="text-ink font-semibold">hola@dropgigs.com</span>
+            De: <span className="text-fg font-semibold">hola@dropgigs.com</span>
           </div>
           <input
             type="email"
             name="to"
             required
             placeholder="Para (correo del destinatario)"
-            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-ink bg-transparent"
+            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-border bg-transparent"
           />
           <input
             type="text"
             name="subject"
             placeholder="Asunto"
-            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-ink bg-transparent"
+            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-border bg-transparent"
           />
           <textarea
             name="text"
             required
             rows={9}
             placeholder="Escribe tu mensaje…"
-            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-ink resize-y bg-transparent"
+            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-border resize-y bg-transparent"
           />
           <label className="flex items-center gap-2 text-xs text-fg-muted">
             <Paperclip className="w-3.5 h-3.5" />
@@ -89,7 +89,7 @@ function ComposeModal({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="text-xs text-fg-muted hover:text-ink px-3 py-2"
+                className="text-xs text-fg-muted hover:text-fg px-3 py-2"
               >
                 Cerrar
               </button>
@@ -112,7 +112,7 @@ export function Compose() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-ink bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+        className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-border bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
       >
         <PenSquare className="w-3.5 h-3.5" /> Redactar
       </button>

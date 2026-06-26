@@ -25,7 +25,7 @@ export function SectionNav({ sections }: { sections: NavSection[] }) {
 
   return (
     <nav
-      className="bg-bg-panel border-b-2 border-ink sticky top-0 z-30"
+      className="bg-bg-panel border-b-2 border-border sticky top-0 z-30"
       aria-label="Secciones del press kit"
     >
       {/* pl-2/md:pl-6 → el texto del primer tab queda alineado con el
@@ -42,13 +42,13 @@ export function SectionNav({ sections }: { sections: NavSection[] }) {
               aria-current={isActive ? "true" : undefined}
               className={cn(
                 "px-4 md:px-6 whitespace-nowrap transition-colors",
-                !isLast && "border-r-2 border-ink",
+                !isLast && "border-r-2 border-border",
                 s.primary
                   ? "font-display text-base md:text-lg leading-none py-3.5"
                   : "font-mono text-[11px] font-bold uppercase tracking-[0.08em] py-4",
                 isActive
                   ? "bg-orange text-ink"
-                  : "text-fg-muted hover:bg-cream hover:text-ink"
+                  : "text-fg-muted hover:bg-cream hover:text-fg"
               )}
             >
               {s.label}

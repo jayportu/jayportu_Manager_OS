@@ -14,13 +14,13 @@ function evMeta(t: string): { icon: string; label: string; color: string } {
     case "delivered":
       return { icon: "✓", label: "Entregado", color: "#1e9e5a" };
     case "bounced":
-      return { icon: "⚠", label: "Rebotó", color: "#FF5C00" };
+      return { icon: "⚠", label: "Rebotó", color: "#E85A0C" };
     case "complained":
       return { icon: "🚫", label: "Queja (spam)", color: "#c0392b" };
     case "opened":
       return { icon: "👁", label: "Abrió", color: "#7A7670" };
     case "clicked":
-      return { icon: "🖱", label: "Click", color: "#FF5C00" };
+      return { icon: "🖱", label: "Click", color: "#E85A0C" };
     case "sent":
       return { icon: "➤", label: "Enviado", color: "#7A7670" };
     case "delivery_delayed":
@@ -111,7 +111,7 @@ export default async function EmailCampaignsPage({
             href={`/admin/email-campaigns?c=${c.slug}`}
             className={`border rounded-md px-4 py-2.5 ${
               c.id === selected.id
-                ? "border-ink border-l-[3px] border-l-orange bg-orange/5"
+                ? "border-border border-l-[3px] border-l-orange bg-orange/5"
                 : "border-border"
             }`}
           >
@@ -132,7 +132,7 @@ export default async function EmailCampaignsPage({
             </div>
             <div
               className="text-3xl font-bold leading-none mt-2 mb-1"
-              style={{ color: k.warn && k.num > 0 ? "#FF5C00" : undefined }}
+              style={{ color: k.warn && k.num > 0 ? "#E85A0C" : undefined }}
             >
               {k.num}
             </div>

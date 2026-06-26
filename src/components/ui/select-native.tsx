@@ -15,14 +15,14 @@ const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProps>(
         <select
           ref={ref}
           className={cn(
-            "flex h-10 w-full appearance-none border-2 border-ink bg-bg-panel pl-3 pr-9 py-2 text-sm text-ink font-sans placeholder:text-fg-muted focus-visible:outline-none focus-visible:border-orange disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
+            "flex h-10 w-full appearance-none border-2 border-border bg-bg-panel pl-3 pr-9 py-2 text-sm text-fg font-sans placeholder:text-fg-muted focus-visible:outline-none focus-visible:border-orange disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
             className
           )}
           {...props}
         >
           {children}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink" />
+        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-fg" />
       </div>
     );
   }

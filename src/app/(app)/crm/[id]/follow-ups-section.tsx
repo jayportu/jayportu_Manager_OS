@@ -134,7 +134,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
       {open && (
         <form
           onSubmit={handleAdd}
-          className="mb-4 p-4 bg-cream border-2 border-ink space-y-3"
+          className="mb-4 p-4 bg-cream border-2 border-border space-y-3"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -178,7 +178,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
           </div>
 
           {/* Sprint 19 — Toggle recurrente */}
-          <div className="border-t-2 border-dashed border-ink pt-3">
+          <div className="border-t-2 border-dashed border-border pt-3">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -250,7 +250,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
           return (
             <li
               key={f.id}
-              className="flex items-center gap-3 px-3 py-2 border-2 border-ink bg-bg-panel"
+              className="flex items-center gap-3 px-3 py-2 border-2 border-border bg-bg-panel"
             >
               {f.is_recurring ? (
                 <RotateCw className={`w-4 h-4 shrink-0 text-orange`} />
@@ -261,7 +261,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                 <div className="text-sm text-fg">
                   {f.note || "(sin nota)"}
                   {f.is_recurring && (
-                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider ml-2 px-1.5 py-0.5 bg-orange text-ink border border-ink">
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider ml-2 px-1.5 py-0.5 bg-orange text-ink border border-border">
                       cada {f.recurrence_value}
                       {f.recurrence_unit === "days"
                         ? "d"

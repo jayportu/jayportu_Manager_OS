@@ -126,7 +126,7 @@ export default async function DashboardPage() {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto grid-paper">
       {/* Hero header — Type Beat */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-8 mb-6 relative overflow-hidden">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-8 mb-6 relative overflow-hidden">
         {/* Watermark DROP. al fondo */}
         <span
           aria-hidden="true"
@@ -226,7 +226,7 @@ export default async function DashboardPage() {
       {!isFirstTime && (
       <>
       {/* KPIs · grid brutalist zero-gap, tiles alternados */}
-      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-7">
+      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-7">
         {/* Contactos · ink */}
         <KpiTile
           label="Contactos"
@@ -426,7 +426,7 @@ export default async function DashboardPage() {
 }
 
 // ─── KPI tile brutalist ──────────────────────────────────────────────
-// Tiles alternados (ink / orange / white / danger) sin gaps, border-ink
+// Tiles alternados (ink / orange / white / danger) sin gaps, border-border
 // global. Mantiene la grilla compacta y plana del mockup.
 function KpiTile({
   label,

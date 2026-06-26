@@ -134,13 +134,13 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
       {/* Hero */}
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
             — SMART MATCH
           </span>
           {isFounding && (
-            <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-ink text-orange border border-ink">
+            <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-ink text-orange border border-border">
               ★ Founding
             </span>
           )}
@@ -165,7 +165,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
       <form
         action="/booker/match"
         method="get"
-        className="border-2 border-ink bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
+        className="border-2 border-border bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
           — TU EVENTO
@@ -181,7 +181,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           <div>
             <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1 flex items-center gap-2">
               <span>En tus palabras (opcional)</span>
-              <span className="px-1.5 py-0.5 bg-ink text-orange border border-ink">
+              <span className="px-1.5 py-0.5 bg-ink text-orange border border-border">
                 ★ Founding
               </span>
             </div>
@@ -190,7 +190,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
               name="q"
               defaultValue={sp.q ?? ""}
               placeholder="ej: energía de festival para un rooftop al atardecer"
-              className="w-full border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[12px] tracking-[0.02em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+              className="w-full border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[12px] tracking-[0.02em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
             />
           </div>
         ) : (
@@ -202,9 +202,9 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
               type="text"
               disabled
               placeholder="ej: energía de festival para un rooftop al atardecer"
-              className="w-full border-2 border-ink/30 bg-cream/50 px-3 py-2 font-mono text-[12px] placeholder:text-fg-subtle cursor-not-allowed"
+              className="w-full border-2 border-border/30 bg-cream/50 px-3 py-2 font-mono text-[12px] placeholder:text-fg-subtle cursor-not-allowed"
             />
-            <span className="absolute right-2 top-[26px] font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-1 bg-ink text-orange border border-ink">
+            <span className="absolute right-2 top-[26px] font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-1 bg-ink text-orange border border-border">
               ✦ Exclusivo Founding
             </span>
           </div>
@@ -214,7 +214,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           <select
             name="type"
             defaultValue={sp.type ?? ""}
-            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Tipo de evento</option>
             {EVENT_TYPES.map((t) => (
@@ -226,7 +226,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           <select
             name="city"
             defaultValue={sp.city ?? ""}
-            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Ciudad: cualquiera</option>
             {allCities.map((c) => (
@@ -239,7 +239,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
             type="date"
             name="date"
             defaultValue={sp.date ?? ""}
-            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
           />
           <input
             type="number"
@@ -248,11 +248,11 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
             step={50000}
             placeholder="Presupuesto $"
             defaultValue={sp.budget ?? ""}
-            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
           />
           <button
             type="submit"
-            className="border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
+            className="border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
           >
             BUSCAR MATCH
           </button>
@@ -276,7 +276,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
                     href={buildHref(sp, {
                       genres: newGenres.length > 0 ? newGenres.join(",") : undefined,
                     })}
-                    className={`inline-flex items-center gap-1.5 border-2 border-ink font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
+                    className={`inline-flex items-center gap-1.5 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
                       active ? "bg-orange text-ink" : "bg-cream hover:bg-orange"
                     }`}
                   >
@@ -294,7 +294,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           siempre que el Founding escribió algo (`parsed` ya implica freeText),
           para que el fallback "no pillamos géneros" no sea código muerto. */}
       {parsed && (
-        <div className="border-2 border-ink bg-cream p-3 mb-4 text-sm">
+        <div className="border-2 border-border bg-cream p-3 mb-4 text-sm">
           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
             — INTERPRETAMOS
           </span>{" "}
@@ -320,7 +320,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
 
       {/* Resultados o intro */}
       {!hasQuery ? (
-        <div className="border-2 border-dashed border-ink/40 bg-cream p-10 text-center">
+        <div className="border-2 border-dashed border-border/40 bg-cream p-10 text-center">
           <h2
             className="leading-tight mb-2"
             style={{
@@ -337,7 +337,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           </p>
         </div>
       ) : results.length === 0 ? (
-        <div className="border-2 border-ink bg-bg-panel p-10 text-center">
+        <div className="border-2 border-border bg-bg-panel p-10 text-center">
           <p className="text-sm text-fg-muted">
             No encontramos DJs para esos criterios. Prueba aflojar el
             presupuesto o sacar algún filtro.

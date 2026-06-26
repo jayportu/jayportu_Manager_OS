@@ -15,7 +15,7 @@ export default async function InteresadosPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — DJS INTERESADOS
         </div>
@@ -37,7 +37,7 @@ export default async function InteresadosPage() {
       </div>
 
       {djs.length === 0 ? (
-        <div className="border-2 border-dashed border-ink bg-bg-panel p-10 text-center">
+        <div className="border-2 border-dashed border-border bg-bg-panel p-10 text-center">
           <Star className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
           <h2
             className="leading-tight mb-2"
@@ -60,7 +60,7 @@ export default async function InteresadosPage() {
             return (
               <article
                 key={dj.dj_user_id}
-                className="border-2 border-ink bg-bg-panel p-4 flex items-center gap-3"
+                className="border-2 border-border bg-bg-panel p-4 flex items-center gap-3"
               >
                 {isSupabaseStorageUrl(dj.avatar_url) ? (
                   <Image
@@ -68,11 +68,11 @@ export default async function InteresadosPage() {
                     alt={dj.artist_name}
                     width={48}
                     height={48}
-                    className="w-12 h-12 object-cover border-2 border-ink shrink-0"
+                    className="w-12 h-12 object-cover border-2 border-border shrink-0"
                   />
                 ) : (
                   <div
-                    className="w-12 h-12 bg-orange text-ink flex items-center justify-center border-2 border-ink shrink-0"
+                    className="w-12 h-12 bg-orange text-ink flex items-center justify-center border-2 border-border shrink-0"
                     style={{
                       fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                       fontSize: "22px",
@@ -96,7 +96,7 @@ export default async function InteresadosPage() {
                   <Link
                     href={`/p/${dj.public_slug}`}
                     target="_blank"
-                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border-2 border-ink font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border-2 border-border font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
                   >
                     Press kit
                     <ArrowRight className="w-3.5 h-3.5" />

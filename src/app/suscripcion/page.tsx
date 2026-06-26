@@ -45,7 +45,7 @@ export default async function SuscripcionPage() {
     access.reason === "active" || subscription.status === "active";
 
   return (
-    <div className="min-h-screen bg-cream text-ink p-6 md:p-10">
+    <div className="min-h-screen bg-bg text-fg p-6 md:p-10">
       <div className="max-w-xl mx-auto">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange mb-2">
           — SUSCRIPCIÓN · DROP. PRO
@@ -65,7 +65,7 @@ export default async function SuscripcionPage() {
         </p>
 
         {/* Beneficios */}
-        <div className="border-2 border-ink bg-bg-panel p-5 mb-6">
+        <div className="border-2 border-border bg-bg-panel p-5 mb-6">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
             — INCLUIDO
           </div>
@@ -89,7 +89,7 @@ export default async function SuscripcionPage() {
             </p>
             <Link
               href="/configuracion/suscripcion"
-              className="inline-flex items-center mt-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-ink border-b border-orange hover:border-ink transition-colors"
+              className="inline-flex items-center mt-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-fg border-b border-orange hover:border-border transition-colors"
             >
               Ir a mi suscripción →
             </Link>
@@ -100,7 +100,7 @@ export default async function SuscripcionPage() {
 
         <Link
           href="/dashboard"
-          className="inline-flex items-center mt-6 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
+          className="inline-flex items-center mt-6 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-fg transition-colors"
         >
           ← Volver al dashboard
         </Link>

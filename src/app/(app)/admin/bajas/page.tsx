@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const REASON_META: Record<string, { label: string; color: string }> = {
   unsubscribe: { label: "Se dio de baja", color: "#c0392b" },
-  bounced: { label: "Rebotó", color: "#FF5C00" },
+  bounced: { label: "Rebotó", color: "#E85A0C" },
   complained: { label: "Queja (spam)", color: "#c0392b" },
   manual: { label: "Manual", color: "#7A7670" },
 };
@@ -89,7 +89,7 @@ export default async function BajasPage() {
         </div>
         <button
           type="submit"
-          className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] bg-ink text-cream hover:bg-orange hover:text-ink px-4 py-2.5 rounded-md transition-colors"
+          className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] bg-ink text-white hover:bg-orange hover:text-ink px-4 py-2.5 rounded-md transition-colors"
         >
           Agregar
         </button>
