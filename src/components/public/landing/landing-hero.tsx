@@ -8,11 +8,15 @@ const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
 /** Palabras que rotan en el titular (cross-dissolve). */
 const WORDS = ["CARRERA", "BOOKING", "PRESS KIT", "AGENDA", "SONIDO"];
 
-/** Luces de escenario dibujadas en canvas a baja-res (ver draw()). */
+/**
+ * Luces de escenario dibujadas en canvas a baja-res (ver draw()). Reproducen el
+ * "bokeh" cálido del mockup (naranjo arriba-derecha + naranjo abajo-izquierda +
+ * blanco al centro) pero animadas vía rAF — sin filter:blur (lección Retina).
+ */
 const LIGHTS = [
-  { col: "232,90,12", a: 0.55, r: 0.55, x0: 0.3, amp: 0.16, spd: 0.00024, ph: 0.0, y: 0.44 },
-  { col: "232,90,12", a: 0.42, r: 0.5, x0: 0.64, amp: 0.2, spd: 0.00033, ph: 2.1, y: 0.52 },
-  { col: "247,247,247", a: 0.09, r: 0.42, x0: 0.5, amp: 0.24, spd: 0.00018, ph: 4.2, y: 0.38 },
+  { col: "232,90,12", a: 0.62, r: 0.64, x0: 0.82, amp: 0.1, spd: 0.00024, ph: 0.0, y: 0.12 },
+  { col: "232,90,12", a: 0.46, r: 0.54, x0: 0.18, amp: 0.16, spd: 0.00033, ph: 2.1, y: 0.92 },
+  { col: "247,247,247", a: 0.12, r: 0.44, x0: 0.5, amp: 0.2, spd: 0.00018, ph: 4.2, y: 0.42 },
 ];
 
 export type HeroStat = { n: string; suf?: string; l: string };
@@ -121,7 +125,20 @@ export function LandingHero({
             style={{ backgroundImage: `url(${sceneImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}
           />
         ) : (
-          <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
+          <>
+            {/* glow cálido ESTÁTICO: un radial-gradient ya es suave, así que no
+                necesita filter:blur (que sí causa jank al animarse en Retina).
+                Da el brillo de esquina del mockup; el canvas le suma movimiento. */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(60% 50% at 82% 4%, rgba(232,90,12,.36), transparent 68%)," +
+                  "radial-gradient(52% 44% at 12% 98%, rgba(232,90,12,.22), transparent 70%)",
+              }}
+            />
+            <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
+          </>
         )}
         {/* viñeta izquierda → el texto del hero queda legible */}
         <div
