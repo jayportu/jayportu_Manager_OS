@@ -75,12 +75,14 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
         >
           <span
             style={{
-              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+              fontFamily: "var(--font-satoshi), system-ui, sans-serif",
               fontSize: "26px",
-              lineHeight: 0.85,
+              fontWeight: 900,
+              lineHeight: 0.9,
+              letterSpacing: "-0.02em",
             }}
           >
-            DROP<span className="text-orange">.</span>
+            DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span>
           </span>
           <span className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-orange hidden sm:inline">
             BOOKING REQUEST

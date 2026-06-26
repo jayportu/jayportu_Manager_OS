@@ -141,12 +141,14 @@ export function MobileMenu({
             <div
               className="mt-[4px]"
               style={{
-                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                fontFamily: "var(--font-satoshi), system-ui, sans-serif",
                 fontSize: "22px",
-                lineHeight: 0.95,
+                fontWeight: 900,
+                lineHeight: 0.9,
+                letterSpacing: "-0.02em",
               }}
             >
-              DROP<span style={{ color: "#0A0A0A" }}>.</span>
+              DROP<span style={{ color: "#0A0A0A", marginLeft: "-0.06em" }}>.</span>
             </div>
           </div>
           <button
