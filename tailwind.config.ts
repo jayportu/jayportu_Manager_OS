@@ -133,6 +133,11 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.3" },
         },
+        // Cross-fade del preview de feature-tabs del landing (entra desde abajo).
+        fpfade: {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "none" },
+        },
         "logo-strobe": {
           "0%, 86%, 100%": { transform: "translate(0, 0)", textShadow: "none" },
           "87%": {
@@ -156,6 +161,7 @@ const config: Config = {
         "ticker-scroll": "ticker-scroll 28s linear infinite",
         blink: "blink 1.5s ease-in-out infinite",
         "logo-strobe": "logo-strobe 3.5s steps(1) infinite",
+        fpfade: "fpfade 0.34s ease",
       },
     },
   },
