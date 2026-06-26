@@ -16,11 +16,11 @@ export const dynamic = "force-dynamic";
 
 const STATUS_STYLES: Record<string, string> = {
   nuevo: "bg-orange text-ink border-orange",
-  leido: "bg-info text-white border-info",
+  leido: "bg-info text-white dark:text-ink border-info",
   respondido: "bg-cream text-fg border-border",
-  cotizado: "bg-warning text-white border-warning",
-  agendado: "bg-success text-white border-success",
-  rechazado: "bg-danger text-white border-danger",
+  cotizado: "bg-warning text-white dark:text-ink border-warning",
+  agendado: "bg-success text-white dark:text-ink border-success",
+  rechazado: "bg-danger text-white dark:text-ink border-danger",
 };
 
 export default async function BookerRequestsPage() {

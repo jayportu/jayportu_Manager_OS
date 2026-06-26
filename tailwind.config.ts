@@ -12,7 +12,10 @@ import type { Config } from "tailwindcss";
  * clases existentes en la app — solo cambian los valores que apuntan.
  */
 const config: Config = {
-  darkMode: ["class"],
+  // El tema dark se activa con [data-theme="dark"] en <html> (no por .class).
+  // Habilita el variant `dark:` para los pocos casos que necesitan texto
+  // distinto por tema (p.ej. fills semánticos: claros en dark → texto oscuro).
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",

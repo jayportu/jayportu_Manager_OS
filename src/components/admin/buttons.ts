@@ -13,9 +13,9 @@ const VARIANTS = {
   /** Precaución, reversible (suspender). */
   warn: "text-warning border-warning bg-warning/5 hover:bg-warning hover:text-fg",
   /** Destructivo reversible (banear, rechazar, revocar). */
-  danger: "text-danger border-danger bg-danger/5 hover:bg-danger hover:text-white",
+  danger: "text-danger border-danger bg-danger/5 hover:bg-danger hover:text-white dark:hover:text-ink",
   /** Destructivo irreversible (eliminar). */
-  dangerSolid: "bg-danger text-white border-danger hover:opacity-90",
+  dangerSolid: "bg-danger text-white dark:text-ink border-danger hover:opacity-90",
   /** Neutral (refrescar, filtrar, copiar). */
   neutral: "text-fg border-border bg-white hover:bg-cream",
 } as const;

@@ -93,7 +93,7 @@ export default async function RecurrentesPage() {
                         {f.recurrence_max ? ` / ${f.recurrence_max}` : ""}
                       </span>
                       {overdue && (
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-danger text-white">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-danger text-white dark:text-ink">
                           atrasado
                         </span>
                       )}

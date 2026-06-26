@@ -680,7 +680,7 @@ export function TracklistEditor({
                           track.tag === "peak"
                             ? "bg-orange text-ink"
                             : track.tag === "intro"
-                            ? "bg-info text-white"
+                            ? "bg-info text-white dark:text-ink"
                             : "bg-ink text-white"
                         }`}
                       >
@@ -695,7 +695,7 @@ export function TracklistEditor({
                       type="button"
                       onClick={() => handleDelete(track)}
                       disabled={isPending}
-                      className="h-7 w-7 border border-border/30 hover:border-danger hover:bg-danger hover:text-white flex items-center justify-center"
+                      className="h-7 w-7 border border-border/30 hover:border-danger hover:bg-danger hover:text-white dark:hover:text-ink flex items-center justify-center"
                       aria-label="Borrar"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

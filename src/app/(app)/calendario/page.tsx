@@ -304,11 +304,11 @@ function EventRow({
               <span
                 className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border-2 border-border ${
                   status === "paid"
-                    ? "bg-success text-white"
+                    ? "bg-success text-white dark:text-ink"
                     : status === "pending"
-                    ? "bg-warning text-white"
+                    ? "bg-warning text-white dark:text-ink"
                     : status === "partial"
-                    ? "bg-info text-white"
+                    ? "bg-info text-white dark:text-ink"
                     : "bg-cream"
                 }`}
               >

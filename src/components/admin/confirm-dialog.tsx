@@ -105,9 +105,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const danger = opts?.variant === "danger";
   const warn = opts?.variant === "warning";
   const confirmCls = danger
-    ? "bg-danger text-white border-danger"
+    ? "bg-danger text-white dark:text-ink border-danger"
     : warn
-      ? "bg-warning text-fg border-warning"
+      ? "bg-warning text-fg dark:text-ink border-warning"
       : "bg-orange text-ink border-border";
 
   return (

@@ -30,10 +30,10 @@ export default async function AdminFeedbackPage() {
           <span className="px-2.5 py-1 bg-orange border-2 border-border">
             {counts.new} NUEVOS
           </span>
-          <span className="px-2.5 py-1 bg-info text-white border-2 border-info">
+          <span className="px-2.5 py-1 bg-info text-white dark:text-ink border-2 border-info">
             {counts.in_progress} EN CURSO
           </span>
-          <span className="px-2.5 py-1 bg-success text-white border-2 border-success">
+          <span className="px-2.5 py-1 bg-success text-white dark:text-ink border-2 border-success">
             {counts.resolved} RESUELTOS
           </span>
         </div>

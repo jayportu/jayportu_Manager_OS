@@ -29,12 +29,12 @@ interface Props {
 
 const STATUS_FLOW: { key: BookingStatus; tint: string }[] = [
   { key: "nuevo", tint: "bg-orange text-ink" },
-  { key: "leido", tint: "bg-info text-white" },
+  { key: "leido", tint: "bg-info text-white dark:text-ink" },
   { key: "respondido", tint: "bg-cream text-fg" },
-  { key: "cotizado", tint: "bg-warning text-white" },
+  { key: "cotizado", tint: "bg-warning text-white dark:text-ink" },
   { key: "contraofertado", tint: "bg-ink text-white" },
-  { key: "agendado", tint: "bg-success text-white" },
-  { key: "rechazado", tint: "bg-danger text-white" },
+  { key: "agendado", tint: "bg-success text-white dark:text-ink" },
+  { key: "rechazado", tint: "bg-danger text-white dark:text-ink" },
 ];
 
 export function BookingActions({

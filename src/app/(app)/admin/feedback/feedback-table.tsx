@@ -83,9 +83,9 @@ export function FeedbackTable({ initialReports }: Props) {
 
   function kindBadge(k: FeedbackReportWithUser["kind"]) {
     const bg = {
-      bug: "bg-danger text-white border-danger",
-      idea: "bg-info text-white border-info",
-      copy: "bg-warning text-fg border-border",
+      bug: "bg-danger text-white dark:text-ink border-danger",
+      idea: "bg-info text-white dark:text-ink border-info",
+      copy: "bg-warning text-fg dark:text-ink border-border",
       otro: "bg-cream text-fg border-border",
     }[k];
     return (

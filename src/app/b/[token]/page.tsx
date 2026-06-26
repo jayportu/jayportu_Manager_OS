@@ -43,12 +43,12 @@ const STATUS_STYLES: Record<
   { bg: string; text: string; border: string; tag: string }
 > = {
   nuevo: { bg: "bg-orange", text: "text-ink", border: "border-orange", tag: "Pendiente de revisión" },
-  leido: { bg: "bg-info", text: "text-white", border: "border-info", tag: "Leído por el DJ" },
+  leido: { bg: "bg-info", text: "text-white dark:text-ink", border: "border-info", tag: "Leído por el DJ" },
   respondido: { bg: "bg-cream", text: "text-fg", border: "border-border", tag: "Respondido" },
-  cotizado: { bg: "bg-warning", text: "text-white", border: "border-warning", tag: "Cotizado" },
+  cotizado: { bg: "bg-warning", text: "text-white dark:text-ink", border: "border-warning", tag: "Cotizado" },
   contraofertado: { bg: "bg-ink", text: "text-white", border: "border-border", tag: "Contraoferta enviada" },
-  agendado: { bg: "bg-success", text: "text-white", border: "border-success", tag: "Agendado ✓" },
-  rechazado: { bg: "bg-danger", text: "text-white", border: "border-danger", tag: "No disponible" },
+  agendado: { bg: "bg-success", text: "text-white dark:text-ink", border: "border-success", tag: "Agendado ✓" },
+  rechazado: { bg: "bg-danger", text: "text-white dark:text-ink", border: "border-danger", tag: "No disponible" },
 };
 
 export default async function BookerViewTokenPage({ params }: PageProps) {

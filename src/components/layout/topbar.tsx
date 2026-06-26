@@ -32,9 +32,9 @@ export function Topbar({
     betaDaysRemaining === null || betaDaysRemaining === undefined
       ? null
       : betaDaysRemaining < 0
-      ? "bg-danger text-white border-danger"
+      ? "bg-danger text-white dark:text-ink border-danger"
       : betaDaysRemaining <= 2
-      ? "bg-warning text-fg border-border"
+      ? "bg-warning text-fg dark:text-ink border-border"
       : "bg-orange text-ink border-border";
 
   const betaLabel =
@@ -52,7 +52,7 @@ export function Topbar({
     trialDaysRemaining === null || trialDaysRemaining === undefined
       ? null
       : trialDaysRemaining <= 2
-      ? "bg-warning text-fg border-border"
+      ? "bg-warning text-fg dark:text-ink border-border"
       : "bg-orange text-ink border-border";
 
   const trialLabel =

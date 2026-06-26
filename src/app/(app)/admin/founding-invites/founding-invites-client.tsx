@@ -212,7 +212,7 @@ export function FoundingInvitesClient({
                           type="button"
                           onClick={() => handleRevoke(inv)}
                           disabled={pending}
-                          className="inline-flex items-center gap-1 px-2 py-1 border border-danger/50 text-danger font-mono text-[9px] uppercase tracking-wider hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
+                          className="inline-flex items-center gap-1 px-2 py-1 border border-danger/50 text-danger font-mono text-[9px] uppercase tracking-wider hover:bg-danger hover:text-white dark:hover:text-ink transition-colors disabled:opacity-50"
                         >
                           <X className="w-3 h-3" /> revocar
                         </button>

@@ -224,7 +224,7 @@ export default async function GrowthCampaignsListPage({
                         {c.platform_ads?.map((p) => (
                           <span
                             key={p}
-                            className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-info text-white border border-border"
+                            className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-info text-white dark:text-ink border border-border"
                           >
                             {AD_PLATFORM_LABELS[p]}
                           </span>

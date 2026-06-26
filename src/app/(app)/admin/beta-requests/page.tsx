@@ -34,13 +34,13 @@ export default async function BetaRequestsPage() {
           <span className="px-2.5 py-1 bg-orange border-2 border-border">
             {counts.new} NUEVOS
           </span>
-          <span className="px-2.5 py-1 bg-success text-white border-2 border-success">
+          <span className="px-2.5 py-1 bg-success text-white dark:text-ink border-2 border-success">
             {counts.approved} APROBADOS
           </span>
           <span className="px-2.5 py-1 bg-warning border-2 border-border">
             {counts.waitlist} WAITLIST
           </span>
-          <span className="px-2.5 py-1 bg-danger text-white border-2 border-danger">
+          <span className="px-2.5 py-1 bg-danger text-white dark:text-ink border-2 border-danger">
             {counts.rejected} RECHAZADOS
           </span>
         </div>

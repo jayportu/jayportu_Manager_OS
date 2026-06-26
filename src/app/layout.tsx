@@ -89,17 +89,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" data-theme="dark" suppressHydrationWarning>
       <body
         className={`${anton.variable} ${inter.variable} ${spaceMono.variable} ${satoshi.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
       >
-        {/* Flag de preview del tema dark (rebrand, Fase 1): se activa con la
-            cookie `drop-theme=dark`. Sin cookie → light (lo que ven los usuarios).
-            Script inline para evitar FOUC y no forzar render dinámico. */}
+        {/* Rebrand dark (Fase 3): DARK es el tema por defecto (SSR en <html>),
+            así el 99% de usuarios lo recibe sin flash ni mismatch. Escotilla de
+            salida a light con la cookie `drop-theme=light` (no hay toggle en la
+            UI todavía; sirve de red de seguridad / debug). Script inline. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(/(?:^|;\\s*)drop-theme=dark/.test(document.cookie))document.documentElement.setAttribute('data-theme','dark')}catch(e){}",
+              "try{if(/(?:^|;\\s*)drop-theme=light/.test(document.cookie))document.documentElement.removeAttribute('data-theme')}catch(e){}",
           }}
         />
         {children}

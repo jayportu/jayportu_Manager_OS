@@ -30,7 +30,7 @@ export async function GoogleScopeBanner() {
       : labels.slice(0, -1).join(", ") + " y " + labels[labels.length - 1];
 
   return (
-    <div className="bg-warning text-fg border-b-2 border-border px-4 py-2.5">
+    <div className="bg-warning text-fg dark:text-ink border-b-2 border-border px-4 py-2.5">
       <div className="max-w-5xl mx-auto flex items-center gap-3 flex-wrap">
         <AlertTriangle className="w-4 h-4 shrink-0" />
         <div className="flex-1 min-w-0">

@@ -29,7 +29,7 @@ export function CancelSubscriptionButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-danger border-2 border-danger hover:bg-danger hover:text-white font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+        className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-danger border-2 border-danger hover:bg-danger hover:text-white dark:hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
       >
         Cancelar suscripción
       </button>
@@ -76,7 +76,7 @@ export function CancelSubscriptionButton() {
           type="button"
           onClick={handleConfirm}
           disabled={isPending}
-          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-danger text-white border-2 border-danger hover:opacity-90 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
+          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-danger text-white dark:text-ink border-2 border-danger hover:opacity-90 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
         >
           {isPending ? "Cancelando…" : "Confirmar cancelación"}
         </button>

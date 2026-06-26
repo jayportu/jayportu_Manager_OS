@@ -198,9 +198,9 @@ export function BetaRequestsTable({ initialRequests }: Props) {
   function statusBadge(s: BetaRequestStatus) {
     const bg = {
       new: "bg-orange text-ink border-border",
-      approved: "bg-success text-white border-success",
-      rejected: "bg-danger text-white border-danger",
-      waitlist: "bg-warning text-fg border-border",
+      approved: "bg-success text-white dark:text-ink border-success",
+      rejected: "bg-danger text-white dark:text-ink border-danger",
+      waitlist: "bg-warning text-fg dark:text-ink border-border",
     }[s];
     return (
       <span
@@ -372,7 +372,7 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                             variant="ghost"
                             onClick={() => handleReject(r)}
                             disabled={isPending}
-                            className="h-8 text-xs border-2 border-danger text-danger hover:bg-danger hover:text-white"
+                            className="h-8 text-xs border-2 border-danger text-danger hover:bg-danger hover:text-white dark:hover:text-ink"
                           >
                             Rechazar
                           </Button>

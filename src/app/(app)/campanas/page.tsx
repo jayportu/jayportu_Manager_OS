@@ -15,8 +15,8 @@ import { relativeTime } from "@/lib/format";
 
 const STATUS_BADGE: Record<CampaignStatus, string> = {
   active: "bg-orange text-ink border-border",
-  paused: "bg-warning text-fg border-border",
-  done: "bg-success text-white border-success",
+  paused: "bg-warning text-fg dark:text-ink border-border",
+  done: "bg-success text-white dark:text-ink border-success",
   draft: "bg-cream text-fg border-border",
   archived: "bg-fg-subtle/20 text-fg-muted border-border/30",
 };

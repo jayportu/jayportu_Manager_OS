@@ -247,7 +247,7 @@ export function EventEditDialog({ eventId, current }: Props) {
                     type="button"
                     onClick={() => setConfirmDelete(true)}
                     disabled={isPending}
-                    className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-danger hover:text-white hover:bg-danger px-2 py-1.5 border-2 border-danger transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-danger hover:text-white dark:hover:text-ink hover:bg-danger px-2 py-1.5 border-2 border-danger transition-colors disabled:opacity-50"
                     title="Borrar evento"
                   >
                     <Trash2 className="w-3 h-3" />
@@ -270,7 +270,7 @@ export function EventEditDialog({ eventId, current }: Props) {
                       type="button"
                       onClick={handleDelete}
                       disabled={isPending}
-                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 border-2 border-danger bg-danger text-white hover:bg-ink hover:border-border transition-colors disabled:opacity-50"
+                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 border-2 border-danger bg-danger text-white dark:text-ink hover:bg-ink hover:border-border transition-colors disabled:opacity-50"
                     >
                       {isPending ? "Borrando…" : "Sí, borrar"}
                     </button>
