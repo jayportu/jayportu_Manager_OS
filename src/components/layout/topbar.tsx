@@ -105,7 +105,7 @@ export function Topbar({
             color: "#0A0A0A",
           }}
         >
-          DROP<span style={{ color: "#FF5C00" }}>.</span>
+          DROP<span style={{ color: "#FF5C00", marginLeft: "-0.06em" }}>.</span>
         </span>
         <span className="ml-3 font-mono text-[9px] font-bold tracking-[0.15em] text-fg-muted hidden sm:inline">
           — THE DJ OS

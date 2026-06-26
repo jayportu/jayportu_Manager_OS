@@ -68,7 +68,7 @@ export function Logo({
       aria-label={isMonogram ? "DROP" : "DROP."}
     >
       {text}
-      <span aria-hidden="true" style={{ color: dotColor }}>.</span>
+      <span aria-hidden="true" style={{ color: dotColor, marginLeft: "-0.06em" }}>.</span>
     </span>
   );
 }
