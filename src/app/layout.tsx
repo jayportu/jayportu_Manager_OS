@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DROP. — The DJ OS",
     description:
-      "El sistema operativo para DJs independientes. CRM, press kit, bookings, IA. Bookers: directorio de DJs en LATAM.",
+      "El sistema operativo para DJs independientes. CRM, press kit, bookings, calendario. Bookers: directorio de DJs en LATAM.",
     type: "website",
     siteName: "DROP.",
     images: [
