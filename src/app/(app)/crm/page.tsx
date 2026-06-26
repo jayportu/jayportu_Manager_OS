@@ -108,34 +108,34 @@ export default async function CrmPage({ searchParams }: PageProps) {
 
       {/* ═══ KPIs · grid 4 col zero-gap borde ink ═══ */}
       {stats.total > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
-          <div className="bg-bg-panel p-4 border-r-2 border-ink border-b-2 md:border-b-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
+          <div className="bg-bg-panel p-4 border-r-2 border-border border-b-2 md:border-b-0">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — VENUES
             </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-fg">
               {String(venuesCount).padStart(2, "0")}
             </div>
             <div className="font-mono text-[10px] mt-2 text-fg-muted">
               Clubes · bares · festivales
             </div>
           </div>
-          <div className="bg-orange p-4 md:border-r-2 border-ink border-b-2 md:border-b-0">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+          <div className="bg-bg-panel p-4 border-t-2 border-t-accent md:border-r-2 border-border border-b-2 md:border-b-0">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — EN PIPELINE
             </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-accent">
               {String(inPipeline).padStart(2, "0")}
             </div>
-            <div className="font-mono text-[10px] mt-2">
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">
               Interesado · negociando · propuesta
             </div>
           </div>
-          <div className="bg-bg-panel p-4 border-r-2 border-ink">
+          <div className="bg-bg-panel p-4 border-r-2 border-border">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — SCORE PROMEDIO
             </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-fg">
               {scoreAvg || "—"}
             </div>
             <div className="font-mono text-[10px] mt-2 text-fg-muted">
@@ -146,14 +146,14 @@ export default async function CrmPage({ searchParams }: PageProps) {
                 : "Para depurar"}
             </div>
           </div>
-          <div className="bg-ink text-cream p-4">
+          <div className="bg-bg-panel p-4">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
               — TOTAL
             </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2">
+            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-fg">
               {String(stats.total).padStart(2, "0")}
             </div>
-            <div className="font-mono text-[10px] mt-2 opacity-70">
+            <div className="font-mono text-[10px] mt-2 text-fg-muted">
               {isFiltered ? "Filtrados" : "Todos los contactos"}
             </div>
           </div>
@@ -210,7 +210,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                       <Link
                         key={t.tag}
                         href={buildHref(sp, { tag: undefined, tags: newTags })}
-                        className="inline-flex items-center gap-1.5 border-2 border-ink bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
+                        className="inline-flex items-center gap-1.5 border-2 border-ink bg-bg-subtle font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
                       >
                         <span>#{t.tag}</span>
                         <span className="text-fg-muted">{t.count}</span>
@@ -322,7 +322,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                           href={`/crm/${c.id}`}
                           className="flex items-center gap-3 group"
                         >
-                          <div className="w-9 h-9 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center text-xs font-bold shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-bg-subtle text-fg border border-border flex items-center justify-center text-xs font-bold shrink-0">
                             {initials(c.name)}
                           </div>
                           <div className="min-w-0">
@@ -342,7 +342,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                         {c.city || "—"}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 border-2 border-ink bg-cream text-ink">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 border-2 border-ink bg-bg-subtle text-fg">
                           {CONTACT_STATUS_LABELS[c.status]}
                         </span>
                       </td>
@@ -373,7 +373,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                   href={`/crm/${c.id}`}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-bg-subtle transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-bg-subtle text-fg border border-border flex items-center justify-center text-xs font-bold shrink-0">
                     {initials(c.name)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -383,7 +383,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
                       {c.city ? ` · ${c.city}` : ""}
                     </div>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 border border-ink bg-cream text-ink">
+                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 border border-ink bg-bg-subtle text-fg">
                         {CONTACT_STATUS_LABELS[c.status]}
                       </span>
                       <span className="font-mono text-[10px] text-fg-muted">
