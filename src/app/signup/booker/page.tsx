@@ -16,12 +16,14 @@ export default function BookerSignupPage() {
           href="/"
           className="select-none hover:opacity-90 transition-opacity"
           style={{
-            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontFamily: "var(--font-satoshi), system-ui, sans-serif",
             fontSize: "28px",
-            lineHeight: 0.85,
+            fontWeight: 900,
+            lineHeight: 0.9,
+            letterSpacing: "-0.02em",
           }}
         >
-          DROP<span className="text-orange">.</span>
+          DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span>
         </Link>
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">
           BOOKER · REGISTRO

@@ -126,14 +126,15 @@ export function Sidebar({
         <span
           className="select-none animate-logo-strobe"
           style={{
-            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+            fontFamily: "var(--font-satoshi), system-ui, sans-serif",
             fontSize: "56px",
-            lineHeight: 0.78,
+            fontWeight: 900,
+            lineHeight: 0.9,
             color: "#F4EFE7",
-            letterSpacing: "-0.01em",
+            letterSpacing: "-0.02em",
           }}
         >
-          DROP<span style={{ color: "#FF5C00" }}>.</span>
+          DROP<span style={{ color: "#FF5C00", marginLeft: "-0.06em" }}>.</span>
         </span>
         <span className="font-mono text-[9px] font-bold tracking-[0.1em] text-orange flex items-center gap-[5px]">
           <span

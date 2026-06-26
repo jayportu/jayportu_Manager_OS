@@ -9,6 +9,7 @@ import { hasUpcomingPublicEvents } from "@/lib/queries/events";
  */
 
 const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
+const SATOSHI = "var(--font-satoshi), system-ui, sans-serif";
 
 /** Links del nav (compartidos entre desktop y el menú móvil). */
 const NAV_LINKS: { href: string; label: string }[] = [
@@ -28,8 +29,8 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 bg-ink border-b-2 border-orange">
       <div className="max-w-[1140px] mx-auto px-6 h-[62px] flex items-center gap-6">
-        <Link href="/" className="text-cream" style={{ fontFamily: ANTON, fontSize: 28, lineHeight: 0.85 }}>
-          DROP<span className="text-orange">.</span>
+        <Link href="/" className="text-cream" style={{ fontFamily: SATOSHI, fontWeight: 900, fontSize: 28, lineHeight: 0.9, letterSpacing: "-0.02em" }}>
+          DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span>
         </Link>
         <nav className="hidden md:flex gap-6 ml-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
           {navLinks.map((l) => (
@@ -100,7 +101,7 @@ export async function SiteFooter() {
           <FootCol title="Síguenos" links={[["@drop.gigs", "https://instagram.com/drop.gigs"]]} />
         </div>
         <div className="mt-10 pt-5 border-t border-[#2a2a2a] font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle flex gap-3 flex-wrap items-center">
-          <span style={{ fontFamily: ANTON, fontSize: 22 }}>DROP<span className="text-orange">.</span></span>
+          <span style={{ fontFamily: SATOSHI, fontWeight: 900, fontSize: 22, letterSpacing: "-0.02em" }}>DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span></span>
           <span>— The DJ OS · © 2026 · dropgigs.com</span>
         </div>
       </div>
