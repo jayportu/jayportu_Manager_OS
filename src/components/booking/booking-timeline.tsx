@@ -106,7 +106,7 @@ export function BookingTimeline({ booking, perspective = "booker" }: Props) {
   events.sort((a, b) => a.at.localeCompare(b.at));
 
   return (
-    <div className="border-2 border-ink bg-white p-5">
+    <div className="border-2 border-ink bg-bg-panel p-5">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-4">
         — TIMELINE
       </div>

@@ -26,36 +26,38 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // DROP paleta — tokens preservan nomenclatura anterior
+        // DROP paleta — ahora vía CSS variables (definidas en globals.css :root).
+        // Formato canal "rgb(var / <alpha-value>)" para conservar bg-x/50 etc.
+        // Mismos valores que antes; el tema dark sobreescribe las vars.
         bg: {
-          DEFAULT: "#F4EFE7",   // CREAM — fondo principal de la app
-          panel: "#FFFFFF",      // paneles / cards sobre el cream
-          subtle: "#E8E1D3",     // cream más oscuro — hover de tablas, fondos secundarios
-          dark: "#0A0A0A",       // INK — sidebar / barras oscuras (usa bg-bg-dark si necesitas oscuro)
+          DEFAULT: "rgb(var(--drop-bg) / <alpha-value>)",        // CREAM — fondo app
+          panel: "rgb(var(--drop-bg-panel) / <alpha-value>)",     // paneles / cards
+          subtle: "rgb(var(--drop-bg-subtle) / <alpha-value>)",   // hover tablas / fondos 2º
+          dark: "rgb(var(--drop-bg-dark) / <alpha-value>)",       // INK — sidebar / barras
         },
         border: {
-          DEFAULT: "#0A0A0A",    // INK — bordes 2px estilo Type Beat
-          strong: "#0A0A0A",
+          DEFAULT: "rgb(var(--drop-border) / <alpha-value>)",
+          strong: "rgb(var(--drop-border-strong) / <alpha-value>)",
         },
         fg: {
-          DEFAULT: "#0A0A0A",    // INK — texto principal
-          muted: "#3A3A3A",      // texto secundario (más oscuro para contraste sobre cream)
-          subtle: "#6B6B6B",     // texto terciario
+          DEFAULT: "rgb(var(--drop-fg) / <alpha-value>)",         // texto principal
+          muted: "rgb(var(--drop-fg-muted) / <alpha-value>)",     // texto secundario
+          subtle: "rgb(var(--drop-fg-subtle) / <alpha-value>)",   // texto terciario
         },
         accent: {
-          DEFAULT: "#FF5C00",    // ORANGE — acento único
-          soft: "rgba(255, 92, 0, 0.12)",
-          ring: "rgba(255, 92, 0, 0.35)",
+          DEFAULT: "rgb(var(--drop-accent) / <alpha-value>)",     // ORANGE — acento único
+          soft: "var(--drop-accent-soft)",
+          ring: "var(--drop-accent-ring)",
         },
         // Cream + ink + orange expuestos directamente
-        cream: "#F4EFE7",
-        ink: "#0A0A0A",
-        orange: "#FF5C00",
+        cream: "rgb(var(--drop-cream) / <alpha-value>)",
+        ink: "rgb(var(--drop-ink) / <alpha-value>)",
+        orange: "rgb(var(--drop-orange) / <alpha-value>)",
         // Estados semánticos (paleta DROP)
-        success: "#1F8A5C",
-        warning: "#C77A00",
-        danger: "#C53030",
-        info: "#2B5BA8",
+        success: "rgb(var(--drop-success) / <alpha-value>)",
+        warning: "rgb(var(--drop-warning) / <alpha-value>)",
+        danger: "rgb(var(--drop-danger) / <alpha-value>)",
+        info: "rgb(var(--drop-info) / <alpha-value>)",
         // shadcn vars compat (las usamos via CSS vars en globals.css)
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

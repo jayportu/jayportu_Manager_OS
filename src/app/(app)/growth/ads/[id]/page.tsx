@@ -84,7 +84,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
       {/* Hero brutalist */}
       <div
         className={`border-2 border-ink p-6 mb-5 relative overflow-hidden ${
-          campaign.is_paid ? "bg-ink text-cream" : "bg-white"
+          campaign.is_paid ? "bg-ink text-cream" : "bg-bg-panel"
         }`}
       >
         <div className="flex items-start justify-between gap-4 flex-wrap relative z-10">
@@ -415,7 +415,7 @@ function PlatformProgress({
         </div>
         <div
           className={`p-3 ${
-            delta > 0 ? "bg-orange" : "bg-white"
+            delta > 0 ? "bg-orange" : "bg-bg-panel"
           }`}
         >
           <div className="font-mono text-[10px] uppercase tracking-wider">
@@ -442,7 +442,7 @@ function PlatformProgress({
         </div>
       </div>
       {hasTarget && (
-        <div className="p-2 border-t-2 border-ink bg-white">
+        <div className="p-2 border-t-2 border-ink bg-bg-panel">
           <div className="font-mono text-[9px] uppercase text-fg-muted">
             objetivo {target.toLocaleString("es-CL")} · {pct}%
           </div>

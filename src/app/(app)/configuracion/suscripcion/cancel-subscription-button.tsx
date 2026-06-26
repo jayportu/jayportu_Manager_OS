@@ -57,7 +57,7 @@ export function CancelSubscriptionButton() {
           rows={3}
           placeholder="Tu feedback me ayuda a mejorar DROP…"
           disabled={isPending}
-          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm focus:outline-none focus:border-orange"
+          className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
         />
       </div>
       {error && (

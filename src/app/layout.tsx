@@ -93,6 +93,15 @@ export default function RootLayout({
       <body
         className={`${anton.variable} ${inter.variable} ${spaceMono.variable} ${satoshi.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
       >
+        {/* Flag de preview del tema dark (rebrand, Fase 1): se activa con la
+            cookie `drop-theme=dark`. Sin cookie → light (lo que ven los usuarios).
+            Script inline para evitar FOUC y no forzar render dinámico. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(/(?:^|;\\s*)drop-theme=dark/.test(document.cookie))document.documentElement.setAttribute('data-theme','dark')}catch(e){}",
+          }}
+        />
         {children}
         {/* Vercel Web Analytics — tráfico anónimo (visitas, páginas, referrers).
             No-op hasta habilitar Web Analytics en el dashboard de Vercel. */}

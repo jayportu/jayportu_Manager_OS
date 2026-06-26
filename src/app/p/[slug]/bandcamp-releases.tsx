@@ -19,7 +19,7 @@ export function BandcampReleases({ releases }: { releases: BandcampRelease[] }) 
             href={r.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group block border-2 border-ink bg-white hover:shadow-[4px_4px_0_#FF5C00] transition-all"
+            className="group block border-2 border-ink bg-bg-panel hover:shadow-[4px_4px_0_#FF5C00] transition-all"
             title={r.title}
           >
             <div className="aspect-square bg-ink overflow-hidden">

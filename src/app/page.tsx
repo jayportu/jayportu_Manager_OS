@@ -162,7 +162,7 @@ export default async function RootPage() {
           )}
 
           {/* Buscador — solo la barra (Link real a /dj) */}
-          <Link href="/dj" className="mt-7 flex items-center gap-2.5 bg-white border-2 border-ink px-4 py-3.5 font-mono text-[12px] uppercase tracking-[0.04em] text-fg-subtle hover:text-ink transition-colors">
+          <Link href="/dj" className="mt-7 flex items-center gap-2.5 bg-bg-panel border-2 border-ink px-4 py-3.5 font-mono text-[12px] uppercase tracking-[0.04em] text-fg-subtle hover:text-ink transition-colors">
             <Search className="w-4 h-4 shrink-0" /> Busca por sonido o ciudad…
           </Link>
           {/* Chips de género reales — fila aparte (no dentro del buscador) */}
@@ -197,7 +197,7 @@ export default async function RootPage() {
                 ¿Ya tienes invitación? <Link href="/login" className="text-orange underline">Entra aquí</Link>
               </div>
             </div>
-            <div className="bg-white text-ink p-7 md:p-8">
+            <div className="bg-bg-panel text-ink p-7 md:p-8">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">— Eres booker</div>
               <h2 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: "clamp(28px,3.4vw,40px)", lineHeight: 0.95 }}>
                 Encuentra al DJ<br />indicado<span className="text-orange">.</span>
@@ -234,7 +234,7 @@ export default async function RootPage() {
 
       {/* CAPA 2.5 · PRÓXIMOS EVENTOS (para los fans — RSVP sin cuenta) */}
       {eventos.length > 0 && (
-        <section id="eventos" className="scroll-mt-[78px] border-y-2 border-ink bg-white">
+        <section id="eventos" className="scroll-mt-[78px] border-y-2 border-ink bg-bg-panel">
           <div className="max-w-[1140px] mx-auto px-6 py-16">
             <div className="flex items-end justify-between gap-4 mb-2.5">
               <h2 style={{ fontFamily: ANTON, fontSize: 34, lineHeight: 0.9 }}>PRÓXIMOS EVENTOS</h2>
@@ -279,7 +279,7 @@ export default async function RootPage() {
             {ranking.mode === "followed" && ranking.items.length > 0 && (
               <>
                 <div className="mb-5"><h2 style={{ fontFamily: ANTON, fontSize: 28, lineHeight: 0.9 }}>{ranking.label.toUpperCase()}</h2></div>
-                <div className="border-2 border-ink bg-white">
+                <div className="border-2 border-ink bg-bg-panel">
                   {ranking.items.map((dj, i) => (
                     <Link key={dj.user_id} href={`/p/${dj.public_slug}`} className="flex items-center gap-4 px-4 py-3.5 border-b-2 border-ink last:border-b-0 hover:bg-[#E8E1D3] transition-colors group">
                       <span className="w-10 shrink-0 group-hover:text-orange transition-colors" style={{ fontFamily: ANTON, fontSize: 26 }}>{String(i + 1).padStart(2, "0")}</span>
@@ -304,7 +304,7 @@ export default async function RootPage() {
       )}
 
       {/* CAPA 4 · CÓMO FUNCIONA */}
-      <section id="conexion" className="scroll-mt-[78px] bg-white border-b-2 border-ink">
+      <section id="conexion" className="scroll-mt-[78px] bg-bg-panel border-b-2 border-ink">
         <div className="max-w-[1140px] mx-auto px-6 py-16">
           <div className="mb-7"><h2 style={{ fontFamily: ANTON, fontSize: 34, lineHeight: 0.9 }}>BUSCA. ESCUCHA. CONTACTA.</h2></div>
           <div className="grid md:grid-cols-3 gap-3.5">
@@ -346,7 +346,7 @@ export default async function RootPage() {
             <div className="font-mono text-[11px] text-cream/55">Beta · gratis 15 días, sin tarjeta · luego $9.990/mes</div>
             <Link href="/beta" className="inline-block mt-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange border-b-2 border-orange pb-0.5">Solicitar invitación →</Link>
           </div>
-          <div className="bg-white text-ink border-2 border-ink p-7 md:p-8">
+          <div className="bg-bg-panel text-ink border-2 border-ink p-7 md:p-8">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-orange">— Para bookers</div>
             <h3 className="mt-2.5 mb-3.5" style={{ fontFamily: ANTON, fontSize: 30, lineHeight: 0.95 }}>Encuentra y reserva sin vueltas.</h3>
             <ul className="mb-4">
@@ -444,7 +444,7 @@ function SuenaCard({ dj, className = "" }: { dj: PublicDjProfile; className?: st
   const tag = isNew ? "Nuevo" : isIntl ? "Internacional" : null;
 
   return (
-    <Link href={`/p/${dj.public_slug}`} className={`group border-2 border-ink bg-white flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all ${className}`}>
+    <Link href={`/p/${dj.public_slug}`} className={`group border-2 border-ink bg-bg-panel flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all ${className}`}>
       <div className="relative aspect-square bg-ink flex items-center justify-center overflow-hidden border-b-2 border-ink">
         {cardImg ? (
           <Image src={cardImg} alt={dj.artist_name} fill sizes="(max-width:640px) 50vw, 280px" className="object-cover" quality={85} />
@@ -457,7 +457,7 @@ function SuenaCard({ dj, className = "" }: { dj: PublicDjProfile; className?: st
         )}
         {/* Nuevo/Internacional = secundario blanco/tinta */}
         {tag && (
-          <span className="absolute top-0 right-0 font-mono text-[9px] font-bold uppercase tracking-[0.1em] bg-white text-ink px-2 py-0.5 border-l-2 border-b-2 border-ink">{tag}</span>
+          <span className="absolute top-0 right-0 font-mono text-[9px] font-bold uppercase tracking-[0.1em] bg-bg-panel text-ink px-2 py-0.5 border-l-2 border-b-2 border-ink">{tag}</span>
         )}
       </div>
       <div className="p-3">

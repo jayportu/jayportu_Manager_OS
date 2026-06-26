@@ -208,7 +208,7 @@ export function BookerProfileForm({ initial }: Props) {
 }
 
 const inputCls =
-  "w-full border-2 border-ink bg-white px-3 py-2 text-[15px] outline-none focus:border-orange transition-colors";
+  "w-full border-2 border-ink bg-bg-panel px-3 py-2 text-[15px] outline-none focus:border-orange transition-colors";
 
 function Section({
   title,
@@ -220,7 +220,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-2 border-ink bg-white p-5 space-y-4">
+    <div className="border-2 border-ink bg-bg-panel p-5 space-y-4">
       <div>
         <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange">
           — {title}
@@ -275,7 +275,7 @@ function Toggle({
         }`}
       >
         <span
-          className={`absolute top-0.5 w-4 h-4 bg-white border border-ink transition-all ${
+          className={`absolute top-0.5 w-4 h-4 bg-bg-panel border border-ink transition-all ${
             checked ? "left-[18px]" : "left-0.5"
           }`}
         />

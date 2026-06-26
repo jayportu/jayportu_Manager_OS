@@ -80,7 +80,7 @@ export function ComingSoon({
 
         {/* Bullets opcionales */}
         {bullets && bullets.length > 0 && (
-          <div className="mt-8 border-2 border-ink bg-white p-5">
+          <div className="mt-8 border-2 border-ink bg-bg-panel p-5">
             <div className="font-mono text-[10px] font-bold tracking-[0.14em] text-orange uppercase mb-3">
               — Qué tendrá
             </div>

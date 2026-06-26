@@ -122,7 +122,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
   }
 
   return (
-    <div className="border-2 border-ink bg-white p-5 mb-6">
+    <div className="border-2 border-ink bg-bg-panel p-5 mb-6">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
         — COMPARTIR PRESS KIT
       </div>
@@ -144,7 +144,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
             />
           </button>
           {open && (
-            <div className="absolute z-20 mt-1 w-full md:min-w-[320px] border-2 border-ink bg-white shadow-[5px_5px_0_0_#0A0A0A] max-h-[300px] overflow-y-auto">
+            <div className="absolute z-20 mt-1 w-full md:min-w-[320px] border-2 border-ink bg-bg-panel shadow-[5px_5px_0_0_#0A0A0A] max-h-[300px] overflow-y-auto">
               {UTM_PRESETS.map((p) => (
                 <button
                   key={p.value}

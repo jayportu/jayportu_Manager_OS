@@ -134,7 +134,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
             — SMART MATCH
@@ -165,7 +165,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
       <form
         action="/booker/match"
         method="get"
-        className="border-2 border-ink bg-white p-4 md:p-5 mb-6 space-y-4"
+        className="border-2 border-ink bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
           — TU EVENTO
@@ -190,7 +190,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
               name="q"
               defaultValue={sp.q ?? ""}
               placeholder="ej: energía de festival para un rooftop al atardecer"
-              className="w-full border-2 border-ink bg-white px-3 py-2 font-mono text-[12px] tracking-[0.02em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+              className="w-full border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[12px] tracking-[0.02em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
             />
           </div>
         ) : (
@@ -214,7 +214,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           <select
             name="type"
             defaultValue={sp.type ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Tipo de evento</option>
             {EVENT_TYPES.map((t) => (
@@ -226,7 +226,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           <select
             name="city"
             defaultValue={sp.city ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Ciudad: cualquiera</option>
             {allCities.map((c) => (
@@ -239,7 +239,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
             type="date"
             name="date"
             defaultValue={sp.date ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
           />
           <input
             type="number"
@@ -248,7 +248,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
             step={50000}
             placeholder="Presupuesto $"
             defaultValue={sp.budget ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
           />
           <button
             type="submit"
@@ -337,7 +337,7 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           </p>
         </div>
       ) : results.length === 0 ? (
-        <div className="border-2 border-ink bg-white p-10 text-center">
+        <div className="border-2 border-ink bg-bg-panel p-10 text-center">
           <p className="text-sm text-fg-muted">
             No encontramos DJs para esos criterios. Prueba aflojar el
             presupuesto o sacar algún filtro.

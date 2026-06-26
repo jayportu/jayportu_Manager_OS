@@ -16,7 +16,7 @@ import { shortDate, relativeTime } from "@/lib/format";
 const COLUMNS: { status: PostStatus; label: string; tint: string }[] = [
   { status: "idea", label: "Ideas", tint: "bg-cream" },
   { status: "borrador", label: "Borrador", tint: "bg-cream" },
-  { status: "planeado", label: "Programado", tint: "bg-white" },
+  { status: "planeado", label: "Programado", tint: "bg-bg-panel" },
   { status: "publicado", label: "Publicado", tint: "bg-orange" },
 ];
 
@@ -108,7 +108,7 @@ export function PostsBoard({ posts, campaignMap }: Props) {
             key={col.status}
             onDragOver={onDragOver}
             onDrop={(e) => onDrop(e, col.status)}
-            className="border-2 border-ink bg-white min-h-[300px] flex flex-col"
+            className="border-2 border-ink bg-bg-panel min-h-[300px] flex flex-col"
           >
             <div className="border-b-2 border-ink p-3 flex items-center justify-between bg-cream">
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em]">
@@ -132,7 +132,7 @@ export function PostsBoard({ posts, campaignMap }: Props) {
                       draggable
                       onDragStart={(e) => onDragStart(e, p.id)}
                       onDragEnd={onDragEnd}
-                      className={`border-2 border-ink bg-white p-2.5 cursor-grab active:cursor-grabbing transition-opacity ${
+                      className={`border-2 border-ink bg-bg-panel p-2.5 cursor-grab active:cursor-grabbing transition-opacity ${
                         isDragging ? "opacity-40" : "hover:shadow-[4px_4px_0_#FF5C00]"
                       }`}
                     >

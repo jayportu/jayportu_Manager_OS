@@ -46,7 +46,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <LiveRefresher intervalSec={15} />
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-ink bg-bg-panel p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
             — ADMIN · TRÁFICO
@@ -99,7 +99,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
           </div>
 
           {/* Embudo */}
-          <div className="border-2 border-ink bg-white p-5 mb-5">
+          <div className="border-2 border-ink bg-bg-panel p-5 mb-5">
             <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
               — Embudo de conversión ({days}d)
             </h2>
@@ -114,7 +114,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
           </div>
 
           {/* Visitas por día */}
-          <div className="border-2 border-ink bg-white p-5 mb-5">
+          <div className="border-2 border-ink bg-bg-panel p-5 mb-5">
             <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
               — Visitas por día
             </h2>
@@ -136,7 +136,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
 
           <div className="grid md:grid-cols-2 gap-5 mb-5">
             {/* Páginas top */}
-            <div className="border-2 border-ink bg-white p-5">
+            <div className="border-2 border-ink bg-bg-panel p-5">
               <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
                 — Páginas más vistas
               </h2>
@@ -150,7 +150,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
               </div>
             </div>
             {/* De dónde llegan */}
-            <div className="border-2 border-ink bg-white p-5">
+            <div className="border-2 border-ink bg-bg-panel p-5">
               <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
                 — De dónde llegan
               </h2>
@@ -166,7 +166,7 @@ export default async function TraficoPage({ searchParams }: PageProps) {
           </div>
 
           {/* Tiempo real */}
-          <div className="border-2 border-ink bg-white p-5">
+          <div className="border-2 border-ink bg-bg-panel p-5">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
                 — Últimas visitas (tiempo real)
@@ -222,7 +222,7 @@ function Kpi({
   highlight?: boolean;
 }) {
   return (
-    <div className={`p-4 border-r-2 border-ink last:border-r-0 ${highlight ? "bg-orange" : "bg-white"}`}>
+    <div className={`p-4 border-r-2 border-ink last:border-r-0 ${highlight ? "bg-orange" : "bg-bg-panel"}`}>
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— {label}</div>
       <div className="font-display text-4xl leading-none mt-2">{value}</div>
       {sub && <div className="font-mono text-[9px] text-fg-muted mt-1">{sub}</div>}

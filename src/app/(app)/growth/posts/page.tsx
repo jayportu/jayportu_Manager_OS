@@ -48,7 +48,7 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
       </Link>
 
       {/* Hero brutalist */}
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative overflow-hidden">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — GROWTH · CALENDARIO DE CONTENIDO
         </div>

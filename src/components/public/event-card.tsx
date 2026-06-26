@@ -42,7 +42,7 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
   return (
     <Link
       href={`/e/${ev.public_token}`}
-      className="group border-2 border-ink bg-white flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all"
+      className="group border-2 border-ink bg-bg-panel flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all"
     >
       <div className="relative aspect-[3/2] bg-ink overflow-hidden border-b-2 border-ink">
         {cover ? (

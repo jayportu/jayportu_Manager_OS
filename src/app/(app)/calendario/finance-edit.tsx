@@ -93,7 +93,7 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
           onClick={() => setOpen(false)}
         >
           <Card
-            className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
+            className="bg-bg-panel w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

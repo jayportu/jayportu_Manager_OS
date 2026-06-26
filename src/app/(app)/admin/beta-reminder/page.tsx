@@ -69,7 +69,7 @@ export default async function BetaReminderPage() {
                 {recipients.map((r, idx) => (
                   <tr
                     key={r.userId}
-                    className={idx % 2 === 0 ? "bg-white" : "bg-bg-subtle"}
+                    className={idx % 2 === 0 ? "bg-bg-panel" : "bg-bg-subtle"}
                   >
                     <td className="p-2 font-medium">{r.artistName}</td>
                     <td className="p-2 text-fg-muted">{r.email}</td>

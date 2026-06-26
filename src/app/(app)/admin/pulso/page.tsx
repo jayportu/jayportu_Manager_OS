@@ -30,7 +30,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-ink bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · PULSO DE BETA
         </div>
@@ -57,7 +57,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
       </div>
 
       {/* Embudo de oferta */}
-      <div className="border-2 border-ink bg-white p-5 mb-5">
+      <div className="border-2 border-ink bg-bg-panel p-5 mb-5">
         <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
           — Embudo de oferta (DJs · acumulado)
         </h2>
@@ -79,7 +79,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
       </div>
 
       {/* Esta semana / ventana */}
-      <div className="border-2 border-ink bg-white p-5 mb-5">
+      <div className="border-2 border-ink bg-bg-panel p-5 mb-5">
         <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
           — Movimiento ({days} días)
         </h2>
@@ -100,7 +100,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
 
 function Kpi({ label, value, sub, highlight }: { label: string; value: number; sub?: string; highlight?: boolean }) {
   return (
-    <div className={`p-4 border-r-2 border-b-2 border-ink ${highlight ? "bg-orange" : "bg-white"}`}>
+    <div className={`p-4 border-r-2 border-b-2 border-ink ${highlight ? "bg-orange" : "bg-bg-panel"}`}>
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— {label}</div>
       <div className="font-display text-3xl leading-none mt-2">{value}</div>
       {sub && <div className="font-mono text-[9px] text-fg-muted mt-1">{sub}</div>}

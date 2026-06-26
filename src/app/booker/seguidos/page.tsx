@@ -37,7 +37,7 @@ export default async function BookerSeguidosPage() {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — DJS QUE SIGUES
         </div>
@@ -110,7 +110,7 @@ export default async function BookerSeguidosPage() {
               <Link
                 key={dj.dj_user_id}
                 href={`/p/${dj.public_slug}`}
-                className="group border-2 border-ink bg-white overflow-hidden hover:bg-cream/40 transition-colors"
+                className="group border-2 border-ink bg-bg-panel overflow-hidden hover:bg-cream/40 transition-colors"
               >
                 {isSupabaseStorageUrl(dj.hero_image_url) ? (
                   <div className="relative w-full aspect-[4/3] border-b-2 border-ink">
@@ -177,7 +177,7 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
       className={`grid grid-cols-[56px_1fr_auto] items-start gap-3 p-3 transition-colors hover:bg-cream/60 ${
         update.unread
           ? "bg-cream border-2 border-orange"
-          : "bg-white border-2 border-ink"
+          : "bg-bg-panel border-2 border-ink"
       }`}
     >
       {/* Avatar */}

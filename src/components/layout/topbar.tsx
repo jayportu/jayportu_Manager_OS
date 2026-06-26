@@ -140,7 +140,7 @@ export function Topbar({
         <input
           type="text"
           placeholder="BUSCAR CONTACTO, VENUE, FECHA…"
-          className="w-full h-10 pl-10 pr-4 bg-white border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.05em] placeholder:text-fg-subtle focus:outline-none focus:border-orange transition-colors"
+          className="w-full h-10 pl-10 pr-4 bg-bg-panel border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.05em] placeholder:text-fg-subtle focus:outline-none focus:border-orange transition-colors"
         />
       </div>
 

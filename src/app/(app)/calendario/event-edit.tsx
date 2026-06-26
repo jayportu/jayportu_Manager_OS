@@ -122,7 +122,7 @@ export function EventEditDialog({ eventId, current }: Props) {
           onClick={close}
         >
           <Card
-            className="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
+            className="bg-bg-panel w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

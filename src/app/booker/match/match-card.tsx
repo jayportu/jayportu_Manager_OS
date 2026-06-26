@@ -40,7 +40,7 @@ export function MatchCard({
   const strong = score >= 70;
 
   return (
-    <div className="group border-2 border-ink bg-white flex flex-col">
+    <div className="group border-2 border-ink bg-bg-panel flex flex-col">
       {/* Imagen + overlays */}
       <div className="relative aspect-[4/3] bg-ink border-b-2 border-ink overflow-hidden">
         {cardImg ? (
@@ -138,7 +138,7 @@ export function MatchCard({
               className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 transition-colors ${
                 showSet
                   ? "bg-orange text-ink border-orange"
-                  : "bg-white text-ink border-ink hover:bg-orange hover:border-orange"
+                  : "bg-bg-panel text-ink border-ink hover:bg-orange hover:border-orange"
               }`}
             >
               <Play className="w-3 h-3" />

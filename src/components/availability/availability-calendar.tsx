@@ -77,13 +77,13 @@ export function AvailabilityCalendar({
           <span className="w-3 h-3 bg-ink" /> Ocupado
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 bg-white border border-ink" /> Sin definir
+          <span className="w-3 h-3 bg-bg-panel border border-ink" /> Sin definir
         </span>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
         {grids.map(({ year, month0, cells }) => (
-          <div key={`${year}-${month0}`} className="border-2 border-ink bg-white">
+          <div key={`${year}-${month0}`} className="border-2 border-ink bg-bg-panel">
             <div className="bg-ink text-cream px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider">
               {MONTH_NAMES[month0]} {year}
             </div>

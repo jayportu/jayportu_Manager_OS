@@ -53,7 +53,7 @@ export default async function CuentaSuspendidaPage() {
           <span className="text-orange">.</span>
         </h1>
 
-        <div className="border-2 border-ink bg-white p-5 mb-6">
+        <div className="border-2 border-ink bg-bg-panel p-5 mb-6">
           {isBanned ? (
             <p className="text-sm leading-relaxed">
               Tu cuenta fue cerrada de forma permanente por incumplimiento de

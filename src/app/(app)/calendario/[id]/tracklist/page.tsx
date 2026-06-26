@@ -63,7 +63,7 @@ export default async function TracklistPage({ params }: PageProps) {
         Volver al calendario
       </Link>
 
-      <div className="border-2 border-ink bg-white p-6 mb-5">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-5">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — TRACKLIST · POST-SHOW
         </div>

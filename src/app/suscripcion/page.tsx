@@ -65,7 +65,7 @@ export default async function SuscripcionPage() {
         </p>
 
         {/* Beneficios */}
-        <div className="border-2 border-ink bg-white p-5 mb-6">
+        <div className="border-2 border-ink bg-bg-panel p-5 mb-6">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
             — INCLUIDO
           </div>

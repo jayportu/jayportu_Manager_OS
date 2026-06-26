@@ -46,7 +46,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5 relative overflow-hidden">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CAMPAÑAS · PUSH ORGANIZADO
         </div>
@@ -130,7 +130,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                 className={`block group border-2 border-ink p-5 transition-colors ${
                   isDark
                     ? "bg-ink text-cream hover:bg-ink/90"
-                    : "bg-white hover:bg-cream"
+                    : "bg-bg-panel hover:bg-cream"
                 }`}
               >
                 {/* numeración + nombre + status */}

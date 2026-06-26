@@ -27,7 +27,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-ink bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · ANALYTICS · ÚLTIMOS 30 DÍAS
         </div>
@@ -49,7 +49,7 @@ export default async function AnalyticsPage() {
             de {snap.totalBetaApproved} aprobados
           </div>
         </div>
-        <div className="bg-white p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-ink">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
             — RETENCIÓN D7
           </div>
@@ -60,7 +60,7 @@ export default async function AnalyticsPage() {
             {snap.retentionD7.active}/{snap.retentionD7.total} activos
           </div>
         </div>
-        <div className="bg-white p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-ink">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
             — NPS PROMEDIO
           </div>
@@ -85,7 +85,7 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Top features */}
-      <div className="border-2 border-ink bg-white p-6 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-6">
         <h2 className="font-display text-2xl leading-none mb-4">
           TOP FEATURES (POR USERS ÚNICOS)
         </h2>
@@ -118,7 +118,7 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Funnel */}
-      <div className="border-2 border-ink bg-white p-6">
+      <div className="border-2 border-ink bg-bg-panel p-6">
         <h2 className="font-display text-2xl leading-none mb-4">
           FUNNEL ONBOARDING
         </h2>

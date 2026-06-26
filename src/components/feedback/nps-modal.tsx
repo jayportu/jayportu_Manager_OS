@@ -104,7 +104,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
                   setError(null);
                 }}
                 className={`border-[1.5px] border-ink py-2 font-mono text-sm font-bold transition-colors ${
-                  picked ? "bg-orange" : "bg-white hover:bg-cream"
+                  picked ? "bg-orange" : "bg-bg-panel hover:bg-cream"
                 }`}
                 aria-label={`Score ${n}`}
               >
@@ -129,7 +129,7 @@ export function NpsModal({ milestone, totalDays = 15 }: Props) {
               onChange={(e) => setComment(e.target.value)}
               maxLength={1000}
               placeholder="Lo que más te sirvió, lo que aún no termina de convencerte…"
-              className="w-full border-2 border-ink bg-white px-3 py-2 text-sm focus:outline-none focus:border-orange resize-none"
+              className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-none"
             />
           </div>
         )}

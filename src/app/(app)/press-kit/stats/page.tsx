@@ -140,7 +140,7 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
       </Link>
 
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-5">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — PRESS KIT · ESTADÍSTICAS
         </div>
@@ -337,7 +337,7 @@ function KpiTile({
   return (
     <div
       className={`p-4 border-r-2 border-ink last:border-r-0 ${
-        highlight ? "bg-orange" : "bg-white"
+        highlight ? "bg-orange" : "bg-bg-panel"
       }`}
     >
       <div className="flex items-center justify-between">

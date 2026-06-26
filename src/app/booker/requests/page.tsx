@@ -29,7 +29,7 @@ export default async function BookerRequestsPage() {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — MIS REQUESTS
         </div>
@@ -68,7 +68,7 @@ export default async function BookerRequestsPage() {
             return (
               <article
                 key={b.id}
-                className="border-2 border-ink bg-white p-5 hover:bg-cream/50 transition-colors"
+                className="border-2 border-ink bg-bg-panel p-5 hover:bg-cream/50 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0 flex-1">
@@ -133,7 +133,7 @@ export default async function BookerRequestsPage() {
 
 function EmptyState() {
   return (
-    <div className="border-2 border-dashed border-ink bg-white p-10 text-center">
+    <div className="border-2 border-dashed border-ink bg-bg-panel p-10 text-center">
       <Inbox className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
       <h2
         className="leading-tight mb-2"

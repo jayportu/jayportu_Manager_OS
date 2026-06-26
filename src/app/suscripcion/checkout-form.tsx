@@ -130,7 +130,7 @@ export function CheckoutForm({ userEmail }: Props) {
     <>
       <form
         onSubmit={handleSubmit}
-        className="bg-white border-2 border-ink p-5 space-y-3"
+        className="bg-bg-panel border-2 border-ink p-5 space-y-3"
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
           — DATOS DE TARJETA

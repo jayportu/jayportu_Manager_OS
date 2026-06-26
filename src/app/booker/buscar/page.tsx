@@ -67,7 +67,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — BUSCAR DJS · {djs.length} EN EL DIRECTORIO
         </div>
@@ -100,7 +100,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       <form
         action="/booker/buscar"
         method="get"
-        className="border-2 border-ink bg-white p-4 md:p-5 mb-6 space-y-4"
+        className="border-2 border-ink bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
           — FILTROS
@@ -112,12 +112,12 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             name="q"
             placeholder="🔎  Nombre, ciudad, tagline..."
             defaultValue={sp.q ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
           />
           <select
             name="city"
             defaultValue={sp.city ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Ciudad: todas</option>
             {allCities.map((c) => (
@@ -129,7 +129,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
           <select
             name="avail"
             defaultValue={sp.avail ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Disponibilidad</option>
             <option value="1">Solo disponibles</option>
@@ -141,14 +141,14 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             step={50000}
             placeholder="Presupuesto $"
             defaultValue={sp.budget ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
           />
           <input
             type="date"
             name="date"
             title="Libre en esta fecha"
             defaultValue={sp.date ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
+            className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
           />
           <button
             type="submit"
@@ -212,7 +212,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       </div>
 
       {djs.length === 0 ? (
-        <div className="border-2 border-ink bg-white p-10 text-center">
+        <div className="border-2 border-ink bg-bg-panel p-10 text-center">
           <p className="text-sm text-fg-muted">
             No hay DJs que coincidan con los filtros. Prueba con menos filtros,
             otra ciudad o un presupuesto más alto.

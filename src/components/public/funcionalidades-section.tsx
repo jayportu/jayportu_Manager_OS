@@ -77,7 +77,7 @@ function Reveal({ show, delay = 0, className = "", children }: { show: boolean; 
 }
 
 const KICK = "font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange";
-const CARD = "border-2 border-ink bg-white p-6 flex flex-col h-full transition-shadow hover:shadow-[8px_8px_0_#FF5C00]";
+const CARD = "border-2 border-ink bg-bg-panel p-6 flex flex-col h-full transition-shadow hover:shadow-[8px_8px_0_#FF5C00]";
 const H3 = { fontFamily: ANTON, fontSize: "clamp(24px,2.4vw,30px)", lineHeight: 0.95 } as const;
 
 function GroupDivider({ children }: { children: React.ReactNode }) {
@@ -183,7 +183,7 @@ export function FuncionalidadesSection() {
               <p className="text-sm text-fg-muted mb-4">Tu SoundCloud, YouTube y Spotify se reproducen <strong className="text-ink">dentro de tu perfil</strong>. Y tu discografía de Bandcamp se carga sola, con carátula.</p>
               <div className="mt-auto grid grid-cols-3 gap-2">
                 {COVERS.map((c) => (
-                  <div key={c.t} className="border border-ink bg-white">
+                  <div key={c.t} className="border border-ink bg-bg-panel">
                     <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" className="block w-full aspect-square">{c.svg}</svg>
                     <div className="px-1.5 py-1 text-[10px] font-semibold leading-tight">{c.t}</div>
                   </div>
@@ -202,7 +202,7 @@ export function FuncionalidadesSection() {
                 {MATCH.map((m) => (
                   <div key={m.name} className="grid grid-cols-[70px_1fr_40px] gap-3 items-center">
                     <span style={{ fontFamily: ANTON, fontSize: 16 }}>{m.name}</span>
-                    <span className="h-3 border-2 border-ink bg-white overflow-hidden">
+                    <span className="h-3 border-2 border-ink bg-bg-panel overflow-hidden">
                       <span className="block h-full bg-orange" style={{ width: vitrina.inView ? `${m.w}%` : "0%", transition: "width 1.1s cubic-bezier(.2,.8,.2,1)" }} />
                     </span>
                     <span className="font-mono text-[11px] font-bold text-right">{m.w}%</span>

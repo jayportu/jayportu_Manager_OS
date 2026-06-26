@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DROP Dark · Prototipo /ui-lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#090B10;--bg2:#10131B;--surface:#161A23;--surface2:#1C212C;
+  --border:#262C38;--border-strong:#353C49;--divider:#1B202A;
+  --text:#F4F5F7;--text2:#A8AFBD;--text3:#737B8C;--text-dis:#515867;
+  --orange:#FF7A1A;--orange-hover:#FF8F3A;--orange-active:#E8660D;--orange-soft:rgba(255,122,26,.12);--orange-glow:rgba(255,92,0,.18);
+  --success:#70C98B;--warning:#F5B84B;--error:#F06464;--info:#6EA8FE;
+  --r-sm:8px;--r:12px;--r-lg:16px;--sh:0 4px 16px -8px rgba(0,0,0,.6);
+  --anton:'Anton',Impact,sans-serif;--inter:'Inter',system-ui,sans-serif;--mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--inter);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+svg{display:block}
+.label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.label::before{content:"— ";color:var(--orange)}
+.h-anton{font-family:var(--anton);line-height:.92}
+.dot{color:var(--orange)}
+
+.ctx{background:#0b0d12;border-bottom:1px solid #1c2029;padding:8px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#6b7280;text-transform:uppercase}
+.ctx b{color:#cfd3da}.ctx .s{color:var(--orange)}
+
+.app{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 33px)}
+
+/* SIDEBAR */
+.sb{background:#0A0A0A;color:#F4EFE7;display:flex;flex-direction:column;border-right:2px solid var(--orange);position:relative;overflow:hidden}
+.sb .wm{position:absolute;right:-40px;bottom:-50px;font-family:var(--anton);font-size:260px;line-height:.75;color:rgba(255,122,26,.045);pointer-events:none}
+.sb .top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px 14px;border-bottom:2px solid var(--orange);position:relative;z-index:1}
+.sb .logo{font-family:var(--anton);font-size:36px;line-height:.8}.sb .logo .dot{color:var(--orange)}
+.sb .live{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--orange);display:flex;align-items:center;gap:5px}
+.sb .live i{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.sb .mf{background:var(--orange);color:#0a0a0a;padding:11px 20px;position:relative;z-index:1}
+.sb .mf .e{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em}
+.sb .mf .t{font-family:var(--anton);font-size:19px;line-height:.95;margin-top:3px}
+.sb nav{flex:1;padding:12px 0;position:relative;z-index:1}
+.sb .nl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#555;padding:8px 20px 6px}
+.sb .item{display:flex;align-items:center;gap:11px;padding:9px 20px;font-family:var(--mono);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9a9a9a;border-left:3px solid transparent;cursor:pointer;transition:.14s}
+.sb .item:hover{color:#F4EFE7;background:rgba(255,255,255,.035)}
+.sb .item.on{background:var(--orange);color:#0a0a0a;border-left-color:#0a0a0a}
+.sb .item svg{width:16px;height:16px;color:var(--orange)}.sb .item.on svg{color:#0a0a0a}
+.sb .artist{margin:14px;padding:11px;background:#161616;border:1px solid #2a2a2a;border-radius:var(--r-sm);display:flex;gap:10px;align-items:center;position:relative;z-index:1}
+.sb .av{width:34px;height:34px;border-radius:50%;background:var(--orange);color:#0a0a0a;font-family:var(--anton);font-size:18px;display:flex;align-items:center;justify-content:center}
+.sb .an{font-family:var(--anton);font-size:15px;line-height:.9}.sb .am{font-family:var(--mono);font-size:8px;color:#666;margin-top:2px}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;min-width:0}
+.tb{display:flex;align-items:center;gap:14px;padding:12px 24px;background:var(--bg2);border-bottom:1px solid var(--divider)}
+.burger{display:none;background:none;border:0;color:var(--text);cursor:pointer}
+.search{flex:1;max-width:560px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 13px;color:var(--text3)}
+.search input{flex:1;background:none;border:0;outline:none;color:var(--text);font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.search input::placeholder{color:var(--text-dis)}
+.tb .mail{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+.content{padding:24px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+.screen{display:none;flex-direction:column;gap:18px}.screen.on{display:flex}
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.phead h1{font-family:var(--anton);font-size:40px;line-height:.9}
+
+/* botones */
+.btn{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;border:1px solid transparent;border-radius:var(--r-sm);height:38px;padding:0 15px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.14s;white-space:nowrap}
+.btn-primary{background:var(--orange);color:#0a0a0a;border-color:var(--orange)}.btn-primary:hover{background:var(--orange-hover)}
+.btn-secondary{background:transparent;color:var(--text);border-color:var(--border-strong)}.btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
+.btn-ghost{background:transparent;color:var(--text2);border-color:transparent}.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn svg{width:15px;height:15px}.btn.sm{height:32px;font-size:10px;padding:0 11px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* hero */
+.hero{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 150% at 90% -20%,var(--orange-glow),transparent 55%);pointer-events:none}
+.hero .wave{position:absolute;right:0;bottom:0;width:46%;height:84px;opacity:.28}
+.hero h1{font-family:var(--anton);font-size:44px;line-height:.92;margin-top:8px;position:relative;z-index:1}
+.hero p{color:var(--text2);font-size:14px;margin-top:10px;position:relative;z-index:1}
+.hero .e{position:relative;z-index:1}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.kpi .n{font-family:var(--anton);font-size:38px;line-height:1;margin-top:10px}
+.kpi.acc{border-top:2px solid var(--orange)}.kpi.acc .n{color:var(--orange)}
+.kpi .s{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:7px;letter-spacing:.03em;text-transform:uppercase}
+
+/* paneles / cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
+.card h3{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card h3 a{font-family:var(--mono);font-size:10px;color:var(--orange);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.empty{border:1.5px dashed var(--border-strong);border-radius:var(--r-sm);padding:32px;text-align:center;color:var(--text3);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty svg{width:26px;height:26px;color:var(--text-dis)}
+.lrow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--r-sm);transition:.12s}
+.lrow:hover{background:var(--surface2)}.lrow+.lrow{border-top:1px solid var(--divider)}
+.rav{width:36px;height:36px;border-radius:50%;background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0}
+.rn{font-weight:600;font-size:14px}.rs{font-size:12px;color:var(--text3)}
+.score{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:12px;padding:4px 9px;border-radius:6px}
+.score.hi{background:var(--orange-soft);color:var(--orange)}.score.mid{background:rgba(112,201,139,.13);color:var(--success)}
+.tag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:5px;border:1px solid var(--border-strong);color:var(--text2)}
+
+/* filtros */
+.filters{display:flex;gap:10px;flex-wrap:wrap}
+.inp{background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:10px 12px;color:var(--text);font-family:var(--inter);font-size:13px;outline:none}
+.inp:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+select.inp{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+
+/* tabla */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl thead th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+.tbl tbody td{padding:13px 12px;border-bottom:1px solid var(--divider)}
+.tbl tbody tr{transition:.1s;cursor:pointer}.tbl tbody tr:hover{background:var(--surface2)}
+.tcell{display:flex;align-items:center;gap:11px}
+
+/* tabs */
+.tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:var(--r-sm);width:fit-content;border:1px solid var(--border)}
+.tab{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:8px 13px;border-radius:6px;color:var(--text3);cursor:pointer}
+.tab.on{background:var(--orange);color:#0a0a0a}
+.tabpane{display:none}.tabpane.on{display:block}
+
+/* press kit cover + cards de edición */
+.cover{position:relative;height:150px;border-radius:var(--r);overflow:hidden;background:linear-gradient(120deg,#14181f,#0c0f15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.cover svg{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+.editcard{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.kv{font-size:13px;color:var(--text2);margin-top:6px}.kv b{color:var(--text);font-weight:600}
+
+/* track row + player */
+.track{display:flex;align-items:center;gap:13px;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:9px;background:var(--bg2)}
+.play{width:38px;height:38px;border-radius:50%;border:1px solid var(--orange);color:var(--orange);background:var(--orange-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:.14s}
+.play:hover{background:var(--orange);color:#0a0a0a}
+.wavebars{display:flex;align-items:flex-end;gap:2px;height:26px;flex:1}
+.wavebars i{flex:1;background:var(--border-strong);border-radius:2px;min-width:2px}
+.track.playing .wavebars i{background:var(--orange);animation:eq .8s ease-in-out infinite alternate}
+@keyframes eq{from{height:20%}to{height:100%}}
+.dropzone{border:1.5px dashed var(--border-strong);border-radius:var(--r-sm);padding:24px;text-align:center;color:var(--text3);font-size:13px;cursor:pointer;transition:.14s}
+.dropzone:hover{border-color:var(--orange);color:var(--text2);background:var(--orange-soft)}
+
+/* agenda */
+.ev{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;background:var(--surface);transition:.12s}
+.ev:hover{border-color:var(--border-strong)}
+.evd{text-align:center;flex-shrink:0}.evd .dd{font-family:var(--anton);font-size:26px;color:var(--orange);line-height:1}.evd .mm{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em}
+
+/* toggle / switch */
+.sw{width:46px;height:26px;border-radius:14px;background:var(--surface2);border:1px solid var(--border-strong);position:relative;cursor:pointer;flex-shrink:0}
+.sw.on{background:var(--orange);border-color:var(--orange)}
+.sw i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.sw.on i{left:22px;background:#0a0a0a}
+
+/* skeleton */
+.sk{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 37%,var(--surface) 63%);background-size:400% 100%;animation:shimmer 1.4s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(5,7,11,.7);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+.overlay.on{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--r-lg);box-shadow:0 24px 60px -20px rgba(0,0,0,.8);width:100%;max-width:460px;overflow:hidden}
+.modal .mh{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal .mh .t{font-family:var(--anton);font-size:22px}
+.modal .mb{padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal .mf-foot{padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.field label{display:block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
+.field .inp{width:100%}
+.xbtn{background:none;border:0;color:var(--text3);cursor:pointer;font-size:20px;line-height:1}.xbtn:hover{color:var(--text)}
+
+/* toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid rgba(112,201,139,.4);border-left:3px solid var(--success);border-radius:var(--r-sm);padding:13px 16px;display:flex;gap:10px;align-items:center;font-size:13px;box-shadow:var(--sh);z-index:90;transform:translateY(120%);opacity:0;transition:.3s}
+.toast.on{transform:translateY(0);opacity:1}
+.toast .d{color:var(--success);font-size:16px}
+
+@media(max-width:920px){
+  .app{grid-template-columns:1fr}.sb{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:70;transform:translateX(-100%);transition:.25s}
+  .sb.open{transform:none}.burger{display:block}.tb .mail{display:none}
+  .kpis{grid-template-columns:repeat(2,1fr)}.panels{grid-template-columns:1fr}
+  .hero h1{font-size:32px}.phead h1{font-size:30px}.content{padding:16px}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:none}.backdrop.on{display:block}
+}
+</style>
+</head>
+<body>
+<div class="ctx"><b>DROP Dark</b> <span class="s">·</span> Prototipo /ui-lab <span class="s">·</span> haz click en el menú, en una fila del CRM, en "Editar", en ▶ de un track…</div>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sb" id="sb">
+    <div class="wm">D.</div>
+    <div class="top"><div class="logo">DROP<span class="dot">.</span></div><div class="live"><i></i>LIVE</div></div>
+    <div class="mf"><div class="e">— THE DJ OS</div><div class="t">EL DJ EN CONTROL.</div></div>
+    <nav>
+      <div class="nl">NAVEGACIÓN ——————</div>
+      <div class="item on" data-s="dashboard" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</div>
+      <div class="item" data-s="crm" onclick="go('crm')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>CRM</div>
+      <div class="item" data-s="calendario" onclick="go('calendario')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendario</div>
+      <div class="item" data-s="presskit" onclick="go('presskit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>Press kit</div>
+      <div class="item" data-s="growth" onclick="go('growth')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Growth</div>
+    </nav>
+    <div class="artist"><div class="av">J</div><div><div class="an">JAY PORTU</div><div class="am">hola@jayportu.com</div></div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tb">
+      <button class="burger" onclick="openNav()"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+      <div class="search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Buscar contacto, venue, fecha…"></div>
+      <div class="mail">HOLA@JAYPORTU.COM</div>
+    </div>
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section class="screen on" id="s-dashboard">
+        <div class="hero">
+          <svg class="wave" viewBox="0 0 600 120" preserveAspectRatio="none"><g fill="none" stroke="#FF7A1A" stroke-width="2"><path d="M0,60 Q40,8 80,60 T160,60 T240,60 T320,60 T400,60 T480,60 T560,60 T640,60" opacity=".7"/><path d="M0,82 Q40,42 80,82 T160,82 T240,82 T320,82 T400,82 T480,82 T560,82 T640,82" opacity=".4"/></g></svg>
+          <div class="label e">JUE, 25 JUN · 17:01</div>
+          <h1 class="e">BUENAS TARDES, JAY PORTU<span class="dot">.</span></h1>
+          <p>0 follow-ups pendientes · tu carrera, en una sola pantalla.</p>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="label">Contactos</div><div class="n">5</div><div class="s">en tu CRM</div></div>
+          <div class="kpi acc"><div class="label">Pipeline activo</div><div class="n">2</div><div class="s">en proceso</div></div>
+          <div class="kpi"><div class="label">Follow-ups</div><div class="n">0</div><div class="s">pendientes</div></div>
+          <div class="kpi acc"><div class="label">Score promedio</div><div class="n">87</div><div class="s">de tus contactos</div></div>
+        </div>
+        <div class="panels">
+          <div class="card"><h3>Follow-ups pendientes <a onclick="go('crm')">Ver CRM →</a></h3>
+            <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Sin follow-ups pendientes.<br>Crea uno desde la ficha de cualquier contacto.</div></div>
+          <div class="card"><h3>Top contactos <a onclick="go('crm')">Ver todos →</a></h3>
+            <div class="lrow"><div class="rav">P/</div><div><div class="rn">Phuket / Tardeo</div><div class="rs">Bar · Santiago</div></div><span class="tag">Confirmado</span><div class="score hi">100</div></div>
+            <div class="lrow"><div class="rav">CA</div><div><div class="rn">Candelaria</div><div class="rs">Club · Santiago</div></div><span class="tag">Negociando</span><div class="score hi">100</div></div>
+            <div class="lrow"><div class="rav">CL</div><div><div class="rn">Club La Feria</div><div class="rs">Club · Santiago</div></div><span class="tag">Nuevo</span><div class="score mid">79</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CRM ===== -->
+      <section class="screen" id="s-crm">
+        <div class="phead"><div><div class="label">CRM · Contactos</div><h1>05 CONTACTOS<span class="dot">.</span></h1></div>
+          <div style="display:flex;gap:10px"><button class="btn btn-secondary">Importar CSV</button><button class="btn btn-primary" onclick="openModal('Nuevo contacto')">+ Nuevo contacto</button></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="label">Venues</div><div class="n">5</div><div class="s">clubes · bares</div></div>
+          <div class="kpi acc"><div class="label">En pipeline</div><div class="n">1</div><div class="s">negociando</div></div>
+          <div class="kpi"><div class="label">Score prom.</div><div class="n">87</div><div class="s">calidad alta</div></div>
+          <div class="kpi"><div class="label">Total</div><div class="n">5</div><div class="s">contactos</div></div>
+        </div>
+        <div class="card" style="padding:14px"><div class="filters">
+          <input class="inp" style="flex:1;min-width:200px" placeholder="Buscar nombre, ciudad, contacto…">
+          <select class="inp"><option>Tipo: todos</option></select>
+          <select class="inp"><option>Estado: todos</option></select>
+          <button class="btn btn-secondary">Filtrar</button>
+        </div></div>
+        <div class="card" style="padding:6px 8px">
+          <table class="tbl"><thead><tr><th>Nombre</th><th>Tipo</th><th>Ciudad</th><th>Estado</th><th>Score</th><th>Último</th></tr></thead>
+          <tbody>
+            <tr onclick="openModal('Phuket / Tardeo')"><td><div class="tcell"><div class="rav">P/</div><b>Phuket / Tardeo</b></div></td><td>Bar</td><td>Santiago</td><td><span class="tag">Confirmado</span></td><td><span class="score hi">100</span></td><td style="color:var(--text3)">hace 1 mes</td></tr>
+            <tr onclick="openModal('Candelaria')"><td><div class="tcell"><div class="rav">CA</div><b>Candelaria</b></div></td><td>Club</td><td>Santiago</td><td><span class="tag">Negociando</span></td><td><span class="score hi">100</span></td><td style="color:var(--text3)">—</td></tr>
+            <tr onclick="openModal('Club La Feria')"><td><div class="tcell"><div class="rav">CL</div><b>Club La Feria</b></div></td><td>Club</td><td>Santiago</td><td><span class="tag">Nuevo</span></td><td><span class="score mid">79</span></td><td style="color:var(--text3)">—</td></tr>
+            <tr onclick="openModal('Club Room')"><td><div class="tcell"><div class="rav">CR</div><b>Club Room</b></div></td><td>Club</td><td>Santiago</td><td><span class="tag">Nuevo</span></td><td><span class="score mid">79</span></td><td style="color:var(--text3)">—</td></tr>
+            <tr onclick="openModal('Globox')"><td><div class="tcell"><div class="rav">GL</div><b>Globox</b></div></td><td>Productora</td><td>Santiago</td><td><span class="tag">Nuevo</span></td><td><span class="score mid">76</span></td><td style="color:var(--text3)">—</td></tr>
+          </tbody></table>
+        </div>
+      </section>
+
+      <!-- ===== CALENDARIO ===== -->
+      <section class="screen" id="s-calendario">
+        <div class="phead"><div><div class="label">Calendario · Gigs y eventos</div><h1>AGENDA<span class="dot">.</span></h1></div>
+          <button class="btn btn-primary" onclick="openModal('Nuevo evento')">+ Nuevo evento</button></div>
+        <div class="kpis">
+          <div class="kpi acc"><div class="label">Cobrado este mes</div><div class="n" style="font-size:30px">$420.000</div><div class="s">3 gigs · CLP</div></div>
+          <div class="kpi"><div class="label">Total gigs</div><div class="n">12</div><div class="s">2026</div></div>
+          <div class="kpi"><div class="label">Promedio / gig</div><div class="n" style="font-size:30px">$140k</div><div class="s">solo pagados</div></div>
+          <div class="kpi"><div class="label">Pendiente cobro</div><div class="n" style="font-size:30px">$30.000</div><div class="s">1 venue</div></div>
+        </div>
+        <div class="card"><h3>Próximos</h3>
+          <div class="ev"><div class="evd"><div class="dd">29</div><div class="mm">JUN</div></div><div style="flex:1"><div class="rn">Sprint DROP. <span class="tag">Otro</span></div><div class="rs">13:00 · Santiago</div></div><button class="btn btn-secondary sm">$ Cobro</button><button class="btn btn-ghost sm">Editar</button></div>
+          <div class="ev"><div class="evd"><div class="dd">01</div><div class="mm">JUL</div></div><div style="flex:1"><div class="rn">Candelaria <span class="tag">Club</span></div><div class="rs">23:30 · Santiago</div></div><button class="btn btn-secondary sm">$ Cobro</button><button class="btn btn-ghost sm">Editar</button></div>
+          <div class="ev"><div class="evd"><div class="dd">06</div><div class="mm">JUL</div></div><div style="flex:1"><div class="rn">Club La Feria <span class="tag">Club</span></div><div class="rs">00:00 · Santiago</div></div><button class="btn btn-secondary sm">$ Cobro</button><button class="btn btn-ghost sm">Editar</button></div>
+        </div>
+      </section>
+
+      <!-- ===== PRESS KIT (editor por tarjetas + tabs + player + upload) ===== -->
+      <section class="screen" id="s-presskit">
+        <div class="phead"><div><div class="label">Press kit · Landing pública</div><h1>PRESS KIT<span class="dot">.</span></h1></div>
+          <button class="btn btn-secondary">Ver press kit ↗</button></div>
+        <div class="tabs">
+          <div class="tab on" data-t="bio" onclick="tab('bio')">Bio</div>
+          <div class="tab" data-t="musica" onclick="tab('musica')">Música</div>
+          <div class="tab" data-t="disp" onclick="tab('disp')">Disponibilidad</div>
+        </div>
+
+        <div class="tabpane on" id="t-bio">
+          <div class="cover">
+            <svg viewBox="0 0 600 150" preserveAspectRatio="none"><g fill="none" stroke="#FF7A1A" stroke-width="2" opacity=".5"><path d="M0,75 Q50,15 100,75 T200,75 T300,75 T400,75 T500,75 T600,75"/><path d="M0,95 Q50,45 100,95 T200,95 T300,95 T400,95 T500,95 T600,95" opacity=".5"/></g></svg>
+            <span style="position:relative;z-index:1;font-family:var(--mono);font-size:11px;letter-spacing:.06em">⬆ Cambiar portada</span>
+          </div>
+          <div class="panels">
+            <div class="card editcard"><div><div class="label">Identidad</div><div class="kv"><b>Jay Portu</b> · DJ Chileno</div><div class="kv">House · Tech · Jackin · Progressive</div></div><button class="btn btn-secondary sm" onclick="openModal('Editar identidad')">Editar</button></div>
+            <div class="card editcard"><div><div class="label">Bio corta</div><div class="kv">Jaime Portugueis, AKA JAY PORTU, DJ chileno con presencia en la escena nacional desde 2022.</div></div><button class="btn btn-secondary sm" onclick="openModal('Editar bio')">Editar</button></div>
+          </div>
+        </div>
+
+        <div class="tabpane" id="t-musica">
+          <div class="card"><h3>Tracks & live sets <button class="btn btn-primary sm" onclick="openModal('Añadir track')">+ Añadir</button></h3>
+            <div class="track"><div class="play" onclick="this.closest('.track').classList.toggle('playing'); this.textContent=this.closest('.track').classList.contains('playing')?'❚❚':'▶'">▶</div><div style="flex:1"><div class="rn">Sunset Set @ Club Room</div><div class="rs">Live set · 58:21</div></div><div class="wavebars">__BARS__</div></div>
+            <div class="track"><div class="play" onclick="this.closest('.track').classList.toggle('playing'); this.textContent=this.closest('.track').classList.contains('playing')?'❚❚':'▶'">▶</div><div style="flex:1"><div class="rn">Jackin House Promo</div><div class="rs">Track · 6:12</div></div><div class="wavebars">__BARS__</div></div>
+            <div class="dropzone" onclick="toast('Subida simulada — track añadido')">⬆ Arrastra un MP3/WAV o haz click para subir (simulado)</div>
+          </div>
+        </div>
+
+        <div class="tabpane" id="t-disp">
+          <div class="card"><h3>Disponibilidad para tocar <div class="sw on" onclick="this.classList.toggle('on')"><i></i></div></h3>
+            <p style="color:var(--text2);font-size:13px;margin-bottom:14px">Cuando está activo, apareces primero en las búsquedas de bookers.</p>
+            <div class="panels">
+              <div class="field"><label>Disponible desde</label><input class="inp" type="date" value="2026-06-26"></div>
+              <div class="field"><label>Hasta (opcional)</label><input class="inp" type="date"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== GROWTH (estado de carga / skeleton) ===== -->
+      <section class="screen" id="s-growth">
+        <div class="phead"><div><div class="label">Growth · Desde tu última actualización</div><h1>0 SEGUIDORES<span class="dot">.</span></h1></div>
+          <button class="btn btn-primary" onclick="loadGrowth()">Actualizar stats</button></div>
+        <div class="kpis" id="growthKpis">
+          <div class="kpi"><div class="label">YouTube</div><div class="n">5</div><div class="s">seguidores</div></div>
+          <div class="kpi"><div class="label">SoundCloud</div><div class="n">106</div><div class="s">seguidores</div></div>
+          <div class="kpi acc"><div class="label">Instagram</div><div class="n">—</div><div class="s">sin datos</div></div>
+          <div class="kpi"><div class="label">Posts</div><div class="n">0</div><div class="s">registrados</div></div>
+        </div>
+        <div class="card"><h3>Posts recientes</h3><div class="empty">Aún no registraste posts.<br>Anota lo que publicas para trackear qué funciona.</div></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="mh"><div class="t" id="modalTitle">Editar</div><button class="xbtn" onclick="closeModal()">✕</button></div>
+    <div class="mb">
+      <div class="field"><label>Nombre</label><input class="inp" value="Jay Portu"></div>
+      <div class="field"><label>Tipo</label><select class="inp"><option>Club</option><option>Bar</option><option>Productora</option></select></div>
+      <div class="field"><label>Nota</label><input class="inp" placeholder="Ej: contacto vía IG, busca house"></div>
+    </div>
+    <div class="mf-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="closeModal();toast('Guardado correctamente')">Guardar</button></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span class="d">●</span><span id="toastMsg">Guardado</span></div>
+
+<script>
+  // barras de waveform (reemplazo de placeholder)
+  document.querySelectorAll('.wavebars').forEach(w=>{
+    if(w.textContent.includes('__BARS__')) w.innerHTML='';
+    let h='';for(let i=0;i<40;i++){h+='<i style="height:'+(20+((i*37)%80))+'%"></i>'}
+    w.innerHTML=h;
+  });
+  function go(s){
+    document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s));
+    document.querySelectorAll('.sb .item').forEach(x=>x.classList.toggle('on',x.dataset.s===s));
+    closeNav();window.scrollTo(0,0);
+    document.querySelector('.content').scrollTo(0,0);
+  }
+  function tab(t){
+    document.querySelectorAll('#s-presskit .tab').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+    document.querySelectorAll('#s-presskit .tabpane').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));
+  }
+  function openModal(title){document.getElementById('modalTitle').textContent=title;document.getElementById('overlay').classList.add('on')}
+  function closeModal(){document.getElementById('overlay').classList.remove('on')}
+  let tt;function toast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+  function openNav(){document.getElementById('sb').classList.add('open');document.getElementById('backdrop').classList.add('on')}
+  function closeNav(){document.getElementById('sb').classList.remove('open');document.getElementById('backdrop').classList.remove('on')}
+  function loadGrowth(){
+    const k=document.getElementById('growthKpis');
+    k.innerHTML=Array(4).fill('<div class="kpi"><div class="sk" style="height:12px;width:60%"></div><div class="sk" style="height:34px;width:40%;margin-top:12px"></div><div class="sk" style="height:10px;width:50%;margin-top:10px"></div></div>').join('');
+    setTimeout(()=>{k.innerHTML='<div class="kpi"><div class="label">YouTube</div><div class="n">5</div><div class="s">seguidores</div></div><div class="kpi"><div class="label">SoundCloud</div><div class="n">112</div><div class="s">+6 esta semana</div></div><div class="kpi acc"><div class="label">Instagram</div><div class="n">1.2k</div><div class="s">conectado</div></div><div class="kpi"><div class="label">Posts</div><div class="n">3</div><div class="s">registrados</div></div>';toast('Stats actualizadas')},1400);
+  }
+</script>
+</body>
+</html>

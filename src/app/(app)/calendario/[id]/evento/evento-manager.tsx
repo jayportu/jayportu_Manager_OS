@@ -213,7 +213,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                   value={ticketUrl}
                   onChange={(e) => setTicketUrl(e.target.value)}
                   placeholder="https://..."
-                  className="flex-1 border-2 border-ink bg-white px-3 py-2 font-mono text-xs focus:outline-none focus:border-orange"
+                  className="flex-1 border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-xs focus:outline-none focus:border-orange"
                 />
                 <Button onClick={saveTicket} variant="outline" disabled={pending}>
                   {ticketSaved ? <Check className="w-4 h-4" /> : "Guardar"}

@@ -71,7 +71,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="border-2 border-ink bg-white p-5 space-y-3">
+    <form onSubmit={submit} className="border-2 border-ink bg-bg-panel p-5 space-y-3">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
         — ¿Vas?
       </div>
@@ -83,7 +83,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
             type="button"
             onClick={() => setStatus(s)}
             className={`flex-1 border-2 border-ink py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors ${
-              status === s ? "bg-ink text-orange" : "bg-white text-ink hover:bg-cream"
+              status === s ? "bg-ink text-orange" : "bg-bg-panel text-ink hover:bg-cream"
             }`}
           >
             {s === "going" ? "Voy" : "Quizás"}
@@ -96,7 +96,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Tu nombre"
-        className="w-full border-2 border-ink bg-white px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+        className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
       />
       <input
         type="email"
@@ -104,7 +104,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tu@email.com"
         required
-        className="w-full border-2 border-ink bg-white px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+        className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
       />
 
       <label className="flex items-start gap-2 text-[12px] text-fg-muted cursor-pointer select-none">

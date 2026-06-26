@@ -246,7 +246,7 @@ export function BetaRequestsTable({ initialRequests }: Props) {
       )}
 
       {/* Tabla */}
-      <div className="border-2 border-ink bg-white overflow-x-auto">
+      <div className="border-2 border-ink bg-bg-panel overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-cream border-b-2 border-ink font-mono text-[10px] uppercase tracking-wider">

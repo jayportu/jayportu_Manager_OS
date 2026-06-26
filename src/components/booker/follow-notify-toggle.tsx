@@ -90,13 +90,13 @@ export function FollowNotifyToggle({ djUserId, djArtistName }: Props) {
           handleToggle();
         }
       }}
-      className="mt-5 cursor-pointer select-none p-3 bg-cream border-2 border-ink flex items-center gap-3 hover:bg-white transition-colors"
+      className="mt-5 cursor-pointer select-none p-3 bg-cream border-2 border-ink flex items-center gap-3 hover:bg-bg-panel transition-colors"
     >
       {/* Pill switch */}
       <span
         aria-hidden="true"
         className={`relative shrink-0 w-[44px] h-[24px] border-2 border-ink transition-colors ${
-          on ? "bg-orange" : "bg-white"
+          on ? "bg-orange" : "bg-bg-panel"
         }`}
       >
         <span

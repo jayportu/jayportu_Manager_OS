@@ -25,7 +25,7 @@ export function SectionNav({ sections }: { sections: NavSection[] }) {
 
   return (
     <nav
-      className="bg-white border-b-2 border-ink sticky top-0 z-30"
+      className="bg-bg-panel border-b-2 border-ink sticky top-0 z-30"
       aria-label="Secciones del press kit"
     >
       {/* pl-2/md:pl-6 → el texto del primer tab queda alineado con el

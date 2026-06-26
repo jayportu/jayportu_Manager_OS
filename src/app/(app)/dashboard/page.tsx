@@ -126,7 +126,7 @@ export default async function DashboardPage() {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto grid-paper">
       {/* Hero header — Type Beat */}
-      <div className="border-2 border-ink bg-white p-6 md:p-8 mb-6 relative overflow-hidden">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-8 mb-6 relative overflow-hidden">
         {/* Watermark DROP. al fondo */}
         <span
           aria-hidden="true"
@@ -158,7 +158,7 @@ export default async function DashboardPage() {
             }}
           >
             {greeting.toUpperCase()},{" "}
-            <span className="text-ink">{displayName.toUpperCase()}</span>
+            <span className="text-fg">{displayName.toUpperCase()}</span>
             <span className="text-orange">.</span>
           </h1>
           <p className="text-sm md:text-base mt-3 max-w-2xl text-fg">{heroSubtitle}</p>
@@ -361,7 +361,7 @@ export default async function DashboardPage() {
                     href={`/crm/${c.id}`}
                     className="flex items-center gap-3 px-3.5 py-3 rounded-lg bg-bg border border-border hover:border-accent/30 transition-colors group"
                   >
-                    <div className="w-9 h-9 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center text-xs font-bold shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-bg-subtle text-fg border border-border flex items-center justify-center text-xs font-bold shrink-0">
                       {initials(c.name)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -441,36 +441,38 @@ function KpiTile({
   icon: React.ComponentType<{ className?: string }>;
   variant: "ink" | "orange" | "white" | "danger";
 }) {
+  // KPI unificadas: misma superficie; el acento va en borde-superior + número
+  // (naranjo/danger), no en fondos llenos. Adiós "arcoíris".
   const styles = {
     ink: {
-      bg: "bg-ink",
-      labelText: "text-cream/60",
-      valueText: "text-cream",
-      footerText: "text-cream/70",
+      bg: "bg-bg-panel",
+      labelText: "text-fg-subtle",
+      valueText: "text-fg",
+      footerText: "text-fg-muted",
     },
     orange: {
-      bg: "bg-orange",
-      labelText: "text-ink/70",
-      valueText: "text-ink",
-      footerText: "text-ink/80",
+      bg: "bg-bg-panel border-t-2 border-t-accent",
+      labelText: "text-fg-subtle",
+      valueText: "text-accent",
+      footerText: "text-fg-muted",
     },
     white: {
-      bg: "bg-white",
+      bg: "bg-bg-panel",
       labelText: "text-fg-subtle",
-      valueText: "text-ink",
+      valueText: "text-fg",
       footerText: "text-fg-muted",
     },
     danger: {
-      bg: "bg-danger",
-      labelText: "text-white/70",
-      valueText: "text-white",
-      footerText: "text-white/85",
+      bg: "bg-bg-panel border-t-2 border-t-danger",
+      labelText: "text-fg-subtle",
+      valueText: "text-danger",
+      footerText: "text-fg-muted",
     },
   }[variant];
 
   return (
     <div
-      className={`${styles.bg} p-5 border-ink [&:not(:last-child)]:border-r-2 [&:nth-child(2)]:border-r-0 md:[&:nth-child(2)]:border-r-2 [&:nth-child(-n+2)]:border-b-2 md:[&:nth-child(-n+2)]:border-b-0`}
+      className={`${styles.bg} p-5 border-border [&:not(:last-child)]:border-r-2 [&:nth-child(2)]:border-r-0 md:[&:nth-child(2)]:border-r-2 [&:nth-child(-n+2)]:border-b-2 md:[&:nth-child(-n+2)]:border-b-0`}
     >
       <div
         className={`font-mono text-[10px] font-bold uppercase tracking-[0.12em] ${styles.labelText} mb-2`}

@@ -15,7 +15,7 @@ const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProps>(
         <select
           ref={ref}
           className={cn(
-            "flex h-10 w-full appearance-none border-2 border-ink bg-white pl-3 pr-9 py-2 text-sm text-ink font-sans placeholder:text-fg-muted focus-visible:outline-none focus-visible:border-orange disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
+            "flex h-10 w-full appearance-none border-2 border-ink bg-bg-panel pl-3 pr-9 py-2 text-sm text-ink font-sans placeholder:text-fg-muted focus-visible:outline-none focus-visible:border-orange disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
             className
           )}
           {...props}

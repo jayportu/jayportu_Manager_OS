@@ -15,7 +15,7 @@ export default async function InteresadosPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — DJS INTERESADOS
         </div>
@@ -37,7 +37,7 @@ export default async function InteresadosPage() {
       </div>
 
       {djs.length === 0 ? (
-        <div className="border-2 border-dashed border-ink bg-white p-10 text-center">
+        <div className="border-2 border-dashed border-ink bg-bg-panel p-10 text-center">
           <Star className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
           <h2
             className="leading-tight mb-2"
@@ -60,7 +60,7 @@ export default async function InteresadosPage() {
             return (
               <article
                 key={dj.dj_user_id}
-                className="border-2 border-ink bg-white p-4 flex items-center gap-3"
+                className="border-2 border-ink bg-bg-panel p-4 flex items-center gap-3"
               >
                 {isSupabaseStorageUrl(dj.avatar_url) ? (
                   <Image

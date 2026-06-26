@@ -16,7 +16,7 @@ export default async function OnboardingNudgePage() {
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-ink bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · NUDGE DE ONBOARDING
         </div>
@@ -56,7 +56,7 @@ export default async function OnboardingNudgePage() {
           Nadie con onboarding a medias hace +24h. 🎉
         </div>
       ) : (
-        <div className="border-2 border-ink bg-white divide-y-2 divide-ink/10">
+        <div className="border-2 border-ink bg-bg-panel divide-y-2 divide-ink/10">
           {candidates.map((c) => (
             <div key={c.user_id} className="p-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="font-display text-lg leading-none min-w-[140px]">

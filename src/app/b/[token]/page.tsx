@@ -124,7 +124,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
           </div>
 
           {/* DJ contactado */}
-          <div className="border-2 border-ink bg-white p-5 mb-4">
+          <div className="border-2 border-ink bg-bg-panel p-5 mb-4">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-2">
               — DJ CONTACTADO
             </div>
@@ -152,7 +152,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
           </div>
 
           {/* Detalles del request */}
-          <div className="border-2 border-ink bg-white p-5 mb-4 space-y-3">
+          <div className="border-2 border-ink bg-bg-panel p-5 mb-4 space-y-3">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">
               — DETALLES DEL REQUEST
             </div>

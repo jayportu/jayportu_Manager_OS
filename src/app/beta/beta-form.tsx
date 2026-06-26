@@ -109,7 +109,7 @@ export function BetaForm() {
           </div>
           <a
             href="/dj"
-            className="flex items-center justify-between gap-3 border-2 border-ink bg-white px-4 py-3 hover:bg-ink hover:text-orange transition-colors"
+            className="flex items-center justify-between gap-3 border-2 border-ink bg-bg-panel px-4 py-3 hover:bg-ink hover:text-orange transition-colors"
           >
             <span className="text-sm font-bold">
               Mira cómo se ve un press kit real

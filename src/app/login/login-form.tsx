@@ -203,7 +203,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={googleLoading || loading}
-        className="w-full inline-flex items-center justify-center gap-2.5 h-11 px-4 border-2 border-ink bg-white hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 mb-4"
+        className="w-full inline-flex items-center justify-center gap-2.5 h-11 px-4 border-2 border-ink bg-bg-panel hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 mb-4"
       >
         {/* Logo Google oficial */}
         <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">

@@ -110,7 +110,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
 
       <main className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Hero */}
-        <div className="border-2 border-ink bg-white p-6 md:p-8 mb-6 relative overflow-hidden">
+        <div className="border-2 border-ink bg-bg-panel p-6 md:p-8 mb-6 relative overflow-hidden">
           <span
             aria-hidden="true"
             className="absolute pointer-events-none select-none hidden md:inline"
@@ -161,7 +161,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
         <form
           action="/dj"
           method="get"
-          className="border-2 border-ink bg-white p-4 md:p-5 mb-6 space-y-4"
+          className="border-2 border-ink bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
         >
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
             — FILTROS
@@ -174,13 +174,13 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
               aria-label="Buscar DJs por nombre, ciudad o tagline"
               placeholder="🔎  Buscar por nombre, ciudad, tagline..."
               defaultValue={sp.q ?? ""}
-              className="border-2 border-ink bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+              className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
             />
             <select
               name="city"
               aria-label="Filtrar por ciudad"
               defaultValue={sp.city ?? ""}
-              className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+              className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
             >
               <option value="">Ciudad: todas</option>
               {allCities.map((c) => (
@@ -193,7 +193,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
               name="avail"
               aria-label="Filtrar por disponibilidad"
               defaultValue={sp.avail ?? ""}
-              className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+              className="border-2 border-ink bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
             >
               <option value="">Todos</option>
               <option value="1">Solo disponibles</option>
@@ -275,7 +275,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
         </div>
 
         {gridDjs.length === 0 ? (
-          <div className="border-2 border-ink bg-white p-10 text-center">
+          <div className="border-2 border-ink bg-bg-panel p-10 text-center">
             <p className="text-sm text-fg-muted">
               No hay DJs que coincidan con los filtros. Intenta con menos
               filtros o busca otra ciudad.
@@ -348,7 +348,7 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
 
   return (
-    <div className="group relative border-2 border-ink bg-white flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
+    <div className="group relative border-2 border-ink bg-bg-panel flex flex-col hover:shadow-[8px_8px_0_#FF5C00] transition-all hover:-translate-x-1 hover:-translate-y-1">
       {/* Botón corazón FUERA del <Link> del card: un <button> dentro de un
           <a> es HTML inválido. Se posiciona sobre la esquina del card. */}
       <div className="absolute top-2 left-2 z-10">

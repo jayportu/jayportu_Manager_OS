@@ -151,7 +151,7 @@ export function BookerSignupForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-2 border-ink bg-white p-6 space-y-4"
+      className="border-2 border-ink bg-bg-panel p-6 space-y-4"
     >
       <div className="space-y-1.5">
         <Label htmlFor="full-name">Tu nombre</Label>

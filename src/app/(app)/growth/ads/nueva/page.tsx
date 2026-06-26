@@ -26,7 +26,7 @@ export default async function NuevaGrowthCampaignPage({ searchParams }: PageProp
         Volver a Campañas
       </Link>
 
-      <div className="border-2 border-ink bg-white p-6 mb-6">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — NUEVA CAMPAÑA · {defaultPaid ? "PAGADA" : "ORGÁNICA"}
         </div>

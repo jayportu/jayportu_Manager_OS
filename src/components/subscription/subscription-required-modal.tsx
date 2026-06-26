@@ -57,7 +57,7 @@ export function SubscriptionRequiredModal({ reason }: Props) {
           {copy.body}
         </p>
 
-        <div className="mt-6 p-4 border-2 border-ink bg-white">
+        <div className="mt-6 p-4 border-2 border-ink bg-bg-panel">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
             — PLAN
           </div>

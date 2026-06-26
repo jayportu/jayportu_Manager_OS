@@ -111,7 +111,7 @@ export function FeedbackWidget() {
 
       {open && (
         <div
-          className="fixed right-4 bottom-24 md:bottom-4 z-50 w-[min(360px,calc(100vw-32px))] bg-white border-[3px] border-ink"
+          className="fixed right-4 bottom-24 md:bottom-4 z-50 w-[min(360px,calc(100vw-32px))] bg-bg-panel border-[3px] border-ink"
           style={{ boxShadow: "8px 8px 0 0 #0A0A0A" }}
         >
           <div className="flex items-center justify-between border-b-2 border-ink px-4 py-2.5">
@@ -148,7 +148,7 @@ export function FeedbackWidget() {
                     type="button"
                     onClick={() => setKind(k)}
                     className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-2 border-2 border-ink transition-colors ${
-                      kind === k ? "bg-orange" : "bg-white hover:bg-cream"
+                      kind === k ? "bg-orange" : "bg-bg-panel hover:bg-cream"
                     }`}
                   >
                     {FEEDBACK_KIND_LABELS[k]}
@@ -173,7 +173,7 @@ export function FeedbackWidget() {
                       ? "Me ayudaría tener…"
                       : "Tu observación…"
                   }
-                  className="w-full border-2 border-ink bg-white px-2.5 py-1.5 text-sm focus:outline-none focus:border-orange resize-none"
+                  className="w-full border-2 border-ink bg-bg-panel px-2.5 py-1.5 text-sm focus:outline-none focus:border-orange resize-none"
                 />
                 <div className="text-[10px] text-fg-subtle text-right font-mono">
                   {description.length}/2000

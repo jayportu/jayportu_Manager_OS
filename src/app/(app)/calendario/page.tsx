@@ -83,7 +83,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {conn && <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />}
 
       {/* Hero brutalist */}
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-5 relative">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CALENDARIO · GIGS Y EVENTOS
         </div>
@@ -141,7 +141,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
               {kpis.gigsPagados} {kpis.gigsPagados === 1 ? "gig" : "gigs"} CLP
             </div>
           </div>
-          <div className="bg-white p-4 border-r-2 border-ink">
+          <div className="bg-bg-panel p-4 border-r-2 border-ink">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
               — TOTAL GIGS
             </div>
@@ -278,7 +278,7 @@ function EventRow({
   const status: PaymentStatus = ev.payment_status;
 
   // Tinte según estado de pago (solo si tiene amount o status != none)
-  let tint = "border-ink bg-white";
+  let tint = "border-ink bg-bg-panel";
   if (hasAmount && status === "paid") tint = "border-success bg-success/5";
   else if (hasAmount && status === "pending") tint = "border-warning bg-warning/5";
   else if (hasAmount && status === "partial") tint = "border-info bg-info/5";

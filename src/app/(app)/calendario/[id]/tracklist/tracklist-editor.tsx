@@ -378,7 +378,7 @@ export function TracklistEditor({
         <Kpi
           label="BPM AVG"
           value={kpis.bpmAvg !== null ? String(kpis.bpmAvg) : "—"}
-          bg="bg-white"
+          bg="bg-bg-panel"
           sub={
             kpis.bpmMin !== null && kpis.bpmMax !== null
               ? `${kpis.bpmMin}–${kpis.bpmMax}`
@@ -388,7 +388,7 @@ export function TracklistEditor({
         <Kpi
           label="DURACIÓN"
           value={kpis.durationLabel}
-          bg="bg-white"
+          bg="bg-bg-panel"
           sub="estimado · 18min/track"
         />
         <Kpi
@@ -484,7 +484,7 @@ export function TracklistEditor({
               {importPreview.errors.join(" · ")}
             </div>
           )}
-          <div className="max-h-48 overflow-auto text-xs font-mono space-y-0.5 bg-white border-2 border-ink p-2">
+          <div className="max-h-48 overflow-auto text-xs font-mono space-y-0.5 bg-bg-panel border-2 border-ink p-2">
             {importPreview.tracks.slice(0, 25).map((t, i) => (
               <div key={i}>
                 {String(i + 1).padStart(2, "0")}. {t.artist || "—"} — {t.title || "—"}

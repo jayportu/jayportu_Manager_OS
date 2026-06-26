@@ -33,7 +33,7 @@ export default async function RecurrentesPage() {
         Volver a CRM
       </Link>
 
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-5 relative">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CRM · FOLLOW-UPS RECURRENTES
         </div>
@@ -71,7 +71,7 @@ export default async function RecurrentesPage() {
               ? "border-danger bg-danger/5"
               : dueToday
               ? "border-orange bg-orange/10"
-              : "border-ink bg-white";
+              : "border-ink bg-bg-panel";
 
             const unitLabel =
               f.recurrence_unit === "days"

@@ -198,7 +198,7 @@ export default async function CorreoPage({
                     sandbox=""
                     srcDoc={selected.html_body}
                     title="cuerpo del correo"
-                    className="w-full bg-white rounded"
+                    className="w-full bg-bg-panel rounded"
                     style={{ height: 420, border: "1px solid #E5E1D8" }}
                   />
                 ) : (

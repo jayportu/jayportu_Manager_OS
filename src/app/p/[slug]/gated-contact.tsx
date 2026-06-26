@@ -57,7 +57,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
 
   if (state.status === "loading") {
     return (
-      <div className="border-2 border-ink bg-white p-3.5">
+      <div className="border-2 border-ink bg-bg-panel p-3.5">
         <div className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
           Cargando contacto…
         </div>
@@ -67,7 +67,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
 
   if (state.status === "locked") {
     return (
-      <div className="border-2 border-ink bg-white p-3.5">
+      <div className="border-2 border-ink bg-bg-panel p-3.5">
         <div className="flex items-center gap-2 mb-2">
           <Lock className="w-4 h-4 text-orange" />
           <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink">
@@ -152,7 +152,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
               href={`mailto:${email}`}
               userId={djUserId}
               event="click_email"
-              className="inline-flex items-center justify-center h-10 px-3 bg-white border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+              className="inline-flex items-center justify-center h-10 px-3 bg-bg-panel border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
             >
               Email
             </TrackedLink>

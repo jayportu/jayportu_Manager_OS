@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DROP Dark · Landing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070910;--bg2:#0D1018;--surface:#13171F;--surface2:#1A1F29;
+  --border:#23293480;--border-strong:#353C49;
+  --text:#F4F5F7;--text2:#A8AFBD;--text3:#737B8C;
+  --orange:#FF7A1A;--orange2:#FF5C00;--orange-soft:rgba(255,122,26,.12);
+  --anton:'Anton',Impact,sans-serif;--inter:'Inter',system-ui,sans-serif;--mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--inter);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.mono{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.dot{color:var(--orange)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:40;background:rgba(7,9,16,.72);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav .row{display:flex;align-items:center;gap:26px;height:64px}
+.nav .logo{font-family:var(--anton);font-size:30px;line-height:.8}
+.nav .links{display:flex;gap:24px;margin-left:18px}
+.nav .links a{color:var(--text2);text-decoration:none;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:.15s}
+.nav .links a:hover{color:var(--text)}
+.nav .right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.btn{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;border:1px solid transparent;border-radius:10px;height:40px;padding:0 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.15s;text-decoration:none}
+.btn-primary{background:var(--orange);color:#0a0a0a;border-color:var(--orange);box-shadow:0 6px 24px -10px rgba(255,92,0,.6)}
+.btn-primary:hover{background:#FF8F3A}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--border-strong)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange)}
+.btn-lg{height:50px;padding:0 24px;font-size:12px;border-radius:12px}
+
+/* HERO */
+.hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden}
+/* luces de escenario (bokeh) */
+.lights{position:absolute;inset:0;z-index:0;pointer-events:none}
+.lights .b{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:float 14s ease-in-out infinite}
+.b1{width:520px;height:520px;background:radial-gradient(circle,#FF5C00,transparent 70%);top:-120px;right:-80px}
+.b2{width:420px;height:420px;background:radial-gradient(circle,#FF7A1A,transparent 70%);bottom:-140px;left:-60px;animation-delay:-5s;opacity:.4}
+.b3{width:300px;height:300px;background:radial-gradient(circle,#6EA8FE,transparent 70%);top:40%;left:42%;opacity:.18;animation-delay:-9s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-26px) scale(1.08)}}
+/* grano + viñeta */
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 0%,transparent 40%,rgba(7,9,16,.85) 100%);}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.hero .wrap{position:relative;z-index:2;width:100%}
+.hero .eyebrow{color:var(--orange);margin-bottom:18px}
+.hero h1{font-family:var(--anton);font-size:clamp(48px,8vw,104px);line-height:.98;letter-spacing:.005em;text-wrap:balance}
+.rot{display:inline-grid;vertical-align:top}
+.rot .w{grid-area:1/1;color:var(--orange);transform-origin:left center;transition:opacity .42s ease,transform .42s ease;will-change:opacity,transform;backface-visibility:hidden}
+.rot .w.out{opacity:0;transform:scale(1.06)}
+.hero p.sub{font-size:clamp(15px,2vw,19px);color:var(--text2);max-width:560px;margin:22px 0 32px}
+.hero .ctas{display:flex;gap:14px;flex-wrap:wrap}
+.stats{display:flex;gap:34px;margin-top:48px;flex-wrap:wrap}
+.stats .s .n{font-family:var(--anton);font-size:32px;line-height:1}
+.stats .s .n .dot{font-size:32px}
+.stats .s .l{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+/* onda de frecuencia inferior del hero */
+.hero .freq{position:absolute;left:0;right:0;bottom:60px;z-index:1;height:110px;opacity:.18}
+/* Escena de evento (placeholder de imagen de fondo — en prod = foto real) */
+.scene{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.scene .fx{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
+.scene .vig{position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,#070910 22%,rgba(7,9,16,.45) 56%,transparent 84%)}
+.scene .crowd{position:absolute;left:0;right:0;bottom:0;width:100%;height:215px;z-index:3}
+
+/* SECCIÓN FEATURES */
+.section{padding:90px 0;position:relative}
+.section .head{margin-bottom:42px;max-width:620px}
+.section .head h2{font-family:var(--anton);font-size:clamp(32px,5vw,52px);line-height:.95;margin-top:10px;text-wrap:balance}
+.section .head p{color:var(--text2);margin-top:14px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;transition:.18s}
+.feat:hover{border-color:var(--orange);transform:translateY(-3px);box-shadow:0 20px 40px -24px rgba(255,92,0,.4)}
+.feat .ic{width:44px;height:44px;border-radius:12px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;color:var(--orange);margin-bottom:16px}
+.feat .ic svg{width:22px;height:22px}
+.feat h3{font-size:17px;font-weight:700;margin-bottom:7px}
+.feat p{color:var(--text2);font-size:13.5px;line-height:1.55}
+/* Feature tabs interactivos */
+.ftabs{display:grid;grid-template-columns:0.85fr 1.15fr;gap:20px;align-items:start}
+.ftab-list{display:flex;flex-direction:column;gap:8px}
+.ftab{display:flex;align-items:center;gap:12px;text-align:left;background:transparent;border:0;border-left:2px solid var(--border);padding:14px 16px;cursor:pointer;color:var(--text2);transition:.16s;font-family:var(--inter)}
+.ftab:hover{color:var(--text);background:var(--surface)}
+.ftab.on{color:var(--text);background:var(--surface);border-left-color:var(--orange)}
+.ftab .ti{width:34px;height:34px;border-radius:9px;background:var(--bg2);display:flex;align-items:center;justify-content:center;color:var(--text3);flex-shrink:0}
+.ftab.on .ti{background:var(--orange-soft);color:var(--orange)}
+.ftab .ti svg{width:18px;height:18px}
+.ftab .tt{font-weight:600;font-size:14.5px}
+.ftab-preview{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:30px;min-height:300px;overflow:hidden}
+.ftab-preview::after{content:"";position:absolute;right:-50px;top:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(255,92,0,.13),transparent 70%);pointer-events:none}
+.fp-ic{width:56px;height:56px;border-radius:14px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;color:var(--orange);margin-bottom:18px}
+.fp-ic svg{width:28px;height:28px}
+.fp-t{font-family:var(--anton);font-size:30px;line-height:.95}
+.fp-d{color:var(--text2);font-size:15px;margin-top:10px;max-width:460px;line-height:1.6}
+.fp-pts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.fp-pts span{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--orange);border:1px solid rgba(255,92,0,.35);border-radius:20px;padding:5px 11px}
+.fp-anim{animation:fpfade .34s ease}
+@keyframes fpfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* FAQ acordeón */
+.faq{display:flex;flex-direction:column;gap:10px;max-width:800px}
+.faq details{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.faq details[open]{border-color:var(--border-strong)}
+.faq summary{list-style:none;cursor:pointer;padding:18px 20px;font-weight:600;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .pl{color:var(--orange);font-size:24px;line-height:1;transition:transform .22s;flex-shrink:0}
+.faq details[open] summary .pl{transform:rotate(45deg)}
+.faq .ans{padding:0 20px 18px;color:var(--text2);font-size:14px;line-height:1.65}
+.faq .ans b{color:var(--text)}
+/* Scroll-reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.fp-anim{animation:none}}
+
+/* TIRA DE DJs (imágenes de fondo) */
+.djs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.dj{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:linear-gradient(160deg,#1a1f29,#0d1018)}
+.dj .ph{position:absolute;inset:0;background:
+  radial-gradient(circle at 30% 20%,rgba(255,92,0,.5),transparent 45%),
+  radial-gradient(circle at 75% 75%,rgba(110,168,254,.35),transparent 45%);opacity:.5}
+.dj .nm{position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(transparent,rgba(7,9,16,.92));z-index:2}
+.dj .nm .t{font-family:var(--anton);font-size:22px;line-height:.9}
+.dj .nm .g{font-family:var(--mono);font-size:9px;color:var(--orange);letter-spacing:.08em;margin-top:4px}
+.dj .live{position:absolute;top:10px;left:10px;z-index:2;background:rgba(7,9,16,.7);border:1px solid var(--orange);color:var(--orange);border-radius:20px;padding:3px 9px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;gap:5px}
+.dj .live i{width:5px;height:5px;border-radius:50%;background:var(--orange);animation:bl 1.5s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CTA banda */
+.cta-band{position:relative;border-radius:24px;overflow:hidden;padding:60px 40px;text-align:center;background:var(--surface);border:1px solid var(--border)}
+.cta-band::after{content:"";position:absolute;inset:0;background:radial-gradient(100% 140% at 50% 0%,rgba(255,92,0,.22),transparent 60%);pointer-events:none}
+.cta-band h2{font-family:var(--anton);font-size:clamp(30px,5vw,54px);line-height:.95;position:relative;z-index:1}
+.cta-band p{color:var(--text2);margin:14px 0 26px;position:relative;z-index:1}
+.cta-band .ctas{position:relative;z-index:1;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:50px 0 40px}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:24px}
+footer .logo{font-family:var(--anton);font-size:30px}
+footer .col h4{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+footer .col a{display:block;color:var(--text2);text-decoration:none;font-size:13px;margin-bottom:8px}
+footer .col a:hover{color:var(--orange)}
+.fbot{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+@media(max-width:820px){
+  .nav .links{display:none}.grid{grid-template-columns:1fr}.djs{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="wrap row">
+  <div class="logo">DROP<span class="dot">.</span></div>
+  <div class="links"><a href="#">Buscar DJs</a><a href="#feat">Cómo funciona</a><a href="#">Para DJs</a></div>
+  <div class="right"><a class="btn btn-ghost" href="#">Entrar</a><a class="btn btn-primary" href="#">Soy DJ</a></div>
+</div></nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="scene">
+    <canvas class="fx" id="fx"></canvas>
+    <div class="vig"></div>
+    <svg class="crowd" viewBox="0 0 1200 215" preserveAspectRatio="none">
+      <defs><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF5C00" stop-opacity=".85"/><stop offset="1" stop-color="#FF5C00" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,132 Q150,108 300,120 T600,116 T900,122 T1200,114" fill="none" stroke="url(#rim)" stroke-width="8" opacity=".85"/>
+      <g fill="#000">
+        <path d="M0,215 L0,134 Q150,110 300,122 T600,118 T900,124 T1200,116 L1200,215 Z"/>
+        <circle cx="55" cy="124" r="14"/><circle cx="130" cy="132" r="12"/><circle cx="205" cy="119" r="15"/><circle cx="285" cy="130" r="13"/><circle cx="360" cy="121" r="14"/><circle cx="440" cy="132" r="12"/><circle cx="520" cy="117" r="15"/><circle cx="600" cy="128" r="13"/><circle cx="680" cy="121" r="14"/><circle cx="760" cy="132" r="12"/><circle cx="840" cy="118" r="15"/><circle cx="920" cy="129" r="13"/><circle cx="1000" cy="121" r="14"/><circle cx="1080" cy="131" r="12"/><circle cx="1155" cy="120" r="14"/>
+        <rect x="225" y="68" width="7" height="58" rx="3.5" transform="rotate(-8 228 97)"/><rect x="500" y="62" width="7" height="60" rx="3.5" transform="rotate(6 503 92)"/><rect x="835" y="66" width="7" height="58" rx="3.5" transform="rotate(-5 838 95)"/><rect x="660" y="72" width="7" height="52" rx="3.5" transform="rotate(10 663 98)"/>
+      </g>
+      <circle cx="240" cy="64" r="2.8" fill="#FF8F3A"/><circle cx="515" cy="58" r="2.8" fill="#F7F7F7" opacity=".9"/><circle cx="850" cy="62" r="2.8" fill="#FF8F3A"/><circle cx="372" cy="70" r="2.2" fill="#FF8F3A" opacity=".8"/>
+    </svg>
+  </div>
+  <div class="lights"><div class="b b1"></div><div class="b b2"></div><div class="b b3"></div></div>
+  <svg class="freq" viewBox="0 0 1200 120" preserveAspectRatio="none"><g fill="none" stroke="#FF7A1A" stroke-width="2">
+    <path d="M0,60 Q60,4 120,60 T240,60 T360,60 T480,60 T600,60 T720,60 T840,60 T960,60 T1080,60 T1200,60" opacity=".7"/>
+    <path d="M0,84 Q60,40 120,84 T240,84 T360,84 T480,84 T600,84 T720,84 T840,84 T960,84 T1080,84 T1200,84" opacity=".35"/>
+  </g></svg>
+  <div class="wrap">
+    <div class="mono eyebrow">— THE DJ OS · LATAM</div>
+    <h1>TU <span class="rot" id="rot"><span class="w">CARRERA</span><span class="w out"></span></span><br>VIVE EN DROP<span class="dot">.</span></h1>
+    <p class="sub">El sistema operativo del DJ independiente. CRM, calendario con plata, press kit y growth — todo en una sola app.</p>
+    <div class="ctas">
+      <a class="btn btn-primary btn-lg" href="#">Soy DJ · Quiero entrar →</a>
+      <a class="btn btn-ghost btn-lg" href="#">Buscar DJs</a>
+    </div>
+    <div class="stats">
+      <div class="s"><div class="n">200<span class="dot">+</span></div><div class="l">DJs en la beta</div></div>
+      <div class="s"><div class="n">15</div><div class="l">días gratis</div></div>
+      <div class="s"><div class="n">1</div><div class="l">app · todo tu juego</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- FEATURES -->
+<section class="section" id="feat"><div class="wrap">
+  <div class="head reveal"><div class="mono dot" style="color:var(--orange)">— TODO LO QUE INCLUYE</div>
+    <h2>No es un PDF. Es tu carrera entera.</h2>
+    <p>Dejá de pelear con WhatsApp, Excel y diez links sueltos. Toca una para ver cómo funciona.</p></div>
+  <div class="ftabs reveal">
+    <div class="ftab-list" id="ftablist"></div>
+    <div class="ftab-preview" id="fprev"></div>
+  </div>
+</div></section>
+
+<!-- DJs (imágenes de fondo) -->
+<section class="section" style="padding-top:0"><div class="wrap">
+  <div class="head reveal"><div class="mono" style="color:var(--orange)">— SUENA AHORA</div>
+    <h2>La escena, en un solo lugar.</h2></div>
+  <div class="djs reveal">
+    <div class="dj"><span class="live"><i></i>LIVE</span><div class="ph"></div><div class="nm"><div class="t">JAY PORTU</div><div class="g">HOUSE · TECH · JACKIN</div></div></div>
+    <div class="dj"><div class="ph" style="opacity:.4"></div><div class="nm"><div class="t">BELKZA</div><div class="g">MELODIC · TECHNO</div></div></div>
+    <div class="dj"><div class="ph" style="opacity:.6"></div><div class="nm"><div class="t">FER CANEZZA</div><div class="g">PROGRESSIVE</div></div></div>
+    <div class="dj"><div class="ph" style="opacity:.45"></div><div class="nm"><div class="t">NICO VILLEGAS</div><div class="g">AFRO HOUSE</div></div></div>
+  </div>
+</div></section>
+
+<!-- FAQ -->
+<section class="section" id="faq" style="padding-top:0"><div class="wrap">
+  <div class="head reveal"><div class="mono" style="color:var(--orange)">— PREGUNTAS</div>
+    <h2>Preguntas frecuentes<span class="dot">.</span></h2></div>
+  <div class="faq reveal">
+    <details open><summary>¿DROP es gratis?<span class="pl">+</span></summary><div class="ans">Tienes <b>15 días gratis</b> sin tarjeta. Después, la suscripción es <b>$5.990/mes para DJs</b> y <b>$9.990/mes para bookers</b>, IVA incluido.</div></details>
+    <details><summary>¿Para quién es DROP?<span class="pl">+</span></summary><div class="ans">Para <b>DJs independientes</b> de Latam que quieren gestionar su carrera y que los contraten. Pronto, también fotógrafos y audiovisuales.</div></details>
+    <details><summary>¿Necesito ser DJ profesional?<span class="pl">+</span></summary><div class="ans">No. Desde tu primera fecha — DROP te ordena desde el día uno.</div></details>
+    <details><summary>¿Cómo me encuentran los bookers?<span class="pl">+</span></summary><div class="ans">Apareces en el <b>directorio público</b> y subes en <b>Smart Match</b> cuando activas "disponible para tocar".</div></details>
+    <details><summary>¿Puedo cambiar mi info cuando quiera?<span class="pl">+</span></summary><div class="ans">Sí, <b>en tiempo real</b>. Editas una vez y tu press kit siempre muestra lo último.</div></details>
+    <details><summary>¿Mis pagos pasan por DROP?<span class="pl">+</span></summary><div class="ans">No. Los bookings van <b>directo</b> entre tú y el booker. DROP solo cobra tu suscripción.</div></details>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="section" style="padding-top:0"><div class="wrap"><div class="cta-band reveal">
+  <h2>¿Listo para tomar el control<span class="dot">?</span></h2>
+  <p>15 días gratis. Sin tarjeta. Armá tu press kit en minutos.</p>
+  <div class="ctas"><a class="btn btn-primary btn-lg" href="#">Soy DJ · Quiero entrar →</a></div>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><div class="logo">DROP<span class="dot">.</span></div><p style="color:var(--text3);font-family:var(--mono);font-size:11px;margin-top:10px;letter-spacing:.04em">— THE DJ OS · MADE IN SANTIAGO</p></div>
+    <div class="col"><h4>Explorar</h4><a href="#">Buscar DJs</a><a href="#feat">Cómo funciona</a></div>
+    <div class="col"><h4>Para ti</h4><a href="#">Soy DJ</a><a href="#">Soy Booker</a><a href="#">Entrar</a></div>
+    <div class="col"><h4>DROP.</h4><a href="#">Privacidad</a><a href="#">Términos</a><a href="#">hola@dropgigs.com</a></div>
+  </div>
+  <div class="fbot">DROP. — THE DJ OS · © 2026 · DROPGIGS.COM</div>
+</div></footer>
+
+<script>
+  const words=['CARRERA','BOOKING','PRESS KIT','AGENDA','SONIDO'];
+  // Cross-dissolve: dos capas apiladas; una se funde en la otra (sin hueco vacío)
+  const spans=document.getElementById('rot').querySelectorAll('.w');
+  let cur=0, wi=0;
+  spans[0].textContent=words[0];
+  setInterval(()=>{
+    wi=(wi+1)%words.length;
+    const n=1-cur;
+    spans[n].textContent=words[wi];   // la capa oculta toma la próxima palabra
+    spans[n].classList.remove('out'); // entra (fade in)
+    spans[cur].classList.add('out');  // sale (fade out) — ambas visibles a la vez
+    cur=n;
+  }, 3000);
+
+  // Luces animadas en CANVAS (baja-res + requestAnimationFrame + mezcla aditiva).
+  // Fluido en cualquier pantalla porque es 1 sola capa con pocos píxeles.
+  (function(){
+    var c=document.getElementById('fx'); if(!c||!c.getContext) return;
+    var ctx=c.getContext('2d'), W=1, H=1;
+    var reduce=window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function resize(){var r=c.getBoundingClientRect();W=c.width=Math.max(1,Math.round(r.width*0.6));H=c.height=Math.max(1,Math.round(r.height*0.6));}
+    resize(); window.addEventListener('resize',resize);
+    var lights=[
+      {col:'255,92,0',  a:0.55, r:0.55, x0:0.30, amp:0.16, spd:0.00024, ph:0.0, y:0.44},
+      {col:'255,122,26',a:0.42, r:0.50, x0:0.64, amp:0.20, spd:0.00033, ph:2.1, y:0.52},
+      {col:'247,247,247',a:0.09,r:0.42, x0:0.50, amp:0.24, spd:0.00018, ph:4.2, y:0.38}
+    ];
+    function draw(t){
+      ctx.clearRect(0,0,W,H);
+      ctx.globalCompositeOperation='lighter';
+      for(var i=0;i<lights.length;i++){var L=lights[i];
+        var cx=(L.x0+Math.sin(t*L.spd+L.ph)*L.amp)*W, cy=L.y*H, rad=L.r*Math.max(W,H);
+        var g=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);
+        g.addColorStop(0,'rgba('+L.col+','+L.a+')');
+        g.addColorStop(0.45,'rgba('+L.col+','+(L.a*0.28)+')');
+        g.addColorStop(1,'rgba('+L.col+',0)');
+        ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      }
+    }
+    if(reduce){ draw(0); } else { (function loop(t){ draw(t||0); requestAnimationFrame(loop); })(); }
+  })();
+
+  // Feature tabs interactivos (click → cambia el preview)
+  const FEATURES=[
+    {ic:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/>',t:'CRM con scoring',d:'Tus venues y bookers ordenados, con un puntaje automático que te dice a quién priorizar y en qué etapa va cada trato.',p:['Pipeline','Score auto','Follow-ups']},
+    {ic:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',t:'Calendario con plata',d:'Tus fechas, lo cobrado y lo pendiente en un solo lugar. Vista lista, mes y mapa de gigs.',p:['Cobrado','Pendiente','Mes / Mapa']},
+    {ic:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',t:'Press kit que vende',d:'Bio, música, galería, rider y disponibilidad en una landing pública que compartís con un link.',p:['Galería','Tech rider','Link público']},
+    {ic:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',t:'Growth tracking',d:'Seguidores, posts y campañas en un panel. Medí qué mueve la aguja de verdad.',p:['IG','YouTube','SoundCloud']},
+    {ic:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',t:'Te encuentran los bookers',d:'Aparecés en el directorio. Activá "disponible para tocar" y subís en las búsquedas con Smart Match.',p:['Directorio','Disponible','LIVE']},
+    {ic:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',t:'Música embebida',d:'Tus sets de SoundCloud, YouTube y Spotify dentro del press kit. Sin subir archivos pesados.',p:['SoundCloud','YouTube','Spotify']}
+  ];
+  (function(){
+    var list=document.getElementById('ftablist'), prev=document.getElementById('fprev');
+    if(!list||!prev) return;
+    function svg(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p+'</svg>';}
+    list.innerHTML=FEATURES.map(function(f,i){return '<button class="ftab'+(i===0?' on':'')+'" data-i="'+i+'"><span class="ti">'+svg(f.ic)+'</span><span class="tt">'+f.t+'</span></button>';}).join('');
+    function render(i){var f=FEATURES[i];prev.innerHTML='<div class="fp-anim"><div class="fp-ic">'+svg(f.ic)+'</div><div class="fp-t">'+f.t+'</div><div class="fp-d">'+f.d+'</div><div class="fp-pts">'+f.p.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div></div>';}
+    list.addEventListener('click',function(e){var b=e.target.closest('.ftab');if(!b)return;list.querySelectorAll('.ftab').forEach(function(x){x.classList.remove('on');});b.classList.add('on');render(+b.dataset.i);});
+    render(0);
+  })();
+
+  // Scroll-reveal con IntersectionObserver
+  (function(){
+    var els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
+    var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:0.12});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+</body>
+</html>

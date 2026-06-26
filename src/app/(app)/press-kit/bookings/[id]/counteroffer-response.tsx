@@ -145,7 +145,7 @@ export function CounterofferResponse({
       </div>
 
       {counterMessage && (
-        <div className="mb-4 p-3 bg-white border-2 border-ink/20">
+        <div className="mb-4 p-3 bg-bg-panel border-2 border-ink/20">
           <div className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
             Mensaje del booker
           </div>

@@ -98,7 +98,7 @@ export function FoundingInvitesClient({
       {/* Form de invitación */}
       <form
         onSubmit={handleInvite}
-        className="border-2 border-ink bg-white p-4 md:p-5 flex flex-col sm:flex-row gap-3 sm:items-end"
+        className="border-2 border-ink bg-bg-panel p-4 md:p-5 flex flex-col sm:flex-row gap-3 sm:items-end"
       >
         <div className="flex-1 space-y-1">
           <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
@@ -110,7 +110,7 @@ export function FoundingInvitesClient({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="hola@venue.com"
-            className="w-full border-2 border-ink bg-white px-3 py-2 text-sm focus:outline-none focus:border-orange"
+            className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
           />
         </div>
         <div className="flex-1 space-y-1">
@@ -122,7 +122,7 @@ export function FoundingInvitesClient({
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Club X / Carlos"
-            className="w-full border-2 border-ink bg-white px-3 py-2 text-sm focus:outline-none focus:border-orange"
+            className="w-full border-2 border-ink bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
           />
         </div>
         <button
@@ -163,7 +163,7 @@ export function FoundingInvitesClient({
           Todavía no hay invitaciones Founding.
         </div>
       ) : (
-        <div className="border-2 border-ink bg-white overflow-x-auto">
+        <div className="border-2 border-ink bg-bg-panel overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-bg-subtle border-b border-border">
               <tr className="text-left text-[10px] uppercase tracking-wider text-fg-muted">

@@ -76,7 +76,7 @@ export default async function GrowthCampaignsListPage({
       </Link>
 
       {/* Hero header — Type Beat */}
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative overflow-hidden">
+      <div className="border-2 border-ink bg-bg-panel p-6 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — GROWTH · CAMPAÑAS
         </div>
@@ -106,7 +106,7 @@ export default async function GrowthCampaignsListPage({
 
       {/* KPI grid Sprint 18 */}
       <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
-        <div className="bg-white p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-ink">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— ACTIVAS</div>
           <div className="font-display text-4xl leading-none mt-2">
             {activeCount.toString().padStart(2, "0")}
@@ -122,7 +122,7 @@ export default async function GrowthCampaignsListPage({
           </div>
           <div className="font-mono text-[10px] mt-2">CLP · ACUMULADO</div>
         </div>
-        <div className="bg-white p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-ink">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— FOLLOWERS GANADOS</div>
           <div className="font-display text-4xl leading-none mt-2 text-success">
             +{totalDelta}
@@ -256,7 +256,7 @@ export default async function GrowthCampaignsListPage({
                         {counts.planned}
                       </div>
                     </div>
-                    <div className="p-2 border-r-2 border-ink bg-white">
+                    <div className="p-2 border-r-2 border-ink bg-bg-panel">
                       <div className="font-mono text-[9px] uppercase tracking-wider text-fg-muted">
                         Δ Followers
                       </div>

@@ -79,7 +79,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
       {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5 relative overflow-hidden">
+      <div className="border-2 border-ink bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CRM · CONTACTOS{isFiltered ? " · FILTRADOS" : ""}
         </div>
@@ -109,7 +109,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
       {/* ═══ KPIs · grid 4 col zero-gap borde ink ═══ */}
       {stats.total > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
-          <div className="bg-white p-4 border-r-2 border-ink border-b-2 md:border-b-0">
+          <div className="bg-bg-panel p-4 border-r-2 border-ink border-b-2 md:border-b-0">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — VENUES
             </div>
@@ -131,7 +131,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
               Interesado · negociando · propuesta
             </div>
           </div>
-          <div className="bg-white p-4 border-r-2 border-ink">
+          <div className="bg-bg-panel p-4 border-r-2 border-ink">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
               — SCORE PROMEDIO
             </div>

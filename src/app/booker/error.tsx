@@ -13,7 +13,7 @@ export default function BookerError({
 }) {
   return (
     <div className="p-10 max-w-md mx-auto text-center">
-      <div className="border-2 border-ink bg-white p-8">
+      <div className="border-2 border-ink bg-bg-panel p-8">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
           — ALGO FALLÓ
         </div>

@@ -63,7 +63,7 @@ export default async function EventosPage() {
       {/* FEED */}
       <section className="max-w-[1140px] mx-auto px-6 py-14 w-full flex-1">
         {eventos.length === 0 ? (
-          <div className="border-2 border-dashed border-ink/40 bg-white p-12 text-center">
+          <div className="border-2 border-dashed border-ink/40 bg-bg-panel p-12 text-center">
             <div style={{ fontFamily: ANTON, fontSize: 30 }}>
               Aún no hay eventos publicados<span className="text-orange">.</span>
             </div>
