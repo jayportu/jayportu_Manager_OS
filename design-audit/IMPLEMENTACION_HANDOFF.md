@@ -2,6 +2,10 @@
 
 Estado: **PR #167** (`design/drop-dark-rebranding`) tiene la base lista. Falta aplicar el MISMO patrón al resto de pantallas. Es mecánico (no hay decisiones de diseño nuevas). Patrón de referencia ya migrado: **`dashboard/page.tsx`** y **`crm/page.tsx`**.
 
+## Decisiones tomadas (2026-06-26, Jaime)
+- **Naranjo canónico = `#E85A0C`** (reemplaza al histórico `#FF5C00`). En dark ya está. **Falta:** poner `#E85A0C` también en el tema **light** (`--drop-orange`/`--drop-accent` en `globals.css :root`) y en el **punto del logo** (`src/components/brand/logo.tsx`: `#FF5C00`→`#E85A0C`, incl. `TONE_COLOR.orange` y `dotColor`). Actualizar Pantone/brandbook.
+- **Press kit público (`/p/[slug]`) = TAMBIÉN dark.** Migrar igual que el resto (era el único con duda).
+
 ## Ya hecho (en el PR)
 - **Tokens** → CSS variables (`globals.css :root` + `:root[data-theme="dark"]`); `tailwind.config.ts` con `rgb(var/<alpha>)`. Light idéntico.
 - **Flag**: cookie `drop-theme=dark` (script inline en `layout.tsx`). Sin cookie = light.
@@ -35,7 +39,7 @@ sed -i '' -e 's/bg-cream text-ink/bg-bg-subtle text-fg/g' \
 ## Pantallas pendientes (con sus hotspots probables)
 - **(app):** `calendario/page.tsx` (KPIs cobrado/pendiente — arcoíris verde/naranjo/negro), `press-kit/page.tsx` (card "MODO ACTUAL" naranja-soft), `perfil/page.tsx` (formulario largo + progreso), `growth/page.tsx` (cards plataformas), `plantillas`, `lugares`, `descubrir`, `gmail`, `configuracion`.
 - **admin/**: ~12 vistas (métricas + tablas) — mismo patrón de KPIs + tablas.
-- **públicas:** `page.tsx` (landing — o reemplazar por el mock nuevo), `dj/page.tsx` + `dj/ciudad|genero`, `p/[slug]` (press kit público — **decisión de producto: ¿también dark?** es el activo compartible del DJ), `beta`, `login`, `signup`, `eventos`, `terms`, `privacy`.
+- **públicas:** `page.tsx` (landing — o reemplazar por el mock nuevo), `dj/page.tsx` + `dj/ciudad|genero`, `p/[slug]` (press kit público — **también dark**, ya decidido; es el activo compartible del DJ), `beta`, `login`, `signup`, `eventos`, `terms`, `privacy`.
 - **Arreglos de la auditoría (aprovechar):** 404 branded + `/signup`→`/beta`.
 
 ## QA por pantalla
