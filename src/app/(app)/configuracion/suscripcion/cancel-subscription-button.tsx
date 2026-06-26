@@ -29,7 +29,7 @@ export function CancelSubscriptionButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-danger border-2 border-danger hover:bg-danger hover:text-white font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+        className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-danger border-2 border-danger hover:bg-danger hover:text-white dark:hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
       >
         Cancelar suscripción
       </button>
@@ -57,7 +57,7 @@ export function CancelSubscriptionButton() {
           rows={3}
           placeholder="Tu feedback me ayuda a mejorar DROP…"
           disabled={isPending}
-          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm focus:outline-none focus:border-orange"
+          className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
         />
       </div>
       {error && (
@@ -68,7 +68,7 @@ export function CancelSubscriptionButton() {
           type="button"
           onClick={() => setOpen(false)}
           disabled={isPending}
-          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-cream text-ink border-2 border-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-cream text-fg border-2 border-border hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
         >
           Mejor sigo
         </button>
@@ -76,7 +76,7 @@ export function CancelSubscriptionButton() {
           type="button"
           onClick={handleConfirm}
           disabled={isPending}
-          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-danger text-white border-2 border-danger hover:opacity-90 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
+          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-danger text-white dark:text-ink border-2 border-danger hover:opacity-90 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
         >
           {isPending ? "Cancelando…" : "Confirmar cancelación"}
         </button>

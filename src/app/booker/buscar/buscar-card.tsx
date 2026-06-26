@@ -69,9 +69,9 @@ export function BuscarCard({
   const fee = feeLabel(dj);
 
   return (
-    <div className="group border-2 border-ink bg-white flex flex-col">
+    <div className="group border-2 border-border bg-bg-panel flex flex-col">
       {/* Imagen + overlays */}
-      <div className="relative aspect-[4/3] bg-ink border-b-2 border-ink overflow-hidden">
+      <div className="relative aspect-[4/3] bg-ink border-b-2 border-border overflow-hidden">
         {cardImg ? (
           <Image
             src={cardImg}
@@ -92,12 +92,12 @@ export function BuscarCard({
               }}
             >
               {initials || "DJ"}
-              <span style={{ color: "#FF5C00" }}>.</span>
+              <span style={{ color: "#E85A0C" }}>.</span>
             </span>
           </div>
         )}
         {dj.is_available_now && (
-          <span className="absolute top-2 right-2 bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border border-ink">
+          <span className="absolute top-2 right-2 bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border border-border">
             ★ DISPONIBLE
           </span>
         )}
@@ -140,12 +140,12 @@ export function BuscarCard({
 
         <div className="flex flex-wrap gap-1.5">
           {dj.is_drop_pick && (
-            <span className="inline-flex items-center font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-orange text-ink">
+            <span className="inline-flex items-center font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-orange text-ink">
               ★ Pick
             </span>
           )}
           {dj.is_verified && (
-            <span className="inline-flex items-center font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-ink text-orange">
+            <span className="inline-flex items-center font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-ink text-orange">
               ✓ Verificado
             </span>
           )}
@@ -157,7 +157,7 @@ export function BuscarCard({
         </div>
 
         {fee && (
-          <div className="inline-flex self-start items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-ink bg-cream text-ink">
+          <div className="inline-flex self-start items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-border bg-cream text-fg">
             <span className="text-fg-muted">Fee ref.</span> {fee}
           </div>
         )}
@@ -169,7 +169,7 @@ export function BuscarCard({
               <Link
                 key={g}
                 href={genreHref(g, filters)}
-                className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream hover:bg-orange hover:text-ink transition-colors"
+                className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-cream hover:bg-orange hover:text-ink transition-colors"
               >
                 {g}
               </Link>
@@ -192,7 +192,7 @@ export function BuscarCard({
               className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 transition-colors ${
                 showSet
                   ? "bg-orange text-ink border-orange"
-                  : "bg-white text-ink border-ink hover:bg-orange hover:border-orange"
+                  : "bg-bg-panel text-fg border-border hover:bg-orange hover:border-orange"
               }`}
             >
               <Play className="w-3 h-3" />
@@ -201,7 +201,7 @@ export function BuscarCard({
           )}
           <Link
             href={`/p/${dj.public_slug}`}
-            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 border-ink bg-ink text-cream hover:bg-orange hover:text-ink hover:border-orange transition-colors ml-auto"
+            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 border-border bg-ink text-white hover:bg-orange hover:text-ink hover:border-orange transition-colors ml-auto"
           >
             Contactar <ArrowUpRight className="w-3 h-3" />
           </Link>

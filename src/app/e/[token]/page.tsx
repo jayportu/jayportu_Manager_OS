@@ -68,10 +68,10 @@ export default async function PublicEventPage({ params }: PageProps) {
     : null;
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-bg">
       <div className="max-w-lg mx-auto px-4 py-8">
         {/* Flyer / hero */}
-        <div className="border-2 border-ink bg-ink text-cream overflow-hidden">
+        <div className="border-2 border-border bg-ink text-white overflow-hidden">
           <div className="relative aspect-[4/3] bg-ink border-b-2 border-orange">
             {heroImg ? (
               <Image
@@ -89,7 +89,7 @@ export default async function PublicEventPage({ params }: PageProps) {
                   style={{
                     fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                     fontSize: "72px",
-                    color: "#FF5C00",
+                    color: "#E85A0C",
                   }}
                 >
                   {(ev.dj_artist_name || "?").charAt(0).toUpperCase()}
@@ -126,7 +126,7 @@ export default async function PublicEventPage({ params }: PageProps) {
         </div>
 
         {/* Datos */}
-        <div className="border-2 border-t-0 border-ink bg-white divide-y divide-ink/10">
+        <div className="border-2 border-t-0 border-border bg-bg-panel divide-y divide-border/10">
           <div className="flex items-center gap-3 p-4">
             <CalendarDays className="w-5 h-5 text-orange shrink-0" />
             <span className="text-sm font-semibold">{when || "Fecha por confirmar"}</span>
@@ -160,7 +160,7 @@ export default async function PublicEventPage({ params }: PageProps) {
         </div>
 
         {ev.description && (
-          <div className="border-2 border-t-0 border-ink bg-white p-4 text-sm text-fg whitespace-pre-wrap">
+          <div className="border-2 border-t-0 border-border bg-bg-panel p-4 text-sm text-fg whitespace-pre-wrap">
             {ev.description}
           </div>
         )}

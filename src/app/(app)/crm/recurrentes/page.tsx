@@ -33,7 +33,7 @@ export default async function RecurrentesPage() {
         Volver a CRM
       </Link>
 
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative">
+      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — CRM · FOLLOW-UPS RECURRENTES
         </div>
@@ -71,7 +71,7 @@ export default async function RecurrentesPage() {
               ? "border-danger bg-danger/5"
               : dueToday
               ? "border-orange bg-orange/10"
-              : "border-ink bg-white";
+              : "border-border bg-bg-panel";
 
             const unitLabel =
               f.recurrence_unit === "days"
@@ -85,7 +85,7 @@ export default async function RecurrentesPage() {
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-2 border-ink bg-cream">
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-2 border-border bg-cream">
                         cada {f.recurrence_value} {unitLabel}
                       </span>
                       <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange">
@@ -93,7 +93,7 @@ export default async function RecurrentesPage() {
                         {f.recurrence_max ? ` / ${f.recurrence_max}` : ""}
                       </span>
                       {overdue && (
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-danger text-white">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-danger text-white dark:text-ink">
                           atrasado
                         </span>
                       )}

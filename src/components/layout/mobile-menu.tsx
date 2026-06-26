@@ -122,7 +122,7 @@ export function MobileMenu({
       {/* Drawer */}
       <aside
         className={cn(
-          "md:hidden fixed inset-y-0 left-0 z-[70] w-[280px] max-w-[85vw] bg-ink text-cream border-r-2 border-orange flex flex-col overflow-hidden transition-transform duration-300 ease-out",
+          "md:hidden fixed inset-y-0 left-0 z-[70] w-[280px] max-w-[85vw] bg-ink text-white border-r-2 border-orange flex flex-col overflow-hidden transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "-translate-x-full"
         )}
         role="dialog"
@@ -131,7 +131,7 @@ export function MobileMenu({
       >
         {/* Header naranja con close */}
         <div
-          className="shrink-0 px-[18px] py-[14px] bg-orange text-ink border-b-2 border-ink flex items-center justify-between"
+          className="shrink-0 px-[18px] py-[14px] bg-orange text-ink border-b-2 border-border flex items-center justify-between"
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 14px)" }}
         >
           <div>
@@ -155,7 +155,7 @@ export function MobileMenu({
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Cerrar menú"
-            className="h-9 w-9 flex items-center justify-center border-2 border-ink hover:bg-ink hover:text-orange transition-colors"
+            className="h-9 w-9 flex items-center justify-center border-2 border-border hover:bg-ink hover:text-orange transition-colors"
           >
             <X className="w-5 h-5" strokeWidth={2.25} />
           </button>
@@ -174,14 +174,14 @@ export function MobileMenu({
                 className={cn(
                   "flex items-center gap-3 px-[22px] py-[11px] font-mono text-[12px] font-bold uppercase tracking-[0.08em] border-l-[3px] border-transparent transition-colors",
                   isActive
-                    ? "bg-orange text-ink border-l-ink"
-                    : "text-[#aaa] hover:bg-[#1a1a1a] hover:text-cream"
+                    ? "bg-orange text-ink border-l-border"
+                    : "text-[#aaa] hover:bg-[#1a1a1a] hover:text-white"
                 )}
               >
                 <Icon
                   className={cn(
                     "w-4 h-4 shrink-0",
-                    isActive ? "text-ink" : "text-orange"
+                    isActive ? "text-fg" : "text-orange"
                   )}
                   strokeWidth={2.25}
                 />
@@ -245,7 +245,7 @@ export function MobileMenu({
             )}
             <div className="min-w-0 flex-1">
               <div
-                className="text-cream truncate"
+                className="text-white truncate"
                 style={{
                   fontFamily:
                     "var(--font-anton), Impact, system-ui, sans-serif",
@@ -276,7 +276,7 @@ export function MobileMenu({
           >
             <span className="text-orange">→</span>&nbsp; CONTACTO
           </div>
-          <div className="text-cream font-mono text-[11px] mt-[3px] group-hover:text-orange transition-colors truncate">
+          <div className="text-white font-mono text-[11px] mt-[3px] group-hover:text-orange transition-colors truncate">
             hola@dropgigs.com
           </div>
         </a>

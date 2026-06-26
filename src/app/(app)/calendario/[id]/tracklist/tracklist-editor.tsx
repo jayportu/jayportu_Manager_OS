@@ -373,12 +373,12 @@ export function TracklistEditor({
   return (
     <div className="space-y-5">
       {/* KPIs en vivo */}
-      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink">
+      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border">
         <Kpi label="TRACKS" value={String(kpis.totalTracks).padStart(2, "0")} bg="bg-orange" />
         <Kpi
           label="BPM AVG"
           value={kpis.bpmAvg !== null ? String(kpis.bpmAvg) : "—"}
-          bg="bg-white"
+          bg="bg-bg-panel"
           sub={
             kpis.bpmMin !== null && kpis.bpmMax !== null
               ? `${kpis.bpmMin}–${kpis.bpmMax}`
@@ -388,14 +388,14 @@ export function TracklistEditor({
         <Kpi
           label="DURACIÓN"
           value={kpis.durationLabel}
-          bg="bg-white"
+          bg="bg-bg-panel"
           sub="estimado · 18min/track"
         />
         <Kpi
           label="TAGS"
           value={String(tracks.filter((t) => t.tag).length).padStart(2, "0")}
           bg="bg-ink"
-          fg="text-cream"
+          fg="text-white"
           sub={`${tracks.filter((t) => t.tag === "peak").length} peak`}
         />
       </div>
@@ -452,7 +452,7 @@ export function TracklistEditor({
         ) : (
           <Link
             href="/configuracion#auto-post"
-            className="inline-flex items-center gap-1.5 h-10 px-4 border-2 border-ink/30 bg-cream/50 hover:border-ink text-fg-muted hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+            className="inline-flex items-center gap-1.5 h-10 px-4 border-2 border-border/30 bg-cream/50 hover:border-border text-fg-muted hover:text-fg font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
             title="Configura el webhook en /configuracion para enviar"
           >
             <Zap className="w-4 h-4" />
@@ -484,7 +484,7 @@ export function TracklistEditor({
               {importPreview.errors.join(" · ")}
             </div>
           )}
-          <div className="max-h-48 overflow-auto text-xs font-mono space-y-0.5 bg-white border-2 border-ink p-2">
+          <div className="max-h-48 overflow-auto text-xs font-mono space-y-0.5 bg-bg-panel border-2 border-border p-2">
             {importPreview.tracks.slice(0, 25).map((t, i) => (
               <div key={i}>
                 {String(i + 1).padStart(2, "0")}. {t.artist || "—"} — {t.title || "—"}
@@ -532,7 +532,7 @@ export function TracklistEditor({
 
       {/* Lista de tracks */}
       <Card className="p-0 overflow-hidden">
-        <div className="bg-ink text-cream px-4 py-2 grid grid-cols-12 gap-2 font-mono text-[10px] font-bold uppercase tracking-wider">
+        <div className="bg-ink text-white px-4 py-2 grid grid-cols-12 gap-2 font-mono text-[10px] font-bold uppercase tracking-wider">
           <div className="col-span-1">#</div>
           <div className="col-span-3">Artista</div>
           <div className="col-span-4">Título</div>
@@ -556,7 +556,7 @@ export function TracklistEditor({
               onDragStart={() => onDragStart(track.id)}
               onDragOver={onDragOver}
               onDrop={() => onDrop(track.id)}
-              className="border-b border-ink/20 px-4 py-2 grid grid-cols-12 gap-2 items-center group hover:bg-cream cursor-move"
+              className="border-b border-border/20 px-4 py-2 grid grid-cols-12 gap-2 items-center group hover:bg-cream cursor-move"
             >
               <div className="col-span-1 flex items-center gap-1 font-mono text-xs text-fg-muted">
                 <GripVertical className="w-3 h-3 opacity-0 group-hover:opacity-100" />
@@ -631,14 +631,14 @@ export function TracklistEditor({
                       type="button"
                       onClick={() => saveEdit(track)}
                       disabled={isPending}
-                      className="h-8 px-2 bg-orange text-ink border-2 border-ink font-mono text-[10px] font-bold uppercase"
+                      className="h-8 px-2 bg-orange text-ink border-2 border-border font-mono text-[10px] font-bold uppercase"
                     >
                       OK
                     </button>
                     <button
                       type="button"
                       onClick={() => cancelEdit(track.id)}
-                      className="h-8 px-2 bg-cream border-2 border-ink font-mono text-[10px] font-bold uppercase"
+                      className="h-8 px-2 bg-cream border-2 border-border font-mono text-[10px] font-bold uppercase"
                     >
                       X
                     </button>
@@ -676,12 +676,12 @@ export function TracklistEditor({
                   >
                     {track.tag ? (
                       <span
-                        className={`px-1.5 py-0.5 border border-ink ${
+                        className={`px-1.5 py-0.5 border border-border ${
                           track.tag === "peak"
                             ? "bg-orange text-ink"
                             : track.tag === "intro"
-                            ? "bg-info text-white"
-                            : "bg-ink text-cream"
+                            ? "bg-info text-white dark:text-ink"
+                            : "bg-ink text-white"
                         }`}
                       >
                         {track.tag}
@@ -695,7 +695,7 @@ export function TracklistEditor({
                       type="button"
                       onClick={() => handleDelete(track)}
                       disabled={isPending}
-                      className="h-7 w-7 border border-ink/30 hover:border-danger hover:bg-danger hover:text-white flex items-center justify-center"
+                      className="h-7 w-7 border border-border/30 hover:border-danger hover:bg-danger hover:text-white dark:hover:text-ink flex items-center justify-center"
                       aria-label="Borrar"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -708,7 +708,7 @@ export function TracklistEditor({
         })}
 
         {/* Fila para nuevo track */}
-        <div className="bg-cream px-4 py-2 grid grid-cols-12 gap-2 items-center border-t-2 border-ink">
+        <div className="bg-cream px-4 py-2 grid grid-cols-12 gap-2 items-center border-t-2 border-border">
           <div className="col-span-1 font-mono text-xs text-fg-muted">
             {String(tracks.length + 1).padStart(2, "0")}
           </div>
@@ -795,7 +795,7 @@ function Kpi({
   label,
   value,
   bg,
-  fg = "text-ink",
+  fg = "text-fg",
   sub,
 }: {
   label: string;
@@ -808,7 +808,7 @@ function Kpi({
   return (
     <div
       className={`${bg} ${fg} p-4 ${
-        isLast ? "" : "border-r-2 border-ink"
+        isLast ? "" : "border-r-2 border-border"
       }`}
     >
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">

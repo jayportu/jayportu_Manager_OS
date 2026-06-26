@@ -19,7 +19,7 @@ export function BandcampReleases({ releases }: { releases: BandcampRelease[] }) 
             href={r.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group block border-2 border-ink bg-white hover:shadow-[4px_4px_0_#FF5C00] transition-all"
+            className="group block border-2 border-border bg-bg-panel hover:shadow-[4px_4px_0_#E85A0C] transition-all"
             title={r.title}
           >
             <div className="aspect-square bg-ink overflow-hidden">
@@ -32,7 +32,7 @@ export function BandcampReleases({ releases }: { releases: BandcampRelease[] }) 
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-cream/40 font-mono text-[9px]">
+                <div className="w-full h-full flex items-center justify-center text-white/40 font-mono text-[9px]">
                   ♪
                 </div>
               )}

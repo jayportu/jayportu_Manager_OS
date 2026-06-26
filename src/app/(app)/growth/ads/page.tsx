@@ -76,7 +76,7 @@ export default async function GrowthCampaignsListPage({
       </Link>
 
       {/* Hero header — Type Beat */}
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative overflow-hidden">
+      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — GROWTH · CAMPAÑAS
         </div>
@@ -105,8 +105,8 @@ export default async function GrowthCampaignsListPage({
       </div>
 
       {/* KPI grid Sprint 18 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
-        <div className="bg-white p-4 border-r-2 border-ink">
+      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
+        <div className="bg-bg-panel p-4 border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— ACTIVAS</div>
           <div className="font-display text-4xl leading-none mt-2">
             {activeCount.toString().padStart(2, "0")}
@@ -115,21 +115,21 @@ export default async function GrowthCampaignsListPage({
             {paidCampaigns.length} pagadas
           </div>
         </div>
-        <div className="bg-orange p-4 border-r-2 border-ink">
+        <div className="bg-orange p-4 border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— BUDGET TOTAL</div>
           <div className="font-display text-4xl leading-none mt-2">
             {totalBudget > 0 ? formatClp(totalBudget) : "—"}
           </div>
           <div className="font-mono text-[10px] mt-2">CLP · ACUMULADO</div>
         </div>
-        <div className="bg-white p-4 border-r-2 border-ink">
+        <div className="bg-bg-panel p-4 border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— FOLLOWERS GANADOS</div>
           <div className="font-display text-4xl leading-none mt-2 text-success">
             +{totalDelta}
           </div>
           <div className="font-mono text-[10px] mt-2 text-fg-muted">SUMA Δ CAMPAÑAS</div>
         </div>
-        <div className="bg-ink p-4 text-cream">
+        <div className="bg-ink p-4 text-white">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">— $/FOLLOWER</div>
           <div className="font-display text-4xl leading-none mt-2">
             {avgCpf !== null ? formatClp(avgCpf) : "—"}
@@ -144,8 +144,8 @@ export default async function GrowthCampaignsListPage({
           href="/growth/ads"
           className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
             !sp.status
-              ? "bg-ink text-orange border-ink"
-              : "border-ink text-ink hover:bg-ink hover:text-orange"
+              ? "bg-ink text-orange border-border"
+              : "border-border text-fg hover:bg-ink hover:text-orange"
           }`}
         >
           Todas
@@ -159,8 +159,8 @@ export default async function GrowthCampaignsListPage({
                 href={`/growth/ads?status=${s}`}
                 className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
                   isActive
-                    ? "bg-ink text-orange border-ink"
-                    : "border-ink text-ink hover:bg-ink hover:text-orange"
+                    ? "bg-ink text-orange border-border"
+                    : "border-border text-fg hover:bg-ink hover:text-orange"
                 }`}
               >
                 {GROWTH_CAMPAIGN_STATUS_LABELS[s]}
@@ -201,11 +201,11 @@ export default async function GrowthCampaignsListPage({
                           {c.name}
                         </h3>
                         {c.is_paid && (
-                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink border-2 border-ink">
+                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink border-2 border-border">
                             PAGADA
                           </span>
                         )}
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-cream text-ink border-2 border-ink">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-cream text-fg border-2 border-border">
                           {GROWTH_CAMPAIGN_STATUS_LABELS[c.status]}
                         </span>
                       </div>
@@ -216,7 +216,7 @@ export default async function GrowthCampaignsListPage({
                         {c.platforms.map((p) => (
                           <span
                             key={p}
-                            className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink"
+                            className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-border"
                           >
                             {SOCIAL_PLATFORM_LABELS[p]}
                           </span>
@@ -224,7 +224,7 @@ export default async function GrowthCampaignsListPage({
                         {c.platform_ads?.map((p) => (
                           <span
                             key={p}
-                            className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-info text-white border border-ink"
+                            className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-info text-white dark:text-ink border border-border"
                           >
                             {AD_PLATFORM_LABELS[p]}
                           </span>
@@ -239,8 +239,8 @@ export default async function GrowthCampaignsListPage({
                   </div>
 
                   {/* Métricas: posts + ROI si es pagada */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink">
-                    <div className="p-2 border-r-2 border-ink bg-cream">
+                  <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border">
+                    <div className="p-2 border-r-2 border-border bg-cream">
                       <div className="font-mono text-[9px] uppercase tracking-wider text-fg-muted">
                         Publicados
                       </div>
@@ -248,7 +248,7 @@ export default async function GrowthCampaignsListPage({
                         {counts.published}
                       </div>
                     </div>
-                    <div className="p-2 border-r-2 border-ink bg-cream">
+                    <div className="p-2 border-r-2 border-border bg-cream">
                       <div className="font-mono text-[9px] uppercase tracking-wider text-fg-muted">
                         Planeados
                       </div>
@@ -256,7 +256,7 @@ export default async function GrowthCampaignsListPage({
                         {counts.planned}
                       </div>
                     </div>
-                    <div className="p-2 border-r-2 border-ink bg-white">
+                    <div className="p-2 border-r-2 border-border bg-bg-panel">
                       <div className="font-mono text-[9px] uppercase tracking-wider text-fg-muted">
                         Δ Followers
                       </div>
@@ -274,7 +274,7 @@ export default async function GrowthCampaignsListPage({
                     </div>
                     <div
                       className={`p-2 ${
-                        c.is_paid ? "bg-ink text-cream" : "bg-cream"
+                        c.is_paid ? "bg-ink text-white" : "bg-cream"
                       }`}
                     >
                       <div

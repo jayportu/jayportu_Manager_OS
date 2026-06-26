@@ -51,7 +51,7 @@ export function BookerCredibilityCard({ data }: { data: BookerCredibility }) {
             </div>
             <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
               {data.is_founding && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-ink bg-orange border border-ink rounded px-1.5 py-0.5">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-ink bg-orange border border-border rounded px-1.5 py-0.5">
                   <Star className="w-3 h-3 fill-current" /> Founding
                 </span>
               )}

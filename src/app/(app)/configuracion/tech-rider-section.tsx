@@ -190,7 +190,7 @@ function RiderField({
         placeholder={placeholder}
         disabled={disabled}
         rows={rows}
-        className="w-full border-2 border-ink bg-white px-3 py-2 text-sm leading-relaxed resize-y focus:outline-none focus:border-orange disabled:opacity-50 placeholder:text-fg-subtle"
+        className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm leading-relaxed resize-y focus:outline-none focus:border-orange disabled:opacity-50 placeholder:text-fg-subtle"
       />
     </div>
   );

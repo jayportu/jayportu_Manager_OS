@@ -16,7 +16,7 @@ export default async function PitchesPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — PITCHES RECIBIDOS
         </div>
@@ -37,7 +37,7 @@ export default async function PitchesPage() {
       </div>
 
       {pitches.length === 0 ? (
-        <div className="border-2 border-dashed border-ink bg-white p-10 text-center">
+        <div className="border-2 border-dashed border-border bg-bg-panel p-10 text-center">
           <Send className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
           <h2
             className="leading-tight mb-2"
@@ -58,7 +58,7 @@ export default async function PitchesPage() {
           {pitches.map((p) => {
             const initial = (p.artist_name || "DJ").trim().charAt(0).toUpperCase();
             return (
-              <article key={p.id} className="border-2 border-ink bg-white p-5">
+              <article key={p.id} className="border-2 border-border bg-bg-panel p-5">
                 <div className="flex items-start gap-3">
                   {isSupabaseStorageUrl(p.avatar_url) ? (
                     <Image
@@ -66,11 +66,11 @@ export default async function PitchesPage() {
                       alt={p.artist_name}
                       width={48}
                       height={48}
-                      className="w-12 h-12 object-cover border-2 border-ink shrink-0"
+                      className="w-12 h-12 object-cover border-2 border-border shrink-0"
                     />
                   ) : (
                     <div
-                      className="w-12 h-12 bg-orange text-ink flex items-center justify-center border-2 border-ink shrink-0"
+                      className="w-12 h-12 bg-orange text-ink flex items-center justify-center border-2 border-border shrink-0"
                       style={{
                         fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                         fontSize: "22px",
@@ -98,7 +98,7 @@ export default async function PitchesPage() {
                 </div>
 
                 {p.message && (
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed mt-3 p-3 bg-cream/60 border border-ink/15">
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed mt-3 p-3 bg-cream/60 border border-border/15">
                     {p.message}
                   </p>
                 )}

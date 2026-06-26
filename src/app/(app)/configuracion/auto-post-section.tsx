@@ -110,7 +110,7 @@ export function AutoPostSection({ profile }: Props) {
       </div>
 
       {/* Toggle */}
-      <div className="border-2 border-ink p-4 flex items-start gap-3">
+      <div className="border-2 border-border p-4 flex items-start gap-3">
         <div className="shrink-0">
           {enabled ? (
             <Zap className="w-5 h-5 text-orange" />
@@ -131,7 +131,7 @@ export function AutoPostSection({ profile }: Props) {
         <button
           type="button"
           onClick={() => setEnabled(!enabled)}
-          className={`shrink-0 w-14 h-7 border-2 border-ink relative transition-colors ${
+          className={`shrink-0 w-14 h-7 border-2 border-border relative transition-colors ${
             enabled ? "bg-orange" : "bg-cream"
           }`}
         >
@@ -158,7 +158,7 @@ export function AutoPostSection({ profile }: Props) {
       </div>
 
       {/* Test webhook */}
-      <div className="border-2 border-ink/20 bg-cream p-3 flex items-center gap-3">
+      <div className="border-2 border-border/20 bg-cream p-3 flex items-center gap-3">
         <Button
           type="button"
           variant="outline"
@@ -188,7 +188,7 @@ export function AutoPostSection({ profile }: Props) {
         <summary className="cursor-pointer font-mono uppercase tracking-wider text-[10px]">
           Ver payload JSON que recibe el webhook
         </summary>
-        <pre className="mt-2 p-3 bg-ink text-cream text-[10px] overflow-auto font-mono">{`{
+        <pre className="mt-2 p-3 bg-ink text-white text-[10px] overflow-auto font-mono">{`{
   "event": "tracklist.saved",
   "dj": { "artist_name": "...", "city": "..." },
   "tracklist": {
@@ -219,7 +219,7 @@ export function AutoPostSection({ profile }: Props) {
         </div>
       )}
 
-      <div className="flex justify-end gap-2 pt-2 border-t-2 border-ink">
+      <div className="flex justify-end gap-2 pt-2 border-t-2 border-border">
         <Button onClick={handleSave} disabled={isPending} variant="orange">
           {isPending ? "Guardando…" : "Guardar"}
         </Button>

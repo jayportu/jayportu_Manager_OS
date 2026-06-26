@@ -101,7 +101,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
 
         {/* Banner de invite (si aplica) */}
         {invite && (
-          <div className="mb-5 border-2 border-ink bg-orange p-4">
+          <div className="mb-5 border-2 border-border bg-orange p-4">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] mb-1">
               — ESTÁS DENTRO · BETA
             </div>
@@ -126,7 +126,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
           <br />
           <a
             href="mailto:hola@dropgigs.com"
-            className="text-ink underline hover:text-orange transition-colors"
+            className="text-fg underline hover:text-orange transition-colors"
           >
             hola@dropgigs.com
           </a>

@@ -48,7 +48,7 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
       </Link>
 
       {/* Hero brutalist */}
-      <div className="border-2 border-ink bg-white p-6 mb-5 relative overflow-hidden">
+      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative overflow-hidden">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — GROWTH · CALENDARIO DE CONTENIDO
         </div>
@@ -71,8 +71,8 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
               href="/growth/posts?view=board"
               className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
                 view === "board"
-                  ? "bg-ink text-orange border-ink"
-                  : "border-ink text-ink hover:bg-ink hover:text-orange"
+                  ? "bg-ink text-orange border-border"
+                  : "border-border text-fg hover:bg-ink hover:text-orange"
               }`}
             >
               Trello
@@ -81,8 +81,8 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
               href="/growth/posts?view=list"
               className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
                 view === "list"
-                  ? "bg-ink text-orange border-ink"
-                  : "border-ink text-ink hover:bg-ink hover:text-orange"
+                  ? "bg-ink text-orange border-border"
+                  : "border-border text-fg hover:bg-ink hover:text-orange"
               }`}
             >
               Lista
@@ -122,8 +122,8 @@ function ListView({
           href={`/growth/posts?view=list${platformQuery}`}
           className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
             !sp.status
-              ? "bg-ink text-orange border-ink"
-              : "border-ink text-ink hover:bg-ink hover:text-orange"
+              ? "bg-ink text-orange border-border"
+              : "border-border text-fg hover:bg-ink hover:text-orange"
           }`}
         >
           Todos
@@ -136,8 +136,8 @@ function ListView({
             href={`/growth/posts?view=list&status=${s}${platformQuery}`}
             className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
               sp.status === s
-                ? "bg-ink text-orange border-ink"
-                : "border-ink text-ink hover:bg-ink hover:text-orange"
+                ? "bg-ink text-orange border-border"
+                : "border-border text-fg hover:bg-ink hover:text-orange"
             }`}
           >
             {POST_STATUS_LABELS[s]}
@@ -164,7 +164,7 @@ function ListView({
               <li
                 key={p.id}
                 className={`px-4 py-3 ${
-                  i > 0 ? "border-t border-ink" : ""
+                  i > 0 ? "border-t border-border" : ""
                 } hover:bg-bg-subtle transition-colors`}
               >
                 <Link
@@ -176,13 +176,13 @@ function ListView({
                       <span className="text-sm font-semibold truncate">
                         {p.title || "(sin título)"}
                       </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-border">
                         {SOCIAL_PLATFORM_LABELS[p.platform]}
                       </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-ink">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-border">
                         {POST_FORMAT_LABELS[p.format]}
                       </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-ink bg-cream">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-border bg-cream">
                         {POST_STATUS_LABELS[p.status]}
                       </span>
                       {p.growth_campaign_id &&

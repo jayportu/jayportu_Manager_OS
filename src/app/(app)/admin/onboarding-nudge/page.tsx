@@ -16,7 +16,7 @@ export default async function OnboardingNudgePage() {
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-border bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · NUDGE DE ONBOARDING
         </div>
@@ -45,24 +45,24 @@ export default async function OnboardingNudgePage() {
         {!enabled && (
           <p className="font-mono text-[11px] text-fg-subtle mt-3 leading-relaxed">
             {"// "}El cron corre en seco: no manda nada hasta que pongas{" "}
-            <span className="text-ink">ONBOARDING_NUDGE_ENABLED=true</span> en
+            <span className="text-fg">ONBOARDING_NUDGE_ENABLED=true</span> en
             Vercel. Esta lista es exactamente a quién le llegaría.
           </p>
         )}
       </div>
 
       {candidates.length === 0 ? (
-        <div className="border-2 border-dashed border-ink/40 bg-cream p-10 text-center text-sm text-fg-muted">
+        <div className="border-2 border-dashed border-border/40 bg-cream p-10 text-center text-sm text-fg-muted">
           Nadie con onboarding a medias hace +24h. 🎉
         </div>
       ) : (
-        <div className="border-2 border-ink bg-white divide-y-2 divide-ink/10">
+        <div className="border-2 border-border bg-bg-panel divide-y-2 divide-border/10">
           {candidates.map((c) => (
             <div key={c.user_id} className="p-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="font-display text-lg leading-none min-w-[140px]">
                 {c.artist_name}
               </div>
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-ink/30 text-fg-muted">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-border/30 text-fg-muted">
                 {c.percent}% completo
               </span>
               <span className="font-mono text-[11px] text-fg-subtle">
@@ -72,7 +72,7 @@ export default async function OnboardingNudgePage() {
                 {c.missing.slice(0, 6).map((m) => (
                   <span
                     key={m}
-                    className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-cream border border-ink/20 text-fg-muted"
+                    className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-cream border border-border/20 text-fg-muted"
                   >
                     {m}
                   </span>

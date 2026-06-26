@@ -24,7 +24,7 @@ export function PitchPressKitLink({
       onClick={() => {
         void markPitchViewedAction(pitchId);
       }}
-      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border-2 border-ink font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
+      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border-2 border-border font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
     >
       Press kit
       <ArrowRight className="w-3.5 h-3.5" />

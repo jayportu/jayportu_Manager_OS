@@ -33,11 +33,11 @@ export default async function EventosPage() {
   const eventos = await getUpcomingPublicEvents(60);
 
   return (
-    <main className="bg-cream text-ink min-h-screen flex flex-col">
+    <main className="bg-bg text-fg min-h-screen flex flex-col">
       <SiteHeader />
 
       {/* HERO */}
-      <section className="border-b-2 border-ink relative overflow-hidden">
+      <section className="border-b-2 border-border relative overflow-hidden">
         <span
           aria-hidden
           className="absolute pointer-events-none select-none"
@@ -63,7 +63,7 @@ export default async function EventosPage() {
       {/* FEED */}
       <section className="max-w-[1140px] mx-auto px-6 py-14 w-full flex-1">
         {eventos.length === 0 ? (
-          <div className="border-2 border-dashed border-ink/40 bg-white p-12 text-center">
+          <div className="border-2 border-dashed border-border/40 bg-bg-panel p-12 text-center">
             <div style={{ fontFamily: ANTON, fontSize: 30 }}>
               Aún no hay eventos publicados<span className="text-orange">.</span>
             </div>
@@ -72,7 +72,7 @@ export default async function EventosPage() {
             </p>
             <Link
               href="/dj"
-              className="inline-block mt-6 px-6 py-3 bg-ink text-cream border-2 border-ink font-mono text-[12px] font-bold uppercase tracking-[0.12em] hover:bg-orange hover:text-ink transition-colors"
+              className="inline-block mt-6 px-6 py-3 bg-ink text-white border-2 border-border font-mono text-[12px] font-bold uppercase tracking-[0.12em] hover:bg-orange hover:text-ink transition-colors"
             >
               Buscar DJs →
             </Link>

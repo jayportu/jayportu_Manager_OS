@@ -65,19 +65,19 @@ export function StagePlot({ items, artistName }: Props) {
   });
 
   return (
-    <div className="my-6 border-2 border-ink bg-cream overflow-hidden">
-      <div className="bg-ink text-cream px-4 py-2 flex items-center justify-between">
+    <div className="my-6 border-2 border-border bg-cream overflow-hidden">
+      <div className="bg-ink text-white px-4 py-2 flex items-center justify-between">
         <div className="font-mono text-[10px] font-bold uppercase tracking-wider">
           Stage plot · {artistName}
         </div>
-        <div className="font-mono text-[10px] text-cream/60">
+        <div className="font-mono text-[10px] text-white/60">
           vista superior · cabina
         </div>
       </div>
       <svg
         viewBox="0 0 600 360"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-auto bg-cream"
+        className="w-full h-auto bg-[#F4EFE7]"
         role="img"
         aria-label={`Stage plot de ${artistName}: ${cdjsToRender} ${cdjName}, ${mixerName}, ${Math.min(monitorCount, 2)} ${monitorName}. El DJ va detrás de los decks, la audiencia al frente.`}
       >
@@ -121,7 +121,7 @@ export function StagePlot({ items, artistName }: Props) {
 
         {/* DJ — detrás de los decks (mira hacia la audiencia, abajo) */}
         <g>
-          <circle cx="300" cy="96" r="16" fill="#FF5C00" stroke="#0A0A0A" strokeWidth="2" />
+          <circle cx="300" cy="96" r="16" fill="#E85A0C" stroke="#0A0A0A" strokeWidth="2" />
           <text
             x="300"
             y="100"
@@ -166,7 +166,7 @@ export function StagePlot({ items, artistName }: Props) {
                 y={ROW_Y}
                 width={p.w}
                 height={BOX_H}
-                fill="#FF5C00"
+                fill="#E85A0C"
                 stroke="#0A0A0A"
                 strokeWidth="3"
               />

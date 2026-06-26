@@ -38,7 +38,7 @@ export function BookerTopBar({ fullName, email }: Props) {
   const initial = (fullName || email || "B").trim().charAt(0).toUpperCase();
 
   return (
-    <header className="bg-ink text-cream border-b-2 border-orange sticky top-0 z-40">
+    <header className="bg-ink text-white border-b-2 border-orange sticky top-0 z-40">
       <div className="px-4 md:px-6 py-3 flex items-center gap-4 md:gap-6 flex-wrap">
         {/* Logo */}
         <Link
@@ -73,7 +73,7 @@ export function BookerTopBar({ fullName, email }: Props) {
                   "px-3 py-2 flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em] border-2 transition-colors whitespace-nowrap",
                   active
                     ? "bg-orange text-ink border-orange"
-                    : "border-transparent text-cream/80 hover:text-cream hover:border-cream/30"
+                    : "border-transparent text-white/80 hover:text-white hover:border-cream/30"
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -100,7 +100,7 @@ export function BookerTopBar({ fullName, email }: Props) {
               <div className="text-xs font-bold truncate max-w-[120px]">
                 {fullName || "Booker"}
               </div>
-              <div className="font-mono text-[9px] text-cream/50 truncate max-w-[120px]">
+              <div className="font-mono text-[9px] text-white/50 truncate max-w-[120px]">
                 {email}
               </div>
             </div>

@@ -414,7 +414,7 @@ export function ContactForm({ initial }: Props) {
                   {(form.accepted_genres ?? []).map((g) => (
                     <span
                       key={g}
-                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-ink bg-cream"
+                      className="font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-cream"
                     >
                       {g}
                     </span>
@@ -439,7 +439,7 @@ export function ContactForm({ initial }: Props) {
           {(form.tags ?? []).map((t) => (
             <span
               key={t}
-              className="inline-flex items-center gap-1.5 border-2 border-ink bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5"
+              className="inline-flex items-center gap-1.5 border-2 border-border bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5"
             >
               <span>#{t}</span>
               <button

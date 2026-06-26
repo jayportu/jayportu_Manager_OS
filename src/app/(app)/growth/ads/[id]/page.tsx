@@ -83,8 +83,8 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
 
       {/* Hero brutalist */}
       <div
-        className={`border-2 border-ink p-6 mb-5 relative overflow-hidden ${
-          campaign.is_paid ? "bg-ink text-cream" : "bg-white"
+        className={`border-2 border-border p-6 mb-5 relative overflow-hidden ${
+          campaign.is_paid ? "bg-ink text-white" : "bg-bg-panel"
         }`}
       >
         <div className="flex items-start justify-between gap-4 flex-wrap relative z-10">
@@ -145,7 +145,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
       {/* Bloque ROI cuando es pagada */}
       {campaign.is_paid && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-          <div className="bg-ink text-cream p-5 border-2 border-ink">
+          <div className="bg-ink text-white p-5 border-2 border-border">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
               — COSTO POR FOLLOWER
             </div>
@@ -164,20 +164,20 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
               {roi.deltaFollowers} followers
             </div>
           </div>
-          <div className="bg-orange p-5 border-2 border-ink">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+          <div className="bg-orange p-5 border-2 border-border">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg">
               — PROGRESO HACIA OBJETIVO
             </div>
-            <div className="font-display text-6xl leading-none mt-3 text-ink">
+            <div className="font-display text-6xl leading-none mt-3 text-fg">
               {roi.targetTotal > 0 ? `${roi.progressPct}%` : "—"}
             </div>
-            <div className="font-mono text-[10px] mt-3 text-ink">
+            <div className="font-mono text-[10px] mt-3 text-fg">
               {roi.targetTotal > 0
                 ? `${roi.deltaFollowers}/${roi.targetTotal - roi.baselineTotal} followers ganados`
                 : "Sin objetivo definido"}
             </div>
             {roi.targetTotal > 0 && (
-              <div className="mt-3 h-2 bg-ink/20 border border-ink">
+              <div className="mt-3 h-2 bg-ink/20 border border-border">
                 <div
                   className="h-full bg-ink"
                   style={{ width: `${roi.progressPct}%` }}
@@ -233,7 +233,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
                     {cpf !== null ? formatClp(cpf) : "—"}
                   </div>
                   <div
-                    className={`w-full border-2 border-ink ${
+                    className={`w-full border-2 border-border ${
                       isCurrent
                         ? "bg-orange"
                         : cpf !== null && cpf < 700
@@ -265,7 +265,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {campaign.target_posts_count && (
-              <div className="p-3 border-2 border-ink bg-cream">
+              <div className="p-3 border-2 border-border bg-cream">
                 <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
                   Posts objetivo
                 </div>
@@ -278,7 +278,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
               </div>
             )}
             {campaign.target_engagement_rate && (
-              <div className="p-3 border-2 border-ink bg-cream">
+              <div className="p-3 border-2 border-border bg-cream">
                 <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
                   Engagement target
                 </div>
@@ -332,7 +332,7 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
               <li
                 key={p.id}
                 className={`px-4 py-3 ${
-                  i > 0 ? "border-t border-ink" : ""
+                  i > 0 ? "border-t border-border" : ""
                 } hover:bg-bg-subtle transition-colors`}
               >
                 <Link
@@ -344,13 +344,13 @@ export default async function GrowthCampaignDetailPage({ params }: PageProps) {
                       <span className="text-sm font-semibold truncate">
                         {p.title || "(sin título)"}
                       </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-ink">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-border">
                         {SOCIAL_PLATFORM_LABELS[p.platform]}
                       </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-ink">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-border">
                         {POST_FORMAT_LABELS[p.format]}
                       </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-ink bg-cream">
+                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-border bg-cream">
                         {POST_STATUS_LABELS[p.status]}
                       </span>
                     </div>
@@ -400,9 +400,9 @@ function PlatformProgress({
       ? Math.min(100, Math.max(0, Math.round(((current - baseline) / objective) * 100)))
       : 0;
   return (
-    <div className="border-2 border-ink">
+    <div className="border-2 border-border">
       <div className="grid grid-cols-2">
-        <div className="bg-cream p-3 border-r-2 border-ink">
+        <div className="bg-cream p-3 border-r-2 border-border">
           <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
             — PRE
           </div>
@@ -415,7 +415,7 @@ function PlatformProgress({
         </div>
         <div
           className={`p-3 ${
-            delta > 0 ? "bg-orange" : "bg-white"
+            delta > 0 ? "bg-orange" : "bg-bg-panel"
           }`}
         >
           <div className="font-mono text-[10px] uppercase tracking-wider">
@@ -427,7 +427,7 @@ function PlatformProgress({
           {delta !== 0 && (
             <div
               className={`font-mono text-[10px] mt-1 flex items-center gap-1 font-bold ${
-                delta > 0 ? "text-ink" : "text-danger"
+                delta > 0 ? "text-fg" : "text-danger"
               }`}
             >
               {delta > 0 ? (
@@ -442,11 +442,11 @@ function PlatformProgress({
         </div>
       </div>
       {hasTarget && (
-        <div className="p-2 border-t-2 border-ink bg-white">
+        <div className="p-2 border-t-2 border-border bg-bg-panel">
           <div className="font-mono text-[9px] uppercase text-fg-muted">
             objetivo {target.toLocaleString("es-CL")} · {pct}%
           </div>
-          <div className="h-1.5 bg-cream border border-ink mt-1">
+          <div className="h-1.5 bg-cream border border-border mt-1">
             <div
               className="h-full bg-orange"
               style={{ width: `${pct}%` }}

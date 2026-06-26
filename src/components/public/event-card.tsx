@@ -42,9 +42,9 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
   return (
     <Link
       href={`/e/${ev.public_token}`}
-      className="group border-2 border-ink bg-white flex flex-col hover:shadow-[6px_6px_0_#FF5C00] transition-all"
+      className="group border-2 border-border bg-bg-panel flex flex-col hover:shadow-[6px_6px_0_#E85A0C] transition-all"
     >
-      <div className="relative aspect-[3/2] bg-ink overflow-hidden border-b-2 border-ink">
+      <div className="relative aspect-[3/2] bg-ink overflow-hidden border-b-2 border-border">
         {cover ? (
           <Image
             src={cover}
@@ -58,7 +58,7 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
           <div className="absolute inset-0 flex items-center justify-center">
             <span style={{ fontFamily: ANTON, fontSize: 40, color: "#F4EFE7" }}>
               {ev.dj_artist_name}
-              <span style={{ color: "#FF5C00" }}>.</span>
+              <span style={{ color: "#E85A0C" }}>.</span>
             </span>
           </div>
         )}
@@ -69,7 +69,7 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
           <div className="font-mono text-[9px] font-bold tracking-[0.1em]">{month}</div>
         </div>
         {ev.going_count > 0 && (
-          <span className="absolute bottom-2 right-2 font-mono text-[10px] font-bold uppercase tracking-[0.08em] bg-ink text-cream px-2 py-0.5">
+          <span className="absolute bottom-2 right-2 font-mono text-[10px] font-bold uppercase tracking-[0.08em] bg-ink text-white px-2 py-0.5">
             {ev.going_count} {ev.going_count === 1 ? "va" : "van"}
           </span>
         )}
@@ -90,7 +90,7 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
           ) : (
             <span className="truncate">{time} hrs</span>
           )}
-          <span className="ml-auto text-ink font-bold group-hover:text-orange transition-colors shrink-0">
+          <span className="ml-auto text-fg font-bold group-hover:text-orange transition-colors shrink-0">
             Ver →
           </span>
         </div>

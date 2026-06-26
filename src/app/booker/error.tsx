@@ -13,7 +13,7 @@ export default function BookerError({
 }) {
   return (
     <div className="p-10 max-w-md mx-auto text-center">
-      <div className="border-2 border-ink bg-white p-8">
+      <div className="border-2 border-border bg-bg-panel p-8">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
           — ALGO FALLÓ
         </div>
@@ -33,7 +33,7 @@ export default function BookerError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-cream font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-ink hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
         >
           Reintentar
         </button>

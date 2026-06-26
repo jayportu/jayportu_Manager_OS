@@ -77,7 +77,7 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
           e.preventDefault();
           setOpen(true);
         }}
-        className={`p-1.5 border-2 border-ink transition-colors ${
+        className={`p-1.5 border-2 border-border transition-colors ${
           hasFinanceInfo
             ? "bg-orange text-ink hover:bg-ink hover:text-orange"
             : "bg-cream hover:bg-ink hover:text-orange"
@@ -93,7 +93,7 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
           onClick={() => setOpen(false)}
         >
           <Card
-            className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
+            className="bg-bg-panel w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -175,7 +175,7 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-3 border-t-2 border-ink">
+              <div className="flex justify-end gap-2 pt-3 border-t-2 border-border">
                 <Button
                   type="button"
                   variant="ghost"

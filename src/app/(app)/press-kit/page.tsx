@@ -52,7 +52,7 @@ export default async function PressKitAdminPage() {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
       {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — PRESS KIT · LANDING PÚBLICA
         </div>
@@ -66,7 +66,7 @@ export default async function PressKitAdminPage() {
         </div>
         <p className="text-sm text-fg-muted mt-2 max-w-xl">
           Tu landing pública en{" "}
-          <span className="font-mono text-ink">{publicUrl}</span>. Compártela
+          <span className="font-mono text-fg">{publicUrl}</span>. Compártela
           en IG bio, mensajes a bookers, propuestas.
         </p>
       </div>

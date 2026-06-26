@@ -35,13 +35,13 @@ function resolveTone(tone: LogoProps["tone"]): "ink" | "cream" | "orange" {
 const TONE_COLOR: Record<"ink" | "cream" | "orange", string> = {
   ink: "#0A0A0A",
   cream: "#F4EFE7",
-  orange: "#FF5C00",
+  orange: "#E85A0C",
 };
 
 /**
  * DROP. wordmark — renderizado como texto Satoshi Black + punto naranja.
- * El punto SIEMPRE va en orange #FF5C00, salvo cuando el wordmark mismo es
- * orange (caso extremo, el punto pasa a cream para contraste).
+ * El punto SIEMPRE va en orange #E85A0C (naranjo canónico), salvo cuando el
+ * wordmark mismo es orange (caso extremo, el punto pasa a cream para contraste).
  */
 export function Logo({
   variant = "wordmark",
@@ -52,7 +52,7 @@ export function Logo({
   const color = resolveTone(tone);
   const isMonogram = variant === "monogram";
   const text = isMonogram ? "D" : "DROP";
-  const dotColor = color === "orange" ? "#F4EFE7" : "#FF5C00";
+  const dotColor = color === "orange" ? "#F4EFE7" : "#E85A0C";
 
   return (
     <span

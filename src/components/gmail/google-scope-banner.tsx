@@ -30,7 +30,7 @@ export async function GoogleScopeBanner() {
       : labels.slice(0, -1).join(", ") + " y " + labels[labels.length - 1];
 
   return (
-    <div className="bg-warning text-ink border-b-2 border-ink px-4 py-2.5">
+    <div className="bg-warning text-fg dark:text-ink border-b-2 border-border px-4 py-2.5">
       <div className="max-w-5xl mx-auto flex items-center gap-3 flex-wrap">
         <AlertTriangle className="w-4 h-4 shrink-0" />
         <div className="flex-1 min-w-0">
@@ -44,7 +44,7 @@ export async function GoogleScopeBanner() {
         </div>
         <a
           href="/api/gmail/auth"
-          className="inline-flex items-center justify-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 border-ink bg-ink text-warning hover:bg-orange hover:text-ink hover:border-ink transition-colors shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 border-border bg-ink text-warning hover:bg-orange hover:text-ink hover:border-border transition-colors shrink-0"
         >
           Reconectar Google
         </a>

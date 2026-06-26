@@ -30,7 +30,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-border bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · PULSO DE BETA
         </div>
@@ -47,7 +47,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
               key={r}
               href={`/admin/pulso?d=${r}`}
               className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
-                days === r ? "bg-ink text-orange border-ink" : "border-ink text-ink hover:bg-ink hover:text-orange"
+                days === r ? "bg-ink text-orange border-border" : "border-border text-fg hover:bg-ink hover:text-orange"
               }`}
             >
               {r} días
@@ -57,14 +57,14 @@ export default async function PulsoPage({ searchParams }: PageProps) {
       </div>
 
       {/* Embudo de oferta */}
-      <div className="border-2 border-ink bg-white p-5 mb-5">
+      <div className="border-2 border-border bg-bg-panel p-5 mb-5">
         <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
           — Embudo de oferta (DJs · acumulado)
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {funnel.map((s) => (
-            <div key={s.n} className="border-2 border-ink p-3">
-              <div className={`font-display text-3xl leading-none ${s.accent ? "text-orange" : "text-ink"}`}>{s.value}</div>
+            <div key={s.n} className="border-2 border-border p-3">
+              <div className={`font-display text-3xl leading-none ${s.accent ? "text-orange" : "text-fg"}`}>{s.value}</div>
               <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mt-1">{s.n} · {s.label}</div>
               {s.of != null && (
                 <div className="font-mono text-[10px] text-fg-subtle mt-0.5">{pct(s.value, s.of)} del paso anterior</div>
@@ -73,17 +73,17 @@ export default async function PulsoPage({ searchParams }: PageProps) {
           ))}
         </div>
         <p className="font-mono text-[11px] text-fg-subtle mt-3">
-          {"// "}Conversión registrado → perfil completo: <b className="text-ink">{pct(p.onboarded, p.registered)}</b>
+          {"// "}Conversión registrado → perfil completo: <b className="text-fg">{pct(p.onboarded, p.registered)}</b>
           {" · "}«Aprobados» = solicitudes en beta_requests (los correos de campaña enviados son un número aparte, ~705 ola 1 + ~809 ola 2).
         </p>
       </div>
 
       {/* Esta semana / ventana */}
-      <div className="border-2 border-ink bg-white p-5 mb-5">
+      <div className="border-2 border-border bg-bg-panel p-5 mb-5">
         <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
           — Movimiento ({days} días)
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink">
+        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border">
           <Kpi label="DJs nuevos" value={p.newDjs} />
           <Kpi label="Completaron perfil" value={p.newOnboarded} highlight />
           <Kpi label="Bookers nuevos" value={p.newBookers} />
@@ -100,7 +100,7 @@ export default async function PulsoPage({ searchParams }: PageProps) {
 
 function Kpi({ label, value, sub, highlight }: { label: string; value: number; sub?: string; highlight?: boolean }) {
   return (
-    <div className={`p-4 border-r-2 border-b-2 border-ink ${highlight ? "bg-orange" : "bg-white"}`}>
+    <div className={`p-4 border-r-2 border-b-2 border-border ${highlight ? "bg-orange" : "bg-bg-panel"}`}>
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">— {label}</div>
       <div className="font-display text-3xl leading-none mt-2">{value}</div>
       {sub && <div className="font-mono text-[9px] text-fg-muted mt-1">{sub}</div>}

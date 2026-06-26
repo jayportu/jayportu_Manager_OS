@@ -148,10 +148,10 @@ export function FavoriteButtonClient({
       }
       className={`inline-flex items-center justify-center ${sizeCls} border-2 transition-all disabled:opacity-50 ${
         !state.loaded
-          ? "bg-cream/50 text-fg-subtle border-ink/30"
+          ? "bg-cream/50 text-fg-subtle border-border/30"
           : state.favorited
             ? "bg-orange text-ink border-orange hover:bg-cream"
-            : "bg-cream/90 backdrop-blur-sm text-ink border-ink hover:bg-orange hover:border-orange"
+            : "bg-cream/90 backdrop-blur-sm text-fg border-border hover:bg-orange hover:border-orange"
       }`}
     >
       <Heart

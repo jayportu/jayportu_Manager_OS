@@ -67,7 +67,7 @@ export default async function SubscripcionMiPage() {
       <div className="mb-8">
         <Link
           href="/configuracion"
-          className="font-mono text-[10px] uppercase tracking-[0.1em] text-fg-muted hover:text-ink transition-colors"
+          className="font-mono text-[10px] uppercase tracking-[0.1em] text-fg-muted hover:text-fg transition-colors"
         >
           ← Configuración
         </Link>
@@ -147,7 +147,7 @@ export default async function SubscripcionMiPage() {
             <ReactivateSubscriptionButton />
             <Link
               href="/suscripcion"
-              className="inline-flex items-center gap-2 h-10 px-4 bg-ink text-orange border-2 border-ink hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+              className="inline-flex items-center gap-2 h-10 px-4 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
             >
               Reactivar con nueva tarjeta →
             </Link>
@@ -158,7 +158,7 @@ export default async function SubscripcionMiPage() {
           <div className="flex gap-2 flex-wrap pt-4 border-t border-border">
             <Link
               href="/suscripcion"
-              className="inline-flex items-center gap-2 h-10 px-4 bg-ink text-orange border-2 border-ink hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+              className="inline-flex items-center gap-2 h-10 px-4 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
             >
               {subscription.status === "trial" ? "Suscribirme ahora →" : "Renovar suscripción →"}
             </Link>
@@ -218,19 +218,19 @@ function StatusBadge({
   const { status } = subscription;
   let bg = "bg-cream";
   let text = "text-fg-muted";
-  let border = "border-ink";
+  let border = "border-border";
   let label = status.toUpperCase();
   if (status === "active") {
     bg = "bg-orange";
-    text = "text-ink";
+    text = "text-fg";
     label = "● ACTIVA";
   } else if (status === "trial") {
     bg = "bg-orange";
-    text = "text-ink";
+    text = "text-fg";
     label = "TRIAL";
   } else if (status === "cancelled") {
     bg = "bg-warning";
-    text = "text-ink";
+    text = "text-fg";
     label = "CANCELADA · ACCESO HASTA EL FIN";
   } else if (status === "expired") {
     bg = "bg-danger";
@@ -239,7 +239,7 @@ function StatusBadge({
     label = "VENCIDA";
   } else if (status === "past_due") {
     bg = "bg-warning";
-    text = "text-ink";
+    text = "text-fg";
     label = "PAGO PENDIENTE";
   } else if (status === "pending") {
     bg = "bg-cream";

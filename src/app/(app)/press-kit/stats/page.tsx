@@ -140,7 +140,7 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
       </Link>
 
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-5">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-5">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — PRESS KIT · ESTADÍSTICAS
         </div>
@@ -161,8 +161,8 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
             href={`/press-kit/stats?d=${r}`}
             className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
               days === r
-                ? "bg-ink text-orange border-ink"
-                : "border-ink text-ink hover:bg-ink hover:text-orange"
+                ? "bg-ink text-orange border-border"
+                : "border-border text-fg hover:bg-ink hover:text-orange"
             }`}
           >
             {r} días
@@ -182,7 +182,7 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
       ) : (
         <>
           {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-ink mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
             <KpiTile label="Visitas" value={views} icon={Eye} />
             <KpiTile label="Clicks" value={clicks} icon={MousePointerClick} />
             <KpiTile label="Solicitudes" value={formSubmits} icon={Send} highlight />
@@ -306,7 +306,7 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
                   .map(([status, n]) => (
                     <span
                       key={status}
-                      className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 border-2 border-ink bg-cream"
+                      className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 border-2 border-border bg-cream"
                     >
                       {BOOKING_STATUS_LABELS[status as BookingStatus] || status}{" "}
                       <span className="font-bold">{n}</span>
@@ -336,8 +336,8 @@ function KpiTile({
 }) {
   return (
     <div
-      className={`p-4 border-r-2 border-ink last:border-r-0 ${
-        highlight ? "bg-orange" : "bg-white"
+      className={`p-4 border-r-2 border-border last:border-r-0 ${
+        highlight ? "bg-orange" : "bg-bg-panel"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -374,7 +374,7 @@ function FunnelBar({
           {pct !== undefined && <span className="text-fg-subtle"> · {pct}%</span>}
         </span>
       </div>
-      <div className="h-3 bg-ink/10 border border-ink/20">
+      <div className="h-3 bg-ink/10 border border-border/20">
         <div className="h-full bg-orange" style={{ width: `${width}%` }} />
       </div>
     </div>

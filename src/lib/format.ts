@@ -48,22 +48,22 @@ export function initials(name: string): string {
 export function scoreColor(score: number): { bg: string; text: string } {
   if (score >= 80)
     return {
-      bg: "bg-orange border-2 border-ink",
+      bg: "bg-orange border-2 border-border",
       text: "text-ink",
     };
   if (score >= 60)
     return {
-      bg: "bg-success border-2 border-ink",
+      bg: "bg-success border-2 border-border",
       text: "text-white",
     };
   if (score >= 40)
     return {
-      bg: "bg-warning border-2 border-ink",
+      bg: "bg-warning border-2 border-border",
       text: "text-white",
     };
   return {
-    bg: "bg-cream border-2 border-ink",
-    text: "text-ink",
+    bg: "bg-cream border-2 border-border",
+    text: "text-fg",
   };
 }
 

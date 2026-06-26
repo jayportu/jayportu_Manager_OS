@@ -641,7 +641,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             type="button"
             onClick={() => update("show_fee", !form.show_fee)}
             aria-label="Mostrar fee"
-            className={`shrink-0 w-14 h-7 border-2 border-ink rounded-full relative transition-colors ${
+            className={`shrink-0 w-14 h-7 border-2 border-border rounded-full relative transition-colors ${
               form.show_fee ? "bg-orange" : "bg-cream"
             }`}
           >
@@ -724,7 +724,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         </p>
         <a
           href="/configuracion#tech-rider"
-          className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-ink bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors w-fit"
+          className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors w-fit"
         >
           Editar tech rider →
         </a>

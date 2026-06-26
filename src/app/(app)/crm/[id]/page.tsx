@@ -84,7 +84,7 @@ export default async function ContactDetailPage({ params }: PageProps) {
       {/* Header */}
       <Card className="p-6 mb-5">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-full bg-ink text-cream border-2 border-ink flex items-center justify-center font-bold text-lg shrink-0">
+          <div className="w-14 h-14 rounded-full bg-ink text-white border-2 border-border flex items-center justify-center font-bold text-lg shrink-0">
             {initials(contact.name)}
           </div>
           <div className="flex-1 min-w-0">
@@ -199,7 +199,7 @@ export default async function ContactDetailPage({ params }: PageProps) {
               <Link
                 key={t}
                 href={`/crm?tag=${encodeURIComponent(t)}`}
-                className="inline-flex items-center border-2 border-ink bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
+                className="inline-flex items-center border-2 border-border bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
               >
                 #{t}
               </Link>
@@ -213,7 +213,7 @@ export default async function ContactDetailPage({ params }: PageProps) {
 
       {/* Sprint 19 — Notas privadas (solo si hay contenido) */}
       {contact.private_notes && contact.private_notes.trim().length > 0 && (
-        <Card className="p-5 mb-5 bg-ink text-cream" style={{ borderColor: "#0A0A0A" }}>
+        <Card className="p-5 mb-5 bg-ink text-white" style={{ borderColor: "#0A0A0A" }}>
           <div className="flex items-center justify-between mb-3">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
               🔒 NOTAS PRIVADAS

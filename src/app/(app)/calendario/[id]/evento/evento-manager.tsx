@@ -173,7 +173,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                 {pending ? "Publicando…" : "Publicar como evento"}
               </Button>
             ) : (
-              <p className="text-xs text-fg-muted border-2 border-dashed border-ink/30 bg-cream px-3 py-2 max-w-sm mx-auto">
+              <p className="text-xs text-fg-muted border-2 border-dashed border-border/30 bg-cream px-3 py-2 max-w-sm mx-auto">
                 Solo los eventos de tipo <strong>show</strong> se pueden publicar.
                 Cambia el tipo en el calendario para habilitarlo.
               </p>
@@ -194,7 +194,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                 readOnly
                 value={link}
                 onFocus={(e) => e.currentTarget.select()}
-                className="flex-1 border-2 border-ink bg-cream px-3 py-2 font-mono text-xs"
+                className="flex-1 border-2 border-border bg-cream px-3 py-2 font-mono text-xs"
               />
               <Button onClick={copyLink} variant="outline">
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -213,7 +213,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                   value={ticketUrl}
                   onChange={(e) => setTicketUrl(e.target.value)}
                   placeholder="https://..."
-                  className="flex-1 border-2 border-ink bg-white px-3 py-2 font-mono text-xs focus:outline-none focus:border-orange"
+                  className="flex-1 border-2 border-border bg-bg-panel px-3 py-2 font-mono text-xs focus:outline-none focus:border-orange"
                 />
                 <Button onClick={saveTicket} variant="outline" disabled={pending}>
                   {ticketSaved ? <Check className="w-4 h-4" /> : "Guardar"}
@@ -241,7 +241,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted flex items-center gap-1.5 mb-2">
           <Eye className="w-3.5 h-3.5" /> Esto ve el público
         </div>
-        <div className="border-2 border-ink bg-cream p-3 space-y-1">
+        <div className="border-2 border-border bg-cream p-3 space-y-1">
           <div className="font-display text-xl leading-none">{event.title}</div>
           <div className="text-xs text-fg-muted">
             {fmtWhen(event.start_at) || "Fecha por confirmar"}
@@ -289,7 +289,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
               : "Publica el evento para empezar a recibir RSVPs."}
           </p>
         ) : (
-          <div className="border-2 border-ink divide-y divide-ink/10">
+          <div className="border-2 border-border divide-y divide-border/10">
             {rsvps.map((r) => (
               <div key={r.id} className="flex items-center gap-3 px-3 py-2 text-sm">
                 <span className="flex-1 min-w-0 truncate">
@@ -300,7 +300,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                   className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 border ${
                     r.status === "going"
                       ? "border-success/40 text-success"
-                      : "border-ink/20 text-fg-muted"
+                      : "border-border/20 text-fg-muted"
                   }`}
                 >
                   {r.status === "going" ? "Voy" : "Quizás"}

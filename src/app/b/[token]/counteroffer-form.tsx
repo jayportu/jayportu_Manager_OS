@@ -59,7 +59,7 @@ export function CounterofferForm({
 
   if (!open) {
     return (
-      <div className="border-2 border-dashed border-ink bg-white p-5">
+      <div className="border-2 border-dashed border-border bg-bg-panel p-5">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-2">
           — ¿NO TE CIERRA ESTE MONTO?
         </div>
@@ -83,7 +83,7 @@ export function CounterofferForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-2 border-ink bg-white p-5 space-y-4"
+      className="border-2 border-border bg-bg-panel p-5 space-y-4"
     >
       <div>
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-1">

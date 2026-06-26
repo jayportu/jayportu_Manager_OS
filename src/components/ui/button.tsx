@@ -21,17 +21,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-ink text-orange border-ink hover:bg-orange hover:text-ink",
+          "bg-ink text-orange border-border hover:bg-orange hover:text-ink",
         orange:
-          "bg-orange text-ink border-ink hover:bg-ink hover:text-orange",
+          "bg-orange text-ink border-border hover:bg-ink hover:text-orange",
         destructive:
-          "bg-danger text-white border-danger hover:bg-danger/90",
+          "bg-danger text-white dark:text-ink border-danger hover:bg-danger/90",
         outline:
-          "border-ink bg-transparent text-ink hover:bg-ink hover:text-orange",
+          "border-border bg-transparent text-fg hover:bg-ink hover:text-orange",
         secondary:
-          "border-ink bg-cream text-ink hover:bg-ink hover:text-orange",
+          "border-border bg-cream text-fg hover:bg-ink hover:text-orange",
         ghost:
-          "border-transparent bg-transparent text-ink hover:bg-ink hover:text-orange",
+          "border-transparent bg-transparent text-fg hover:bg-ink hover:text-orange",
         link:
           "border-transparent bg-transparent text-orange underline-offset-4 hover:underline tracking-normal normal-case font-sans font-semibold",
       },

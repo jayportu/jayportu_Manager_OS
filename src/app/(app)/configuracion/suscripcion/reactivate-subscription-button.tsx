@@ -22,7 +22,7 @@ export function ReactivateSubscriptionButton() {
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-ink border-2 border-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
+      className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-fg border-2 border-border hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
     >
       {isPending ? "Reactivando…" : "Reactivar"}
     </button>

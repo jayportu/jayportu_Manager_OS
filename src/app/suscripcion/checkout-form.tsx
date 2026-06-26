@@ -130,7 +130,7 @@ export function CheckoutForm({ userEmail }: Props) {
     <>
       <form
         onSubmit={handleSubmit}
-        className="bg-white border-2 border-ink p-5 space-y-3"
+        className="bg-bg-panel border-2 border-border p-5 space-y-3"
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
           — DATOS DE TARJETA
@@ -146,7 +146,7 @@ export function CheckoutForm({ userEmail }: Props) {
           required
           maxLength={23}
           disabled={busy}
-          className="w-full h-11 px-3 border-2 border-ink bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
+          className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
         />
 
         <input
@@ -157,7 +157,7 @@ export function CheckoutForm({ userEmail }: Props) {
           onChange={(e) => setCardholderName(e.target.value.toUpperCase())}
           required
           disabled={busy}
-          className="w-full h-11 px-3 border-2 border-ink bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
+          className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
         />
 
         <div className="grid grid-cols-3 gap-2">
@@ -170,7 +170,7 @@ export function CheckoutForm({ userEmail }: Props) {
             required
             maxLength={2}
             disabled={busy}
-            className="w-full h-11 px-3 border-2 border-ink bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
+            className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
           />
           <input
             type="text"
@@ -181,7 +181,7 @@ export function CheckoutForm({ userEmail }: Props) {
             required
             maxLength={4}
             disabled={busy}
-            className="w-full h-11 px-3 border-2 border-ink bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
+            className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
           />
           <input
             type="password"
@@ -193,7 +193,7 @@ export function CheckoutForm({ userEmail }: Props) {
             required
             maxLength={4}
             disabled={busy}
-            className="w-full h-11 px-3 border-2 border-ink bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
+            className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
           />
         </div>
 
@@ -205,7 +205,7 @@ export function CheckoutForm({ userEmail }: Props) {
           required
           maxLength={12}
           disabled={busy}
-          className="w-full h-11 px-3 border-2 border-ink bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
+          className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
         />
 
         <p className="text-[11px] text-fg-muted">
@@ -236,7 +236,7 @@ export function CheckoutForm({ userEmail }: Props) {
         <button
           type="submit"
           disabled={busy}
-          className="w-full h-12 inline-flex items-center justify-center gap-2 bg-ink text-orange border-2 border-ink hover:bg-orange hover:text-ink disabled:opacity-50 disabled:hover:bg-ink disabled:hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+          className="w-full h-12 inline-flex items-center justify-center gap-2 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink disabled:opacity-50 disabled:hover:bg-ink disabled:hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
         >
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
           {status === "tokenizing" && "Procesando tarjeta…"}

@@ -23,7 +23,7 @@ export default async function BetaRequestsPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-6 border-2 border-ink bg-white p-6">
+      <div className="mb-6 border-2 border-border bg-bg-panel p-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — ADMIN · BETA REQUESTS
         </div>
@@ -31,16 +31,16 @@ export default async function BetaRequestsPage() {
           BETA.<span className="text-orange"></span>
         </h1>
         <div className="mt-3 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-wider">
-          <span className="px-2.5 py-1 bg-orange border-2 border-ink">
+          <span className="px-2.5 py-1 bg-orange border-2 border-border">
             {counts.new} NUEVOS
           </span>
-          <span className="px-2.5 py-1 bg-success text-white border-2 border-success">
+          <span className="px-2.5 py-1 bg-success text-white dark:text-ink border-2 border-success">
             {counts.approved} APROBADOS
           </span>
-          <span className="px-2.5 py-1 bg-warning border-2 border-ink">
+          <span className="px-2.5 py-1 bg-warning border-2 border-border">
             {counts.waitlist} WAITLIST
           </span>
-          <span className="px-2.5 py-1 bg-danger text-white border-2 border-danger">
+          <span className="px-2.5 py-1 bg-danger text-white dark:text-ink border-2 border-danger">
             {counts.rejected} RECHAZADOS
           </span>
         </div>

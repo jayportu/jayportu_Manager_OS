@@ -122,7 +122,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
   }
 
   return (
-    <div className="border-2 border-ink bg-white p-5 mb-6">
+    <div className="border-2 border-border bg-bg-panel p-5 mb-6">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
         — COMPARTIR PRESS KIT
       </div>
@@ -136,7 +136,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="w-full md:w-auto md:min-w-[280px] flex items-center justify-between gap-3 border-2 border-ink bg-cream px-3 py-2 text-sm font-mono"
+            className="w-full md:w-auto md:min-w-[280px] flex items-center justify-between gap-3 border-2 border-border bg-cream px-3 py-2 text-sm font-mono"
           >
             <span>{preset?.label ?? "Sin tag (link directo)"}</span>
             <ChevronDown
@@ -144,7 +144,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
             />
           </button>
           {open && (
-            <div className="absolute z-20 mt-1 w-full md:min-w-[320px] border-2 border-ink bg-white shadow-[5px_5px_0_0_#0A0A0A] max-h-[300px] overflow-y-auto">
+            <div className="absolute z-20 mt-1 w-full md:min-w-[320px] border-2 border-border bg-bg-panel shadow-[5px_5px_0_0_#0A0A0A] max-h-[300px] overflow-y-auto">
               {UTM_PRESETS.map((p) => (
                 <button
                   key={p.value}
@@ -153,7 +153,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
                     setSelectedSource(p.value);
                     setOpen(false);
                   }}
-                  className={`block w-full text-left px-3 py-2 text-sm font-mono border-b border-ink/10 last:border-b-0 hover:bg-orange hover:text-ink transition-colors ${
+                  className={`block w-full text-left px-3 py-2 text-sm font-mono border-b border-border/10 last:border-b-0 hover:bg-orange hover:text-ink transition-colors ${
                     selectedSource === p.value ? "bg-orange/20" : ""
                   }`}
                 >
@@ -166,7 +166,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
       </div>
 
       {/* Final URL preview */}
-      <div className="mt-3 border border-ink/30 bg-cream p-3 font-mono text-[11px] break-all leading-relaxed">
+      <div className="mt-3 border border-border/30 bg-cream p-3 font-mono text-[11px] break-all leading-relaxed">
         {finalUrl}
       </div>
 
@@ -203,12 +203,12 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
 
       {/* QR display + download */}
       {showQR && (
-        <div className="mt-5 border-2 border-dashed border-ink p-5 bg-cream">
+        <div className="mt-5 border-2 border-dashed border-border p-5 bg-cream">
           <div className="flex flex-col md:flex-row md:items-start gap-5">
             <div className="flex-shrink-0 flex flex-col items-center">
               <canvas
                 ref={canvasRef}
-                className="border-2 border-ink bg-cream"
+                className="border-2 border-border bg-cream"
                 width={360}
                 height={360}
                 style={{ width: 240, height: 240 }}

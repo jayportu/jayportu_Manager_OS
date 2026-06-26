@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 
 export default function BetaPage() {
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <header className="border-b-2 border-ink px-6 md:px-10 py-5 flex items-center gap-4">
+    <div className="min-h-screen bg-bg text-fg">
+      <header className="border-b-2 border-border px-6 md:px-10 py-5 flex items-center gap-4">
         <Logo variant="horizontal" tone="ink" size={120} />
         <div className="ml-auto flex items-center gap-4">
           <span className="hidden md:inline font-mono text-[10px] uppercase tracking-[0.15em] text-fg-muted">
@@ -26,7 +26,7 @@ export default function BetaPage() {
           </span>
           <a
             href="/login"
-            className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink hover:text-orange transition-colors border-b border-transparent hover:border-orange"
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg hover:text-orange transition-colors border-b border-transparent hover:border-orange"
           >
             ¿Ya tienes cuenta? Iniciar sesión →
           </a>
@@ -58,7 +58,7 @@ export default function BetaPage() {
               ].map((bullet) => (
                 <li
                   key={bullet}
-                  className="flex items-start gap-3 border-t border-ink/15 pt-2"
+                  className="flex items-start gap-3 border-t border-border/15 pt-2"
                 >
                   <span className="text-orange font-bold">→</span>
                   <span>{bullet}</span>
@@ -77,7 +77,7 @@ export default function BetaPage() {
         </div>
       </main>
 
-      <footer className="border-t-2 border-ink px-6 md:px-10 py-6 mt-20 text-[10px] font-mono uppercase tracking-[0.2em] text-fg-muted text-center">
+      <footer className="border-t-2 border-border px-6 md:px-10 py-6 mt-20 text-[10px] font-mono uppercase tracking-[0.2em] text-fg-muted text-center">
         DROP. v0.13 · The DJ OS · Made in Santiago
       </footer>
     </div>

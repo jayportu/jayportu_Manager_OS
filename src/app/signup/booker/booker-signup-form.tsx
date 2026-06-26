@@ -151,7 +151,7 @@ export function BookerSignupForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-2 border-ink bg-white p-6 space-y-4"
+      className="border-2 border-border bg-bg-panel p-6 space-y-4"
     >
       <div className="space-y-1.5">
         <Label htmlFor="full-name">Tu nombre</Label>
@@ -201,7 +201,7 @@ export function BookerSignupForm() {
           id="booker-type"
           value={bookerType}
           onChange={(e) => setBookerType(e.target.value)}
-          className="w-full border-2 border-ink bg-cream px-3 py-2 text-sm font-mono"
+          className="w-full border-2 border-border bg-cream px-3 py-2 text-sm font-mono"
         >
           {BOOKER_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -222,7 +222,7 @@ export function BookerSignupForm() {
               setCity(""); // las ciudades cambian con el país
             }}
             required
-            className="w-full border-2 border-ink bg-cream px-3 py-2 text-sm font-mono"
+            className="w-full border-2 border-border bg-cream px-3 py-2 text-sm font-mono"
           >
             {COUNTRIES.map((c) => (
               <option key={c.es} value={c.es}>

@@ -230,7 +230,7 @@ export function NewEventButton({
 
               {/* Sprint 19 — Bloque financiero opcional */}
               {type === "show" && (
-                <div className="border-2 border-dashed border-ink p-3 space-y-3">
+                <div className="border-2 border-dashed border-border p-3 space-y-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"

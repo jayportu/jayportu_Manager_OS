@@ -53,7 +53,7 @@ export function SoundcloudEmbed({
 
   const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
     embed
-  )}&color=%23FF5C00&inverse=true&auto_play=false&show_user=true&hide_related=true`;
+  )}&color=%23E85A0C&inverse=true&auto_play=false&show_user=true&hide_related=true`;
 
   return (
     <div className="rounded-lg overflow-hidden border border-border bg-bg-panel">
@@ -157,7 +157,7 @@ export function YoutubeEmbed({
       href={safeUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-ink bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+      className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-border bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
     >
       <span aria-hidden="true">▶</span> Ver canal en YouTube
     </a>
@@ -249,7 +249,7 @@ export function SpotifyEmbed({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-ink bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+        className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-border bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
       >
         Escuchar en Spotify →
       </a>

@@ -44,7 +44,7 @@ export function DjVerificationChips({
             title={on ? `Quitar ${c.label}` : `Verificar ${c.label}`}
             className={`px-1.5 py-0.5 border font-mono text-[9px] uppercase tracking-wider transition-colors disabled:opacity-50 ${
               on
-                ? "border-success bg-success text-white"
+                ? "border-success bg-success text-white dark:text-ink"
                 : "border-border text-fg-muted hover:border-success hover:text-success"
             }`}
           >

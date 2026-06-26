@@ -40,9 +40,9 @@ export function MatchCard({
   const strong = score >= 70;
 
   return (
-    <div className="group border-2 border-ink bg-white flex flex-col">
+    <div className="group border-2 border-border bg-bg-panel flex flex-col">
       {/* Imagen + overlays */}
-      <div className="relative aspect-[4/3] bg-ink border-b-2 border-ink overflow-hidden">
+      <div className="relative aspect-[4/3] bg-ink border-b-2 border-border overflow-hidden">
         {cardImg ? (
           <Image
             src={cardImg}
@@ -63,13 +63,13 @@ export function MatchCard({
               }}
             >
               {initials || "DJ"}
-              <span style={{ color: "#FF5C00" }}>.</span>
+              <span style={{ color: "#E85A0C" }}>.</span>
             </span>
           </div>
         )}
         {/* % de match — atenuado si es parcial (M5) */}
         <span
-          className={`absolute top-2 right-2 px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wider border-2 border-ink ${
+          className={`absolute top-2 right-2 px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wider border-2 border-border ${
             strong ? "bg-orange text-ink" : "bg-cream text-fg-muted"
           }`}
         >
@@ -114,7 +114,7 @@ export function MatchCard({
               <li
                 key={i}
                 className={`flex items-start gap-1.5 text-[12px] leading-snug ${
-                  r.positive ? "text-ink" : "text-fg-muted"
+                  r.positive ? "text-fg" : "text-fg-muted"
                 }`}
               >
                 {r.positive ? (
@@ -138,7 +138,7 @@ export function MatchCard({
               className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 transition-colors ${
                 showSet
                   ? "bg-orange text-ink border-orange"
-                  : "bg-white text-ink border-ink hover:bg-orange hover:border-orange"
+                  : "bg-bg-panel text-fg border-border hover:bg-orange hover:border-orange"
               }`}
             >
               <Play className="w-3 h-3" />
@@ -147,7 +147,7 @@ export function MatchCard({
           )}
           <Link
             href={`/p/${dj.public_slug}`}
-            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 border-ink bg-ink text-cream hover:bg-orange hover:text-ink hover:border-orange transition-colors ml-auto"
+            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 border-border bg-ink text-white hover:bg-orange hover:text-ink hover:border-orange transition-colors ml-auto"
           >
             Ver press kit <ArrowUpRight className="w-3 h-3" />
           </Link>

@@ -67,7 +67,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-ink bg-white p-6 md:p-7 mb-6">
+      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
           — BUSCAR DJS · {djs.length} EN EL DIRECTORIO
         </div>
@@ -87,7 +87,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
         </p>
         {availableCount > 0 && (
           <div
-            className="mt-4 inline-flex items-center gap-2 border-2 border-ink bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider"
+            className="mt-4 inline-flex items-center gap-2 border-2 border-border bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider"
             title="DJs con disponibilidad abierta. Usa el filtro «Solo disponibles» para verlos."
           >
             ★ {availableCount}{" "}
@@ -100,7 +100,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       <form
         action="/booker/buscar"
         method="get"
-        className="border-2 border-ink bg-white p-4 md:p-5 mb-6 space-y-4"
+        className="border-2 border-border bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
       >
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
           — FILTROS
@@ -112,12 +112,12 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             name="q"
             placeholder="🔎  Nombre, ciudad, tagline..."
             defaultValue={sp.q ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
           />
           <select
             name="city"
             defaultValue={sp.city ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Ciudad: todas</option>
             {allCities.map((c) => (
@@ -129,7 +129,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
           <select
             name="avail"
             defaultValue={sp.avail ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
           >
             <option value="">Disponibilidad</option>
             <option value="1">Solo disponibles</option>
@@ -141,18 +141,18 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             step={50000}
             placeholder="Presupuesto $"
             defaultValue={sp.budget ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
           />
           <input
             type="date"
             name="date"
             title="Libre en esta fecha"
             defaultValue={sp.date ?? ""}
-            className="border-2 border-ink bg-white px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
+            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
           />
           <button
             type="submit"
-            className="border-2 border-ink bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
+            className="border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
           >
             FILTRAR
           </button>
@@ -176,7 +176,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
                     href={buildHref(sp, {
                       genres: newGenres.length > 0 ? newGenres.join(",") : undefined,
                     })}
-                    className={`inline-flex items-center gap-1.5 border-2 border-ink font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
+                    className={`inline-flex items-center gap-1.5 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
                       active ? "bg-orange text-ink" : "bg-cream hover:bg-orange"
                     }`}
                   >
@@ -190,7 +190,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
               <div className="mt-2">
                 <Link
                   href={buildHref(sp, { genres: undefined })}
-                  className="font-mono text-[9px] uppercase tracking-wider underline text-fg-muted hover:text-ink"
+                  className="font-mono text-[9px] uppercase tracking-wider underline text-fg-muted hover:text-fg"
                 >
                   Limpiar géneros
                 </Link>
@@ -212,7 +212,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       </div>
 
       {djs.length === 0 ? (
-        <div className="border-2 border-ink bg-white p-10 text-center">
+        <div className="border-2 border-border bg-bg-panel p-10 text-center">
           <p className="text-sm text-fg-muted">
             No hay DJs que coincidan con los filtros. Prueba con menos filtros,
             otra ciudad o un presupuesto más alto.

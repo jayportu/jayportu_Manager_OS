@@ -63,7 +63,7 @@ export default async function CorreoPage({
             key={f.key}
             href={`/admin/correo?folder=${f.key}`}
             className={`font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-md border ${
-              f.key === folder ? "border-ink bg-orange/10" : "border-border text-fg-muted"
+              f.key === folder ? "border-border bg-orange/10" : "border-border text-fg-muted"
             }`}
           >
             {f.label}
@@ -87,7 +87,7 @@ export default async function CorreoPage({
               >
                 <div className="flex items-center gap-2">
                   {!m.read_at && (
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "#FF5C00" }} />
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "#E85A0C" }} />
                   )}
                   <span className={`text-sm truncate ${!m.read_at ? "font-bold" : ""}`}>
                     {isSent ? `Para: ${m.to_email}` : m.from_name || m.from_email}
@@ -118,11 +118,11 @@ export default async function CorreoPage({
                   {isSent ? (
                     <div className="text-sm text-fg-muted mt-1">
                       Para:{" "}
-                      <span className="font-semibold text-ink">{selected.to_email}</span>
+                      <span className="font-semibold text-fg">{selected.to_email}</span>
                     </div>
                   ) : (
                     <div className="text-sm text-fg-muted mt-1">
-                      <span className="font-semibold text-ink">
+                      <span className="font-semibold text-fg">
                         {selected.from_name || selected.from_email}
                       </span>{" "}
                       &lt;{selected.from_email}&gt;
@@ -138,7 +138,7 @@ export default async function CorreoPage({
                     <form action={markEmailUnread.bind(null, selected.id, folder)}>
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-border"
                       >
                         <Mail className="w-3.5 h-3.5" /> Marcar no leído
                       </button>
@@ -148,7 +148,7 @@ export default async function CorreoPage({
                     <form action={archiveEmail.bind(null, selected.id)}>
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-border"
                       >
                         <Archive className="w-3.5 h-3.5" /> Archivar
                       </button>
@@ -159,7 +159,7 @@ export default async function CorreoPage({
                       <form action={restoreEmail.bind(null, selected.id)}>
                         <button
                           type="submit"
-                          className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                          className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-border"
                         >
                           <RotateCcw className="w-3.5 h-3.5" /> Restaurar
                         </button>
@@ -178,7 +178,7 @@ export default async function CorreoPage({
                     <form action={deleteEmail.bind(null, selected.id)}>
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                        className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-border"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Eliminar
                       </button>
@@ -198,7 +198,7 @@ export default async function CorreoPage({
                     sandbox=""
                     srcDoc={selected.html_body}
                     title="cuerpo del correo"
-                    className="w-full bg-white rounded"
+                    className="w-full bg-bg-panel rounded"
                     style={{ height: 420, border: "1px solid #E5E1D8" }}
                   />
                 ) : (
@@ -214,7 +214,7 @@ export default async function CorreoPage({
                       href={`/api/correo/attachment/${selected.resend_id}/${a.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-ink"
+                      className="inline-flex items-center gap-1.5 text-xs border border-border rounded-md px-3 py-2 hover:border-border"
                     >
                       <Paperclip className="w-3.5 h-3.5" /> {a.filename}
                     </a>

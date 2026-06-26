@@ -48,7 +48,7 @@ export function VerifyBookerButton({ bookerUserId, verified, name }: Props) {
         className={`inline-flex items-center gap-1 px-2 py-1 border font-mono text-[9px] uppercase tracking-wider transition-colors disabled:opacity-50 ${
           verified
             ? "border-fg-muted/40 text-fg-muted hover:bg-fg-muted hover:text-white"
-            : "border-success/50 text-success hover:bg-success hover:text-white"
+            : "border-success/50 text-success hover:bg-success hover:text-white dark:hover:text-ink"
         }`}
         title={verified ? "Quitar verificación" : "Verificar booker"}
       >

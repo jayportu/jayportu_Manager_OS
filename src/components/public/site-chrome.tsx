@@ -29,12 +29,12 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 bg-ink border-b-2 border-orange">
       <div className="max-w-[1140px] mx-auto px-6 h-[62px] flex items-center gap-6">
-        <Link href="/" className="text-cream" style={{ fontFamily: SATOSHI, fontWeight: 900, fontSize: 28, lineHeight: 0.9, letterSpacing: "-0.02em" }}>
+        <Link href="/" className="text-white" style={{ fontFamily: SATOSHI, fontWeight: 900, fontSize: 28, lineHeight: 0.9, letterSpacing: "-0.02em" }}>
           DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span>
         </Link>
         <nav className="hidden md:flex gap-6 ml-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
           {navLinks.map((l) => (
-            <Link key={l.href} href={l.href} className="text-cream/70 hover:text-orange transition-colors">
+            <Link key={l.href} href={l.href} className="text-white/70 hover:text-orange transition-colors">
               {l.label}
             </Link>
           ))}
@@ -42,14 +42,14 @@ export async function SiteHeader() {
         <div className="flex-1" />
         {/* "Entrar" degradado a link (es para usuarios que vuelven, no
             adquisición); el CTA fuerte es "Soy DJ" → /beta. */}
-        <Link href="/login" className="hidden md:inline font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-cream/70 hover:text-orange transition-colors">
+        <Link href="/login" className="hidden md:inline font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/70 hover:text-orange transition-colors">
           Entrar
         </Link>
         {/* Menú móvil (sin JS): <details> como disclosure. Se cierra solo al
             navegar porque cada página re-renderiza el header. */}
         <details className="md:hidden relative">
           <summary
-            className="list-none [&::-webkit-details-marker]:hidden cursor-pointer p-1.5 -mr-1 text-cream"
+            className="list-none [&::-webkit-details-marker]:hidden cursor-pointer p-1.5 -mr-1 text-white"
             aria-label="Abrir menú"
           >
             <Menu className="w-6 h-6" />
@@ -59,20 +59,20 @@ export async function SiteHeader() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-cream/80 hover:bg-orange hover:text-ink border-b border-cream/10 last:border-b-0 transition-colors"
+                className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/80 hover:bg-orange hover:text-ink border-b border-cream/10 last:border-b-0 transition-colors"
               >
                 {l.label}
               </Link>
             ))}
             <Link
               href="/login"
-              className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-cream/80 hover:bg-orange hover:text-ink border-t border-orange/40 transition-colors"
+              className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/80 hover:bg-orange hover:text-ink border-t border-orange/40 transition-colors"
             >
               Entrar
             </Link>
           </div>
         </details>
-        <Link href="/beta" className="px-4 py-2 bg-orange text-ink border-2 border-ink font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
+        <Link href="/beta" className="px-4 py-2 bg-orange text-ink border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
           Soy DJ
         </Link>
       </div>
@@ -88,7 +88,7 @@ export async function SiteFooter() {
     ["Cómo funciona", "/#conexion"],
   ];
   return (
-    <footer className="bg-ink text-cream border-t-2 border-orange">
+    <footer className="bg-ink text-white border-t-2 border-orange">
       <div className="max-w-[1140px] mx-auto px-6 py-14">
         <p style={{ fontFamily: ANTON, fontSize: 38, lineHeight: 0.92, maxWidth: "18ch" }}>
           Hecho por la escena, <span className="text-fg-subtle">para la escena.</span>
@@ -112,9 +112,9 @@ export async function SiteFooter() {
 function FootCol({ title, links }: { title: string; links: [string, string][] }) {
   return (
     <div>
-      <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-cream/60 mb-3">{title}</h2>
+      <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/60 mb-3">{title}</h2>
       {links.map(([label, href]) => (
-        <a key={label} href={href} className="block font-mono text-[11px] uppercase tracking-[0.06em] text-cream/70 py-1 hover:text-orange transition-colors">{label}</a>
+        <a key={label} href={href} className="block font-mono text-[11px] uppercase tracking-[0.06em] text-white/70 py-1 hover:text-orange transition-colors">{label}</a>
       ))}
     </div>
   );

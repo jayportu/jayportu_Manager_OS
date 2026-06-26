@@ -29,12 +29,12 @@ interface Props {
 
 const STATUS_FLOW: { key: BookingStatus; tint: string }[] = [
   { key: "nuevo", tint: "bg-orange text-ink" },
-  { key: "leido", tint: "bg-info text-white" },
-  { key: "respondido", tint: "bg-cream text-ink" },
-  { key: "cotizado", tint: "bg-warning text-white" },
-  { key: "contraofertado", tint: "bg-ink text-cream" },
-  { key: "agendado", tint: "bg-success text-white" },
-  { key: "rechazado", tint: "bg-danger text-white" },
+  { key: "leido", tint: "bg-info text-white dark:text-ink" },
+  { key: "respondido", tint: "bg-cream text-fg" },
+  { key: "cotizado", tint: "bg-warning text-white dark:text-ink" },
+  { key: "contraofertado", tint: "bg-ink text-white" },
+  { key: "agendado", tint: "bg-success text-white dark:text-ink" },
+  { key: "rechazado", tint: "bg-danger text-white dark:text-ink" },
 ];
 
 export function BookingActions({
@@ -142,7 +142,7 @@ export function BookingActions({
                 type="button"
                 onClick={() => handleSimpleStatus(s.key)}
                 disabled={isPending}
-                className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 border-2 border-ink transition-all ${
+                className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 border-2 border-border transition-all ${
                   active
                     ? s.tint
                     : "bg-cream hover:bg-orange hover:text-ink"
@@ -156,7 +156,7 @@ export function BookingActions({
       </div>
 
       {/* Workflow auto · COTIZAR */}
-      <div className="border-2 border-dashed border-ink p-4">
+      <div className="border-2 border-dashed border-border p-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <div className="font-mono text-[10px] font-bold uppercase tracking-wider">
@@ -239,7 +239,7 @@ export function BookingActions({
       </div>
 
       {/* Workflow auto · AGENDAR */}
-      <div className="border-2 border-dashed border-ink p-4">
+      <div className="border-2 border-dashed border-border p-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <div className="font-mono text-[10px] font-bold uppercase tracking-wider">

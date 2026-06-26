@@ -203,7 +203,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={googleLoading || loading}
-        className="w-full inline-flex items-center justify-center gap-2.5 h-11 px-4 border-2 border-ink bg-white hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 mb-4"
+        className="w-full inline-flex items-center justify-center gap-2.5 h-11 px-4 border-2 border-border bg-bg-panel hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 mb-4"
       >
         {/* Logo Google oficial */}
         <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
@@ -297,7 +297,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
                 href="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-ink underline hover:text-orange transition-colors"
+                className="text-fg underline hover:text-orange transition-colors"
               >
                 Términos de servicio
               </a>{" "}
@@ -306,7 +306,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
                 href="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-ink underline hover:text-orange transition-colors"
+                className="text-fg underline hover:text-orange transition-colors"
               >
                 Política de privacidad
               </a>
@@ -382,13 +382,13 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
 
       {/* Sprint 23.5 — Cross-link a /beta para DJs sin cuenta aún */}
       {!inviteEmail && (
-        <div className="border-t-2 border-ink/10 mt-6 pt-5 text-center">
+        <div className="border-t-2 border-border/10 mt-6 pt-5 text-center">
           <div className="text-xs text-fg-muted mb-2">
             ¿Aún no tienes cuenta y eres DJ?
           </div>
           <a
             href="/beta"
-            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-ink border-b border-orange hover:border-ink transition-colors"
+            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-fg border-b border-orange hover:border-border transition-colors"
           >
             Solicitar acceso a la beta →
           </a>

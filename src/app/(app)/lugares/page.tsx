@@ -32,14 +32,14 @@ export default async function LugaresPage() {
       </div>
 
       {/* Barra de tokens de pitch */}
-      <div className="flex items-center justify-between gap-3 flex-wrap border-2 border-ink bg-ink text-cream px-4 py-3 mb-6">
+      <div className="flex items-center justify-between gap-3 flex-wrap border-2 border-border bg-ink text-white px-4 py-3 mb-6">
         <div className="flex items-center gap-2 text-sm">
           <Coins className="w-4 h-4 text-orange" />
           <span className="font-display text-lg text-orange tabular-nums">
             {tokens.available}/{tokens.allowance}
           </span>
           <span>tokens de pitch este mes</span>
-          <span className="font-mono text-[10px] text-cream/50 uppercase tracking-wider hidden sm:inline">
+          <span className="font-mono text-[10px] text-white/50 uppercase tracking-wider hidden sm:inline">
             · renuevan el 1 · cada pitch = 🪙1
           </span>
         </div>

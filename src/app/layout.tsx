@@ -89,10 +89,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" data-theme="dark" suppressHydrationWarning>
       <body
         className={`${anton.variable} ${inter.variable} ${spaceMono.variable} ${satoshi.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
       >
+        {/* Rebrand dark (Fase 3): DARK es el tema por defecto (SSR en <html>),
+            así el 99% de usuarios lo recibe sin flash ni mismatch. Escotilla de
+            salida a light con la cookie `drop-theme=light` (no hay toggle en la
+            UI todavía; sirve de red de seguridad / debug). Script inline. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(/(?:^|;\\s*)drop-theme=light/.test(document.cookie))document.documentElement.removeAttribute('data-theme')}catch(e){}",
+          }}
+        />
         {children}
         {/* Vercel Web Analytics — tráfico anónimo (visitas, páginas, referrers).
             No-op hasta habilitar Web Analytics en el dashboard de Vercel. */}

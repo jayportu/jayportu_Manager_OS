@@ -50,9 +50,9 @@ export default async function BetaReminderPage() {
             No hay DJs con beta activa en este momento.
           </div>
         ) : (
-          <div className="border-2 border-ink">
+          <div className="border-2 border-border">
             <table className="w-full text-sm">
-              <thead className="bg-ink text-cream">
+              <thead className="bg-ink text-white">
                 <tr>
                   <th className="text-left p-2 font-mono text-[10px] uppercase tracking-wider">
                     DJ
@@ -69,7 +69,7 @@ export default async function BetaReminderPage() {
                 {recipients.map((r, idx) => (
                   <tr
                     key={r.userId}
-                    className={idx % 2 === 0 ? "bg-white" : "bg-bg-subtle"}
+                    className={idx % 2 === 0 ? "bg-bg-panel" : "bg-bg-subtle"}
                   >
                     <td className="p-2 font-medium">{r.artistName}</td>
                     <td className="p-2 text-fg-muted">{r.email}</td>
@@ -93,7 +93,7 @@ export default async function BetaReminderPage() {
           </div>
         )}
 
-        <div className="border-t-2 border-ink pt-5">
+        <div className="border-t-2 border-border pt-5">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-2">
             — Disparar
           </div>

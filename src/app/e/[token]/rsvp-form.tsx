@@ -53,17 +53,17 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
 
   if (done) {
     return (
-      <div className="border-2 border-ink bg-orange p-6 text-center">
-        <Check className="w-8 h-8 mx-auto text-ink mb-2" strokeWidth={2.5} />
+      <div className="border-2 border-border bg-orange p-6 text-center">
+        <Check className="w-8 h-8 mx-auto text-fg mb-2" strokeWidth={2.5} />
         <div className="font-display text-2xl leading-none">
           {status === "going" ? "¡Nos vemos ahí!" : "¡Anotado como quizás!"}
         </div>
-        <p className="text-sm text-ink/80 mt-2">
+        <p className="text-sm text-fg/80 mt-2">
           {notify
             ? `Te avisaremos cuando ${djArtistName} anuncie su próximo show.`
             : "Listo, tu RSVP quedó registrado."}
         </p>
-        <div className="font-mono text-[11px] uppercase tracking-wider mt-3 text-ink/70">
+        <div className="font-mono text-[11px] uppercase tracking-wider mt-3 text-fg/70">
           {count} {count === 1 ? "persona va" : "personas van"}
         </div>
       </div>
@@ -71,7 +71,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="border-2 border-ink bg-white p-5 space-y-3">
+    <form onSubmit={submit} className="border-2 border-border bg-bg-panel p-5 space-y-3">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
         — ¿Vas?
       </div>
@@ -82,8 +82,8 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
             key={s}
             type="button"
             onClick={() => setStatus(s)}
-            className={`flex-1 border-2 border-ink py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors ${
-              status === s ? "bg-ink text-orange" : "bg-white text-ink hover:bg-cream"
+            className={`flex-1 border-2 border-border py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors ${
+              status === s ? "bg-ink text-orange" : "bg-bg-panel text-fg hover:bg-cream"
             }`}
           >
             {s === "going" ? "Voy" : "Quizás"}
@@ -96,7 +96,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Tu nombre"
-        className="w-full border-2 border-ink bg-white px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+        className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
       />
       <input
         type="email"
@@ -104,7 +104,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tu@email.com"
         required
-        className="w-full border-2 border-ink bg-white px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+        className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm placeholder:text-fg-subtle focus:outline-none focus:border-orange"
       />
 
       <label className="flex items-start gap-2 text-[12px] text-fg-muted cursor-pointer select-none">
@@ -122,7 +122,7 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full border-2 border-ink bg-orange text-ink py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] hover:bg-ink hover:text-orange transition-colors disabled:opacity-50"
+        className="w-full border-2 border-border bg-orange text-ink py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] hover:bg-ink hover:text-orange transition-colors disabled:opacity-50"
       >
         {loading ? "Registrando…" : "Confirmar RSVP"}
       </button>

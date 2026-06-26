@@ -90,13 +90,13 @@ export function FollowNotifyToggle({ djUserId, djArtistName }: Props) {
           handleToggle();
         }
       }}
-      className="mt-5 cursor-pointer select-none p-3 bg-cream border-2 border-ink flex items-center gap-3 hover:bg-white transition-colors"
+      className="mt-5 cursor-pointer select-none p-3 bg-cream border-2 border-border flex items-center gap-3 hover:bg-bg-panel transition-colors"
     >
       {/* Pill switch */}
       <span
         aria-hidden="true"
-        className={`relative shrink-0 w-[44px] h-[24px] border-2 border-ink transition-colors ${
-          on ? "bg-orange" : "bg-white"
+        className={`relative shrink-0 w-[44px] h-[24px] border-2 border-border transition-colors ${
+          on ? "bg-orange" : "bg-bg-panel"
         }`}
       >
         <span
@@ -107,7 +107,7 @@ export function FollowNotifyToggle({ djUserId, djArtistName }: Props) {
       </span>
 
       <span className="flex-1 min-w-0">
-        <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+        <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg">
           Seguir con avisos
         </span>
         <span className="block text-[11px] text-fg-muted mt-0.5 leading-snug">

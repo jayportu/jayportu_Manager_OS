@@ -66,7 +66,7 @@ export function FavoriteButton({
       } border-2 transition-colors disabled:opacity-60 ${
         favorited
           ? "bg-orange text-ink border-orange hover:bg-cream"
-          : "bg-cream/80 backdrop-blur-sm text-ink border-ink hover:bg-orange hover:border-orange"
+          : "bg-cream/80 backdrop-blur-sm text-fg border-border hover:bg-orange hover:border-orange"
       }`}
     >
       <Heart

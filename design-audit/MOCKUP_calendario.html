@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DROP Dark · Calendario (vista mes)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0B0B;--bg2:#121212;--surface:#161616;--surface2:#1F1F1F;
+  --border:#2A2A2A;--border-strong:#3A3A3A;--divider:#1B1B1B;
+  --text:#F7F7F7;--text2:#B0B0B0;--text3:#7B7B7B;--text-dis:#555;
+  --orange:#E85A0C;--orange-soft:rgba(232,90,12,.13);
+  --success:#70C98B;--warning:#F5B84B;
+  --r-sm:8px;--r:12px;--r-lg:16px;--sh:0 4px 16px -8px rgba(0,0,0,.6);
+  --anton:'Anton',Impact,sans-serif;--inter:'Inter',system-ui,sans-serif;--mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--inter);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+svg{display:block}
+.label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.label::before{content:"— ";color:var(--orange)}
+.dot{color:var(--orange)}
+.ctx{background:#080808;border-bottom:1px solid var(--border);padding:9px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase}
+.ctx b{color:#cfd3da}.ctx .s{color:var(--orange)}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 33px)}
+
+/* sidebar */
+.sb{background:#080808;color:#F4EFE7;display:flex;flex-direction:column;border-right:2px solid var(--orange);position:relative;overflow:hidden}
+.sb .top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px 14px;border-bottom:2px solid var(--orange)}
+.sb .logo{font-family:var(--anton);font-size:34px;line-height:.8}
+.sb .live{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--orange);display:flex;align-items:center;gap:5px}
+.sb .live i{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.sb .mf{background:var(--orange);color:#0a0a0a;padding:11px 20px}
+.sb .mf .e{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em}.sb .mf .t{font-family:var(--anton);font-size:19px;line-height:.95;margin-top:3px}
+.sb nav{flex:1;padding:12px 0}
+.sb .nl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#555;padding:8px 20px 6px}
+.sb .item{display:flex;align-items:center;gap:11px;padding:9px 20px;font-family:var(--mono);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9a9a9a;border-left:3px solid transparent;cursor:pointer}
+.sb .item:hover{color:#F4EFE7;background:rgba(255,255,255,.035)}
+.sb .item.on{background:var(--orange);color:#0a0a0a;border-left-color:#0a0a0a}
+.sb .item svg{width:16px;height:16px;color:var(--orange)}.sb .item.on svg{color:#0a0a0a}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.tb{display:flex;align-items:center;gap:14px;padding:12px 24px;background:var(--bg2);border-bottom:1px solid var(--divider)}
+.search{flex:1;max-width:520px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 13px;color:var(--text3);font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.tb .mail{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+.content{padding:24px;display:flex;flex-direction:column;gap:18px}
+.btn{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;border:1px solid transparent;border-radius:var(--r-sm);height:38px;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.14s}
+.btn-primary{background:var(--orange);color:#0a0a0a;border-color:var(--orange)}.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:transparent;color:var(--text);border-color:var(--border-strong)}.btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
+
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.phead h1{font-family:var(--anton);font-size:40px;line-height:.9}
+.viewtoggle{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:var(--r-sm);border:1px solid var(--border)}
+.vt{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:8px 14px;border-radius:6px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:6px}
+.vt.on{background:var(--orange);color:#0a0a0a}.vt svg{width:14px;height:14px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.kpi.acc{border-top:2px solid var(--orange)}
+.kpi .n{font-family:var(--anton);font-size:30px;line-height:1;margin-top:8px}.kpi.acc .n{color:var(--orange)}
+.kpi .s{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:7px;letter-spacing:.03em;text-transform:uppercase}
+
+/* CALENDARIO MES */
+.cal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.cal .head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)}
+.cal .head .m{font-family:var(--anton);font-size:22px}
+.cal .head .nav{display:flex;gap:6px}
+.cal .head .nav button{width:34px;height:34px;border-radius:8px;border:1px solid var(--border-strong);background:transparent;color:var(--text2);cursor:pointer;font-size:15px}
+.cal .head .nav button:hover{border-color:var(--orange);color:var(--orange)}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)}
+.dow div{padding:10px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);text-align:left}
+.grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cell{min-height:108px;border-right:1px solid var(--divider);border-bottom:1px solid var(--divider);padding:8px;position:relative;transition:.12s}
+.cell:nth-child(7n){border-right:none}
+.cell:hover{background:var(--surface2)}
+.cell .d{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.cell.out .d{color:var(--text-dis)}
+.cell.today .d{background:var(--orange);color:#0a0a0a;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.ev{margin-top:6px;font-size:11px;border-radius:6px;padding:4px 7px;display:flex;align-items:center;gap:6px;cursor:pointer;border:1px solid transparent}
+.ev .d2{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ev.paid{background:var(--orange-soft);color:var(--orange);border-color:rgba(232,90,12,.3)}
+.ev.paid .d2{background:var(--orange)}
+.ev.conf{background:rgba(112,201,139,.12);color:var(--success);border-color:rgba(112,201,139,.3)}
+.ev.conf .d2{background:var(--success)}
+.ev.pend{background:var(--surface2);color:var(--text2);border-color:var(--border-strong)}
+.ev.pend .d2{background:var(--warning)}
+.ev .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;padding:2px}
+.legend span{display:flex;align-items:center;gap:6px}.legend i{width:8px;height:8px;border-radius:50%}
+
+@media(max-width:880px){.app{grid-template-columns:1fr}.sb{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.cell{min-height:74px}.ev .t{display:none}}
+</style>
+</head>
+<body>
+<div class="ctx"><b>DROP Dark</b> <span class="s">·</span> Calendario · vista MES (grid) <span class="s">·</span> nueva feature inspirada en MavelPoint</div>
+<div class="app">
+  <aside class="sb">
+    <div class="top"><div class="logo">DROP<span class="dot">.</span></div><div class="live"><i></i>LIVE</div></div>
+    <div class="mf"><div class="e">— THE DJ OS</div><div class="t">EL DJ EN CONTROL.</div></div>
+    <nav>
+      <div class="nl">NAVEGACIÓN ——————</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>CRM</div>
+      <div class="item on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendario</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>Press kit</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Growth</div>
+    </nav>
+  </aside>
+  <div class="main">
+    <div class="tb"><div class="search">🔎 Buscar contacto, venue, fecha…</div><div class="mail">HOLA@JAYPORTU.COM</div></div>
+    <div class="content">
+      <div class="phead">
+        <div><div class="label">Calendario · Gigs y eventos</div><h1>AGENDA<span class="dot">.</span></h1></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="viewtoggle">
+            <div class="vt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Lista</div>
+            <div class="vt on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mes</div>
+          </div>
+          <button class="btn btn-primary">+ Nuevo evento</button>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi acc"><div class="label">Cobrado este mes</div><div class="n">$420.000</div><div class="s">3 gigs · CLP</div></div>
+        <div class="kpi"><div class="label">Total gigs</div><div class="n">12</div><div class="s">2026</div></div>
+        <div class="kpi"><div class="label">Promedio / gig</div><div class="n">$140k</div><div class="s">solo pagados</div></div>
+        <div class="kpi"><div class="label">Pendiente cobro</div><div class="n">$30.000</div><div class="s">1 venue</div></div>
+      </div>
+      <div class="cal">
+        <div class="head">
+          <div class="m">Junio 2026</div>
+          <div class="nav"><button>‹</button><button>›</button></div>
+        </div>
+        <div class="dow"><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div></div>
+        <div class="grid" id="grid"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--orange)"></i>Pagado</span>
+        <span><i style="background:var(--success)"></i>Confirmado</span>
+        <span><i style="background:var(--warning)"></i>Pendiente de cobro</span>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Junio 2026: día 1 = Lunes (alineado). Hoy = 26.
+  const EVENTS={
+    13:[{t:'Candelaria',k:'paid'}],
+    20:[{t:'Club Room',k:'conf'}],
+    26:[{t:'Sesión estudio',k:'pend'}],
+    27:[{t:'Festival Norte',k:'conf'}],
+    29:[{t:'Sprint DROP.',k:'paid'}],
+  };
+  const grid=document.getElementById('grid');
+  let html='';
+  for(let d=1;d<=30;d++){
+    const today=d===26?' today':'';
+    let evs=(EVENTS[d]||[]).map(e=>`<div class="ev ${e.k}"><span class="d2"></span><span class="t">${e.t}</span></div>`).join('');
+    html+=`<div class="cell${today}"><div class="d">${d<10?'0'+d:d}</div>${evs}</div>`;
+  }
+  // completar la última fila (30 días, empieza lun → 30 celdas = 4 filas + 2; rellenar 5 celdas "out" jul)
+  for(let d=1;d<=5;d++){ html+=`<div class="cell out"><div class="d">0${d}</div></div>`; }
+  grid.innerHTML=html;
+</script>
+</body>
+</html>
