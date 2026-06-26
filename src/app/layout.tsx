@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Inter, Space_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteTracker } from "@/components/site-tracker";
 import "./globals.css";
@@ -21,6 +22,16 @@ const spaceMono = Space_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-space-mono",
+  display: "swap",
+});
+
+// Satoshi (Fontshare, licencia gratuita con uso comercial) — tipografía del
+// logo/wordmark DROP. Autohospedada (woff2) para performance y cero FOUC.
+// Solo el peso Black (900); los titulares/KPIs siguen en Anton.
+const satoshi = localFont({
+  src: "../fonts/Satoshi-Black.woff2",
+  variable: "--font-satoshi",
+  weight: "900",
   display: "swap",
 });
 
@@ -80,7 +91,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${anton.variable} ${inter.variable} ${spaceMono.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
+        className={`${anton.variable} ${inter.variable} ${spaceMono.variable} ${satoshi.variable} font-sans bg-bg text-fg antialiased min-h-screen`}
       >
         {children}
         {/* Vercel Web Analytics — tráfico anónimo (visitas, páginas, referrers).

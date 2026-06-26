@@ -97,12 +97,12 @@
     text-wrap: balance;
   }
 
-  /* Wordmark DROP — Anton condensed */
+  /* Wordmark DROP — Satoshi Black */
   .wordmark {
-    font-family: var(--font-anton), Impact, system-ui, sans-serif;
-    letter-spacing: 0;
-    line-height: 0.85;
-    font-weight: 400;
+    font-family: var(--font-satoshi), system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    font-weight: 900;
   }
 
   /* Grid paper background (textura técnica sutil cream) */

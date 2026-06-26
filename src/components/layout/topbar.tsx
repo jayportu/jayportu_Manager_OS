@@ -97,11 +97,12 @@ export function Topbar({
         <span
           className="select-none inline-block"
           style={{
-            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-            fontSize: "26px",
-            lineHeight: 0.85,
+            fontFamily: "var(--font-satoshi), system-ui, sans-serif",
+            fontWeight: 900,
+            fontSize: "24px",
+            lineHeight: 1,
+            letterSpacing: "-0.02em",
             color: "#0A0A0A",
-            paddingLeft: "2px",  /* compensar side-bearing izquierdo de la D en Anton condensed */
           }}
         >
           DROP<span style={{ color: "#FF5C00" }}>.</span>

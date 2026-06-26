@@ -39,7 +39,7 @@ const TONE_COLOR: Record<"ink" | "cream" | "orange", string> = {
 };
 
 /**
- * DROP. wordmark — renderizado como texto Anton + punto naranja.
+ * DROP. wordmark — renderizado como texto Satoshi Black + punto naranja.
  * El punto SIEMPRE va en orange #FF5C00, salvo cuando el wordmark mismo es
  * orange (caso extremo, el punto pasa a cream para contraste).
  */
@@ -58,11 +58,11 @@ export function Logo({
     <span
       className={cn("inline-flex items-baseline select-none", className)}
       style={{
-        fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-        fontWeight: 400,
+        fontFamily: "var(--font-satoshi), system-ui, sans-serif",
+        fontWeight: 900,
         fontSize: `${size}px`,
-        lineHeight: 0.85,
-        letterSpacing: 0,
+        lineHeight: 0.9,
+        letterSpacing: "-0.02em",
         color: TONE_COLOR[color],
       }}
       aria-label={isMonogram ? "DROP" : "DROP."}
