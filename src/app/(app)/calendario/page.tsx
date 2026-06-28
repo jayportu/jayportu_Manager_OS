@@ -13,6 +13,8 @@ import { NewEventButton } from "./new-event-button";
 import { AutoSync } from "./auto-sync";
 import { FinanceEditDialog } from "./finance-edit";
 import { EventEditDialog } from "./event-edit";
+import { CalendarViewToggle } from "./view-toggle";
+import { MonthView, resolveMonth } from "./month-view";
 import { dateTime, shortDate, relativeTime } from "@/lib/format";
 import {
   PAYMENT_STATUS_LABELS,
@@ -21,7 +23,12 @@ import {
 } from "@/lib/calendar/types";
 
 interface PageProps {
-  searchParams: Promise<{ error?: string; synced?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    synced?: string;
+    view?: string;
+    month?: string;
+  }>;
 }
 
 function formatClp(n: number | null | undefined): string {
@@ -50,6 +57,8 @@ async function getContactPrivateNotes(
 
 export default async function CalendarioPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+  const view = sp.view === "mes" ? "mes" : "lista";
+  const monthSel = resolveMonth(sp.month);
   const conn = await getMyGmailConnection();
 
   // El calendario funciona sin Google: los eventos viven en la DB (alta manual
@@ -73,7 +82,8 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
   const contactIds = Array.from(
     new Set(events.map((e) => e.contact_id).filter((id): id is string => !!id))
   );
-  const privateNotes = await getContactPrivateNotes(contactIds);
+  const privateNotes =
+    view === "lista" ? await getContactPrivateNotes(contactIds) : new Map<string, string>();
 
   const upcoming = events.filter((e) => new Date(e.start_at) >= now);
   const past = events.filter((e) => new Date(e.start_at) < now);
@@ -113,6 +123,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           </p>
         )}
         <div className="mt-4 flex gap-2 flex-wrap items-center">
+          <CalendarViewToggle current={view} />
           {conn && <SyncButton />}
           <NewEventButton />
           <a
@@ -196,7 +207,9 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
         </Card>
       )}
 
-      {events.length === 0 && (
+      {view === "mes" && <MonthView year={monthSel.year} month={monthSel.month} />}
+
+      {view === "lista" && events.length === 0 && (
         <Card className="p-10 text-center">
           <Calendar className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
           <h3 className="font-semibold mb-1">Sin eventos aún</h3>
@@ -214,7 +227,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       )}
 
       {/* Próximos */}
-      {upcoming.length > 0 && (
+      {view === "lista" && upcoming.length > 0 && (
         <section className="mb-8">
           <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
             — PRÓXIMOS
@@ -232,7 +245,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       )}
 
       {/* Pasados (últimos 30 días) */}
-      {past.length > 0 && (
+      {view === "lista" && past.length > 0 && (
         <section className="mb-8">
           <details>
             <summary className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3 cursor-pointer">
