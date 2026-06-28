@@ -10,6 +10,7 @@ import { TrackBeacon } from "./track-beacon";
 import { TrackedLink } from "./tracked-link";
 import { GatedContact } from "./gated-contact";
 import { SectionNav, type NavSection } from "./section-nav";
+import { GalleryGrid } from "@/components/public/gallery-grid";
 import { BookingForm } from "./booking-form";
 import { SoundcloudEmbed, YoutubeEmbed, SetEmbed, SpotifyEmbed, BeatportEmbed } from "./embeds";
 import { TechRiderRender } from "./tech-rider-render";
@@ -194,6 +195,9 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   // Secciones del nav sticky (scroll-spy resalta la activa en naranjo).
   const navSections: NavSection[] = [
     { id: "bio", label: "— BIO", primary: true },
+    ...(profile.gallery && profile.gallery.length > 0
+      ? [{ id: "galeria", label: "Galería" }]
+      : []),
     ...(sc || yt || sp || bp || bc || web || hasFeaturedSets || beatportReleases.length > 0
       ? [{ id: "musica", label: "Música" }]
       : []),
@@ -381,6 +385,16 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                     </span>
                   ))}
                 </div>
+              </section>
+            )}
+
+            {/* ── Galería (Migration 0061) — fotos con carpetas + lightbox ── */}
+            {profile.gallery && profile.gallery.length > 0 && (
+              <section id="galeria" className="mb-10 scroll-mt-20">
+                <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] mb-4">
+                  — GALERÍA
+                </div>
+                <GalleryGrid images={profile.gallery} />
               </section>
             )}
 

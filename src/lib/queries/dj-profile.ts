@@ -30,7 +30,7 @@ const EDITABLE_PROFILE_FIELDS = [
   // Contacto público
   "public_email", "whatsapp",
   // Branding / imágenes
-  "logo_url", "hero_image_url", "avatar_url",
+  "logo_url", "hero_image_url", "avatar_url", "gallery",
   // Tech rider / hospitality
   "tech_rider_ideal", "tech_rider_alt", "hospitality",
   // Press kit
