@@ -33,7 +33,11 @@ function resolveTone(tone: LogoProps["tone"]): "ink" | "cream" | "orange" {
 }
 
 const TONE_COLOR: Record<"ink" | "cream" | "orange", string> = {
-  ink: "#0A0A0A",
+  // "ink" = color de texto principal. Usa el token themable --drop-fg para que
+  // el wordmark se vea en ambos temas: en light = #0A0A0A (idéntico al hex
+  // anterior), en dark = #F7F7F7 (antes quedaba negro-sobre-negro invisible
+  // en las pantallas de auth, que ahora son oscuras).
+  ink: "rgb(var(--drop-fg))",
   cream: "#F4EFE7",
   orange: "#E85A0C",
 };
