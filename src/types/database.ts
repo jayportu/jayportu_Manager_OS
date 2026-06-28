@@ -7,6 +7,15 @@
 
 // ════════════════════════════════════════════════════════════════════
 // dj_profile
+
+/** Imagen de la galería del press kit. Migration 0061. La imagen vive en
+ *  Storage (bucket avatars, path <user>/gallery/...); acá guardamos URL +
+ *  metadata. `folder` agrupa fotos (ej. "Live", "Estudio"); null = sin carpeta. */
+export interface GalleryImage {
+  url: string;
+  folder?: string | null;
+  caption?: string | null;
+}
 // ════════════════════════════════════════════════════════════════════
 export interface DjProfile {
   user_id: string;
@@ -44,6 +53,8 @@ export interface DjProfile {
   logo_url: string;
   hero_image_url: string;
   avatar_url: string;
+  /** Galería del press kit: fotos con carpetas. Migration 0061. */
+  gallery: GalleryImage[];
   tech_rider_ideal: string;
   tech_rider_alt: string;
   hospitality: string;

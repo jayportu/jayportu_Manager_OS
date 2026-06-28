@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { saveProfileAction } from "../configuracion/actions";
 import { AvatarUpload } from "./avatar-upload";
+import { GallerySection } from "./gallery-section";
 import { computeCompleteness } from "@/lib/match/completeness";
 import { X, TrendingUp, Check, AlertCircle } from "lucide-react";
 
@@ -247,6 +248,18 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             placeholder="Texto completo para el press kit público."
           />
         </div>
+      </Card>
+
+      {/* Galería */}
+      <Card className="p-6 space-y-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
+          Galería
+        </h2>
+        <p className="text-sm text-fg-muted">
+          Fotos para tu press kit público. Organízalas en carpetas (ej. Live,
+          Estudio) y se muestran con un visor a tamaño real.
+        </p>
+        <GallerySection initialGallery={form.gallery ?? []} />
       </Card>
 
       {/* Estilos musicales */}
