@@ -65,10 +65,21 @@ export function BetaRequestsTable({ initialRequests }: Props) {
               : x
           )
         );
-        setMessage({
-          type: "ok",
-          text: `${res.data.artist_name} aprobado. Copia el link y envíaselo.`,
-        });
+        if (res.data.email_sent) {
+          // Envío OK: no molestamos con el estado del correo.
+          setMessage({
+            type: "ok",
+            text: `${res.data.artist_name} aprobado.`,
+          });
+        } else {
+          // El correo NO salió: avisamos con la razón + fallback manual.
+          setMessage({
+            type: "err",
+            text: `${res.data.artist_name} aprobado, pero el correo NO salió: ${
+              res.data.email_error ?? "razón desconocida"
+            }. Usa "Copiar invite" para enviarlo manual.`,
+          });
+        }
         refresh();
       } else {
         setMessage({ type: "err", text: res.error });
