@@ -3,13 +3,14 @@
  */
 
 import { assertAdmin } from "@/lib/queries/admin";
-import { getAnalyticsSnapshot } from "@/lib/queries/analytics";
+import { getAnalyticsSnapshot, getConversionFunnel } from "@/lib/queries/analytics";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   await assertAdmin();
   const snap = await getAnalyticsSnapshot();
+  const funnel = await getConversionFunnel(30);
 
   const d7Pct =
     snap.retentionD7.total > 0
@@ -115,6 +116,63 @@ export default async function AnalyticsPage() {
             );
           })}
         </div>
+      </div>
+
+      {/* Funnel de conversión (adquisición → activación) */}
+      <div className="border-2 border-border bg-bg-panel p-6 mb-6">
+        <h2 className="font-display text-2xl leading-none mb-1">
+          FUNNEL DE CONVERSIÓN
+        </h2>
+        <div className="font-mono text-[10px] text-fg-muted mb-4 uppercase tracking-wider">
+          Últimos {funnel.windowDays} días · etapas 1-2 = sesiones únicas · 3-6 = cuentas · conteo por actividad en la ventana
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b-2 border-border font-mono text-[10px] uppercase tracking-wider">
+              <th className="text-left py-2">Etapa</th>
+              <th className="text-right py-2 w-20">Total</th>
+              <th className="text-right py-2 w-28">% del paso ant.</th>
+              <th className="text-right py-2 w-24">% del tope</th>
+            </tr>
+          </thead>
+          <tbody>
+            {funnel.stages.map((s) => (
+              <tr key={s.step} className="border-b border-border/10">
+                <td className="py-2.5">
+                  {s.step}{" "}
+                  <span className="font-mono text-[10px] text-fg-muted">
+                    ({s.unit})
+                  </span>
+                </td>
+                <td className="py-2.5 text-right font-mono">{s.count}</td>
+                <td className="py-2.5 text-right font-mono">{s.pctOfPrev}%</td>
+                <td className="py-2.5 text-right font-mono">{s.pctOfTop}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h3 className="font-display text-lg leading-none mt-6 mb-2">
+          FUENTES → /beta
+        </h3>
+        {funnel.betaSources.length === 0 ? (
+          <div className="text-sm text-fg-muted">
+            Aún sin tráfico registrado a /beta en la ventana.
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <tbody>
+              {funnel.betaSources.map((s) => (
+                <tr key={s.source} className="border-b border-border/10">
+                  <td className="py-2 font-mono">{s.source}</td>
+                  <td className="py-2 text-right font-mono">
+                    {s.sessions} sesiones
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Funnel */}

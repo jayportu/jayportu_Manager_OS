@@ -168,6 +168,134 @@ export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
   };
 }
 
+export interface ConversionFunnel {
+  windowDays: number;
+  since: string;
+  stages: Array<{
+    step: string;
+    unit: "sesiones" | "cuentas";
+    count: number;
+    pctOfPrev: number;
+    pctOfTop: number;
+  }>;
+  betaSources: Array<{ source: string; sessions: number }>;
+}
+
+/**
+ * Funnel de adquisición → activación, ensamblado de datos que YA existen
+ * (site_events anónimo + beta_requests + dj_profile). Sin eventos nuevos y
+ * retroactivo. Las 2 primeras etapas son SESIONES únicas; las 4 últimas son
+ * CUENTAS — el cruce sesión→cuenta es indicativo. Conteo por actividad en la
+ * ventana (no cohorte estricta).
+ */
+export async function getConversionFunnel(
+  windowDays = 30
+): Promise<ConversionFunnel> {
+  const admin = createAdminClient();
+  const since = new Date(
+    Date.now() - windowDays * 24 * 60 * 60 * 1000
+  ).toISOString();
+
+  // Sesiones únicas en el home
+  const { data: homeRows } = await admin
+    .from("site_events")
+    .select("session_id")
+    .eq("path", "/")
+    .gte("created_at", since)
+    .limit(50000);
+  const visitors = new Set(
+    (homeRows || []).map((r) => (r as { session_id: string }).session_id)
+  ).size;
+
+  // Sesiones + fuentes de /beta (una sola query)
+  const { data: betaRows } = await admin
+    .from("site_events")
+    .select("session_id, utm_source, referrer")
+    .eq("path", "/beta")
+    .gte("created_at", since)
+    .limit(50000);
+  const betaSessions = new Set<string>();
+  const sourceBySession = new Map<string, string>();
+  for (const r of (betaRows || []) as Array<{
+    session_id: string;
+    utm_source: string | null;
+    referrer: string | null;
+  }>) {
+    betaSessions.add(r.session_id);
+    if (!sourceBySession.has(r.session_id)) {
+      sourceBySession.set(r.session_id, resolveSource(r.utm_source, r.referrer));
+    }
+  }
+  const betaViews = betaSessions.size;
+  const srcMap = new Map<string, number>();
+  for (const src of sourceBySession.values()) {
+    srcMap.set(src, (srcMap.get(src) || 0) + 1);
+  }
+  const betaSources = Array.from(srcMap.entries())
+    .map(([source, sessions]) => ({ source, sessions }))
+    .sort((a, b) => b.sessions - a.sessions)
+    .slice(0, 8);
+
+  // Fondo del funnel: cuentas (estado en dj_profile / beta_requests)
+  const { count: requests } = await admin
+    .from("beta_requests")
+    .select("*", { count: "exact", head: true })
+    .gte("created_at", since);
+  const { count: accounts } = await admin
+    .from("dj_profile")
+    .select("user_id", { count: "exact", head: true })
+    .gte("created_at", since);
+  const { count: onboarded } = await admin
+    .from("dj_profile")
+    .select("user_id", { count: "exact", head: true })
+    .gte("onboarding_completed_at", since);
+  const { count: activated } = await admin
+    .from("dj_profile")
+    .select("user_id", { count: "exact", head: true })
+    .gte("onboarding_completed_at", since)
+    .eq("hidden_from_directory", false);
+
+  const raw: Array<{
+    step: string;
+    unit: "sesiones" | "cuentas";
+    count: number;
+  }> = [
+    { step: "Visitantes (home)", unit: "sesiones", count: visitors },
+    { step: "Vieron /beta", unit: "sesiones", count: betaViews },
+    { step: "Solicitudes beta", unit: "cuentas", count: requests || 0 },
+    { step: "Cuentas creadas", unit: "cuentas", count: accounts || 0 },
+    { step: "Onboarding completo", unit: "cuentas", count: onboarded || 0 },
+    {
+      step: "Press kit vivo (activados)",
+      unit: "cuentas",
+      count: activated || 0,
+    },
+  ];
+  const top = raw[0].count || 1;
+  const stages = raw.map((s, i) => ({
+    ...s,
+    pctOfPrev: i === 0 ? 100 : pct(s.count, raw[i - 1].count),
+    pctOfTop: pct(s.count, top),
+  }));
+
+  return { windowDays, since, stages, betaSources };
+}
+
+function resolveSource(
+  utmSource: string | null,
+  referrer: string | null
+): string {
+  const utm = utmSource?.trim();
+  if (utm) return utm;
+  const ref = referrer?.trim();
+  if (!ref) return "directo";
+  try {
+    return new URL(ref).hostname.replace(/^www\./, "");
+  } catch {
+    return "otro";
+  }
+}
+
 function pct(n: number, total: number): number {
   if (total === 0) return 0;
   return Math.round((n / total) * 100);
