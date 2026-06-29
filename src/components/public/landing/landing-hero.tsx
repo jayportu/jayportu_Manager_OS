@@ -266,7 +266,7 @@ export function LandingHero({
           VIVE EN DROP<span className="text-accent">.</span>
         </h1>
         <p className="text-fg-muted max-w-[560px] mt-[22px] mb-8" style={{ fontSize: "clamp(15px,2vw,19px)" }}>
-          El sistema operativo del DJ independiente. CRM, calendario con plata, press kit y growth —
+          El sistema operativo del DJ independiente. CRM, calendario con tus ingresos, press kit y growth —
           todo en una sola app.
         </p>
         <div className="flex flex-wrap gap-3.5">
@@ -274,7 +274,7 @@ export function LandingHero({
             href="/beta"
             className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-colors hover:bg-[#F2742A] shadow-[0_6px_24px_-10px_rgba(232,90,12,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
-            Soy DJ · Quiero entrar →
+            Soy DJ · Armar mi press kit →
           </Link>
           <Link
             href="/dj"

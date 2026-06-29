@@ -29,7 +29,7 @@ import { Reveal } from "@/components/public/landing/reveal";
 export const metadata: Metadata = {
   title: "DROP. · The DJ OS",
   description:
-    "El sistema operativo del DJ independiente. CRM, calendario con plata, press kit y growth — todo en una sola app. 15 días gratis, sin tarjeta.",
+    "El sistema operativo del DJ independiente. CRM, calendario con tus ingresos, press kit y growth — todo en una sola app. 15 días gratis, sin tarjeta.",
   openGraph: {
     title: "DROP. · The DJ OS",
     description:
@@ -204,7 +204,7 @@ export default async function RootPage() {
                   href="/beta"
                   className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-colors hover:bg-[#F2742A] shadow-[0_6px_24px_-10px_rgba(232,90,12,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 >
-                  Soy DJ · Quiero entrar →
+                  Soy DJ · Armar mi press kit →
                 </Link>
               </div>
             </div>
@@ -217,14 +217,15 @@ export default async function RootPage() {
   );
 }
 
-/** FAQ del landing. Pricing: DJ $5.990 / Booker $9.990 (IVA incluido). */
+/** FAQ del landing. En beta = gratis; precio futuro DJ $5.990/mes (IVA incl.). Booker en pausa. */
 const FAQ: { q: string; a: React.ReactNode }[] = [
   {
     q: "¿DROP es gratis?",
     a: (
       <>
-        Tienes <b>15 días gratis</b> sin tarjeta. Después, la suscripción es <b>$5.990/mes para DJs</b> y{" "}
-        <b>$9.990/mes para bookers</b>, IVA incluido.
+        <b>Ahora la beta es gratis</b> — sin tarjeta. Cuando salgamos de beta, la
+        suscripción de DJ será <b>$5.990/mes</b> (IVA incl.), con 15 días gratis
+        para probar.
       </>
     ),
   },
