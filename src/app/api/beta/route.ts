@@ -11,7 +11,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createBetaRequest } from "@/lib/queries/beta";
+import { createBetaRequest, approveAndInviteBetaRequest } from "@/lib/queries/beta";
 import { rateLimit } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
 
@@ -105,5 +105,20 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  return NextResponse.json({ ok: true, id: result.id });
+
+  // Auto-aprobación "same-day" (flag, default OFF). La solicitud ya pasó
+  // honeypot + Turnstile + dedup + rate-limit: ese es el filtro anti-spam (la
+  // "revisión ligera"). Reusa approveAndInviteBetaRequest → MISMO path de envío
+  // que el botón admin (no update directo a DB, para no saltarse el correo).
+  // Para volver a revisión manual: dejar BETA_AUTO_APPROVE_ENABLED sin "true".
+  let autoApproved = false;
+  if (process.env.BETA_AUTO_APPROVE_ENABLED === "true") {
+    try {
+      const inv = await approveAndInviteBetaRequest(result.id);
+      autoApproved = inv.ok && inv.email_sent;
+    } catch {
+      // best-effort: si falla, queda como solicitud normal para revisión manual
+    }
+  }
+  return NextResponse.json({ ok: true, id: result.id, autoApproved });
 }
