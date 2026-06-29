@@ -29,7 +29,7 @@ import { Reveal } from "@/components/public/landing/reveal";
 export const metadata: Metadata = {
   title: "DROP. · The DJ OS",
   description:
-    "El sistema operativo del DJ independiente. CRM, calendario con plata, press kit y growth — todo en una sola app. 15 días gratis, sin tarjeta.",
+    "El sistema operativo del DJ independiente. CRM, calendario con tus ingresos, press kit y growth — todo en una sola app. 15 días gratis, sin tarjeta.",
   openGraph: {
     title: "DROP. · The DJ OS",
     description:

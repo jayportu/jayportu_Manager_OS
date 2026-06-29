@@ -266,7 +266,7 @@ export function LandingHero({
           VIVE EN DROP<span className="text-accent">.</span>
         </h1>
         <p className="text-fg-muted max-w-[560px] mt-[22px] mb-8" style={{ fontSize: "clamp(15px,2vw,19px)" }}>
-          El sistema operativo del DJ independiente. CRM, calendario con plata, press kit y growth —
+          El sistema operativo del DJ independiente. CRM, calendario con tus ingresos, press kit y growth —
           todo en una sola app.
         </p>
         <div className="flex flex-wrap gap-3.5">

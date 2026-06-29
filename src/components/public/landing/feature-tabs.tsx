@@ -29,7 +29,7 @@ const FEATURES: Feature[] = [
   },
   {
     Icon: Calendar,
-    t: "Calendario con plata",
+    t: "Calendario con tus ingresos",
     d: "Tus fechas, lo cobrado y lo pendiente en un solo lugar. Vista lista, mes y mapa de gigs.",
     p: ["Cobrado", "Pendiente", "Mes / Mapa"],
   },
