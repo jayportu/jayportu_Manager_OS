@@ -9,6 +9,7 @@ import { assertAdmin } from "@/lib/queries/admin";
 import {
   updateBetaRequestStatus,
   markInviteSent,
+  approveAndInviteBetaRequest,
 } from "@/lib/queries/beta";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, isResendConfigured } from "@/lib/email/resend";
@@ -42,52 +43,21 @@ export async function approveBetaRequestAction(
 > {
   try {
     await assertAdmin();
-    const updated = await updateBetaRequestStatus(id, "approved");
-    if (!updated.invite_token) {
-      return { ok: false, error: "Token no se generó" };
+    // Reusa el path compartido (aprobar + enviar acceso). Mismo correo que
+    // la auto-aprobación de /api/beta — una sola fuente de verdad.
+    const res = await approveAndInviteBetaRequest(id);
+    if (!res.ok || !res.invite_token) {
+      return { ok: false, error: res.error || "Token no se generó" };
     }
-
-    // Intentar enviar email automático si Resend está configurado.
-    // Si falla o no está configurado, no es bloqueante — el admin tiene
-    // el botón "Copiar invite" como fallback manual.
-    let emailSent = false;
-    let emailError: string | undefined;
-    if (isResendConfigured()) {
-      const inviteUrl = `${getSiteUrl()}/login?invite=${updated.invite_token}`;
-      const html = betaInviteEmailHtml({
-        artistName: updated.artist_name,
-        inviteUrl,
-      });
-      const text = betaInviteEmailText({
-        artistName: updated.artist_name,
-        inviteUrl,
-      });
-      const sendRes = await sendEmail({
-        to: updated.email,
-        subject: "Tu acceso a DROP — bienvenido a la beta",
-        html,
-        text,
-        replyTo: process.env.RESEND_REPLY_TO || undefined,
-      });
-      if (sendRes.ok) {
-        emailSent = true;
-        await markInviteSent(id);
-      } else {
-        emailError = sendRes.error;
-      }
-    } else {
-      emailError = "Resend no configurado — usa 'Copiar invite' para enviar manual";
-    }
-
     revalidatePath("/admin/beta-requests");
     return {
       ok: true,
       data: {
-        invite_token: updated.invite_token,
-        email: updated.email,
-        artist_name: updated.artist_name,
-        email_sent: emailSent,
-        email_error: emailError,
+        invite_token: res.invite_token,
+        email: res.email ?? "",
+        artist_name: res.artist_name ?? "",
+        email_sent: res.email_sent,
+        email_error: res.email_error,
       },
     };
   } catch (e) {

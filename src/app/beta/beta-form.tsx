@@ -36,7 +36,7 @@ export function BetaForm() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<
-    { ok: true } | { ok: false; error: string } | null
+    { ok: true; autoApproved: boolean } | { ok: false; error: string } | null
   >(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState(0);
@@ -69,10 +69,10 @@ export function BetaForm() {
         body: JSON.stringify({ ...form, captcha_token: captchaToken }),
       });
       const data = (await res.json()) as
-        | { ok: true; id: string }
+        | { ok: true; id: string; autoApproved?: boolean }
         | { ok: false; error: string };
       if (data.ok) {
-        setResult({ ok: true });
+        setResult({ ok: true, autoApproved: data.autoApproved === true });
         setForm(EMPTY);
       } else {
         setResult({ ok: false, error: data.error });
@@ -95,11 +95,13 @@ export function BetaForm() {
           — SOLICITUD ENVIADA
         </div>
         <h2 className="font-display text-4xl leading-none mb-3">
-          GRACIAS<span className="text-orange">.</span>
+          {result.autoApproved ? "ESTÁS DENTRO" : "GRACIAS"}
+          <span className="text-orange">.</span>
         </h2>
         <p className="text-sm leading-relaxed">
-          La revisamos a mano (no es un bot) y te escribimos en 24-48 hrs. Si
-          quedas, te llega un email con tu link de acceso.
+          {result.autoApproved
+            ? "Te mandamos tu acceso al correo — revísalo (también spam). Toca el link y armas tu press kit en minutos."
+            : "La revisamos a mano (no es un bot) y te escribimos en 24-48 hrs. Si quedas, te llega un email con tu link de acceso."}
         </p>
 
         {/* Siguiente paso tangible mientras espera — para no enfriar al DJ */}

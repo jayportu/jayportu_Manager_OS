@@ -4,10 +4,12 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendEmail } from "@/lib/email/resend";
+import { sendEmail, isResendConfigured } from "@/lib/email/resend";
 import {
   bugFixFollowupEmailHtml,
   bugFixFollowupEmailText,
+  betaInviteEmailHtml,
+  betaInviteEmailText,
 } from "@/lib/email/templates";
 import type {
   BetaRequest,
@@ -137,6 +139,66 @@ export async function markInviteSent(id: string): Promise<void> {
     .from("beta_requests")
     .update({ invite_sent_at: new Date().toISOString() })
     .eq("id", id);
+}
+
+/**
+ * Aprueba una solicitud y manda el email de acceso por el MISMO path que el
+ * botón admin "aprobar" (NO un update directo a DB → no se salta el correo).
+ * Contexto server confiable: NO valida admin; el caller decide la autorización
+ * (acción admin con assertAdmin, o auto-aprobación tras pasar el anti-spam de
+ * /api/beta). Best-effort en el email: si falla, la solicitud queda aprobada y
+ * el admin puede reenviar.
+ */
+export async function approveAndInviteBetaRequest(id: string): Promise<{
+  ok: boolean;
+  invite_token?: string;
+  email?: string;
+  artist_name?: string;
+  email_sent: boolean;
+  email_error?: string;
+  error?: string;
+}> {
+  const updated = await updateBetaRequestStatus(id, "approved");
+  if (!updated.invite_token) {
+    return { ok: false, email_sent: false, error: "Token no se generó" };
+  }
+
+  let emailSent = false;
+  let emailError: string | undefined;
+  if (isResendConfigured()) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
+    const inviteUrl = `${siteUrl}/login?invite=${updated.invite_token}`;
+    const sendRes = await sendEmail({
+      to: updated.email,
+      subject: "Tu acceso a DROP — bienvenido a la beta",
+      html: betaInviteEmailHtml({
+        artistName: updated.artist_name,
+        inviteUrl,
+      }),
+      text: betaInviteEmailText({
+        artistName: updated.artist_name,
+        inviteUrl,
+      }),
+      replyTo: process.env.RESEND_REPLY_TO || undefined,
+    });
+    if (sendRes.ok) {
+      emailSent = true;
+      await markInviteSent(id);
+    } else {
+      emailError = sendRes.error;
+    }
+  } else {
+    emailError = "Resend no configurado";
+  }
+
+  return {
+    ok: true,
+    invite_token: updated.invite_token,
+    email: updated.email,
+    artist_name: updated.artist_name,
+    email_sent: emailSent,
+    email_error: emailError,
+  };
 }
 
 /** Encuentra solicitud por invite_token (para validar al signup). */
