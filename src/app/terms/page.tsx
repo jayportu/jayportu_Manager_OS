@@ -72,12 +72,12 @@ export default function TermsPage() {
 
         <Section title="Datos del proveedor">
           <p>
-            DROP. es operado actualmente por{" "}
-            <strong>Jaime Andrés Portugueis Portugueis</strong>, RUT
-            15.314.349-8, persona natural, con domicilio en Ricardo Lyon 1717,
-            depto 902, Providencia, Santiago, Chile. Cuando se constituya{" "}
-            <strong>DROP SpA</strong>, este bloque será reemplazado y los
-            usuarios serán notificados por email.
+            DROP. es operado actualmente por su fundador, persona natural, desde{" "}
+            Santiago de Chile. Cuando se constituya <strong>DROP SpA</strong>,
+            este bloque será reemplazado por los datos de la sociedad y los
+            usuarios serán notificados por email. Si necesitas los datos
+            identificatorios completos del proveedor por una razón legal,
+            escríbenos y te los entregamos.
           </p>
           <p>
             Contacto:{" "}
