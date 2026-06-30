@@ -61,7 +61,6 @@ export async function MonthView({ year, month }: { year: number; month: number }
   const firstUTC = new Date(Date.UTC(year, month - 1, 1));
   const offsetToMonday = (firstUTC.getUTCDay() + 6) % 7;
   const gridStart = new Date(Date.UTC(year, month - 1, 1 - offsetToMonday));
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
 
   const cells: { y: number; m: number; d: number; key: string; inMonth: boolean }[] = [];
   const cur = new Date(gridStart);
