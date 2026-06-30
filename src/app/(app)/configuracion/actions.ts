@@ -9,6 +9,7 @@ import {
   deleteRiderItem,
 } from "@/lib/queries/tech-rider";
 import { assertBetaActive } from "@/lib/queries/beta-guard";
+import { maybeSendPresskitLiveEmail } from "@/lib/queries/activation-emails";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type {
   DjProfileUpdate,
@@ -67,6 +68,8 @@ export async function saveProfileAction(
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
     revalidateTag("public-djs");
+    // E3 · Correo "press kit vivo" (best-effort, one-shot al quedar live-ready).
+    await maybeSendPresskitLiveEmail();
     // Devolvemos lo normalizado para que el form re-sincronice sus inputs
     // (URL con https:// agregado, fee corregido) en vez de seguir mostrando
     // lo que tipeó el usuario.

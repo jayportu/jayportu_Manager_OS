@@ -685,6 +685,121 @@ Recibes este correo porque estás en la beta y tu perfil aún no tiene foto. Si 
 // 6. Follow Updates (digest de updates de DJ a followers)
 // ---------------------------------------------------------------------------
 
+// ─── Activación E1 · Bienvenida (al completar onboarding) ──────────────────
+export function welcomeDjEmailHtml(input: {
+  artistName: string;
+  profileUrl: string;
+}): string {
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">Hola ${escapeHtml(input.artistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Ya estás dentro de DROP<span style="color:${ORANGE};">.</span> Tienes acceso a tu sistema operativo de DJ: press kit, CRM de contactos, calendario con plata y growth — todo en un solo lugar.
+              </p>
+              <p style="font-size:15px; margin:0 0 12px 0;">
+                Lo primero, y lo que más te mueve la aguja: <strong>arma tu press kit público</strong>. Es el link que les pasas a los bookers en vez de un PDF o tu Instagram. En 5 minutos:
+              </p>
+              <ol style="font-size:15px; margin:0 0 20px 20px; padding:0;">
+                <li style="margin:0 0 8px 0;">Sube tu foto.</li>
+                <li style="margin:0 0 8px 0;">Elige tus géneros y escribe dos líneas de bio.</li>
+                <li style="margin:0 0 8px 0;">Pega tu mejor set (SoundCloud, Mixcloud o YouTube).</li>
+              </ol>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                ${ctaButton("Armar mi press kit", input.profileUrl)}
+              </p>
+              <p style="font-size:13px; color:${MUTED}; margin:0 0 16px 0;">
+                Con eso ya queda presentable y lo puedes compartir. El resto (rider, fee, galería) lo sumas cuando quieras.
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                Cualquier duda, respondes este correo y te ayudo directo.
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:${ORANGE};">.</span> Team
+              </p>`;
+  return wrapEmail({
+    title: "Estás dentro de DROP. — armemos tu press kit",
+    preheader: "Tu cuenta ya está lista. En 5 minutos tienes un press kit que se ve pro.",
+    content,
+    footerReason: "Recibes este correo porque acabas de activar tu cuenta en la beta de DROP.",
+  });
+}
+
+export function welcomeDjEmailText(input: {
+  artistName: string;
+  profileUrl: string;
+}): string {
+  return `Hola ${input.artistName},
+
+Ya estás dentro de DROP. Tienes acceso a tu sistema operativo de DJ: press kit, CRM, calendario con plata y growth — todo en un solo lugar.
+
+Lo primero, y lo que más te mueve la aguja: arma tu press kit público. Es el link que les pasas a los bookers en vez de un PDF o tu Instagram. En 5 minutos:
+
+1. Sube tu foto.
+2. Elige tus géneros y escribe dos líneas de bio.
+3. Pega tu mejor set (SoundCloud, Mixcloud o YouTube).
+
+Armar mi press kit: ${input.profileUrl}
+
+Con eso ya queda presentable y lo puedes compartir. El resto (rider, fee, galería) lo sumas cuando quieras.
+
+Cualquier duda, respondes este correo y te ayudo directo.
+
+Saludos,
+DROP. Team`;
+}
+
+// ─── Activación E3 · Press kit vivo (al quedar live-ready) ─────────────────
+export function presskitLiveEmailHtml(input: {
+  artistName: string;
+  presskitUrl: string;
+}): string {
+  const content = `
+              <p style="font-size:16px; margin:0 0 16px 0;">Hola ${escapeHtml(input.artistName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Listo<span style="color:${ORANGE};">.</span> Tu press kit ya está completo y público. Este es tu link — así lo ven los bookers:
+              </p>
+              <p style="font-family:${FONT_MONO}; font-size:15px; font-weight:700; color:${INK}; background:#FBF7F0; border:2px solid ${ORANGE}; border-radius:4px; padding:12px 14px; margin:0 0 18px 0; text-align:center; word-break:break-all;">
+                ${escapeHtml(input.presskitUrl.replace(/^https?:\/\//, ""))}
+              </p>
+              <p style="font-size:15px; margin:0 0 24px 0;">
+                ${ctaButton("Ver mi press kit", input.presskitUrl)}
+              </p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Ahora lo que de verdad mueve la aguja: <strong>úsalo</strong>. Pégalo en la bio de tu Instagram, mándaselo a los venues donde quieres tocar, ponlo en tu WhatsApp. Es tu carta de presentación en un link.
+              </p>
+              <p style="font-size:13px; color:${MUTED}; margin:0 0 24px 0;">
+                ¿Próximo paso opcional? Carga tus gigs en el calendario y empieza a llevar la cuenta de lo que cobras.
+              </p>
+              <p style="font-size:15px; margin:0;">
+                Saludos,<br>
+                DROP<span style="color:${ORANGE};">.</span> Team
+              </p>`;
+  return wrapEmail({
+    title: "Tu press kit en DROP. está vivo",
+    preheader: "Acá está tu link. Ahora lo importante: empieza a pasarlo.",
+    content,
+    footerReason: "Recibes este correo porque completaste tu press kit en DROP.",
+  });
+}
+
+export function presskitLiveEmailText(input: {
+  artistName: string;
+  presskitUrl: string;
+}): string {
+  return `Hola ${input.artistName},
+
+Listo. Tu press kit ya está completo y público. Este es tu link — así lo ven los bookers:
+
+${input.presskitUrl}
+
+Ahora lo que de verdad mueve la aguja: úsalo. Pégalo en la bio de tu Instagram, mándaselo a los venues donde quieres tocar, ponlo en tu WhatsApp. Es tu carta de presentación en un link.
+
+¿Próximo paso opcional? Carga tus gigs en el calendario y empieza a llevar la cuenta de lo que cobras.
+
+Saludos,
+DROP. Team`;
+}
+
 export interface FollowUpdate {
   type: "show_scheduled" | "availability_updated";
   title: string;

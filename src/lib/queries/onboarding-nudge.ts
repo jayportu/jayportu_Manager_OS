@@ -74,18 +74,20 @@ function buildNudgeEmail(cand: NudgeCandidate): string {
     )
     .join("");
   const list = items
-    ? `<p style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#9A958B;margin:18px 0 4px;">Lo que te falta</p><ul style="margin:0 0 6px 18px;padding:0;">${items}</ul>`
+    ? `<ul style="margin:0 0 16px 20px;padding:0;">${items}</ul>`
     : "";
   return wrapEmail({
-    title: "Quedaste a un paso",
-    preheader: "Te toma 5 minutos terminar tu perfil.",
+    title: "Tu press kit en DROP. está a medio camino",
+    preheader: "Te falta poco para que se vea pro y lo puedas empezar a pasar.",
     content:
-      `<p style="font-size:15px;line-height:1.55;">Hola ${name}, empezaste a armar tu perfil en DROP pero quedó a medias. Te toma <strong>5 minutos</strong> terminarlo — y sin perfil completo no apareces en el directorio ni los bookers pueden encontrarte.</p>` +
+      `<p style="font-size:16px;margin:0 0 16px 0;">Hola ${name},</p>` +
+      `<p style="font-size:15px;line-height:1.55;margin:0 0 12px 0;">Vi que empezaste tu perfil en DROP pero todavía le falta para que tu press kit esté listo para mostrar. Te quedan por completar:</p>` +
       list +
-      `<p style="margin:24px 0;">${ctaButton("Terminar mi perfil", `${SITE}/welcome`)}</p>` +
-      `<p style="font-size:13px;line-height:1.5;color:#6B675F;">¿Dudas? Respóndenos este correo, lo lee una persona de verdad.</p>`,
+      `<p style="font-size:15px;line-height:1.55;margin:0 0 24px 0;">En cuanto completes eso, tu press kit queda listo para pasárselo a cualquier booker — y subes en el <a href="${SITE}/dj" style="color:#0A0A0A;text-decoration:underline;">directorio público</a> para los que entran a buscar DJ.</p>` +
+      `<p style="margin:0 0 24px 0;">${ctaButton("Completar mi press kit", `${SITE}/perfil`)}</p>` +
+      `<p style="font-size:13px;line-height:1.5;color:#7A7670;margin:0;">Te toma menos de lo que crees. Si algo no te carga, respondes este correo y lo vemos.</p>`,
     footerReason:
-      "Recibes este correo porque empezaste tu perfil en DROP y quedó sin terminar. Es un aviso único, no te mandaremos más.",
+      'Recibes este correo porque estás en la beta de DROP. y tu perfil aún no está completo. Si prefieres no recibir estos recordatorios, respondes "unsubscribe" y te quito de la lista.',
   });
 }
 
