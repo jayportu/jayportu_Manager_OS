@@ -93,6 +93,9 @@ export interface DjProfile {
   /** Migration 0031 — aceptación de Términos (click-wrap) */
   tos_accepted_at: string | null;
   tos_version: string | null;
+  /** Migration 0062 — correos de activación (dedup one-shot, server-set) */
+  welcome_email_sent_at: string | null;
+  presskit_live_email_sent_at: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { updateMyProfile } from "@/lib/queries/dj-profile";
+import { maybeSendWelcomeEmail } from "@/lib/queries/activation-emails";
 import { upsertPlatformAccount } from "@/lib/queries/platform-accounts";
 import { revalidatePath } from "next/cache";
 import { TOS_VERSION } from "@/lib/legal";
@@ -85,6 +86,8 @@ export async function completeOnboarding(acceptTos = false) {
     patch.tos_version = TOS_VERSION;
   }
   await updateMyProfile(patch);
+  // E1 · Correo de bienvenida (best-effort, one-shot; no rompe el onboarding).
+  await maybeSendWelcomeEmail();
   revalidatePath("/dashboard");
   revalidatePath("/welcome");
 }

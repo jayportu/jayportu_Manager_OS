@@ -93,3 +93,20 @@ export function computeCompleteness(p: CompletenessInput): CompletenessResult {
 
   return { percent: Math.round(earned), missing };
 }
+
+/**
+ * ¿El press kit está "live-ready"? = todos los campos CORE presentes (nombre,
+ * bio corta, géneros, ciudad, foto, contacto). Es el umbral que dispara el
+ * correo de activación E3 ("tu press kit está vivo"): lo mínimo para que sea
+ * presentable a un booker. NO exige los campos Rich (set, fee, etc.).
+ */
+export function isPresskitLiveReady(p: CompletenessInput): boolean {
+  return (
+    has(p.artist_name) &&
+    has(p.bio_short) &&
+    hasArr(p.genres) &&
+    has(p.city) &&
+    (has(p.avatar_url) || has(p.hero_image_url)) &&
+    (has(p.public_email) || has(p.whatsapp))
+  );
+}
