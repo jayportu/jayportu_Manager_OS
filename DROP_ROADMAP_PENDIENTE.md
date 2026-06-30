@@ -77,7 +77,7 @@ Es la primera impresión de cualquier booker que se invite.
 - [ ] 🪙 **Gating de pago + perk Founding "gratis por X tiempo"** (heredado de Fase 3). Al prender la suscripción: gatear Smart Match con `evaluateSubscriptionAccess` y dar gratis por X tiempo a `is_founding`. Hooks listos. *(El perk "acceso anticipado" ya se activó en Fase 3.)*
 - [ ] 🔴 QA diferidos de cobros: botón "Reactivar" suscripción + acceso en estado `pending` — se arreglan al activar la suscripción.
 - [ ] 📋 S18.5 Contratos (firma electrónica simple, click-wrap + hash) — opcional, no bloquea.
-- [ ] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4)
+- [x] 📋 Calendario público de disponibilidad en `/p/[slug]` (S20, idea 4) — ✅ **HECHO (PR #148, Capa 2 presskit):** `components/availability/availability-calendar.tsx` en /p/[slug] + `getPublicBusyDates` (`lib/queries/availability.ts`) + ventana `available_from/until/note`. *(El roadmap lo tenía mal como pendiente — corregido en el repaso 2026-06-30.)*
 
 ### FASE 5 · Loops de crecimiento y retención · paralelo, con tracción
 > Vamos **en orden**: RA-5 ✅ → RA-6 ✅ → RA-7 ✅. **Fase 5 (loops core) completa.**
@@ -443,7 +443,7 @@ Las 5 preguntas que definen el próximo commit:
 
 ### 03 · ¿Pagos: Flow primero o MercadoPago primero?
 - [ ] Flow (Chile, tu mercado primario)
-- [ ] MercadoPago (LATAM completo, más alcance)
+- [x] **MercadoPago** ← decisión tomada e implementada: es el único riel integrado (`/api/mp/webhook` + preapproval S19, suscripción del DJ). Flow NUNCA se integró. *(El cobro en sí sigue en pausa — Fase 4 stand-by — pero el riel ya está elegido.)*
 - [ ] Ambos en paralelo (más complejidad)
 
 ### 04 · ¿Cuenta de booker?
