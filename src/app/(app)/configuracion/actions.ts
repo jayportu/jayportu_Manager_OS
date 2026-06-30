@@ -1,6 +1,7 @@
 "use server";
 
-import { updateMyProfile } from "@/lib/queries/dj-profile";
+import { updateMyProfile, getMyProfile } from "@/lib/queries/dj-profile";
+import { isPresskitLiveReady } from "@/lib/match/completeness";
 import { normalizeUrl } from "@/lib/format";
 import { isSafePublicHttpUrl } from "@/lib/url-guard";
 import {
@@ -26,6 +27,11 @@ export async function saveProfileAction(
     // Beta vencida = cuenta congelada: no se puede editar nada hasta reaperturar
     // (consistente con addRiderItemAction y el copy del paywall).
     await assertBetaActive();
+    // Estado live-ready ANTES de guardar → el correo E3 ("press kit vivo") solo
+    // se dispara en la transición incompleto→completo, no en cada guardado de un
+    // perfil que ya estaba completo.
+    const before = await getMyProfile();
+    const wasLiveReady = before ? isPresskitLiveReady(before) : false;
     // Normalizar URLs de redes/web antes de guardar: trim + https:// si falta.
     // Sin esto, una URL pegada sin protocolo (ej. "soundcloud.com/foo") rompe
     // el embed del player y deja los links públicos como rutas relativas.
@@ -68,8 +74,9 @@ export async function saveProfileAction(
     revalidatePath("/p/[slug]", "page");
     revalidatePath("/dj");
     revalidateTag("public-djs");
-    // E3 · Correo "press kit vivo" (best-effort, one-shot al quedar live-ready).
-    await maybeSendPresskitLiveEmail();
+    // E3 · Correo "press kit vivo" (best-effort; solo en la transición
+    // incompleto→completo, ver wasLiveReady arriba).
+    await maybeSendPresskitLiveEmail(wasLiveReady);
     // Devolvemos lo normalizado para que el form re-sincronice sus inputs
     // (URL con https:// agregado, fee corregido) en vez de seguir mostrando
     // lo que tipeó el usuario.

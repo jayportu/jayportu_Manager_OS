@@ -60,9 +60,16 @@ export async function maybeSendWelcomeEmail(): Promise<void> {
   }
 }
 
-/** E3 · Press kit vivo. Llamar tras guardar el perfil; dispara al quedar live-ready. */
-export async function maybeSendPresskitLiveEmail(): Promise<void> {
+/**
+ * E3 · Press kit vivo. Llamar tras guardar el perfil; dispara SOLO en la
+ * transición incompleto→completo. `wasLiveReady` = si el press kit ya estaba
+ * live-ready ANTES de este guardado (se calcula en saveProfileAction con el
+ * estado previo). Si ya lo estaba, no es "recién vivo" → no se manda, así un DJ
+ * que ya tenía el press kit completo no recibe el correo en su próximo guardado.
+ */
+export async function maybeSendPresskitLiveEmail(wasLiveReady: boolean): Promise<void> {
   try {
+    if (wasLiveReady) return;
     if (!isResendConfigured()) return;
     const supabase = await createClient();
     const {
