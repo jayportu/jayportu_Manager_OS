@@ -318,6 +318,74 @@ export async function setAccountStatusAction(
 }
 
 /**
+ * Migration 0063 — suspender / banear / reactivar un BOOKER. Espejo de
+ * setAccountStatusAction pero sobre booker_accounts. El trigger
+ * protect_booker_account_status() bloquea cambios desde cualquier rol que no
+ * sea service_role, así un booker no puede auto-reactivarse.
+ */
+export async function setBookerAccountStatusAction(
+  bookerUserId: string,
+  status: AccountStatus,
+  reason: string
+): Promise<Result<{ status: AccountStatus }>> {
+  try {
+    const { userId: adminId } = await assertAdmin();
+
+    if (bookerUserId === adminId) {
+      return { ok: false, error: "No puedes cambiar tu propio estado de cuenta." };
+    }
+    if (!["active", "suspended", "banned"].includes(status)) {
+      return { ok: false, error: "Estado inválido." };
+    }
+    const cleanReason = reason.trim().slice(0, 500);
+    if ((status === "suspended" || status === "banned") && cleanReason.length === 0) {
+      return {
+        ok: false,
+        error: "Tienes que indicar un motivo para suspender o banear.",
+      };
+    }
+
+    const admin = createAdminClient();
+
+    const { data: target, error: tErr } = await admin
+      .from("booker_accounts")
+      .select("user_id, full_name")
+      .eq("user_id", bookerUserId)
+      .maybeSingle();
+    if (tErr) return { ok: false, error: `booker_accounts: ${tErr.message}` };
+    if (!target) return { ok: false, error: "Booker no encontrado." };
+
+    const { error: upErr } = await admin
+      .from("booker_accounts")
+      .update({
+        account_status: status,
+        account_status_reason: status === "active" ? null : cleanReason,
+        account_status_changed_at: new Date().toISOString(),
+        account_status_changed_by: adminId,
+      })
+      .eq("user_id", bookerUserId);
+    if (upErr) return { ok: false, error: `Update falló: ${upErr.message}` };
+
+    await admin.from("usage_events").insert({
+      user_id: adminId,
+      event:
+        status === "active"
+          ? "admin_account_reactivated"
+          : status === "suspended"
+            ? "admin_account_suspended"
+            : "admin_account_banned",
+      page: "/admin/bookers",
+      metadata: { target_user_id: bookerUserId, role: "booker", reason: cleanReason || null },
+    });
+
+    revalidatePath("/admin/bookers");
+    return { ok: true, data: { status } };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error" };
+  }
+}
+
+/**
  * Elimina una cuenta de forma PERMANENTE (ej. una cuenta de prueba o spam).
  * Borra el user de auth.users → el cascade de FKs limpia todo su contenido
  * (dj_profile, contacts, bookings, favoritos, etc.). A diferencia de

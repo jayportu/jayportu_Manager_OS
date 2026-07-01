@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { BOOKER_TYPES } from "@/types/database";
 import { shortDate } from "@/lib/format";
 import { VerifyBookerButton } from "./verify-button";
+import { BookerStatusControl } from "./booker-status-control";
+import type { AccountStatus } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,7 @@ interface BookerRow {
   accepts_pitches: boolean;
   verified_at: string | null;
   is_founding: boolean;
+  account_status: AccountStatus;
   created_at: string;
 }
 
@@ -33,7 +36,7 @@ export default async function AdminBookersPage() {
   const { data } = await admin
     .from("booker_accounts")
     .select(
-      "user_id, full_name, email, booker_type, city, country, in_directory, accepts_pitches, verified_at, is_founding, created_at"
+      "user_id, full_name, email, booker_type, city, country, in_directory, accepts_pitches, verified_at, is_founding, account_status, created_at"
     )
     .order("created_at", { ascending: false });
   const bookers = (data as BookerRow[]) ?? [];
@@ -121,14 +124,31 @@ export default async function AdminBookersPage() {
                             sin verificar
                           </span>
                         )}
+                        {b.account_status === "suspended" && (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/25 border border-warning/50 text-warning font-bold">
+                            suspendido
+                          </span>
+                        )}
+                        {b.account_status === "banned" && (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-danger/20 border border-danger/50 text-danger font-bold">
+                            baneado
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-right">
-                      <VerifyBookerButton
-                        bookerUserId={b.user_id}
-                        verified={!!b.verified_at}
-                        name={b.full_name || b.email}
-                      />
+                      <div className="inline-flex flex-col items-end gap-1.5">
+                        <VerifyBookerButton
+                          bookerUserId={b.user_id}
+                          verified={!!b.verified_at}
+                          name={b.full_name || b.email}
+                        />
+                        <BookerStatusControl
+                          bookerUserId={b.user_id}
+                          name={b.full_name || b.email}
+                          status={b.account_status}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
