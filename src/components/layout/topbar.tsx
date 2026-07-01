@@ -66,8 +66,11 @@ export function Topbar({
 
   async function handleLogout() {
     await supabase.auth.signOut();
+    // Al cerrar sesión va al LANDING público (/), no a /login — consistente con
+    // el resto de la app (route /logout + botones booker/modales). PR #119 lo
+    // arregló allá pero este topbar de DJ usa signOut del cliente y se quedó afuera.
+    router.push("/");
     router.refresh();
-    router.push("/login");
   }
 
   return (
