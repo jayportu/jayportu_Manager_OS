@@ -49,6 +49,16 @@ export default async function BookerLayout({
     redirect("/?error=booker_init");
   }
 
+  // Migration 0063 — moderación: un booker suspendido/baneado no puede usar el
+  // panel. (Los admins viven en dj_profile, no en booker_accounts, así que no
+  // hay caso admin-booker que exceptuar.)
+  if (
+    booker.account_status === "suspended" ||
+    booker.account_status === "banned"
+  ) {
+    redirect("/cuenta-suspendida");
+  }
+
   // Backfills caros (writes/queries service_role): solo la primera vez que este
   // booker pasa por el layout en esta instancia, no en cada navegación.
   if (!backfilledUsers.has(user.id)) {

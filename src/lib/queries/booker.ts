@@ -11,7 +11,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { santiagoMonthStartUtcISO } from "@/lib/tz";
-import type { BookingSubmission } from "@/types/database";
+import type { BookingSubmission, AccountStatus } from "@/types/database";
 
 /**
  * ¿Hay al menos un lugar verificado en el directorio? Se usa para mostrar/ocultar
@@ -51,6 +51,11 @@ export interface BookerAccount {
   verified_by: string | null;
   /** Fase 2 — booker fundador (perks: acceso anticipado a features nuevas). */
   is_founding: boolean;
+  /** Migration 0063 — moderación de cuentas de booker (suspender / banear) */
+  account_status: AccountStatus;
+  account_status_reason: string | null;
+  account_status_changed_at: string | null;
+  account_status_changed_by: string | null;
   created_at: string;
   updated_at: string;
 }

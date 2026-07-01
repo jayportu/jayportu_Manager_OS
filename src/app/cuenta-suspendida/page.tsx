@@ -18,23 +18,40 @@ export default async function CuentaSuspendidaPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("dj_profile")
-    .select("account_status, account_status_reason, is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  // La cuenta puede ser DJ (dj_profile) o booker (booker_accounts). Miramos las
+  // dos: un user es una o la otra, no ambas. (Migration 0063 sumó el estado a
+  // booker_accounts; antes esta página solo miraba dj_profile → un booker
+  // suspendido no veía nada y quedaba en loop.)
+  const [{ data: dj }, { data: booker }] = await Promise.all([
+    supabase
+      .from("dj_profile")
+      .select("account_status, account_status_reason, is_admin")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("booker_accounts")
+      .select("account_status, account_status_reason")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
 
-  // Si no está bloqueado (o es admin), no tiene nada que hacer acá
-  if (
-    profile?.is_admin ||
-    (profile?.account_status !== "suspended" &&
-      profile?.account_status !== "banned")
-  ) {
-    redirect("/dashboard");
+  const isAdmin = !!dj?.is_admin;
+  const djBlocked =
+    dj?.account_status === "suspended" || dj?.account_status === "banned";
+  const bookerBlocked =
+    booker?.account_status === "suspended" ||
+    booker?.account_status === "banned";
+
+  // Admin o ninguno bloqueado → no tiene nada que hacer acá. "/" enruta según rol.
+  if (isAdmin || (!djBlocked && !bookerBlocked)) {
+    redirect("/");
   }
 
-  const isBanned = profile?.account_status === "banned";
-  const reason = profile?.account_status_reason?.trim() || null;
+  const status = djBlocked ? dj!.account_status : booker!.account_status;
+  const isBanned = status === "banned";
+  const reason =
+    (djBlocked ? dj!.account_status_reason : booker!.account_status_reason)?.trim() ||
+    null;
 
   return (
     <div className="min-h-screen bg-bg text-fg flex items-center justify-center p-6">
