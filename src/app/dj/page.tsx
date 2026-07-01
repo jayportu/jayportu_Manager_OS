@@ -411,7 +411,10 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
           </span>
         )}
         {dj.is_verified && (
-          <span className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-ink text-orange">
+          <span
+            title="Identidad e Instagram revisados por DROP."
+            className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-ink text-orange cursor-help"
+          >
             ✓ Verificado
           </span>
         )}
