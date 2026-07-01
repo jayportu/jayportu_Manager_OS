@@ -293,7 +293,10 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
               {/* Badge verificado (Fase 1 · 1A) — señal de confianza */}
               {profile.verified_at && (
-                <div className="mt-4 inline-flex items-center gap-1.5 border-2 border-orange bg-orange text-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]">
+                <div
+                  title="Identidad e Instagram revisados por el equipo de DROP."
+                  className="mt-4 inline-flex items-center gap-1.5 border-2 border-orange bg-orange text-ink px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em] cursor-help"
+                >
                   ✓ Verificado por DROP.
                 </div>
               )}
