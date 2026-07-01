@@ -9,6 +9,7 @@ import { isSupabaseStorageUrl } from "@/lib/format";
 import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
 import { LandingHero, type HeroStat } from "@/components/public/landing/landing-hero";
 import { FeatureTabs } from "@/components/public/landing/feature-tabs";
+import { ProductShowcase } from "@/components/public/landing/product-showcase";
 import { Reveal } from "@/components/public/landing/reveal";
 
 /**
@@ -117,6 +118,26 @@ export default async function RootPage() {
           </Reveal>
           <Reveal>
             <FeatureTabs />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* MÍRALO POR DENTRO — capturas reales del producto (cuenta demo) */}
+      <section id="producto" className="scroll-mt-[78px] pb-20 md:pb-[90px]">
+        <div className="max-w-[1140px] mx-auto px-6">
+          <Reveal className="mb-10 max-w-[620px]">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
+              — Míralo por dentro
+            </div>
+            <h2 className="mt-2.5 text-balance" style={{ fontFamily: ANTON, fontSize: "clamp(32px,5vw,52px)", lineHeight: 0.95 }}>
+              No te lo contamos. Te lo mostramos.
+            </h2>
+            <p className="text-fg-muted mt-3.5 text-[15px]">
+              Capturas reales de la app. Toca cada pantalla.
+            </p>
+          </Reveal>
+          <Reveal>
+            <ProductShowcase />
           </Reveal>
         </div>
       </section>
