@@ -9,7 +9,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isSafePublicHttpUrl } from "@/lib/url-guard";
+import { isSafePublicHttpUrlResolved } from "@/lib/url-guard";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -33,7 +33,8 @@ export async function POST(req: Request) {
   // Anti-SSRF: solo permitimos endpoints HTTP(S) públicos. Sin esto, un usuario
   // logueado podía hacer que el server POSTeara a localhost, IPs internas o la
   // metadata de cloud (169.254.169.254) y usar la respuesta como port-scanner.
-  if (!isSafePublicHttpUrl(url)) {
+  // Resuelve DNS y valida la IP final (cierra DNS rebinding).
+  if (!(await isSafePublicHttpUrlResolved(url))) {
     return NextResponse.json(
       { ok: false, error: "URL inválida o no permitida" },
       { status: 400 }
