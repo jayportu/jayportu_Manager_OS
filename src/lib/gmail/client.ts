@@ -12,6 +12,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { refreshAccessToken } from "./oauth";
+import { encryptToken, decryptToken } from "./token-crypto";
 import type { GmailConnection } from "@/types/database";
 
 const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
@@ -57,19 +58,22 @@ export async function getGmailToken(): Promise<{
   const now = Date.now();
 
   if (expiresAt - now > 60 * 1000) {
-    return { accessToken: conn.access_token, googleEmail: conn.google_email };
+    return {
+      accessToken: decryptToken(conn.access_token),
+      googleEmail: conn.google_email,
+    };
   }
 
-  // Refresh
+  // Refresh (el refresh_token puede estar cifrado en reposo → descifrar antes)
   try {
-    const fresh = await refreshAccessToken(conn.refresh_token);
+    const fresh = await refreshAccessToken(decryptToken(conn.refresh_token));
     const newExpiresAt = new Date(
       Date.now() + fresh.expires_in * 1000
     ).toISOString();
     await admin
       .from("gmail_connections")
       .update({
-        access_token: fresh.access_token,
+        access_token: encryptToken(fresh.access_token),
         expires_at: newExpiresAt,
         token_type: fresh.token_type,
       })
@@ -114,7 +118,8 @@ export async function deleteGmailConnection(): Promise<void> {
     .eq("user_id", user.id)
     .maybeSingle();
   const conn = data as { refresh_token?: string; access_token?: string } | null;
-  const token = conn?.refresh_token || conn?.access_token;
+  const token =
+    decryptToken(conn?.refresh_token) || decryptToken(conn?.access_token);
   if (token) await revokeGoogleToken(token);
   await admin.from("gmail_connections").delete().eq("user_id", user.id);
 }

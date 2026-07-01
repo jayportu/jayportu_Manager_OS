@@ -63,14 +63,15 @@ export async function GET(request: Request) {
     // service_role; la migración 0056 quitó las policies que los exponían al
     // cliente (ver nota en lib/gmail/client.ts).
     const { createAdminClient } = await import("@/lib/supabase/admin");
+    const { encryptToken } = await import("@/lib/gmail/token-crypto");
     const admin = createAdminClient();
     const { error } = await admin
       .from("gmail_connections")
       .upsert({
         user_id: user.id,
         google_email: userinfo.email,
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token || "",
+        access_token: encryptToken(tokens.access_token),
+        refresh_token: encryptToken(tokens.refresh_token || ""),
         scope: tokens.scope,
         token_type: tokens.token_type,
         expires_at: expiresAt,
