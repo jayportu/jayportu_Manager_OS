@@ -1,9 +1,8 @@
 /**
  * POST /api/gmail/disconnect
  *
- * Borra la conexión Gmail del user actual.
- * No revoca el token en Google (eso lo hace el user manualmente en
- * https://myaccount.google.com/permissions si quiere).
+ * Borra la conexión Gmail del user actual y REVOCA el token en Google
+ * (best-effort, dentro de deleteGmailConnection) para que no quede válido.
  */
 import { deleteGmailConnection } from "@/lib/gmail/client";
 import { NextResponse } from "next/server";

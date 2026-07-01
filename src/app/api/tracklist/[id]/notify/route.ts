@@ -18,7 +18,7 @@ import {
 } from "@/lib/queries/tracklists";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { rateLimit } from "@/lib/rate-limit";
-import { isSafePublicHttpUrl } from "@/lib/url-guard";
+import { isSafePublicHttpUrlResolved } from "@/lib/url-guard";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -66,7 +66,8 @@ export async function POST(req: Request, { params }: Params) {
     );
   }
   // Anti-SSRF: el server NO debe pegarle a localhost/IPs internas/metadata.
-  if (!isSafePublicHttpUrl(profile.auto_post_webhook_url)) {
+  // Resuelve DNS y valida la IP final (cierra DNS rebinding).
+  if (!(await isSafePublicHttpUrlResolved(profile.auto_post_webhook_url))) {
     return NextResponse.json(
       {
         ok: false,

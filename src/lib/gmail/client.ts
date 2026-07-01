@@ -81,9 +81,41 @@ export async function getGmailToken(): Promise<{
   }
 }
 
+/**
+ * Revoca un token OAuth en Google (best-effort). Revocar el refresh_token
+ * invalida también todos sus access_tokens. https://oauth2.googleapis.com/revoke
+ */
+async function revokeGoogleToken(token: string): Promise<void> {
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 5000);
+    await fetch("https://oauth2.googleapis.com/revoke", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ token }).toString(),
+      signal: controller.signal,
+    });
+    clearTimeout(t);
+  } catch {
+    // best-effort: si Google no responde, igual borramos la conexión local
+  }
+}
+
 export async function deleteGmailConnection(): Promise<void> {
   const { user } = await getUserOrThrow();
   const admin = createAdminClient();
+  // Revoca el token en Google ANTES de borrar la fila. Sin esto, el token
+  // seguía VÁLIDO en Google (acceso al correo del DJ) hasta que lo revocara a
+  // mano. Best-effort: un fallo de red no debe impedir la desconexión local —
+  // la intención del user (desconectar) manda. (Auditoría seguridad 2026-06-13.)
+  const { data } = await admin
+    .from("gmail_connections")
+    .select("refresh_token, access_token")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const conn = data as { refresh_token?: string; access_token?: string } | null;
+  const token = conn?.refresh_token || conn?.access_token;
+  if (token) await revokeGoogleToken(token);
   await admin.from("gmail_connections").delete().eq("user_id", user.id);
 }
 
