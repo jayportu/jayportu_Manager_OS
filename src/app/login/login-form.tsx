@@ -32,6 +32,10 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
   );
   const [email, setEmail] = useState(inviteEmail ?? "");
   const [password, setPassword] = useState("");
+  // Confirmación de contraseña — solo en signup. Sin este campo, un typo al
+  // registrarse quedaba guardado sin aviso y el DJ no podía entrar nunca con
+  // su clave (tenía que caer a Google o a "olvidé mi contraseña").
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +91,12 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
     inviteEmail !== null &&
     email.trim().length > 0 &&
     email.trim().toLowerCase() !== inviteEmail.toLowerCase();
+
+  // Feedback en vivo si las contraseñas no coinciden (solo signup).
+  const passwordMismatch =
+    mode === "signup" &&
+    confirmPassword.length > 0 &&
+    password !== confirmPassword;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,6 +154,14 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
       if (!tosAccepted) {
         setError(
           "Tienes que aceptar los Términos de servicio y la Política de privacidad para crear tu cuenta."
+        );
+        setLoading(false);
+        return;
+      }
+      // Confirmación de contraseña: atrapa typos ANTES de crear la cuenta.
+      if (password !== confirmPassword) {
+        setError(
+          "Las contraseñas no coinciden. Revísalas e intenta de nuevo."
         );
         setLoading(false);
         return;
@@ -272,6 +290,27 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           )}
         </div>
 
+        {mode === "signup" && (
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={6}
+              autoComplete="new-password"
+            />
+            {passwordMismatch && (
+              <div className="text-[11px] text-danger">
+                Las contraseñas no coinciden.
+              </div>
+            )}
+          </div>
+        )}
+
         {error && (
           <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
             {error}
@@ -329,6 +368,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           disabled={
             loading ||
             (mode === "signup" && !tosAccepted) ||
+            passwordMismatch ||
             (TURNSTILE_ENABLED && !captchaToken)
           }
         >
