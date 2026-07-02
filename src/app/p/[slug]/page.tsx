@@ -25,7 +25,7 @@ import { AvatarLightbox } from "@/components/avatar-lightbox";
 import { getPublicGigStats } from "@/lib/queries/gig-stats";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { FollowNotifyToggle } from "@/components/booker/follow-notify-toggle";
-import { normalizeUrl, isSupabaseStorageUrl } from "@/lib/format";
+import { normalizeUrl, isSupabaseStorageUrl, isRenderableLink } from "@/lib/format";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -98,8 +98,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
   // #3 — auto-discografía: releases de Bandcamp (cacheado 1 día). Beatport no
   // se auto-importa (Cloudflare lo bloquea server-side) → queda como link.
-  const bandcampReleases = profile.bandcamp_url
-    ? await getBandcampReleases(profile.bandcamp_url)
+  const bandcampReleases = isRenderableLink(profile.bandcamp_url)
+    ? await getBandcampReleases(profile.bandcamp_url!)
     : [];
 
   // Sprint RA-1 — stats públicos de gigs (sin RLS via service_role).
@@ -144,7 +144,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     gigStats.showsPasados >= 3 && "Historial de shows",
   ].filter(Boolean) as string[];
 
-  const hasFeaturedSets = (profile.featured_sets?.length ?? 0) > 0;
+  const featuredSets = (profile.featured_sets ?? []).filter(isRenderableLink);
+  const hasFeaturedSets = featuredSets.length > 0;
   // Disponibilidad con ventana de fechas (consistente con /dj, no solo
   // available_from presente). Fix B5.
   const isAvailableNow = (() => {
@@ -159,14 +160,19 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   // se sirven gated por cuenta de booker vía <GatedContact>. Acá solo sabemos
   // si el DJ tiene contacto para decidir si mostrar esa sección.
   const hasContact = !!(profile.public_email || profile.whatsapp);
-  const ig = profile.instagram_url;
-  const sc = profile.soundcloud_url;
-  const yt = profile.youtube_url;
-  const sp = profile.spotify_url;
-  const bp = profile.beatport_url;
-  const bc = profile.bandcamp_url;
-  const web = profile.website;
-  const beatportReleases = (profile.beatport_releases ?? []).filter(Boolean);
+  // Un campo de link solo cuenta como "puesto" si es un link mostrable. Así el
+  // que dejó su nombre con espacios en vez del handle (ej. "soundcloud.com/Pablo
+  // Rocha", que da 404) no ensucia el press kit con un botón muerto.
+  const ig = isRenderableLink(profile.instagram_url) ? profile.instagram_url : null;
+  const sc = isRenderableLink(profile.soundcloud_url) ? profile.soundcloud_url : null;
+  const yt = isRenderableLink(profile.youtube_url) ? profile.youtube_url : null;
+  const sp = isRenderableLink(profile.spotify_url) ? profile.spotify_url : null;
+  const bp = isRenderableLink(profile.beatport_url) ? profile.beatport_url : null;
+  const bc = isRenderableLink(profile.bandcamp_url) ? profile.bandcamp_url : null;
+  const web = isRenderableLink(profile.website) ? profile.website : null;
+  const beatportReleases = (profile.beatport_releases ?? [])
+    .filter(Boolean)
+    .filter((u) => isRenderableLink(u));
 
   // JSON-LD (SEO #4) — el DJ como MusicGroup para rich results en Google.
   // genre + sameAs (redes) + image son las señales fuertes; location = ciudad.
@@ -175,9 +181,9 @@ export default async function PresskitPublicPage({ params }: PageProps) {
     profile.avatar_url,
     profile.logo_url,
   ].find((u) => typeof u === "string" && u.startsWith("https://"));
-  const ldSameAs = [ig, sc, yt, sp, bp, bc, web].filter(
-    (u): u is string => typeof u === "string" && u.startsWith("https://")
-  );
+  const ldSameAs = [ig, sc, yt, sp, bp, bc, web]
+    .filter((u): u is string => !!u)
+    .map(normalizeUrl);
   const presskitJsonLd = {
     "@context": "https://schema.org",
     "@type": "MusicGroup",
@@ -508,12 +514,12 @@ export default async function PresskitPublicPage({ params }: PageProps) {
                 </div>
 
                 {/* Sets destacados (Fase 1 · 1B) — primero, son los curados */}
-                {profile.featured_sets && profile.featured_sets.length > 0 && (
+                {hasFeaturedSets && (
                   <div className="mb-6 space-y-3">
                     <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
                       Sets destacados
                     </div>
-                    {profile.featured_sets.map((setUrl) => (
+                    {featuredSets.map((setUrl) => (
                       <SetEmbed
                         key={setUrl}
                         url={setUrl}
