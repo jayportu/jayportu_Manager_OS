@@ -5,6 +5,7 @@ import {
   updateGrowthCampaign,
   deleteGrowthCampaign,
   createContentPost,
+  getContentPost,
   updateContentPost,
   deleteContentPost,
   createSnapshot,
@@ -82,6 +83,32 @@ export async function createContentPostAction(
       revalidatePath(`/growth/ads/${input.growth_campaign_id}`);
     }
     return { ok: true, data: { id: p.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+export async function duplicateContentPostAction(
+  id: string
+): Promise<Result<{ id: string }>> {
+  try {
+    const src = await getContentPost(id);
+    if (!src) return { ok: false, error: "Post no encontrado." };
+    // Clona el contenido y resetea estado/métricas/fechas → borrador nuevo,
+    // listo para adaptar (ej. mismo post para otra plataforma).
+    const copy = await createContentPost({
+      platform: src.platform,
+      format: src.format,
+      title: `${src.title || "Post"} (copia)`,
+      description: src.description,
+      status: "borrador",
+      hashtags: src.hashtags,
+      notes: src.notes,
+      growth_campaign_id: src.growth_campaign_id,
+    });
+    revalidatePath("/growth");
+    revalidatePath("/growth/posts");
+    return { ok: true, data: { id: copy.id } };
   } catch (e) {
     return err(e);
   }

@@ -4,13 +4,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Calendar } from "lucide-react";
+import { Calendar, Copy } from "lucide-react";
 import {
   type ContentPost,
   type PostStatus,
   SOCIAL_PLATFORM_LABELS,
 } from "@/types/database";
-import { updateContentPostAction } from "../actions";
+import { updateContentPostAction, duplicateContentPostAction } from "../actions";
 import { shortDate, relativeTime } from "@/lib/format";
 
 const COLUMNS: { status: PostStatus; label: string; tint: string }[] = [
@@ -99,6 +99,24 @@ export function PostsBoard({ posts, campaignMap }: Props) {
     });
   }
 
+  function handleDuplicate(e: React.MouseEvent, postId: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    startTransition(async () => {
+      const r = await duplicateContentPostAction(postId);
+      if (r.ok) router.push(`/growth/posts/${r.data.id}`);
+      else {
+        void confirm({
+          title: "No se pudo duplicar",
+          message: r.error,
+          confirmLabel: "Entendido",
+          hideCancel: true,
+          variant: "danger",
+        });
+      }
+    });
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
       {COLUMNS.map((col) => {
@@ -136,8 +154,21 @@ export function PostsBoard({ posts, campaignMap }: Props) {
                         isDragging ? "opacity-40" : "hover:shadow-[4px_4px_0_#E85A0C]"
                       }`}
                     >
-                      <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-orange">
-                        ▶ {SOCIAL_PLATFORM_LABELS[p.platform]}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-orange">
+                          ▶ {SOCIAL_PLATFORM_LABELS[p.platform]}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDuplicate(e, p.id)}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          draggable={false}
+                          title="Duplicar post"
+                          aria-label={`Duplicar post ${p.title || "sin título"}`}
+                          className="shrink-0 -mr-0.5 -mt-0.5 p-1 text-fg-subtle hover:text-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </button>
                       </div>
                       <Link
                         href={`/growth/posts/${p.id}`}
