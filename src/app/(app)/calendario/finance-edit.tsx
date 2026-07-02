@@ -77,14 +77,14 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
           e.preventDefault();
           setOpen(true);
         }}
-        className={`p-1.5 border-2 border-border transition-colors ${
+        className={`inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
           hasFinanceInfo
             ? "bg-orange text-ink hover:bg-ink hover:text-orange"
             : "bg-cream hover:bg-ink hover:text-orange"
         }`}
         title="Editar info de cobro"
       >
-        <DollarSign className="w-3.5 h-3.5" />
+        <DollarSign className="w-3 h-3" aria-hidden="true" /> Cobro
       </button>
 
       {open && (
