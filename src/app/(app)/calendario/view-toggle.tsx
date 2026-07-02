@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { List, CalendarDays } from "lucide-react";
+import { List, CalendarDays, Wallet } from "lucide-react";
 
 /**
- * Toggle Lista / Mes del calendario (SSR, vía URL param `view`).
+ * Toggle Lista / Mes / Cobros del calendario (SSR, vía URL param `view`).
  * Estilo brutalist consistente con el resto de la app (border-2, sin radius).
- * El "Mapa" llega en una iteración aparte (necesita decisión de datos: las
- * ubicaciones son texto libre, sin coordenadas → geocoding o agrupar por ciudad).
  */
-export function CalendarViewToggle({ current }: { current: "lista" | "mes" }) {
+export function CalendarViewToggle({
+  current,
+}: {
+  current: "lista" | "mes" | "cobros";
+}) {
   const base =
     "inline-flex items-center gap-1.5 px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.06em] transition-colors";
   const on = "bg-orange text-ink";
@@ -27,6 +29,13 @@ export function CalendarViewToggle({ current }: { current: "lista" | "mes" }) {
         aria-current={current === "mes" ? "page" : undefined}
       >
         <CalendarDays className="w-3.5 h-3.5" aria-hidden="true" /> Mes
+      </Link>
+      <Link
+        href="/calendario?view=cobros"
+        className={`${base} border-l-2 border-border ${current === "cobros" ? on : off}`}
+        aria-current={current === "cobros" ? "page" : undefined}
+      >
+        <Wallet className="w-3.5 h-3.5" aria-hidden="true" /> Cobros
       </Link>
     </div>
   );
