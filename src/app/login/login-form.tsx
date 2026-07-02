@@ -282,7 +282,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
             <div className="text-right">
               <a
                 href="/auth/forgot-password"
-                className="text-[12px] text-accent hover:underline"
+                className="text-[13px] font-medium text-accent underline underline-offset-2 hover:text-orange"
               >
                 ¿Olvidaste tu contraseña?
               </a>
@@ -315,6 +315,16 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
             {error}
           </div>
+        )}
+        {/* Si el login falla, el camino de recuperación tiene que estar donde el
+            DJ está mirando (el error), no perdido arriba en 12px. */}
+        {mode === "login" && error && (
+          <a
+            href="/auth/forgot-password"
+            className="flex items-center justify-center gap-1.5 h-10 border-2 border-accent text-accent font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-accent hover:text-bg transition-colors"
+          >
+            Recuperar mi contraseña →
+          </a>
         )}
         {info && (
           <div className="text-sm text-accent bg-accent-soft border border-accent/30 rounded-md px-3 py-2">
