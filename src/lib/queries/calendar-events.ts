@@ -11,8 +11,9 @@ import type {
 } from "@/lib/calendar/types";
 import {
   groupCobros,
+  projectFuture,
   type CobrosRange,
-  type CobrosResult,
+  type CobrosData,
 } from "@/lib/calendar/cobros";
 
 // Re-exportar para conveniencia de callers que ya importan de acá
@@ -249,7 +250,7 @@ export async function deleteCalendarEvent(id: string): Promise<{
  * `type`: trae cualquier evento con plata (monto registrado o estado de pago
  * distinto de 'none') y lo agrupa en por-cobrar / cobrado.
  */
-export async function getCobros(range: CobrosRange = "all"): Promise<CobrosResult> {
+export async function getCobros(range: CobrosRange = "all"): Promise<CobrosData> {
   const { supabase, user } = await getUserOrThrow();
   let q = supabase
     .from("calendar_events")
@@ -281,7 +282,9 @@ export async function getCobros(range: CobrosRange = "all"): Promise<CobrosResul
       totalPorCobrar: 0,
       totalCobrado: 0,
       venuesDeben: 0,
+      proyectado: { total: 0, count: 0, byMonth: [] },
     };
   }
-  return groupCobros((data || []) as CalendarEventRow[]);
+  const rows = (data || []) as CalendarEventRow[];
+  return { ...groupCobros(rows), proyectado: projectFuture(rows) };
 }
