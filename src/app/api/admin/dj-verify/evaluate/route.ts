@@ -22,13 +22,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
   }
 
-  let body: { user_id?: string };
+  let body: { user_id?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "Body inválido" }, { status: 400 });
   }
-  const userId = body.user_id?.trim();
+  // Tolerar body malformado: un user_id no-string (ej. número) devuelve 400
+  // limpio en vez de reventar con un 500 sin estructura.
+  const userId = typeof body.user_id === "string" ? body.user_id.trim() : "";
   if (!userId) {
     return NextResponse.json({ ok: false, error: "Falta user_id" }, { status: 400 });
   }
