@@ -1,10 +1,19 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { santiagoMonthStartUtcISO, santiagoNextMonthStartUtcISO } from "@/lib/tz";
+import {
+  santiagoMonthStartUtcISO,
+  santiagoNextMonthStartUtcISO,
+  santiagoToUtcISO,
+} from "@/lib/tz";
 import type {
   CalendarEventRow,
   CalendarEventType,
 } from "@/lib/calendar/types";
+import {
+  groupCobros,
+  type CobrosRange,
+  type CobrosResult,
+} from "@/lib/calendar/cobros";
 
 // Re-exportar para conveniencia de callers que ya importan de acá
 export {
@@ -182,7 +191,6 @@ export async function getFinanceKpis(): Promise<FinanceKpis> {
     .from("calendar_events")
     .select("amount_clp, payment_status")
     .eq("user_id", user.id)
-    .eq("type", "show")
     .gte("start_at", monthStartIso)
     .lt("start_at", nextMonthIso);
 
@@ -234,4 +242,46 @@ export async function deleteCalendarEvent(id: string): Promise<{
     .eq("user_id", user.id)
     .eq("id", id);
   return data as { google_event_id: string | null };
+}
+
+/**
+ * Vista Cobros — seguimiento de pagos SIN límite de mes y SIN filtrar por
+ * `type`: trae cualquier evento con plata (monto registrado o estado de pago
+ * distinto de 'none') y lo agrupa en por-cobrar / cobrado.
+ */
+export async function getCobros(range: CobrosRange = "all"): Promise<CobrosResult> {
+  const { supabase, user } = await getUserOrThrow();
+  let q = supabase
+    .from("calendar_events")
+    .select("*")
+    .eq("user_id", user.id)
+    // Con plata: monto > 0 O algún estado de cobro distinto de 'none'.
+    .or("amount_clp.gt.0,payment_status.neq.none");
+
+  if (range === "month") {
+    q = q
+      .gte("start_at", santiagoMonthStartUtcISO())
+      .lt("start_at", santiagoNextMonthStartUtcISO());
+  } else if (range === "year") {
+    const year = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Santiago",
+      year: "numeric",
+    }).format(new Date());
+    q = q
+      .gte("start_at", santiagoToUtcISO(`${year}-01-01`, "00:00:00"))
+      .lt("start_at", santiagoToUtcISO(`${Number(year) + 1}-01-01`, "00:00:00"));
+  }
+
+  const { data, error } = await q.limit(2000);
+  if (error) {
+    console.error("getCobros error:", error.message);
+    return {
+      porCobrar: [],
+      cobrado: [],
+      totalPorCobrar: 0,
+      totalCobrado: 0,
+      venuesDeben: 0,
+    };
+  }
+  return groupCobros((data || []) as CalendarEventRow[]);
 }
