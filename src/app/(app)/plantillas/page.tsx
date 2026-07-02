@@ -8,6 +8,7 @@ import {
   TEMPLATE_CHANNEL_LABELS,
 } from "@/types/database";
 import { SeedButton } from "./seed-button";
+import { DuplicateTemplateButton } from "./duplicate-button";
 
 export default async function PlantillasPage() {
   const templates = await listTemplates();
@@ -50,8 +51,9 @@ export default async function PlantillasPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {templates.map((t) => (
-            <Link key={t.id} href={`/plantillas/${t.id}`}>
-              <Card className="p-5 h-full hover:border-accent/30 transition-colors group cursor-pointer">
+            <div key={t.id} className="relative group">
+            <Link href={`/plantillas/${t.id}`} className="block h-full">
+              <Card className="p-5 h-full hover:border-accent/30 transition-colors cursor-pointer">
                 <div className="flex items-start justify-between mb-2 gap-2">
                   <h3 className="font-semibold group-hover:text-accent transition-colors">
                     {t.name}
@@ -80,6 +82,10 @@ export default async function PlantillasPage() {
                 </p>
               </Card>
             </Link>
+            <div className="absolute bottom-3 right-3">
+              <DuplicateTemplateButton id={t.id} name={t.name} />
+            </div>
+            </div>
           ))}
         </div>
       )}
