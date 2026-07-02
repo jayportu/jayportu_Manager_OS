@@ -21,7 +21,7 @@ export function translateSupabaseError(message: string, status?: number): string
     return "La contraseña debe tener mínimo 6 caracteres.";
   }
   if (m.includes("invalid login credentials") || m.includes("invalid_credentials")) {
-    return "Email o contraseña incorrectos. ¿Es tu primera vez? Crea cuenta abajo.";
+    return "Email o contraseña incorrectos. Si ya tienes cuenta, recupera tu contraseña abajo.";
   }
   if (m.includes("email not confirmed")) {
     return "Aún no confirmas tu email. Revisa tu bandeja de entrada (también spam).";
