@@ -15,7 +15,9 @@ import { FinanceEditDialog } from "./finance-edit";
 import { EventEditDialog } from "./event-edit";
 import { CalendarViewToggle } from "./view-toggle";
 import { MonthView, resolveMonth } from "./month-view";
-import { dateTime, shortDate, relativeTime } from "@/lib/format";
+import { CobrosView } from "./cobros-view";
+import type { CobrosRange } from "@/lib/calendar/cobros";
+import { dateTime, shortDate, relativeTime, formatClp } from "@/lib/format";
 import {
   PAYMENT_STATUS_LABELS,
   type CalendarEventRow,
@@ -28,12 +30,8 @@ interface PageProps {
     synced?: string;
     view?: string;
     month?: string;
+    range?: string;
   }>;
-}
-
-function formatClp(n: number | null | undefined): string {
-  if (n === null || n === undefined) return "—";
-  return `$${n.toLocaleString("es-CL")}`;
 }
 
 /** Trae las private_notes de los contactos asociados a los gigs (Sprint 19 E3). */
@@ -57,7 +55,10 @@ async function getContactPrivateNotes(
 
 export default async function CalendarioPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-  const view = sp.view === "mes" ? "mes" : "lista";
+  const view =
+    sp.view === "mes" ? "mes" : sp.view === "cobros" ? "cobros" : "lista";
+  const range: CobrosRange =
+    sp.range === "year" ? "year" : sp.range === "month" ? "month" : "all";
   const monthSel = resolveMonth(sp.month);
   const conn = await getMyGmailConnection();
 
@@ -139,7 +140,7 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       </div>
 
       {/* Sprint 19 — KPIs financieros del mes */}
-      {kpis.totalGigs > 0 && (
+      {view === "lista" && kpis.totalGigs > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
           <div className="bg-bg-panel p-4 border-t-2 border-t-accent border-r-2 border-border border-b-2 md:border-b-0">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
@@ -206,6 +207,8 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
           </div>
         </Card>
       )}
+
+      {view === "cobros" && <CobrosView range={range} />}
 
       {view === "mes" && <MonthView year={monthSel.year} month={monthSel.month} />}
 
