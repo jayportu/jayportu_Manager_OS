@@ -434,9 +434,9 @@ El registro de bookers está **deshabilitado** (landing y `/signup/booker` muest
 
 Ya tenés: slug + OG + tracking + `/dj` directorio. Faltan:
 
-- [ ] **QR generator integrado** en `/press-kit` (light/dark, PNG+SVG, branded DROP.) — librería `qrcode` npm, ~1 hora
-- [ ] **UTMs preconfigurados** — botón "copiar link con UTM" por fuente (IG bio, WhatsApp, mail firma, Resident Advisor…). Extender `presskit_events.metadata`
-- [ ] **Embed widget para venues/agencias** — ruta `/p/[slug]/embed` minimal con foto + tagline + CTA, snippet copy-paste. ~1 día
+- [x] **QR generator integrado** — ✅ **HECHO (Sprint 24, "Bloque A · A8").** `share-tools.tsx` en `/press-kit`: genera QR del link público (paleta DROP), descarga **PNG (alta res) + SVG**, con el UTM seleccionado horneado. Lib `qrcode` en package.json. *(El roadmap lo tenía mal como pendiente — corregido 2026-07-01.)*
+- [x] **UTMs preconfigurados** — ✅ **HECHO (Sprint 24, "Bloque A · A8").** Mismo `share-tools.tsx`: picker de fuente (IG bio/story/post, TikTok, WhatsApp, firma mail, Linktree, flyer, pendrive, referido…) → arma el link con `utm_source`/`utm_medium`, copiar link o generar QR. Se trackea en `presskit_events.metadata` (visible en Métricas). *(Corregido 2026-07-01.)*
+- [ ] **Embed widget para venues/agencias** — ruta `/p/[slug]/embed` minimal con foto + tagline + CTA, snippet copy-paste. ~1 día. **⚠️ Ojo (2026-07-01): NO es trivial** — requiere permitir iframe EXTERNO solo en esa ruta (override de `X-Frame-Options`/CSP `frame-ancestors`, hoy globales en `SAMEORIGIN`/`'self'`) sin debilitar el anti-clickjacking del resto. Además su audiencia (venues/agencias que incrustan) está en el **track booker en pausa** → baja demanda actual. **Recomendación: diferir.**
 - [x] **Sitemap.xml + robots.ts** — ✅ YA hechos (`src/app/sitemap.ts` con /, /dj, /eventos + 1 URL por DJ público `/p/[slug]`; `src/app/robots.ts`). `/eventos` agregado 2026-06-11. *(El roadmap los tenía mal como pendientes — corregido en el repaso.)*
 
 ---
