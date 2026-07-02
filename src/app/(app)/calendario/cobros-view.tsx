@@ -18,14 +18,14 @@ const RANGES: { key: CobrosRange; label: string }[] = [
 ];
 
 export async function CobrosView({ range }: { range: CobrosRange }) {
-  const { porCobrar, cobrado, totalPorCobrar, totalCobrado, venuesDeben } =
+  const { porCobrar, cobrado, totalPorCobrar, totalCobrado, venuesDeben, proyectado } =
     await getCobros(range);
   const nothing = porCobrar.length === 0 && cobrado.length === 0;
 
   return (
     <div>
       {/* KPIs + selector de rango */}
-      <div className="grid grid-cols-2 md:grid-cols-3 border-2 border-border mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
         <div className="bg-bg-panel p-4 border-t-2 border-t-warning border-r-2 border-border">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-warning">
             — POR COBRAR
@@ -48,7 +48,19 @@ export async function CobrosView({ range }: { range: CobrosRange }) {
             {cobrado.length} {cobrado.length === 1 ? "gig" : "gigs"}
           </div>
         </div>
-        <div className="bg-bg-panel p-4 col-span-2 md:col-span-1 border-t-2 border-border md:border-t-0">
+        <div className="bg-bg-panel p-4 border-t-2 border-border md:border-t-0 md:border-r-2">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
+            — PROYECTADO
+          </div>
+          <div className="font-display text-3xl leading-none mt-2 text-fg">
+            {proyectado.total > 0 ? formatClp(proyectado.total) : "—"}
+          </div>
+          <div className="font-mono text-[10px] mt-2 text-fg-muted">
+            {proyectado.count}{" "}
+            {proyectado.count === 1 ? "gig por venir" : "gigs por venir"}
+          </div>
+        </div>
+        <div className="bg-bg-panel p-4 border-t-2 border-border md:border-t-0">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
             — RANGO
           </div>
@@ -70,6 +82,32 @@ export async function CobrosView({ range }: { range: CobrosRange }) {
           </div>
         </div>
       </div>
+
+      {proyectado.byMonth.length > 0 && (
+        <div className="border-2 border-border bg-bg-panel p-4 mb-5">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-2">
+            — PROYECTADO POR MES
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {proyectado.byMonth.map((m) => (
+              <div
+                key={m.key}
+                className="shrink-0 border-2 border-border px-3 py-2"
+              >
+                <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange">
+                  {m.monthLabel}
+                </div>
+                <div className="font-display text-xl leading-none mt-1 text-fg">
+                  {formatClp(m.total)}
+                </div>
+                <div className="font-mono text-[9px] text-fg-muted mt-1">
+                  {m.count} {m.count === 1 ? "gig" : "gigs"}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {nothing && (
         <Card className="p-10 text-center">
