@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { hasUpcomingPublicEvents } from "@/lib/queries/events";
 
 /**
@@ -17,6 +17,17 @@ const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/eventos", label: "Eventos" },
   { href: "/#conexion", label: "Cómo funciona" },
   { href: "/#incluye", label: "Para DJs" },
+];
+
+/**
+ * Perfiles del CTA "Elige tu perfil". DJ es el único activo (→ /beta); el resto
+ * baja a la sección #perfiles del landing, donde se muestran como "próximamente".
+ */
+const PROFILE_LINKS: { label: string; href: string; available?: boolean }[] = [
+  { label: "DJ", href: "/beta", available: true },
+  { label: "Booker", href: "/#perfiles" },
+  { label: "Fotógrafo", href: "/#perfiles" },
+  { label: "Audiovisual", href: "/#perfiles" },
 ];
 
 export async function SiteHeader() {
@@ -41,7 +52,7 @@ export async function SiteHeader() {
         </nav>
         <div className="flex-1" />
         {/* "Entrar" degradado a link (es para usuarios que vuelven, no
-            adquisición); el CTA fuerte es "Soy DJ" → /beta. */}
+            adquisición); el CTA fuerte es "Elige tu perfil". */}
         <Link href="/login" className="hidden md:inline font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/70 hover:text-orange transition-colors">
           Entrar
         </Link>
@@ -72,9 +83,41 @@ export async function SiteHeader() {
             </Link>
           </div>
         </details>
-        <Link href="/beta" className="px-4 py-2 bg-orange text-ink border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange transition-colors">
-          Soy DJ
-        </Link>
+        {/* CTA "Elige tu perfil" — desplegable sin JS (<details>, mismo patrón
+            que el menú móvil). DJ → /beta; los demás bajan a #perfiles, que los
+            muestra como "próximamente". */}
+        <details className="relative group">
+          <summary
+            className="list-none [&::-webkit-details-marker]:hidden cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap px-4 py-2 bg-orange text-ink border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.12em] hover:bg-ink hover:text-orange group-open:bg-ink group-open:text-orange transition-colors"
+            aria-label="Elegir perfil"
+          >
+            <span className="hidden sm:inline">Elige tu perfil</span>
+            <span className="sm:hidden">Perfil</span>
+            <ChevronDown className="w-3.5 h-3.5 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="absolute right-0 top-[calc(100%+2px)] z-50 min-w-[230px] bg-ink border-2 border-orange flex flex-col">
+            {PROFILE_LINKS.map((p) => (
+              <Link
+                key={p.label}
+                href={p.href}
+                className="group/item flex items-center justify-between gap-4 px-4 py-3 border-b border-cream/10 last:border-b-0 hover:bg-orange transition-colors"
+              >
+                <span className="font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/85 group-hover/item:text-ink">
+                  {p.label}
+                </span>
+                <span
+                  className={`font-mono text-[9px] font-bold uppercase tracking-[0.08em] ${
+                    p.available
+                      ? "text-orange group-hover/item:text-ink"
+                      : "text-white/40 group-hover/item:text-ink/70"
+                  }`}
+                >
+                  {p.available ? "Empezar →" : "Próximamente"}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </details>
       </div>
     </header>
   );
