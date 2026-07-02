@@ -123,6 +123,28 @@ export function normalizeUrl(url: string): string {
 }
 
 /**
+ * ¿Un link que guardó el DJ vale la pena mostrar? Sirve para no ensuciar el
+ * press kit con campos que en realidad NO son un link: vacíos, o basura tipo
+ * un nombre con espacios ("soundcloud.com/Pablo Rocha") que la plataforma no
+ * resuelve (404). Regla: URL http(s) parseable, con host con punto y SIN
+ * espacios (un handle o slug real nunca los tiene). Si no cumple, el campo se
+ * trata como "no puesto" y no se renderiza.
+ */
+export function isRenderableLink(value: string | null | undefined): boolean {
+  const s = (value ?? "").trim();
+  if (!s || /\s/.test(s)) return false;
+  try {
+    const u = new URL(normalizeUrl(s));
+    return (
+      (u.protocol === "https:" || u.protocol === "http:") &&
+      u.hostname.includes(".")
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
  * ¿La URL es de Supabase Storage público? Solo esas se pueden pasar a
  * `next/image` (es el único host en remotePatterns de next.config). Una URL de
  * otro host rompe el render en runtime → usamos esto para caer al placeholder.
