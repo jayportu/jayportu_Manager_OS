@@ -2,6 +2,7 @@
 
 import {
   createTemplate,
+  getTemplate,
   updateTemplate,
   deleteTemplate,
   seedTemplatesIfEmpty,
@@ -25,6 +26,26 @@ export async function createTemplateAction(
     const t = await createTemplate(input);
     revalidatePath("/plantillas");
     return { ok: true, data: { id: t.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+export async function duplicateTemplateAction(
+  id: string
+): Promise<Result<{ id: string }>> {
+  try {
+    const src = await getTemplate(id);
+    if (!src) return { ok: false, error: "Plantilla no encontrada." };
+    const copy = await createTemplate({
+      name: `${src.name} (copia)`,
+      category: src.category,
+      channel_suggested: src.channel_suggested,
+      subject: src.subject,
+      body: src.body,
+    });
+    revalidatePath("/plantillas");
+    return { ok: true, data: { id: copy.id } };
   } catch (e) {
     return err(e);
   }
