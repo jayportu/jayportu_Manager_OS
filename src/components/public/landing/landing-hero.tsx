@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
+const SATOSHI = "var(--font-satoshi), system-ui, sans-serif";
 
 /** Palabras que rotan en el titular (cross-dissolve). */
 const WORDS = ["CARRERA", "BOOKING", "PRESS KIT", "AGENDA", "SONIDO"];
@@ -263,7 +264,13 @@ export function LandingHero({
             ))}
           </span>
           <br />
-          VIVE EN DROP<span className="text-accent">.</span>
+          VIVE EN{" "}
+          {/* El wordmark "DROP." va SIEMPRE en Satoshi (el logo que decidimos),
+              aunque el resto del titular sea Anton — así el hero cierra con el
+              logo real y no con la tipografía de títulos. */}
+          <span style={{ fontFamily: SATOSHI, fontWeight: 900, letterSpacing: "-0.03em" }}>
+            DROP<span className="text-accent" style={{ marginLeft: "-0.04em" }}>.</span>
+          </span>
         </h1>
         <p className="text-fg-muted max-w-[560px] mt-[22px] mb-8" style={{ fontSize: "clamp(15px,2vw,19px)" }}>
           El sistema operativo del DJ independiente. CRM, calendario con tus ingresos, press kit y growth —
