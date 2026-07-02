@@ -1,9 +1,8 @@
 /**
  * Sprint 19 — GET /api/export/finance
  *
- * Devuelve un CSV con todos los gigs (calendar_events tipo 'show') que tienen
- * algún monto registrado o un payment_status distinto de 'none'. Pensado para
- * pasar al contador.
+ * Devuelve un CSV con todos los eventos (calendar_events, cualquier tipo) que
+ * tienen algún monto registrado o un payment_status distinto de 'none'.
  *
  * Query params:
  *   - from=YYYY-MM-DD   filtra por start_at >= from
@@ -54,7 +53,6 @@ export async function GET(request: Request) {
     .from("calendar_events")
     .select("*, contacts(name)")
     .eq("user_id", user.id)
-    .eq("type", "show")
     .order("start_at", { ascending: true });
 
   if (from) q = q.gte("start_at", `${from}T00:00:00.000Z`);
