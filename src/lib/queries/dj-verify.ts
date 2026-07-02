@@ -7,7 +7,7 @@ export type VerifyDecision = "verified" | "needs_review" | "not_eligible";
 export type VerifyCheckKey = "profile" | "presskit" | "socials" | "sets";
 
 export const MISSING_LABELS: Record<VerifyCheckKey, string> = {
-  profile: "Perfil completo (avatar, bio ≥ 80, ≥ 1 género)",
+  profile: "Perfil completo (avatar, bio ≥ 40, ≥ 1 género)",
   presskit: "Press kit vivo",
   socials: "Instagram",
   sets: "Al menos un set (SoundCloud o mix destacado)",
@@ -36,7 +36,7 @@ export function evaluateDjVerification(p: EvaluableProfile): {
 } {
   const profile =
     !!p.avatar_url?.trim() &&
-    (p.bio_short?.trim().length ?? 0) >= 80 &&
+    (p.bio_short?.trim().length ?? 0) >= 40 &&
     (p.genres?.length ?? 0) >= 1;
 
   const presskit =
