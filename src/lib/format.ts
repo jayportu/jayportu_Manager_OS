@@ -161,3 +161,9 @@ export function isSupabaseStorageUrl(url: string | null | undefined): boolean {
     return false;
   }
 }
+
+/** Monto en CLP: 420000 → "$420.000". null/undefined → "—". */
+export function formatClp(n: number | null | undefined): string {
+  if (n === null || n === undefined) return "—";
+  return `$${n.toLocaleString("es-CL")}`;
+}
