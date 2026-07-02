@@ -10,6 +10,7 @@ import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
 import { LandingHero, type HeroStat } from "@/components/public/landing/landing-hero";
 import { FeatureTabs } from "@/components/public/landing/feature-tabs";
 import { ProductShowcase } from "@/components/public/landing/product-showcase";
+import { RolePicker } from "@/components/public/landing/role-picker";
 import { Reveal } from "@/components/public/landing/reveal";
 
 /**
@@ -170,6 +171,27 @@ export default async function RootPage() {
           </div>
         </section>
       )}
+
+      {/* ELIGE TU PERFIL — DROP parte con los DJs; el resto de la escena
+          (booker + roles creativos que promete el FAQ) va como "próximamente" */}
+      <section id="perfiles" className="scroll-mt-[78px] pb-20 md:pb-[90px]">
+        <div className="max-w-[1140px] mx-auto px-6">
+          <Reveal className="mb-10 max-w-[620px]">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
+              — Elige tu perfil
+            </div>
+            <h2 className="mt-2.5 text-balance" style={{ fontFamily: ANTON, fontSize: "clamp(32px,5vw,52px)", lineHeight: 0.95 }}>
+              Empezamos con los DJs.
+            </h2>
+            <p className="text-fg-muted mt-3.5 text-[15px]">
+              DROP es el sistema operativo de toda la escena. Hoy, para DJs. El resto de la crew viene en camino.
+            </p>
+          </Reveal>
+          <Reveal>
+            <RolePicker />
+          </Reveal>
+        </div>
+      </section>
 
       {/* FAQ — acordeón con pricing */}
       <section id="faq" className="scroll-mt-[78px] pb-20 md:pb-[90px]">
