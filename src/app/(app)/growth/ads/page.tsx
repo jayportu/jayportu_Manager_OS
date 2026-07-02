@@ -13,15 +13,10 @@ import {
   AD_PLATFORM_LABELS,
   type GrowthCampaignStatus,
 } from "@/types/database";
-import { relativeTime, shortDate } from "@/lib/format";
+import { formatClp, relativeTime, shortDate } from "@/lib/format";
 
 interface PageProps {
   searchParams: Promise<{ status?: GrowthCampaignStatus }>;
-}
-
-function formatClp(n: number | null): string {
-  if (n === null || n === undefined) return "—";
-  return `$${n.toLocaleString("es-CL")}`;
 }
 
 export default async function GrowthCampaignsListPage({

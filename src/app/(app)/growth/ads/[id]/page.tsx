@@ -26,15 +26,10 @@ import {
   type SocialPlatform,
 } from "@/types/database";
 import { GrowthCampaignActions } from "./actions-bar";
-import { shortDate, relativeTime } from "@/lib/format";
+import { shortDate, relativeTime, formatClp } from "@/lib/format";
 
 interface PageProps {
   params: Promise<{ id: string }>;
-}
-
-function formatClp(n: number | null): string {
-  if (n === null || n === undefined) return "—";
-  return `$${n.toLocaleString("es-CL")}`;
 }
 
 export default async function GrowthCampaignDetailPage({ params }: PageProps) {
