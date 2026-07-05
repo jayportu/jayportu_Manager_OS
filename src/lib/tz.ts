@@ -16,10 +16,35 @@ export function santiagoToUtcISO(dateStr: string, time = "00:00:00"): string {
   const naiveUtc = new Date(`${dateStr}T${time}Z`);
   // ¿Qué hora de pared muestra ese instante en Santiago? La diferencia entre
   // ese reading y el naive es el offset de Santiago para esa fecha.
-  const sanWall = new Date(
-    naiveUtc.toLocaleString("en-US", { timeZone: "America/Santiago" })
+  //
+  // OJO: la versión anterior hacía `new Date(naiveUtc.toLocaleString(...))`,
+  // que parsea el string EN LA ZONA DE LA MÁQUINA → correcto en Vercel (UTC)
+  // pero incorrecto en cualquier host con otra tz (dev local en Chile,
+  // scripts, tests). Date.UTC sobre formatToParts es determinista en todos.
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Santiago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(naiveUtc);
+  const get = (type: Intl.DateTimeFormatPartTypes) => {
+    const part = parts.find((p) => p.type === type);
+    if (!part) throw new Error(`Intl.formatToParts no entregó "${type}"`);
+    return Number(part.value);
+  };
+  const sanWallMs = Date.UTC(
+    get("year"),
+    get("month") - 1,
+    get("day"),
+    get("hour"),
+    get("minute"),
+    get("second")
   );
-  const offsetMs = naiveUtc.getTime() - sanWall.getTime();
+  const offsetMs = naiveUtc.getTime() - sanWallMs;
   return new Date(naiveUtc.getTime() + offsetMs).toISOString();
 }
 
