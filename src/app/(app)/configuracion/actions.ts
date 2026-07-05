@@ -261,38 +261,51 @@ export async function deleteMyAccountAction(
       };
     }
 
-    // 1) Borrar objetos de Storage del usuario (buckets públicos). Barrido de
-    // 2 niveles: raíz `${userId}/` y subcarpetas (p. ej. `${userId}/gallery/`).
-    for (const bucket of ["avatars", "press-kits"]) {
-      try {
-        await removeUserStorage(admin, bucket, userId);
-      } catch {
-        /* best-effort: no bloquear el borrado por un fallo de storage */
-      }
-    }
-
-    // 2) Purgar huérfanos por email (no cubiertos por el cascade FK).
-    if (email) {
-      await admin.from("beta_requests").delete().eq("email", email);
-      await admin.from("event_rsvps").delete().eq("email", email);
-    }
-
-    // 3) Auditoría ANTES del borrado (el actor es el propio usuario).
-    await logSecurityEvent({
-      action: "account.self_deleted",
-      actorUserId: userId,
-      targetType: "auth.users",
-      targetId: userId,
-      metadata: { email: maskEmail(email) },
-    });
-
-    // 4) Borrar el auth user → cascade FK limpia todo lo owned.
+    // 1) Borrar el auth user PRIMERO: es el paso crítico e irreversible. Si
+    // falla, no tocamos nada más → la cuenta queda intacta y reintentable
+    // (evita dejarla "a medio borrar"). El cascade FK (migración 0001) limpia
+    // dj_profile / booker_accounts y todas las tablas owned.
     const { error: delErr } = await admin.auth.admin.deleteUser(userId);
     if (delErr) {
       return {
         ok: false,
         error: `No se pudo eliminar la cuenta: ${delErr.message}`,
       };
+    }
+
+    // A partir de aquí la cuenta YA no existe. Lo que sigue es limpieza
+    // best-effort: aunque algo falle, la supresión principal ya se cumplió.
+
+    // 2) Auditoría. actorUserId=null a propósito: el FK a auth.users rechazaría
+    // un insert que apunte al usuario recién borrado; el id borrado queda en
+    // target_id.
+    await logSecurityEvent({
+      action: "account.self_deleted",
+      actorUserId: null,
+      targetType: "auth.users",
+      targetId: userId,
+      metadata: { email: maskEmail(email) },
+    });
+
+    // 3) Borrar objetos de Storage del usuario (buckets públicos). Barrido de
+    // 2 niveles: raíz `${userId}/` y subcarpetas (p. ej. `${userId}/gallery/`).
+    for (const bucket of ["avatars", "press-kits"]) {
+      try {
+        await removeUserStorage(admin, bucket, userId);
+      } catch {
+        /* best-effort */
+      }
+    }
+
+    // 4) Purgar huérfanos por email (no cubiertos por el cascade FK):
+    // beta_requests (guarda IP) y event_rsvps.
+    if (email) {
+      try {
+        await admin.from("beta_requests").delete().eq("email", email);
+        await admin.from("event_rsvps").delete().eq("email", email);
+      } catch {
+        /* best-effort */
+      }
     }
 
     return { ok: true };
