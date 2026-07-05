@@ -1,5 +1,7 @@
 "use client";
 
+import { PrivacyNotice } from "@/components/privacy-notice";
+
 import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -183,6 +185,8 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
       <Button type="submit" disabled={isPending} className="w-full md:w-auto">
         {isPending ? "Enviando…" : "Enviar"}
       </Button>
+
+      <PrivacyNotice purpose="gestionar tu solicitud de booking y ponerte en contacto con el artista" />
     </form>
   );
 }

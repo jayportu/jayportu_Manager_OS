@@ -1,5 +1,8 @@
 "use client";
 
+import { PrivacyNotice } from "@/components/privacy-notice";
+import { TOS_VERSION } from "@/lib/legal";
+
 /**
  * Bloque B · B2 — Form de signup de Booker.
  *
@@ -69,6 +72,7 @@ export function BookerSignupForm() {
   const [info, setInfo] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState(0);
+  const [acceptedTos, setAcceptedTos] = useState(false);
   function resetCaptcha() {
     setCaptchaToken(null);
     setCaptchaKey((k) => k + 1);
@@ -103,6 +107,12 @@ export function BookerSignupForm() {
       return;
     }
 
+    if (!acceptedTos) {
+      setError("Debes aceptar los Términos y la Política de Privacidad.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -115,6 +125,8 @@ export function BookerSignupForm() {
           booker_type: bookerType,
           city: city.trim(),
           country,
+          tos_accepted: "true",
+          tos_version: TOS_VERSION,
         },
       },
     });
@@ -272,11 +284,35 @@ export function BookerSignupForm() {
         />
       )}
 
+      <label className="flex items-start gap-2 text-[12px] text-fg-muted cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={acceptedTos}
+          onChange={(e) => setAcceptedTos(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-orange"
+        />
+        <span>
+          He leído y acepto los{" "}
+          <a href="/terms" target="_blank" className="underline hover:text-orange">
+            Términos
+          </a>{" "}
+          y la{" "}
+          <a
+            href="/privacy"
+            target="_blank"
+            className="underline hover:text-orange"
+          >
+            Política de Privacidad
+          </a>
+          .
+        </span>
+      </label>
+
       <Button
         type="submit"
         variant="default"
         size="lg"
-        disabled={loading || (TURNSTILE_ENABLED && !captchaToken)}
+        disabled={loading || (TURNSTILE_ENABLED && !captchaToken) || !acceptedTos}
         className="w-full"
       >
         {loading ? "Creando cuenta…" : "Crear cuenta gratis →"}
@@ -286,6 +322,8 @@ export function BookerSignupForm() {
         Al crear cuenta aceptas recibir notificaciones de tus requests y
         DJs guardados. Sin spam — puedes salir cuando quieras.
       </div>
+
+      <PrivacyNotice purpose="crear y operar tu cuenta de booker" />
     </form>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { PrivacyNotice } from "@/components/privacy-notice";
+
 /**
  * Sprint 23.5 — Form client del /beta. POST a /api/beta. Honeypot,
  * mensajes de éxito/error inline. Sin auth requerida.
@@ -300,6 +302,11 @@ export function BetaForm() {
       <p className="text-[11px] text-fg-muted">
         Te respondemos en 24-48hrs.
       </p>
+
+      <PrivacyNotice
+        purpose="gestionar tu solicitud de acceso a la beta"
+        extra="Registramos tu dirección IP con fines de seguridad y prevención de abuso."
+      />
     </form>
   );
 }

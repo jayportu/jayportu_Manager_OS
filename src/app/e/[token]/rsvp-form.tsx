@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
+import { PrivacyNotice } from "@/components/privacy-notice";
 
 interface Props {
   token: string;
@@ -126,6 +127,8 @@ export function RsvpForm({ token, djArtistName, initialCount }: Props) {
       >
         {loading ? "Registrando…" : "Confirmar RSVP"}
       </button>
+
+      <PrivacyNotice purpose="registrar tu RSVP y, si lo pides, avisarte de próximos shows" />
     </form>
   );
 }

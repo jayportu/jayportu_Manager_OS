@@ -3,6 +3,7 @@ import { Anton, Inter, Space_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteTracker } from "@/components/site-tracker";
+import { CookieBanner } from "@/components/cookie-banner";
 import "./globals.css";
 
 const anton = Anton({
@@ -109,6 +110,8 @@ export default function RootLayout({
         <Analytics />
         {/* Beacon propio → site_events → panel /admin/trafico (registrado vs anónimo). */}
         <SiteTracker />
+        {/* BL-12 · Aviso informativo de cookies (descartable, no bloqueante). */}
+        <CookieBanner />
       </body>
     </html>
   );

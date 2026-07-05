@@ -116,6 +116,12 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
         typeof meta.booker_type === "string" ? meta.booker_type : "otro",
       city: typeof meta.city === "string" ? meta.city : "",
       country: typeof meta.country === "string" ? meta.country : "",
+      // BL-08 · Evidencia de consentimiento: el booker aceptó Términos +
+      // Privacidad en el signup (metadata). Servidor usa now() (no confía en
+      // un timestamp del cliente), igual que el trigger de DJ (0031).
+      tos_accepted_at:
+        meta.tos_accepted === "true" ? new Date().toISOString() : null,
+      tos_version: typeof meta.tos_version === "string" ? meta.tos_version : null,
     })
     .select("*")
     .single();
