@@ -23,6 +23,13 @@ export function santiagoToUtcISO(dateStr: string, time = "00:00:00"): string {
   return new Date(naiveUtc.getTime() + offsetMs).toISOString();
 }
 
+/** Parte tipada de formatToParts, con error claro si el runtime no la entrega. */
+function datePart(parts: Intl.DateTimeFormatPart[], type: "year" | "month" | "day"): string {
+  const part = parts.find((p) => p.type === type);
+  if (!part) throw new Error(`Intl.formatToParts no entregó "${type}" para America/Santiago`);
+  return part.value;
+}
+
 /** Año y mes (1-12) vigentes según Santiago, no según el server (UTC). */
 function santiagoYearMonth(now: Date): { year: number; month: number } {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -31,8 +38,8 @@ function santiagoYearMonth(now: Date): { year: number; month: number } {
     month: "2-digit",
   }).formatToParts(now);
   return {
-    year: Number(parts.find((p) => p.type === "year")!.value),
-    month: Number(parts.find((p) => p.type === "month")!.value),
+    year: Number(datePart(parts, "year")),
+    month: Number(datePart(parts, "month")),
   };
 }
 
@@ -81,7 +88,7 @@ export function santiagoMonthStartUtcISO(now: Date = new Date()): string {
     year: "numeric",
     month: "2-digit",
   }).formatToParts(now);
-  const year = parts.find((p) => p.type === "year")!.value;
-  const month = parts.find((p) => p.type === "month")!.value;
+  const year = datePart(parts, "year");
+  const month = datePart(parts, "month");
   return santiagoToUtcISO(`${year}-${month}-01`, "00:00:00");
 }

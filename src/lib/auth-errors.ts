@@ -39,6 +39,11 @@ export function translateSupabaseError(message: string, status?: number): string
   if (m.includes("network") || m.includes("fetch")) {
     return "Problema de conexión. Revisa tu internet e intenta de nuevo.";
   }
+  // Supabase con CAPTCHA activo: token ausente, inválido o expirado
+  // (p.ej. "captcha protection: request disallowed (no captcha_token found)").
+  if (m.includes("captcha")) {
+    return "No pudimos completar la verificación anti-bot. Recarga la página e intenta de nuevo.";
+  }
   // Fallback: devolvemos el mensaje pero con contexto
   return `${message}. Si persiste, escríbele al admin.`;
 }
