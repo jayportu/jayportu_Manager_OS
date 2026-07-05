@@ -17,12 +17,14 @@ import {
 } from "@/lib/email/templates";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus, ContactInsert } from "@/types/database";
+import { captureActionError } from "@/lib/observability";
 
 type Result<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
 function errResult(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "press-kit" });
   return {
     ok: false,
     error: e instanceof Error ? e.message : "Error desconocido",

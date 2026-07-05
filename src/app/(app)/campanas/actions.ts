@@ -11,6 +11,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { assertBetaActive } from "@/lib/queries/beta-guard";
+import { captureActionError } from "@/lib/observability";
 import type {
   CampaignInsert,
   CampaignStatus,
@@ -22,6 +23,7 @@ type Result<T = void> =
   | { ok: false; error: string };
 
 function err(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "campanas" });
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 

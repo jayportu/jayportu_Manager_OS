@@ -105,9 +105,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?auth_error=${flag}`);
   }
 
+  // Sin email en el log: PII innecesaria en los logs de Vercel (el user_id
+  // truncado basta para correlacionar).
   console.log("[auth/callback] OK", {
     user_id: data.user?.id?.slice(0, 8),
-    email: data.user?.email,
     via_google: !!data.session?.provider_token,
   });
   return NextResponse.redirect(`${origin}${next}`);

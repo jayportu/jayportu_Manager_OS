@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries/discovered-leads";
 import { createContact, deleteContact } from "@/lib/queries/contacts";
 import { revalidatePath } from "next/cache";
+import { captureActionError } from "@/lib/observability";
 import type {
   ContactInsert,
   ContactType,
@@ -21,6 +22,7 @@ type Result<T = void> =
   | { ok: false; error: string };
 
 function err(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "descubrir" });
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 

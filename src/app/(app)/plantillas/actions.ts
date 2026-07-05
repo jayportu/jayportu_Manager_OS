@@ -10,12 +10,14 @@ import {
 } from "@/lib/queries/templates";
 import { revalidatePath } from "next/cache";
 import type { TemplateInsert, TemplateUpdate } from "@/types/database";
+import { captureActionError } from "@/lib/observability";
 
 type Result<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
 function err(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "plantillas" });
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 

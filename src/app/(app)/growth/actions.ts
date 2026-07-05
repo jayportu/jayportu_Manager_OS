@@ -13,6 +13,7 @@ import {
 } from "@/lib/queries/growth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { captureActionError } from "@/lib/observability";
 import type {
   ContentPostInsert,
   GrowthCampaignInsert,
@@ -26,6 +27,7 @@ type Result<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 function err(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "growth" });
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 
