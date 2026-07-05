@@ -4,6 +4,7 @@ import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ExportButton } from "./export-button";
+import { DeleteAccountButton } from "./delete-account-button";
 import { OllamaSetup } from "./ollama-setup";
 import { GmailSetup } from "./gmail-setup";
 import { PlatformAccountsSection } from "./platform-accounts-section";
@@ -158,6 +159,18 @@ export default async function ConfiguracionPage() {
           guárdalo cada cierto tiempo en iCloud o disco externo.
         </p>
         <ExportButton />
+      </div>
+
+      <div className="mt-12 pt-8 border-t border-danger/40">
+        <h2 className="text-lg font-semibold mb-2 text-danger">
+          Eliminar cuenta
+        </h2>
+        <p className="text-sm text-fg-muted mb-4">
+          Borra tu cuenta y todos tus datos de forma permanente. Esta acción es{" "}
+          <strong>irreversible</strong>. Si quieres conservar una copia,{" "}
+          <strong>exporta tus datos</strong> antes (arriba).
+        </p>
+        <DeleteAccountButton />
       </div>
     </div>
   );

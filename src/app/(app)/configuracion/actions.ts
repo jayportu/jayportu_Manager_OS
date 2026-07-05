@@ -11,6 +11,10 @@ import {
 } from "@/lib/queries/tech-rider";
 import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { maybeSendPresskitLiveEmail } from "@/lib/queries/activation-emails";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { logSecurityEvent } from "@/lib/security-audit";
+import { maskEmail } from "@/lib/log-safe";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type {
   DjProfileUpdate,
@@ -206,4 +210,124 @@ export async function updateAutoPostAction(patch: {
     const error = e instanceof Error ? e.message : "Error desconocido";
     return { ok: false, error };
   }
+}
+
+/**
+ * BL-04 · Borrado de cuenta self-service (Ley 21.719 — derecho de supresión).
+ *
+ * Elimina la cuenta del usuario logueado:
+ *   - Borra el auth.user → el cascade FK (migración 0001) limpia dj_profile /
+ *     booker_accounts y todas las tablas owned.
+ *   - Borra los objetos de Storage del usuario en los buckets públicos.
+ *   - Purga los huérfanos con datos personales que NO cascada, por email
+ *     (beta_requests, que además guarda IP; event_rsvps).
+ *   - Registra el evento en security_audit_log.
+ *
+ * Conservación: NO se tocan documentos tributarios (obligación legal) ni la
+ * lista email_suppressions (registro de oposición). Ver 07-retencion.
+ *
+ * IRREVERSIBLE. La UI exige escribir "ELIMINAR". Los admins no se autoeliminan
+ * por esta vía (se derivan a contacto manual).
+ */
+export async function deleteMyAccountAction(
+  confirmation: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    if (confirmation !== "ELIMINAR") {
+      return { ok: false, error: "Confirmación inválida." };
+    }
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { ok: false, error: "No autenticado." };
+    const userId = user.id;
+    const email = user.email ?? null;
+
+    const admin = createAdminClient();
+
+    // Los admins no se autoeliminan por autoservicio (evita perder el único
+    // admin por accidente).
+    const { data: prof } = await admin
+      .from("dj_profile")
+      .select("is_admin")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (prof?.is_admin) {
+      return {
+        ok: false,
+        error:
+          "Las cuentas de administrador no se eliminan por autoservicio. Escríbenos a privacidad@dropgigs.com.",
+      };
+    }
+
+    // 1) Borrar objetos de Storage del usuario (buckets públicos). Barrido de
+    // 2 niveles: raíz `${userId}/` y subcarpetas (p. ej. `${userId}/gallery/`).
+    for (const bucket of ["avatars", "press-kits"]) {
+      try {
+        await removeUserStorage(admin, bucket, userId);
+      } catch {
+        /* best-effort: no bloquear el borrado por un fallo de storage */
+      }
+    }
+
+    // 2) Purgar huérfanos por email (no cubiertos por el cascade FK).
+    if (email) {
+      await admin.from("beta_requests").delete().eq("email", email);
+      await admin.from("event_rsvps").delete().eq("email", email);
+    }
+
+    // 3) Auditoría ANTES del borrado (el actor es el propio usuario).
+    await logSecurityEvent({
+      action: "account.self_deleted",
+      actorUserId: userId,
+      targetType: "auth.users",
+      targetId: userId,
+      metadata: { email: maskEmail(email) },
+    });
+
+    // 4) Borrar el auth user → cascade FK limpia todo lo owned.
+    const { error: delErr } = await admin.auth.admin.deleteUser(userId);
+    if (delErr) {
+      return {
+        ok: false,
+        error: `No se pudo eliminar la cuenta: ${delErr.message}`,
+      };
+    }
+
+    return { ok: true };
+  } catch (e) {
+    const error = e instanceof Error ? e.message : "Error desconocido";
+    return { ok: false, error };
+  }
+}
+
+/**
+ * Borra todos los objetos de un bucket bajo `${userId}/`, incluyendo un nivel
+ * de subcarpetas (Storage.list no es recursivo). Helper interno (no action).
+ */
+async function removeUserStorage(
+  admin: ReturnType<typeof createAdminClient>,
+  bucket: string,
+  userId: string
+): Promise<void> {
+  const { data: top } = await admin.storage
+    .from(bucket)
+    .list(userId, { limit: 1000 });
+  const paths: string[] = [];
+  for (const entry of top ?? []) {
+    // Storage marca las subcarpetas con id === null (no tienen metadata). El
+    // tipo FileObject declara id como string, por eso el cast.
+    if ((entry as { id: string | null }).id === null) {
+      const { data: sub } = await admin.storage
+        .from(bucket)
+        .list(`${userId}/${entry.name}`, { limit: 1000 });
+      for (const f of sub ?? []) {
+        paths.push(`${userId}/${entry.name}/${f.name}`);
+      }
+    } else {
+      paths.push(`${userId}/${entry.name}`);
+    }
+  }
+  if (paths.length) await admin.storage.from(bucket).remove(paths);
 }

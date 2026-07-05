@@ -42,9 +42,17 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
       try {
         // Comprimir antes de subir: la foto del celular (2-10 MB) se
         // redimensiona a 1600px WebP (~150-400 KB) en el browser → baja el
-        // egress de Supabase. Si la compresión falla (ej. Safari sin WebP),
-        // sube el original; ya NO importa el peso porque va directo a Storage.
+        // egress de Supabase. El re-encode por canvas ADEMÁS elimina los
+        // metadatos EXIF (incluida la geolocalización GPS). Si no se puede
+        // re-encodear de forma segura, rechazamos la subida (no subimos el
+        // archivo crudo con EXIF).
         const toUpload = await compressAvatar(file);
+        if (!toUpload) {
+          setError(
+            "No pudimos procesar la imagen de forma segura: para proteger tu privacidad quitamos los metadatos EXIF (incluida la geolocalización GPS) antes de subir. Prueba con otra imagen o un navegador más reciente."
+          );
+          return;
+        }
 
         // Subida DIRECTA a Supabase Storage desde el navegador (no por el
         // Server Action) → el byte de la imagen no pasa por la función de
@@ -206,9 +214,12 @@ const AVATAR_QUALITY = 0.9;
  * soportado) o si comprimir no reduce el peso, devuelve el archivo original
  * — el Server Action valida tipo/tamaño igual.
  */
-async function compressAvatar(file: File): Promise<File> {
+async function compressAvatar(file: File): Promise<File | null> {
+  // Rechaza (null) lo que no se pueda re-encodear de forma segura: el re-encode
+  // por canvas ELIMINA los metadatos EXIF (incluida la geolocalización GPS).
+  // Preferimos rechazar antes que subir el archivo crudo con EXIF.
   if (typeof document === "undefined" || !file.type.startsWith("image/")) {
-    return file;
+    return null;
   }
   try {
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -232,18 +243,28 @@ async function compressAvatar(file: File): Promise<File> {
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return file;
+    if (!ctx) return null;
     ctx.drawImage(img, 0, 0, w, h);
 
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob((b) => resolve(b), "image/webp", AVATAR_QUALITY)
-    );
-    // toBlob puede no soportar WebP (Safari viejo) → blob null; o la imagen ya
-    // era más liviana que el reencode. En ambos casos: original.
-    if (!blob || blob.size === 0 || blob.size >= file.size) return file;
+    const toBlob = (type: string) =>
+      new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((b) => resolve(b), type, AVATAR_QUALITY)
+      );
+    // WebP primero; si el navegador no lo soporta (Safari viejo), JPEG. Ambos
+    // salen del canvas SIN EXIF. Usamos el blob re-encodeado aunque no sea más
+    // liviano que el original (la prioridad es no filtrar metadatos).
+    let blob = await toBlob("image/webp");
+    let outType = "image/webp";
+    let outName = "avatar.webp";
+    if (!blob || blob.size === 0) {
+      blob = await toBlob("image/jpeg");
+      outType = "image/jpeg";
+      outName = "avatar.jpg";
+    }
+    if (!blob || blob.size === 0) return null;
 
-    return new File([blob], "avatar.webp", { type: "image/webp" });
+    return new File([blob], outName, { type: outType });
   } catch {
-    return file;
+    return null;
   }
 }

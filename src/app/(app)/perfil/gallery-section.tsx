@@ -68,6 +68,12 @@ export function GallerySection({
         }
         try {
           const toUpload = await compressImage(file);
+          if (!toUpload) {
+            setError(
+              `No pudimos procesar "${file.name}" de forma segura (quitamos los metadatos EXIF, como la ubicación GPS, antes de subir). Se omitió.`
+            );
+            continue;
+          }
           const ext =
             toUpload.type === "image/png"
               ? "png"
@@ -235,8 +241,11 @@ function groupByFolder(
 const MAX_DIM = 1600;
 const QUALITY = 0.85;
 
-async function compressImage(file: File): Promise<File> {
-  if (typeof document === "undefined" || !file.type.startsWith("image/")) return file;
+async function compressImage(file: File): Promise<File | null> {
+  // Rechaza (null) lo que no se pueda re-encodear de forma segura: el canvas
+  // elimina los metadatos EXIF (incluida la geolocalización GPS). Preferimos
+  // rechazar antes que subir el archivo crudo con EXIF.
+  if (typeof document === "undefined" || !file.type.startsWith("image/")) return null;
   try {
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -257,14 +266,24 @@ async function compressImage(file: File): Promise<File> {
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return file;
+    if (!ctx) return null;
     ctx.drawImage(img, 0, 0, w, h);
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob((b) => resolve(b), "image/webp", QUALITY)
-    );
-    if (!blob || blob.size === 0 || blob.size >= file.size) return file;
-    return new File([blob], "gallery.webp", { type: "image/webp" });
+    const toBlob = (type: string) =>
+      new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((b) => resolve(b), type, QUALITY)
+      );
+    // WebP primero; JPEG si el navegador no lo soporta. Ambos salen sin EXIF.
+    let blob = await toBlob("image/webp");
+    let outType = "image/webp";
+    let outName = "gallery.webp";
+    if (!blob || blob.size === 0) {
+      blob = await toBlob("image/jpeg");
+      outType = "image/jpeg";
+      outName = "gallery.jpg";
+    }
+    if (!blob || blob.size === 0) return null;
+    return new File([blob], outName, { type: outType });
   } catch {
-    return file;
+    return null;
   }
 }
