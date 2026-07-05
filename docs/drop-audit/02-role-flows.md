@@ -8,8 +8,21 @@
 El dev local apunta al proyecto Supabase remoto y **Supabase Auth tiene protección CAPTCHA activa a nivel de proyecto**. La site key de Turnstile solo permite los dominios de producción (error `110200: domain not allowed` con `localhost`). Consecuencias:
 
 1. **Ningún flujo autenticado es probeable en local** (login siempre rechaza: `captcha protection: request disallowed`). Esto afecta también al desarrollo diario.
-2. Roles DJ (cuenta demo `trial-test@dropdj.local`), booker y admin quedaron **auditados a nivel de código** en esta fase; su recorrido en runtime queda pendiente de que se whitelistee `localhost` en la config de Turnstile (Cloudflare) — cambio de 1 minuto, sin impacto en prod.
+2. Roles DJ (cuenta demo `trial-test@dropdj.local`), booker y admin quedaron **auditados a nivel de código** en esta fase; su recorrido en runtime queda pendiente.
 3. Roles **fotógrafo** y **audiovisual** no existen aún en el producto (aparecen como "PRÓXIMAMENTE" en el selector de la landing) — no hay nada que probar.
+
+### Actualización 2026-07-05 (tras intento de desbloqueo) — Fase 2b bloqueada por red
+
+Se whitelisteó `localhost` en la site key de Turnstile (Cloudflare) y se probó login tanto con Playwright headless como conduciendo el Chrome real del usuario. **Ambos fallan**, pero por causas distintas:
+- **Headless:** Turnstile devuelve `error 110200` — el modo "Gestionado" rechaza navegadores automatizados por diseño anti-bot. No es sorteable.
+- **Chrome real del usuario:** `fetch('https://challenges.cloudflare.com/...')` → `Failed to fetch`; el script `api.js` no ejecuta (`window.turnstile` indefinido) y el widget muestra "No es posible conectarse al sitio web — Cloudflare". El recurso está **bloqueado a nivel de red/sistema** (probable VPN o filtro de seguridad corporativo de AgendaPro en el equipo), no por una extensión pausable.
+
+**Conclusión:** el CAPTCHA está enforced en el servidor de Supabase Auth, así que sin un token válido de Turnstile no hay login, y el equipo/red actual no puede alcanzar Cloudflare Turnstile. La Fase 2b (runtime autenticado DJ/booker/admin) **queda pendiente**, sin afectar el resto de la auditoría.
+
+**Cómo completarla (cualquiera de estas):**
+1. Repetir el login desde una **red sin el filtro corporativo** (p. ej. hotspot del celular): añadir `NEXT_PUBLIC_TURNSTILE_SITE_KEY=<site key pública de prod>` a `.env.local`, `npm run dev`, entrar con la cuenta demo. Los scripts de recorrido ya están listos (`scratchpad/phase2_capture.mjs`).
+2. O usar un **proyecto Supabase de staging** con el CAPTCHA desactivado (recomendado a futuro; ver P-2 en 05-security-privacy).
+3. Con el login resuelto, quitar los `test.skip` del bloque autenticado en `tests/e2e/public.spec.ts`.
 
 ## 1. Visitante (no registrado) — probado en runtime ✅
 
