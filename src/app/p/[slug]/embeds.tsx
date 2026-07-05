@@ -18,6 +18,11 @@ export function SoundcloudEmbed({
   onClickEvent: PresskitEventType;
 }) {
   const [tracked, setTracked] = useState(false);
+  // URL bien formada pero cuenta/track inexistente en SoundCloud: el widget
+  // renderiza un player vacío (caja en blanco) sin avisar. Verificamos con el
+  // oEmbed público; SOLO un 4xx explícito degrada a link — si la red o CORS
+  // fallan, conservamos el player (peor falso negativo que falso positivo).
+  const [dead, setDead] = useState(false);
 
   useEffect(() => {
     // Trackeamos cuando se renderiza (intención de escuchar)
@@ -36,7 +41,24 @@ export function SoundcloudEmbed({
   // lo reparable y separa "embebible" (player) de "clickeable" (link).
   const { embed, link } = cleanSoundcloud(url);
 
-  if (!embed) {
+  useEffect(() => {
+    if (!embed) return;
+    let cancelled = false;
+    fetch(
+      `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(embed)}`
+    )
+      .then((res) => {
+        if (!cancelled && res.status >= 400 && res.status < 500) setDead(true);
+      })
+      .catch(() => {
+        /* CORS/red: sin señal clara, mantener el player */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [embed]);
+
+  if (!embed || dead) {
     // Degradación elegante: link simple en vez de un player con "error".
     if (!link) return null;
     return (

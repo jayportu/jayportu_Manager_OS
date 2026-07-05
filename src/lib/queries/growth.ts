@@ -404,8 +404,9 @@ export async function getGrowthDeltas(): Promise<GrowthDelta[]> {
 
   const byPlatform = new Map<string, PlatformSnapshot[]>();
   for (const row of (data || []) as PlatformSnapshot[]) {
-    if (!byPlatform.has(row.platform)) byPlatform.set(row.platform, []);
-    byPlatform.get(row.platform)!.push(row);
+    const list = byPlatform.get(row.platform) ?? [];
+    list.push(row);
+    byPlatform.set(row.platform, list);
   }
 
   const result: GrowthDelta[] = [];

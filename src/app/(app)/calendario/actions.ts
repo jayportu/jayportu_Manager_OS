@@ -19,12 +19,14 @@ import type {
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { revalidatePath } from "next/cache";
+import { captureActionError } from "@/lib/observability";
 
 type Result<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
 function err(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "calendario" });
   return { ok: false, error: e instanceof Error ? e.message : "Error" };
 }
 

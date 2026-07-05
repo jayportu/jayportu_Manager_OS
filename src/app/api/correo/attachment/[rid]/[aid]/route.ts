@@ -16,6 +16,13 @@ export async function GET(
   await assertAdmin();
   const { rid, aid } = await params;
 
+  // Los IDs de Resend son alfanuméricos con guiones. Cualquier otro caracter
+  // (/, ., %) permitiría alterar el path del fetch al API.
+  const ID_RE = /^[A-Za-z0-9-]{8,64}$/;
+  if (!ID_RE.test(rid) || !ID_RE.test(aid)) {
+    return NextResponse.json({ error: "id inválido" }, { status: 400 });
+  }
+
   const res = await fetch(
     `https://api.resend.com/emails/receiving/${rid}/attachments/${aid}`,
     {

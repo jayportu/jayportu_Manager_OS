@@ -17,6 +17,7 @@ import {
 import { assertBetaActive } from "@/lib/queries/beta-guard";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { captureActionError } from "@/lib/observability";
 import type {
   ContactInsert,
   ContactUpdate,
@@ -29,6 +30,7 @@ type Result<T = void> =
   | { ok: false; error: string };
 
 function errResult(e: unknown): { ok: false; error: string } {
+  captureActionError(e, { module: "crm" });
   return { ok: false, error: e instanceof Error ? e.message : "Error desconocido" };
 }
 

@@ -167,3 +167,26 @@ export function formatClp(n: number | null | undefined): string {
   if (n === null || n === undefined) return "—";
   return `$${n.toLocaleString("es-CL")}`;
 }
+
+/**
+ * Monograma para el avatar fallback: 1-2 iniciales del nombre artístico.
+ *
+ * Ignora sufijos entre paréntesis/corchetes ("APRA (UY)" → "A", no "A(") y
+ * cualquier símbolo que no sea letra o número al inicio de cada palabra.
+ * Es la fuente única del fallback tipográfico (landing, /dj, directorio
+ * facetado) — el defecto "A(" venía de tomar `word[0]` a ciegas.
+ */
+export function getInitials(name: string | null | undefined, max = 2): string {
+  if (!name) return "";
+  return name
+    .replace(/[([{][^)\]}]*[)\]}]?/g, " ") // fuera "(UY)", "[live]", etc.
+    .split(/\s+/)
+    .map((word) => {
+      const ch = word.match(/[\p{L}\p{N}]/u); // primera letra o dígito real
+      return ch ? ch[0] : "";
+    })
+    .filter(Boolean)
+    .slice(0, max)
+    .join("")
+    .toUpperCase();
+}

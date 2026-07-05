@@ -9,7 +9,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
-import { isSupabaseStorageUrl } from "@/lib/format";
+import { getInitials, isSupabaseStorageUrl } from "@/lib/format";
 import type { PublicDjProfile } from "@/lib/queries/directory";
 
 const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
@@ -126,13 +126,7 @@ export function FacetDirectory({
 }
 
 function FacetCard({ dj }: { dj: PublicDjProfile }) {
-  const initials = dj.artist_name
-    .split(" ")
-    .filter((s) => s.length > 0)
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join("")
-    .toUpperCase();
+  const initials = getInitials(dj.artist_name);
   const cardImg = [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
 
   return (

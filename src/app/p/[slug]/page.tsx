@@ -79,8 +79,26 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const profile = await getProfileBySlug(slug);
   if (!profile) notFound();
 
-  // Sprint 21 — items del rider estructurado (sin RLS via service_role).
-  const riderItems = await listPublicRiderItems(profile.user_id);
+  // Las 4 fuentes de datos son independientes entre sí → en paralelo. Antes
+  // iban en serie y el TTFB del press kit (la página que convierte) sumaba
+  // las 4 latencias; Bandcamp además es un fetch externo que podía colgar
+  // el render completo, por eso se le pone tope y fallback a [].
+  const [riderItems, busyDates, bandcampReleases, gigStats] =
+    await Promise.all([
+      // Sprint 21 — items del rider estructurado (sin RLS via service_role).
+      listPublicRiderItems(profile.user_id),
+      // Feature 3 — días ocupados (de gigs/bloqueos sincronizados) para el
+      // calendario de disponibilidad. Solo fechas, sin detalles del evento.
+      getPublicBusyDates(profile.user_id),
+      // #3 — auto-discografía: releases de Bandcamp (cacheado 1 día). Beatport
+      // no se auto-importa (Cloudflare lo bloquea server-side) → queda link.
+      isRenderableLink(profile.bandcamp_url)
+        ? withTimeout(getBandcampReleases(profile.bandcamp_url!), 5000, [])
+        : Promise.resolve([]),
+      // Sprint RA-1 — stats públicos de gigs (sin RLS via service_role).
+      getPublicGigStats(profile.user_id),
+    ]);
+
   const hasStructuredRider = riderItems.length > 0;
 
   // Capa 2 — parseamos el tech rider en texto libre (lo que el DJ ya escribe)
@@ -90,20 +108,8 @@ export default async function PresskitPublicPage({ params }: PageProps) {
   const showRiderVisual = parsedRiderItems.length > 0;
   const showStagePlot = hasCabinItems(parsedRiderItems);
 
-  // Feature 3 — días ocupados (de gigs/bloqueos sincronizados) para el
-  // calendario de disponibilidad. Solo fechas, sin detalles del evento.
-  const busyDates = await getPublicBusyDates(profile.user_id);
   const showAvailabilityCalendar =
     !!profile.available_from || busyDates.length > 0;
-
-  // #3 — auto-discografía: releases de Bandcamp (cacheado 1 día). Beatport no
-  // se auto-importa (Cloudflare lo bloquea server-side) → queda como link.
-  const bandcampReleases = isRenderableLink(profile.bandcamp_url)
-    ? await getBandcampReleases(profile.bandcamp_url!)
-    : [];
-
-  // Sprint RA-1 — stats públicos de gigs (sin RLS via service_role).
-  const gigStats = await getPublicGigStats(profile.user_id);
   const hasGigData =
     gigStats.showsPasados > 0 ||
     gigStats.lugaresDistintos > 0 ||
@@ -409,27 +415,47 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
             {/* ── STATS 3 col borde ink ──
                 Si el DJ tiene gigs en su calendario, mostramos SHOWS · LUGARES
-                · DESDE (estilo RA "stats del artista"). Si no, fallback al
-                stats actual (géneros / rider / base). */}
+                · DESDE (estilo RA "stats del artista") — pero SOLO las celdas
+                con dato real: un "—" en la franja héroe se lee como dato roto,
+                no como cero. Si no hay gigs, fallback al stats actual
+                (géneros / rider / base). */}
             <section className="mb-10">
-              <div className="grid grid-cols-3 border-2 border-border">
+              <div
+                className={`grid border-2 border-border ${
+                  hasGigData
+                    ? ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"][
+                        [
+                          gigStats.showsPasados > 0,
+                          gigStats.lugaresDistintos > 0,
+                          gigStats.desdeAño != null,
+                        ].filter(Boolean).length
+                      ] || "grid-cols-3"
+                    : "grid-cols-3"
+                }`}
+              >
                 {hasGigData ? (
                   <>
-                    <StatTile
-                      value={gigStats.showsPasados || "—"}
-                      label="SHOWS"
-                      variant="white"
-                    />
-                    <StatTile
-                      value={gigStats.lugaresDistintos || "—"}
-                      label="LUGARES"
-                      variant="ink"
-                    />
-                    <StatTile
-                      value={gigStats.desdeAño ?? "—"}
-                      label="DESDE"
-                      variant="orange"
-                    />
+                    {gigStats.showsPasados > 0 && (
+                      <StatTile
+                        value={gigStats.showsPasados}
+                        label="SHOWS"
+                        variant="white"
+                      />
+                    )}
+                    {gigStats.lugaresDistintos > 0 && (
+                      <StatTile
+                        value={gigStats.lugaresDistintos}
+                        label="LUGARES"
+                        variant="ink"
+                      />
+                    )}
+                    {gigStats.desdeAño != null && (
+                      <StatTile
+                        value={gigStats.desdeAño}
+                        label="DESDE"
+                        variant="orange"
+                      />
+                    )}
                   </>
                 ) : (
                   <>
@@ -890,4 +916,15 @@ function StatTile({
       </div>
     </div>
   );
+}
+
+/**
+ * Tope de espera para fuentes externas: si la promesa no resuelve a tiempo,
+ * seguimos con el fallback en vez de colgar el render del press kit.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise.catch(() => fallback),
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
 }
