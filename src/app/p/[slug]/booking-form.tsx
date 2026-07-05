@@ -108,9 +108,12 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
         </div>
         <div className="space-y-2">
           <Label htmlFor="event_date" className="flex items-end min-h-[30px] leading-tight">Fecha (si la tienes)</Label>
+          {/* lang fija el formato del picker nativo a día-mes-año (audiencia
+              LATAM); sin esto, un navegador en inglés muestra mm/dd/yyyy. */}
           <Input
             id="event_date"
             type="date"
+            lang="es-CL"
             value={form.event_date}
             onChange={(e) => update("event_date", e.target.value)}
           />

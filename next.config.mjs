@@ -58,11 +58,15 @@ const nextConfig = {
     // autorizados (el vector típico de XSS / supply-chain) + object/base/form.
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://challenges.cloudflare.com",
+      // va.vercel-scripts.com solo en dev (script debug de Vercel Analytics;
+      // en prod carga first-party desde /_vercel).
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://challenges.cloudflare.com${process.env.NODE_ENV === "development" ? " https://va.vercel-scripts.com" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.mercadopago.com https://countriesnow.space https://*.sentry.io",
+      // soundcloud.com: oEmbed check del press kit (detecta cuentas muertas
+      // para no renderizar un player vacío).
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.mercadopago.com https://countriesnow.space https://*.sentry.io https://soundcloud.com",
       "frame-src 'self' https://w.soundcloud.com https://*.soundcloud.com https://www.youtube.com https://www.youtube-nocookie.com https://www.mixcloud.com https://open.spotify.com https://*.mercadopago.com https://challenges.cloudflare.com",
       "media-src 'self' https: blob:",
       "worker-src 'self' blob:",

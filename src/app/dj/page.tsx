@@ -9,7 +9,7 @@ import {
 } from "@/lib/queries/directory";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
-import { isSupabaseStorageUrl } from "@/lib/format";
+import { getInitials, isSupabaseStorageUrl } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -334,13 +334,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
 }
 
 function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] }) {
-  const initials = dj.artist_name
-    .split(" ")
-    .filter((s) => s.length > 0)
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join("")
-    .toUpperCase();
+  const initials = getInitials(dj.artist_name);
 
   // Fix B9: solo URLs de Supabase Storage van a next/image (otras rompen el
   // render). Si no hay una válida, cae al placeholder de iniciales.

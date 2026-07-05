@@ -409,27 +409,47 @@ export default async function PresskitPublicPage({ params }: PageProps) {
 
             {/* ── STATS 3 col borde ink ──
                 Si el DJ tiene gigs en su calendario, mostramos SHOWS · LUGARES
-                · DESDE (estilo RA "stats del artista"). Si no, fallback al
-                stats actual (géneros / rider / base). */}
+                · DESDE (estilo RA "stats del artista") — pero SOLO las celdas
+                con dato real: un "—" en la franja héroe se lee como dato roto,
+                no como cero. Si no hay gigs, fallback al stats actual
+                (géneros / rider / base). */}
             <section className="mb-10">
-              <div className="grid grid-cols-3 border-2 border-border">
+              <div
+                className={`grid border-2 border-border ${
+                  hasGigData
+                    ? ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"][
+                        [
+                          gigStats.showsPasados > 0,
+                          gigStats.lugaresDistintos > 0,
+                          gigStats.desdeAño != null,
+                        ].filter(Boolean).length
+                      ] || "grid-cols-3"
+                    : "grid-cols-3"
+                }`}
+              >
                 {hasGigData ? (
                   <>
-                    <StatTile
-                      value={gigStats.showsPasados || "—"}
-                      label="SHOWS"
-                      variant="white"
-                    />
-                    <StatTile
-                      value={gigStats.lugaresDistintos || "—"}
-                      label="LUGARES"
-                      variant="ink"
-                    />
-                    <StatTile
-                      value={gigStats.desdeAño ?? "—"}
-                      label="DESDE"
-                      variant="orange"
-                    />
+                    {gigStats.showsPasados > 0 && (
+                      <StatTile
+                        value={gigStats.showsPasados}
+                        label="SHOWS"
+                        variant="white"
+                      />
+                    )}
+                    {gigStats.lugaresDistintos > 0 && (
+                      <StatTile
+                        value={gigStats.lugaresDistintos}
+                        label="LUGARES"
+                        variant="ink"
+                      />
+                    )}
+                    {gigStats.desdeAño != null && (
+                      <StatTile
+                        value={gigStats.desdeAño}
+                        label="DESDE"
+                        variant="orange"
+                      />
+                    )}
                   </>
                 ) : (
                   <>

@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { listPublicDjs, type PublicDjProfile } from "@/lib/queries/directory";
 import { computeCompleteness } from "@/lib/match/completeness";
-import { isSupabaseStorageUrl } from "@/lib/format";
+import { getInitials, isSupabaseStorageUrl } from "@/lib/format";
 import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
 import { LandingHero, type HeroStat } from "@/components/public/landing/landing-hero";
 import { FeatureTabs } from "@/components/public/landing/feature-tabs";
@@ -318,13 +318,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
  * press kit. Server component (sin JS de cliente).
  */
 function LandingDjCard({ dj, className = "" }: { dj: PublicDjProfile; className?: string }) {
-  const initials = dj.artist_name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join("")
-    .toUpperCase();
+  const initials = getInitials(dj.artist_name);
   const cardImg = [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
 
   return (
