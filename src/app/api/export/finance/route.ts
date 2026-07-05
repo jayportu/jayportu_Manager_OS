@@ -15,6 +15,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { logSecurityEvent, clientIpFromRequest } from "@/lib/security-audit";
 import {
   PAYMENT_STATUS_LABELS,
   DOCUMENT_TYPE_LABELS,
@@ -141,6 +142,22 @@ export async function GET(request: Request) {
 
   const csv = lines.join("\n");
   const fileName = `drop-finanzas-${from || "todo"}-a-${to || "hoy"}.csv`;
+
+  await logSecurityEvent({
+    action: "data.export",
+    actorUserId: user.id,
+    targetType: "user_data",
+    targetId: user.id,
+    metadata: {
+      kind: "finance_csv",
+      from: from || null,
+      to: to || null,
+      status: status || null,
+    },
+    ip: clientIpFromRequest(request),
+    userAgent: request.headers.get("user-agent"),
+  });
+
   return new NextResponse(csv, {
     status: 200,
     headers: {

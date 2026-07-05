@@ -14,6 +14,8 @@ import {
   needsBetaRequestEmailText,
 } from "@/lib/email/templates";
 import type { AccountStatus } from "@/types/database";
+import { logSecurityEvent } from "@/lib/security-audit";
+import { maskEmail } from "@/lib/log-safe";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -42,6 +44,13 @@ export async function setDjVerifiedAction(
     revalidatePath("/dj");
     revalidatePath("/p/[slug]", "page");
     revalidateTag("public-djs");
+    await logSecurityEvent({
+      action: "admin.dj_verified",
+      actorUserId: adminId,
+      targetType: "dj_profile",
+      targetId: djUserId,
+      metadata: { verified },
+    });
     return { ok: true, verified };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error" };
@@ -148,7 +157,7 @@ export async function notifyAndDeleteUserAction(
   }>
 > {
   try {
-    await assertAdmin();
+    const { userId: adminId } = await assertAdmin();
     const admin = createAdminClient();
 
     // 1) Cargar profile + auth user
@@ -222,6 +231,14 @@ export async function notifyAndDeleteUserAction(
         }`,
       };
     }
+
+    await logSecurityEvent({
+      action: "admin.user_deleted",
+      actorUserId: adminId,
+      targetType: "auth.users",
+      targetId: userId,
+      metadata: { mode: "orphan_cleanup", email: maskEmail(email) },
+    });
 
     revalidatePath("/admin");
     return {
@@ -310,6 +327,14 @@ export async function setAccountStatusAction(
       metadata: { target_user_id: userId, reason: cleanReason || null },
     });
 
+    await logSecurityEvent({
+      action: "admin.account_status_changed",
+      actorUserId: adminId,
+      targetType: "dj_profile",
+      targetId: userId,
+      metadata: { status, reason: cleanReason || null },
+    });
+
     revalidatePath("/admin");
     return { ok: true, data: { status } };
   } catch (e) {
@@ -378,6 +403,14 @@ export async function setBookerAccountStatusAction(
       metadata: { target_user_id: bookerUserId, role: "booker", reason: cleanReason || null },
     });
 
+    await logSecurityEvent({
+      action: "admin.booker_account_status_changed",
+      actorUserId: adminId,
+      targetType: "booker_accounts",
+      targetId: bookerUserId,
+      metadata: { status, reason: cleanReason || null },
+    });
+
     revalidatePath("/admin/bookers");
     return { ok: true, data: { status } };
   } catch (e) {
@@ -427,6 +460,17 @@ export async function deleteUserAction(
 
     const { error: delErr } = await admin.auth.admin.deleteUser(userId);
     if (delErr) return { ok: false, error: `Borrado falló: ${delErr.message}` };
+
+    await logSecurityEvent({
+      action: "admin.user_deleted",
+      actorUserId: adminId,
+      targetType: "auth.users",
+      targetId: userId,
+      metadata: {
+        mode: "permanent",
+        artist_name: (target?.artist_name as string) || null,
+      },
+    });
 
     revalidatePath("/admin");
     return { ok: true, data: { deleted: true } };

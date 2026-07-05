@@ -31,6 +31,19 @@ export async function assertAdmin(): Promise<{ userId: string }> {
     .maybeSingle();
 
   if (!profile?.is_admin) redirect("/dashboard");
+
+  // BL-07 — Step-up MFA para el backoffice, a prueba de lockout: solo exige
+  // AAL2 si el admin YA tiene un factor MFA verificado. Si aún no enroló MFA
+  // (caso actual), nextLevel === 'aal1' y NO se bloquea — así no dejamos fuera
+  // del backoffice a un admin sin segundo factor. Cuando exista la UI de
+  // enrolamiento/challenge (follow-up; no testeable en localhost por el CAPTCHA
+  // de Supabase) y el admin enrole TOTP, este guard exige el step-up a AAL2.
+  const { data: aal } =
+    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+    redirect("/login?reason=mfa_required");
+  }
+
   return { userId: user.id };
 }
 

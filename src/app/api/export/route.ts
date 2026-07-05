@@ -7,6 +7,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { logSecurityEvent, clientIpFromRequest } from "@/lib/security-audit";
 
 export const dynamic = "force-dynamic";
 
@@ -125,6 +126,16 @@ export async function GET(request: Request) {
       feedback_reports: feedback_reports?.length ?? 0,
     },
   };
+
+  await logSecurityEvent({
+    action: "data.export",
+    actorUserId: user.id,
+    targetType: "user_data",
+    targetId: user.id,
+    metadata: { kind: "full_json" },
+    ip: clientIpFromRequest(request),
+    userAgent: request.headers.get("user-agent"),
+  });
 
   return new NextResponse(JSON.stringify(payload, null, 2), {
     status: 200,
