@@ -24,6 +24,26 @@ Se whitelisteó `localhost` en la site key de Turnstile (Cloudflare) y se probó
 2. O usar un **proyecto Supabase de staging** con el CAPTCHA desactivado (recomendado a futuro; ver P-2 en 05-security-privacy).
 3. Con el login resuelto, quitar los `test.skip` del bloque autenticado en `tests/e2e/public.spec.ts`.
 
+### Actualización 2026-07-05 (2º intento, sesión inyectada) — gating verificado; cuentas demo desincronizadas
+
+Con autorización explícita del owner para la cuenta de prueba, se generó una sesión de la cuenta demo vía magic-link + `POST /auth/v1/verify` (evitando Turnstile por completo) y se inyectó la cookie `sb-<ref>-auth-token` (@supabase/ssr 0.12) en Playwright. **La mecánica de sesión funcionó** y permitió verificar el gating en runtime:
+
+| Verificación en runtime autenticado | Resultado |
+|---|---|
+| Cookie de sesión SSR reconocida por el layout | ✅ (dejó de redirigir a `/login`) |
+| Gating capa 1 — sin sesión, rutas privadas → `/login` | ✅ 13/13 secciones + `/admin`, `/admin/beta-requests`, `/booker/requests` |
+| Gating capa 2 — con sesión **sin onboarding** → `/welcome` | ✅ 13/13 secciones + admin + booker (el layout fuerza el wizard antes de dar acceso) |
+| `/admin`, `/admin/beta-requests` bloqueadas a no-admin | ✅ (redirigen; nunca renderizan) |
+| `/booker/requests` bloqueada a DJ | ✅ |
+
+**Hallazgo nuevo (relevante para QA y datos): las cuentas de prueba están desincronizadas en producción.**
+- La cuenta de prueba `trial-test@dropdj.local` (user `66ac2706…`) **no tiene onboarding completo** y **no es dueña** del perfil `nova-rios-demo`.
+- El perfil público `nova-rios-demo` (usado en las capturas de visitante) pertenece a un user con **email de dominio real** `ho***@novarios.cl`, no a la cuenta ficticia. Un guard del script abortó al detectarlo, sin tocar esa cuenta. *(El press kit es público, así que navegarlo no expone nada privado; pero conviene saber que ese "demo" es una cuenta real.)*
+
+**Consecuencia:** no existe hoy una cuenta ficticia con onboarding completo para recorrer las secciones DJ **con contenido**. Completar el onboarding de `trial-test` implicaría escribir en la BD de producción (no autorizado) y usar la cuenta `@novarios.cl` está descartado por ser real. Por eso el **interior de las secciones DJ (dashboard con datos, CRM, editores) queda sin probar en runtime**; el gating de acceso sí quedó verificado.
+
+**Recomendación:** re-sembrar una cuenta demo consistente con `scripts/seed_demo_account.mjs` (que asigna el perfil a `trial-test@dropdj.local` con onboarding y `hidden_from_directory=true`) **contra un entorno de staging**, no prod. Con eso, el recorrido interno y los tests e2e autenticados quedan desbloqueados.
+
 ## 1. Visitante (no registrado) — probado en runtime ✅
 
 | Flujo | Resultado |
