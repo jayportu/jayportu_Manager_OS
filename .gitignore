@@ -50,3 +50,18 @@ next-env.d.ts
 /screenshots/
 /drop_contact_mockups.html
 /drop_rls_audit.json
+
+# Datos reales / PII — NUNCA a git (bases de contactos, logs de envíos de campañas)
+*.xlsx
+*.csv
+/scripts/*.json
+/scripts/*.txt
+/admin_bajas.png
+/home-full.png
+/mockup_*.png
+/drop_video_guion.md
+/drop_video_subtitulos.srt
+
+# Workspaces de herramientas locales
+.agents/
+.playwright-mcp/
