@@ -26,6 +26,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { findBetaRequestByToken } from "@/lib/queries/beta";
+import { maskEmail } from "@/lib/log-safe";
 
 const INVITE_COOKIE = "dropbeta_invite_token";
 
@@ -127,7 +128,7 @@ export async function consumeBetaInviteIfAny(opts: {
       via = "email_fallback";
       console.log("[beta-invite] activando via fallback por email", {
         userId: userIdShort,
-        email: opts.userEmail,
+        email: maskEmail(opts.userEmail),
       });
     }
   }
@@ -166,8 +167,8 @@ export async function consumeBetaInviteIfAny(opts: {
   if (opts.userEmail.toLowerCase() !== row.email.toLowerCase()) {
     console.warn("[beta-invite] email mismatch (posible reuso de invite)", {
       userId: userIdShort,
-      userEmail: opts.userEmail,
-      inviteEmail: row.email,
+      userEmail: maskEmail(opts.userEmail),
+      inviteEmail: maskEmail(row.email),
       via,
     });
     return { activated: false, reason: "email_mismatch" };

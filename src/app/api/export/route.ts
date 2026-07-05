@@ -6,10 +6,26 @@
  */
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Rate-limit modesto: el export es un dump completo de datos personales.
+  // Va scopeado por user.id (no cruza usuarios), pero limitamos para controlar
+  // egress y evitar automatización abusiva.
+  const limit = rateLimit(request, {
+    key: "export",
+    max: 5,
+    windowMs: 3_600_000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Demasiadas exportaciones. Intenta de nuevo más tarde." },
+      { status: 429 }
+    );
+  }
+
   const supabase = await createClient();
 
   const {
@@ -35,6 +51,9 @@ export async function GET() {
     { data: content_posts },
     { data: platform_snapshots },
     { data: platform_accounts },
+    { data: push_subscriptions },
+    { data: nps_responses },
+    { data: feedback_reports },
   ] = await Promise.all([
     supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
     supabase.from("contacts").select("*").eq("user_id", user.id),
@@ -51,6 +70,12 @@ export async function GET() {
     supabase.from("content_posts").select("*").eq("user_id", user.id),
     supabase.from("platform_snapshots").select("*").eq("user_id", user.id),
     supabase.from("platform_accounts").select("*").eq("user_id", user.id),
+    // Tablas adicionales legibles por el propio titular vía RLS (derecho de
+    // acceso/portabilidad). usage_events NO se incluye: su RLS es admin-select
+    // (sin select_own), así que requeriría una vía service_role aparte.
+    supabase.from("push_subscriptions").select("*").eq("user_id", user.id),
+    supabase.from("nps_responses").select("*").eq("user_id", user.id),
+    supabase.from("feedback_reports").select("*").eq("user_id", user.id),
   ]);
 
   const payload = {
@@ -77,6 +102,9 @@ export async function GET() {
     content_posts: content_posts || [],
     platform_snapshots: platform_snapshots || [],
     platform_accounts: platform_accounts || [],
+    push_subscriptions: push_subscriptions || [],
+    nps_responses: nps_responses || [],
+    feedback_reports: feedback_reports || [],
     counts: {
       contacts: contacts?.length ?? 0,
       interactions: interactions?.length ?? 0,
@@ -92,6 +120,9 @@ export async function GET() {
       content_posts: content_posts?.length ?? 0,
       platform_snapshots: platform_snapshots?.length ?? 0,
       platform_accounts: platform_accounts?.length ?? 0,
+      push_subscriptions: push_subscriptions?.length ?? 0,
+      nps_responses: nps_responses?.length ?? 0,
+      feedback_reports: feedback_reports?.length ?? 0,
     },
   };
 

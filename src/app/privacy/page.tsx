@@ -323,13 +323,14 @@ export default function PrivacyPage() {
 
         <Section title="Notificación de brechas">
           <p>
-            En caso de detectar una violación de seguridad que afecte tus datos
-            personales, te notificaremos por email{" "}
-            <strong>en el plazo más breve posible</strong> (en cualquier caso
-            dentro de las 72 horas desde la detección, alineado con estándares
-            internacionales y la futura Ley 21.719) con: qué pasó, qué datos
-            pueden estar afectados, qué medidas estamos tomando, y qué te
-            recomendamos hacer.
+            En caso de detectar una vulneración de seguridad que afecte tus
+            datos personales y que represente un riesgo para ti, te
+            notificaremos por email y lo comunicaremos a la Agencia de
+            Protección de Datos Personales{" "}
+            <strong>por medios expeditos y sin dilaciones indebidas</strong>,
+            conforme a la Ley 21.719, indicando: qué pasó, qué datos pueden
+            estar afectados, qué medidas estamos tomando y qué te recomendamos
+            hacer.
           </p>
         </Section>
 

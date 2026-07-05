@@ -14,6 +14,7 @@
  */
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 import {
   PAYMENT_STATUS_LABELS,
   DOCUMENT_TYPE_LABELS,
@@ -36,6 +37,18 @@ function csvCell(v: string | number | null | undefined): string {
 }
 
 export async function GET(request: Request) {
+  const limit = rateLimit(request, {
+    key: "export-finance",
+    max: 5,
+    windowMs: 3_600_000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Demasiadas exportaciones. Intenta de nuevo más tarde." },
+      { status: 429 }
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

@@ -18,7 +18,8 @@ const MIRRORS = [
   "https://overpass.kumi.systems/api/interpreter",
   "https://overpass-api.de/api/interpreter",
   "https://lz4.overpass-api.de/api/interpreter",
-  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  // maps.mail.ru (mirror de jurisdicción rusa) removido por higiene de
+  // privacidad — no enrutamos consultas a ese endpoint aunque no lleven PII.
 ];
 
 interface Body {
