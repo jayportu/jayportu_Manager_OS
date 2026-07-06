@@ -69,4 +69,10 @@ Estos tokens son **semánticos** y están pensados para migrarse a `globals.css`
 
 ## Nota de marca
 
-El naranjo de acento en dark es **#FF7A1A** (brillo +). El brand histórico **#FF5C00** se mantiene para superficies claras/marketing si decides conservar un modo claro. Decisión abierta — la marco para tu visto bueno.
+> **⚠️ SUPERSEDED (2026-07-06).** La decisión de marca se cerró: el naranjo
+> canónico de DROP es **`#E85A0C`** (el que ya está en producción, ver
+> `DESIGN_SYSTEM.md`). El `#FF7A1A` que propone este documento **no se adopta**.
+> Este archivo se conserva como registro histórico de la exploración de tokens,
+> pero para el acento usar siempre `#E85A0C`.
+
+~~El naranjo de acento en dark es **#FF7A1A** (brillo +). El brand histórico **#FF5C00** se mantiene para superficies claras/marketing si decides conservar un modo claro. Decisión abierta — la marco para tu visto bueno.~~

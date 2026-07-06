@@ -37,7 +37,7 @@ Dirección: **Dark Premium (base) + acentos Energy** · paleta neutra `#0B0B0B`/
 --info:    #6EA8FE;
 ```
 
-> **Decisión de marca abierta:** en los mockups el acento es `#E85A0C`. El naranjo histórico de marca es `#FF5C00`. Hay que confirmar cuál es el canónico para dark (ver [[drop_brand_identity]]). Lo demás del sistema no cambia.
+> **✅ Decisión de marca cerrada (2026-07-06):** el acento canónico de DROP es **`#E85A0C`** (el de los mockups y el que ya está en producción). Se descarta el `#FF7A1A` que proponía `TOKENS_DARK.md` (marcado superseded). El `#FF5C00` queda solo como referencia histórica del wordmark en emails; alinear los templates de correo a `#E85A0C` es un pendiente opcional de bajo impacto (ver auditoría U-7). Lo demás del sistema no cambia.
 
 **Reglas del acento:** solo en acción primaria, estado activo, foco, líneas/indicadores, 1 dato clave por vista, y glow de impacto (hero/press kit/landing). **Nunca** como superficie grande de fondo.
 
