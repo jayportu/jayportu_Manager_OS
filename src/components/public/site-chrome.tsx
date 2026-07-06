@@ -97,7 +97,10 @@ export async function SiteFooter() {
         </p>
         <div className="flex gap-12 flex-wrap mt-8">
           <FootCol title="Explorar" links={explorar} />
-          <FootCol title="Para ti" links={[["Soy DJ", "/beta"], ["Soy booker", "/#perfiles"], ["Entrar", "/login"]]} />
+          {/* "Soy booker" se quita del footer a propósito (U-8): el rol booker
+              sigue como "próximamente" en el selector, y el signup de booker es
+              solo por invitación (founding). No lo promocionamos aún en público. */}
+          <FootCol title="Para ti" links={[["Soy DJ", "/beta"], ["Entrar", "/login"]]} />
           <FootCol title="drop." links={[["Privacidad", "/privacy"], ["Términos", "/terms"], ["hola@dropgigs.com", "mailto:hola@dropgigs.com"]]} />
           <div className="flex-1" />
           <FootCol title="Síguenos" links={[["@drop.gigs", "https://instagram.com/drop.gigs"]]} />
