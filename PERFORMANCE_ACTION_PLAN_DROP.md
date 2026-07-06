@@ -9,6 +9,32 @@
 
 ---
 
+## Estado de implementación (2026-07-06 · rama `perf/optimizaciones-2026-07`)
+
+Implementado y commiteado (verificado con `tsc` 0 errores, 21/21 unit tests, `next build` exit 0):
+
+| Tarea | Estado | Commit |
+|---|---|---|
+| T1.1–T1.7 (Etapa 1 completa) | ✅ hecho | `perf(etapa-1)` |
+| Corrección P-01 (falso positivo) | ✅ hecho | `docs(perf)` |
+| T2.4 (qrcode diferido) | ✅ hecho | `perf(etapa-2)` |
+| T5.2 (escalonar crons) | ✅ hecho | `perf(etapa-5)` |
+| T4.2 (once-guard + paralelizar layout) | ✅ hecho | `perf(etapa-3/4)` |
+| T3.2 (memoizar profile-form) | ✅ hecho | `perf(etapa-3/4)` |
+| ~~T2.1~~ | ❌ CANCELADO (P-01 falso) | — |
+| T2.2, T2.3, T2.6 | ⏸️ no hecho (bajo retorno / fricción) | — |
+| **T3.1** (editor tracklist) | ⏸️ **diferido** — refactor mediano | — |
+| **T4.1** (heartbeat/middleware) | ⏸️ **diferido** — toca matcher (seguridad) | — |
+| **T4.3** (push-cron batched) | ⏸️ **diferido** — rewrite mediano | — |
+| **T4.4** (índice H-01) | ⏸️ requiere `EXPLAIN` con acceso BD | — |
+| **T4.5** (paginación CRM/leads) | ⏸️ **diferido** — cambios de UI medianos | — |
+| T5.1 (logger niveles) | ⏸️ no hecho — adopción amplia | — |
+| T6.1 (Web Vitals RUM) | ⏸️ ops — requiere agregar `@vercel/speed-insights` | — |
+
+> **Por qué se detuvo acá:** por decisión del dueño se implementó solo el subconjunto **behavior-preserving / bajo riesgo**. Los ítems ⏸️ "diferido" son medianos y **tocan el área autenticada, que no se pudo probar en runtime** (login local bloqueado). **Antes de mergear la rama:** smoke test de login (DJ + booker), navegación por dashboard/CRM/calendario/perfil, y verificar que el badge LIVE, el gating de beta/suscripción y el guardado de perfil siguen bien.
+
+---
+
 ## ETAPA 0 — Preparación (habilitar verificación)
 
 ### T0.1 — Establecer baseline reproducible
