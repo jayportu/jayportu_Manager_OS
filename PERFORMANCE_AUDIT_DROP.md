@@ -6,7 +6,12 @@
 - **Modo:** solo auditoría, **sin cambios de código**. No se tocó producción, no se corrieron scripts contra la BD, no se hizo `git add`.
 - **Segunda aplicación:** no existe otra app con código en el workspace; el único `package.json` (fuera de `node_modules`) es el de DROP. Todo lo externo a `jayportu_Manager_OS/` se trató como intocable.
 
-> **Veredicto de una línea:** DROP está **notablemente más optimizada de lo esperado** en fetching/BD, memoria y arquitectura de datos. **No hay hallazgos Críticos.** El mayor ahorro está en el **bundle JS** (el cliente de Supabase con realtime pesa en el baseline de *todas* las rutas, incluidas las públicas anónimas) y en **round-trips de auth por request** (`getUser()` sin `cache()`). El resto son mejoras Medias/Bajas de bajo riesgo.
+> **Veredicto de una línea:** DROP está **notablemente más optimizada de lo esperado** en fetching/BD, memoria y arquitectura de datos. **No hay hallazgos Críticos.** El ahorro real está en **round-trips de auth por request** (`getUser()` sin `cache()`) y en resiliencia de crons/timeouts. El resto son mejoras Medias/Bajas de bajo riesgo.
+
+> ### ⚠️ CORRECCIÓN (verificación posterior, 2026-07-06)
+> Durante la implementación se **verificó empíricamente** el bundle y **P-01 resultó ser un falso positivo**. El chunk compartido de 126 KB (`6101`) que aparece en "First Load JS shared by all" **NO es Supabase**: es el **runtime de React DOM + Next.js App Router** (contiene `createRoot`; `grep` de `GoTrueClient/supabase/realtime/postgrest` sobre `.next/static/chunks/6101-*.js` = **0 coincidencias**). Es el baseline de framework de cualquier app React/Next — **no reducible**.
+> El cliente **Supabase real** vive en el chunk `1613` (~180 KB raw; `GoTrueClient`, `createBrowserClient`×5, `supabase`×64) y **solo carga en 7 de 122 rutas** (las 4 de auth + `(app)/layout` + `configuracion` + `perfil`), **NO en las páginas públicas**. La medición dinámica de la home mostró el chunk `6101` (framework), no Supabase.
+> **Consecuencia:** P-01 queda **DESCARTADO** y P-02 baja de Alto a Bajo (el peso de Supabase en las páginas de auth es intrínseco: login/signup lo necesitan). El "mayor lever de bundle" del informe original **no existe**. El bundle está sano. Ver filas corregidas P-01/P-02 abajo. Lección: el fingerprint de chunk del análisis de bundle era una **hipótesis presentada como evidencia**; la verificación lo corrigió.
 
 ---
 
@@ -59,8 +64,8 @@ Prioridad: **Crítico / Alto / Medio / Bajo / Sin impacto comprobado (SIC)**. Ri
 
 | # | Prioridad | Área | Problema | Evidencia | Archivo y línea | Impacto | Solución recomendada | Riesgo |
 |---|---|---|---|---|---|---|---|---|
-| P-01 | **Alto** | Bundle | Cliente Supabase (~126 KB, incl. realtime/websockets **no usado**) en el chunk compartido de **todas** las rutas, incl. públicas anónimas | [EVIDENCIA] build: `shared 182 kB` con chunk `6101 = 126 kB`; medición home prod: `6101…js = 123 KB` descargado por visitante anónimo | `src/lib/supabase/client.ts`; consumido por `src/components/layout/topbar.tsx:65` y forms de auth | Todo visitante (incl. anónimo de `/`, `/p/[slug]`) baja ~126 KB de JS que puede no usar | Confirmar que realtime no se usa y sacar el browser client del grafo compartido de rutas públicas; mantener reads públicos en servidor | medio |
-| P-02 | **Alto** | Bundle | Páginas de auth (login/signup/reset) 259–264 KB *First Load* por segundo chunk de auth Supabase | [EVIDENCIA] build + `app-build-manifest.json`: `chunks/1613 = 184 KB` (auth/GoTrue) en `/login`, `/auth/*`, `/signup/booker` | `src/app/login/login-form.tsx:28`, `auth/forgot-password/forgot-password-form.tsx:27`, `signup/booker/booker-signup-form.tsx:58` | Las páginas de entrada (primera impresión, alta sensibilidad a rebote) son las más pesadas fuera del dashboard | Deduplicar el grafo Supabase (P-01 lo colapsa); evaluar server actions para reset/signup en vez del cliente GoTrue completo | medio |
+| ~~P-01~~ | **DESCARTADO** | Bundle | *(Corregido — ver banner arriba.)* Se creyó que Supabase pesaba en el baseline de todas las rutas. **Falso:** el chunk compartido `6101` (126 KB) es el runtime React DOM + Next.js, no Supabase; Supabase (`1613`) solo carga en 7 de 122 rutas (privadas/auth), no en públicas. | [EVIDENCIA verificada] `grep GoTrueClient/supabase/realtime` en `6101-*.js` = 0; `1613` (Supabase) ausente de rutas públicas | `.next/static/chunks/` | Ninguno: baseline público = framework (normal, no reducible) | Sin acción | — |
+| P-02 | **Bajo** *(antes Alto)* | Bundle | Páginas de auth cargan el cliente Supabase (`1613`, ~180 KB raw) porque login/reset/signup **genuinamente lo usan** (`signInWithPassword`, etc.). Real pero mayormente intrínseco; realtime va incluido aunque no se use | [EVIDENCIA] `1613` = `GoTrueClient`/`createBrowserClient`×5/`supabase`×64/`realtime`×22; solo en 4 rutas auth + `(app)/layout`+configuracion+perfil | forms de auth | Solo 7 rutas; quien se loguea necesita el cliente | Opcional/bajo retorno: mover submit a server actions; trim de realtime no es trivial | medio |
 | P-03 | **Alto** | Fetching/Auth | `getUser()` no está envuelto en `cache()` de React → 2–5+ round-trips de auth a Supabase por navegación autenticada | [EVIDENCIA] `grep auth.getUser()` = 100 sitios; se llama en middleware + layout + cada query helper del mismo request | `src/lib/supabase/server.ts` (sin `cache()`); `(app)/layout.tsx:34-36`; `lib/queries/contacts.ts:79-86`; `lib/supabase/middleware.ts:99-102` | Latencia serial al TTFB en cada navegación privada; multiplica la carga de Supabase Auth | `export const getCurrentUser = cache(() => createClient().auth.getUser())` y usarlo en todos los sitios del request | bajo |
 | P-04 | **Alto** | Polling/Auth | Heartbeat = 3 round-trips a Supabase por DJ por minuto (middleware `getUser` + route `getUser` + `UPDATE`) | [EVIDENCIA] `presence-heartbeat.tsx:23` (60s); `/api/dj/heartbeat` no está en `PUBLIC_PATHS`; route revalida | `src/components/dj/presence-heartbeat.tsx:14-32`; `api/dj/heartbeat/route.ts:17-29`; `src/middleware.ts:8-17` | Carga base sostenida de writes + auth solo para un badge "LIVE"; escala con DJs concurrentes | Excluir `/api/dj/heartbeat` del `getUser()` del middleware (el route ya se autentica); considerar intervalo mayor | medio |
 | P-05 | **Alto** | Backend/DB | N+1 en cron `follow-updates`: un SELECT `booker_favorites` por DJ en vez de un `.in()` batched | [EVIDENCIA] `for (const djId of djIds) { await admin.from("booker_favorites")…eq("dj_user_id", djId) }` | `src/app/api/follow-updates/cron/route.ts:199-208` | Round-trips lineales con nº de DJs activos; hoy acotado por beta, degrada al crecer | Un solo `.in("dj_user_id", djIds).eq("notify_email", true)` y agrupar en memoria | bajo |
@@ -140,7 +145,7 @@ Prioridad: **Crítico / Alto / Medio / Bajo / Sin impacto comprobado (SIC)**. Ri
 ```
 First Load JS shared by all = 182 kB
   ├ chunks/4bd1b696…js   54.2 kB   (React / framework)
-  ├ chunks/6101…js       126 kB    (Supabase client + realtime/websocket)  ← P-01
+  ├ chunks/6101…js       126 kB    (runtime React DOM + Next.js — NO Supabase; ver corrección de P-01)
   └ other shared          2.16 kB
 ƒ Middleware = 144 kB                                                        ← P-25
 ```
@@ -219,7 +224,7 @@ Medición con Playwright (navegador aislado, **desktop sin throttling, navegador
 | Transferencia total | 377 KB | 34 KB* |
 | JS (transferido) | **215 KB** (11 archivos) | * |
 
-- **JS dominante en home [EVIDENCIA]:** `6101…js = 123 KB` (cliente Supabase) + `4bd1b696…js = 55 KB` (React). → **confirma P-01 dinámicamente**: un visitante anónimo de la home baja 123 KB de Supabase.
+- **JS dominante en home [EVIDENCIA, corregido]:** `6101…js = 123 KB` = **runtime React DOM + Next.js** (framework, NO Supabase — ver corrección de P-01) + `4bd1b696…js = 55 KB` (React). La home pública **NO** carga el cliente Supabase (chunk `1613`, presente solo en rutas privadas/auth).
 - `*` La transferencia del press kit (34 KB) está **subestimada por caché caliente** (los chunks JS se reutilizaron de la visita a home). En frío, `/p/[slug]` = 208 KB First Load (build). La cuenta demo NOVA RÍOS no tiene embeds, así que esa página no ejercita P-17.
 - **CLS 0 en ambas** → sin layout shifts (bien). **FCP ~2.6 s en home** [HIPÓTESIS H-03]: sugiere hero pintado por JS de cliente tras hidratar; medir LCP con Lighthouse móvil throttled.
 - **Long tasks / main-thread blocking / INP:** no medidos (requieren trace de Chrome DevTools, bloqueado por perfil en uso).
@@ -229,7 +234,7 @@ Medición con Playwright (navegador aislado, **desktop sin throttling, navegador
 ## Resumen ejecutivo (lenguaje simple)
 
 **¿Qué consume más recursos?**
-1. **El JavaScript de Supabase (~126 KB) se descarga en todas las páginas**, incluso las públicas donde un visitante anónimo nunca se loguea. Es el archivo JS más grande del sitio y, encima, incluye el módulo de "realtime" (websockets) que la app **no usa**. Es el mayor desperdicio medible.
+1. ~~El JavaScript de Supabase se descarga en todas las páginas~~ **(CORREGIDO — falso positivo).** Verificado empíricamente: el chunk grande compartido (126 KB) es el **runtime de React DOM + Next.js** (framework, inevitable), NO Supabase. El cliente Supabase solo carga en las 7 rutas privadas/auth que realmente lo usan. **No hay desperdicio de bundle en las páginas públicas.**
 2. **Cada navegación dentro del área privada dispara 2–5 verificaciones de sesión** contra Supabase, porque la función que obtiene el usuario no está cacheada por request. Suma latencia y carga innecesaria.
 3. **Un cron horario (Google Calendar) puede quedarse "colgado"** por falta de timeout y pagar hasta 60 s de función, además de bloquear el sync del resto de usuarios.
 
@@ -252,7 +257,7 @@ Medición con Playwright (navegador aislado, **desktop sin throttling, navegador
 | # | Problema | Prioridad | Esfuerzo | Retorno |
 |---|---|---|---|---|
 | 1 | P-03 `getUser()` sin `cache()` (round-trips de auth) | Alto | **S** | Alto |
-| 2 | P-01 Supabase (+realtime) en baseline de todas las rutas | Alto | **M** | Alto |
+| 2 | ~~P-01 Supabase en baseline de todas las rutas~~ **DESCARTADO** (verificado: era framework React/Next, no Supabase) | — | — | — |
 | 3 | P-06 Google Calendar sin timeout en cron horario | Alto | **S** | Alto |
 | 4 | P-05 N+1 en cron follow-updates | Alto | **S** | Medio-Alto |
 | 5 | P-09 Email PII en logs | Medio (Alto priv.) | **S** | Medio |
@@ -312,7 +317,7 @@ Detalle ejecutable en `PERFORMANCE_ACTION_PLAN_DROP.md`.
 ## Métricas antes y después (qué medir)
 
 **Baseline "antes" capturado (2026-07-06):**
-- Bundle: shared **182 KB** (Supabase 126 KB) · middleware **144 KB** · `/perfil` 274 KB · `/login` 262 KB · `/p/[slug]` 208 KB.
+- Bundle: shared **182 KB** (framework React/Next — 126 KB `6101` + 54 KB React; **NO** Supabase) · middleware **144 KB** · `/perfil` 274 KB · `/login` 262 KB · `/p/[slug]` 208 KB.
 - Home prod (desktop, frío): TTFB **496 ms**, Load **1771 ms**, FCP **2592 ms**, CLS **0**, JS **215 KB**, transferencia **377 KB**.
 - Press kit prod: TTFB **58 ms** (ISR), CLS **0**.
 

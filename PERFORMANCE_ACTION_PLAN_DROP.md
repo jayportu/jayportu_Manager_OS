@@ -99,23 +99,19 @@
 
 ## ETAPA 2 — Bundle y assets
 
-### T2.1 — Sacar el cliente Supabase del baseline de rutas públicas (P-01)
-- **Prioridad:** Alto · **Esfuerzo:** M–L · **Riesgo:** medio
-- **Archivo:** `src/lib/supabase/client.ts`; consumidores en páginas públicas; `topbar.tsx:65`
-- **Cambio:** (1) **Confirmar que Supabase Realtime NO se usa** (grep ya dio 0). (2) Asegurar que las páginas públicas (`/`, `/p/[slug]`, `/dj`, `/eventos`) no arrastren `createBrowserClient` en su grafo cliente (mantener reads en servidor). (3) Evaluar `import` dinámico del browser client solo donde se necesita (login, avatar upload).
-- **Dependencias:** T1.1 (entender los call sites de auth) recomendable antes.
-- **Prueba:** `next build` y comparar First Load JS de rutas públicas; **probar login + refresh de sesión + upload de avatar** (ojo CAPTCHA/Turnstile). Medición dinámica: home ya no baja el chunk `6101`.
-- **Criterio de aceptación:** shared/First Load de rutas públicas cae ~120 KB; login/sesión intactos.
-- **Métrica:** shared JS (182 KB → objetivo <100 KB en públicas).
+> **⚠️ CORREGIDO (2026-07-06):** la verificación empírica del bundle descartó P-01. El chunk compartido de 126 KB es el runtime React DOM + Next.js (framework, no reducible), **no** Supabase. Por lo tanto **T2.1 se CANCELA** (no hay Supabase que sacar de las públicas) y **T2.2 baja a opcional/bajo retorno**. Lo valioso y seguro de esta etapa es T2.3/T2.4/T2.6. Ver banner de corrección en el informe.
 
-### T2.2 — Reducir el doble chunk de auth en login/signup/reset (P-02)
-- **Prioridad:** Alto · **Esfuerzo:** M · **Riesgo:** medio
+### ~~T2.1 — Sacar el cliente Supabase del baseline de rutas públicas~~ **CANCELADO**
+- **Motivo:** P-01 era falso positivo. El chunk `6101` (126 KB) es framework (React DOM + Next.js), no Supabase. El cliente Supabase (`1613`) solo carga en 7 de 122 rutas (privadas/auth), no en públicas. No hay nada que sacar. **No implementar.**
+
+### T2.2 — (Opcional, bajo retorno) Mover submit de auth a server actions (P-02)
+- **Prioridad:** Baja · **Esfuerzo:** M · **Riesgo:** medio (toca login/Turnstile)
 - **Archivo:** `src/app/login/login-form.tsx`, `auth/*`, `signup/booker/booker-signup-form.tsx`
-- **Cambio:** tras T2.1, verificar deduplicación del grafo Supabase; evaluar mover reset/signup a **server actions** (el cliente solo hace fetch fino, no carga GoTrue completo). Solo si no complica el flujo Turnstile.
-- **Dependencias:** T2.1.
-- **Prueba:** `next build` (First Load de `/login`, `/auth/*`); e2e de login/reset.
-- **Criterio de aceptación:** First Load de auth < 200 KB; flujos intactos.
-- **Métrica:** First Load `/login`, `/signup/booker`.
+- **Cambio:** el cliente Supabase en las 4 páginas de auth (~180 KB raw del chunk `1613`) es en gran parte **intrínseco** (login usa `signInWithPassword`). Solo si se busca exprimir: mover el submit a server actions para que el cliente no cargue GoTrue completo. Beneficio modesto en 4 rutas; riesgo real en el flujo de auth.
+- **Dependencias:** ninguna.
+- **Prueba:** `next build` + e2e de login/reset/signup con Turnstile real.
+- **Criterio de aceptación:** First Load de auth baja; flujos intactos.
+- **Métrica:** First Load `/login`, `/signup/booker`. **Recomendación: NO priorizar** salvo que sea objetivo explícito.
 
 ### T2.3 — Lazy-load de modales y componentes below-the-fold (P-10)
 - **Prioridad:** Medio · **Esfuerzo:** M · **Riesgo:** bajo
