@@ -9,7 +9,7 @@
  */
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { refreshAccessToken } from "./oauth";
 import { encryptToken, decryptToken } from "./token-crypto";
@@ -28,10 +28,7 @@ const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
 // explícito en cada query (service_role bypasea RLS, así que el filtro es la
 // única barrera — no se puede omitir).
 async function getUserOrThrow() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCachedUser();
   if (!user) throw new Error("No autenticado");
   return { supabase, user };
 }
@@ -216,6 +213,9 @@ export async function sendEmail(args: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ raw: toBase64Url(mime) }),
+    // Timeout: sin esto un cuelgue de Gmail mantenía la función viva hasta
+    // maxDuration. 10s cubre el envío normal; el caller maneja el throw.
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");

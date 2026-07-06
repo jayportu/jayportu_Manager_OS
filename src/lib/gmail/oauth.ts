@@ -139,6 +139,11 @@ export async function refreshAccessToken(
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
+    // Timeout: este refresh corre en el cron horario de calendario (por
+    // usuario). Sin timeout, un cuelgue de Google mantenía viva la función
+    // serverless hasta maxDuration. 10s cubre la latencia normal del token
+    // endpoint; el caller ya envuelve esto en try/catch.
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");

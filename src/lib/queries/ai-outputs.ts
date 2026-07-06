@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedUser } from "@/lib/supabase/server";
 
 export interface AiOutputInsert {
   source: "ollama" | "chatgpt_manual" | "paste";
@@ -20,10 +20,7 @@ export interface AiOutputInsert {
 }
 
 async function getUserOrThrow() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCachedUser();
   if (!user) throw new Error("No autenticado");
   return { supabase, user };
 }

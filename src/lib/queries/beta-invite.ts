@@ -29,6 +29,19 @@ import { findBetaRequestByToken } from "@/lib/queries/beta";
 
 const INVITE_COOKIE = "dropbeta_invite_token";
 
+/**
+ * Enmascara un email para logs: conserva solo la 1ª letra + dominio
+ * (ej. `j***@gmail.com`). Evita meter PII completa en los logs de Vercel
+ * manteniendo suficiente contexto para diagnosticar. Consistente con el
+ * patrón `userIdShort` (nunca el identificador completo en logs).
+ */
+function maskEmail(email: string | null | undefined): string {
+  if (!email) return "(none)";
+  const at = email.lastIndexOf("@");
+  if (at <= 0) return "***";
+  return `${email.slice(0, 1)}***${email.slice(at)}`;
+}
+
 interface BetaRequestRow {
   id: string;
   email: string;
@@ -127,7 +140,7 @@ export async function consumeBetaInviteIfAny(opts: {
       via = "email_fallback";
       console.log("[beta-invite] activando via fallback por email", {
         userId: userIdShort,
-        email: opts.userEmail,
+        email: maskEmail(opts.userEmail),
       });
     }
   }
@@ -166,8 +179,8 @@ export async function consumeBetaInviteIfAny(opts: {
   if (opts.userEmail.toLowerCase() !== row.email.toLowerCase()) {
     console.warn("[beta-invite] email mismatch (posible reuso de invite)", {
       userId: userIdShort,
-      userEmail: opts.userEmail,
-      inviteEmail: row.email,
+      userEmail: maskEmail(opts.userEmail),
+      inviteEmail: maskEmail(row.email),
       via,
     });
     return { activated: false, reason: "email_mismatch" };
@@ -218,7 +231,7 @@ export async function consumeBetaInviteIfAny(opts: {
 
   console.log("[beta-invite] ACTIVATED OK", {
     userId: userIdShort,
-    email: opts.userEmail,
+    email: maskEmail(opts.userEmail),
     via,
   });
   return { activated: true, via };

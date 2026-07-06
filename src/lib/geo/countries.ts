@@ -229,6 +229,10 @@ export async function fetchCities(apiCountry: string): Promise<string[]> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ country: apiCountry }),
+        // Timeout: countriesnow es un tercero gratuito de fiabilidad variable.
+        // Sin timeout, un cuelgue no dispara el catch y deja la función viva.
+        // El AbortError cae en el catch de abajo → degrada a [] (texto libre).
+        signal: AbortSignal.timeout(8_000),
       }
     );
     if (!res.ok) return [];

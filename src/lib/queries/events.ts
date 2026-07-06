@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { randomBytes } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -147,7 +148,7 @@ export const hasUpcomingPublicEvents = cache(
  * que un after de hoy no desaparezca a medianoche. DJs suspendidos/baneados se
  * excluyen (A1). Volumen beta = chico → batch en memoria, sin N+1.
  */
-export async function getUpcomingPublicEvents(limit = 12): Promise<FeedEvent[]> {
+async function getUpcomingPublicEventsUncached(limit = 12): Promise<FeedEvent[]> {
   const admin = createAdminClient();
   // Traemos desde ayer para no perder shows en curso (start pasado, end futuro);
   // luego filtramos por (end_at ?? start_at) >= ahora en memoria.
@@ -236,6 +237,19 @@ export async function getUpcomingPublicEvents(limit = 12): Promise<FeedEvent[]> 
   }
   return out;
 }
+
+/**
+ * Cacheado 300s en el Next Data Cache. /eventos es un feed público NO
+ * personalizado; sin esto cada hit (incl. crawlers/bots) re-ejecutaba las
+ * lecturas a la BD. Staleness máx 5 min (aceptable para un feed). Mismo
+ * criterio que /dj. Usa admin client (sin cookies) → seguro dentro de
+ * unstable_cache. El límite entra en la clave de caché automáticamente.
+ */
+export const getUpcomingPublicEvents = unstable_cache(
+  getUpcomingPublicEventsUncached,
+  ["upcoming-public-events"],
+  { revalidate: 300, tags: ["public-events"] }
+);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
