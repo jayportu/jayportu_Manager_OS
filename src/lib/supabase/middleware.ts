@@ -22,6 +22,7 @@ const PUBLIC_PATHS = [
   "/api/beta", // Sprint 23.5 — submit del formulario beta
   "/terms", // Security #7 — términos públicos (footer landing/login, Google OAuth, SERNAC)
   "/privacy", // Security #7 — política privacidad pública (footer landing/login, Google OAuth, Ley 19.628)
+  "/cookies", // BL-12 — política de cookies pública (transparencia, Ley 21.719)
   "/sitemap.xml", // Sprint 20 — sitemap dinámico
   "/robots.txt", // Sprint 20 — robots
   "/api/track", // tracking endpoint (press kit)
