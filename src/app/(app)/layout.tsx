@@ -22,6 +22,14 @@ import { isMpConfigured } from "@/lib/mercadopago/client";
 import { ConfirmProvider } from "@/components/admin/confirm-dialog";
 
 /**
+ * Guard en memoria (por instancia del server) para no re-ejecutar el consumo
+ * de invite en CADA navegación. consumeBetaInviteIfAny es idempotente y
+ * best-effort, así que un reset en cold start solo lo corre una vez más — sin
+ * riesgo. Mismo patrón que booker/layout.tsx.
+ */
+const invitesConsumed = new Set<string>();
+
+/**
  * Layout protegido. Cualquier ruta dentro de (app) requiere sesión
  * y onboarding completado. Si falta cualquiera de los dos, redirige.
  */
@@ -35,11 +43,16 @@ export default async function AppLayout({
   if (!user) redirect("/login");
 
   // Sprint 23.5 — si hay cookie de invite pendiente, activar beta antes
-  // de leer el profile. Idempotente y best-effort.
-  await consumeBetaInviteIfAny({
-    userId: user.id,
-    userEmail: user.email ?? null,
-  });
+  // de leer el profile. Idempotente y best-effort. Solo la primera vez por
+  // instancia (guard en memoria) — evita re-correr el fallback por email en
+  // cada navegación.
+  if (!invitesConsumed.has(user.id)) {
+    await consumeBetaInviteIfAny({
+      userId: user.id,
+      userEmail: user.email ?? null,
+    });
+    invitesConsumed.add(user.id);
+  }
 
   const { data: profile } = await supabase
     .from("dj_profile")
@@ -64,21 +77,25 @@ export default async function AppLayout({
   const showFeedbackWidget =
     profile?.beta_status === "active" || profile?.is_admin === true;
 
-  // Estado beta para banner y NPS modal
-  const betaState = await getBetaState({
-    userId: user.id,
-    betaStatus: profile?.beta_status ?? null,
-    betaApprovedAt: profile?.beta_approved_at ?? null,
-  });
+  // Estado beta (banner/NPS) y suscripción son independientes entre sí → se
+  // resuelven en paralelo (antes: dos awaits en serie). La suscripción solo se
+  // consulta si NO es beta legacy ni admin: misma condición que antes, así se
+  // preserva el side-effect (getOrCreateSubscription no corre para esos users).
+  const isLegacyBeta = isLegacyBetaUser(profile?.beta_status);
+  const [betaState, subscription] = await Promise.all([
+    getBetaState({
+      userId: user.id,
+      betaStatus: profile?.beta_status ?? null,
+      betaApprovedAt: profile?.beta_approved_at ?? null,
+    }),
+    isLegacyBeta || profile?.is_admin
+      ? Promise.resolve(null)
+      : getOrCreateSubscription(user.id),
+  ]);
 
   // Sprint S19 — Subscription gating (sistema paralelo a beta).
-  // Solo aplica a users que NO son beta legacy (active/expired). Para
-  // users post-launch (beta_status='none' o 'paying'), gestionamos el
-  // ciclo trial/paying/expired.
-  const isLegacyBeta = isLegacyBetaUser(profile?.beta_status);
-  const subscriptionAccess = isLegacyBeta || profile?.is_admin
-    ? null
-    : evaluateSubscriptionAccess(await getOrCreateSubscription(user.id));
+  const subscriptionAccess =
+    subscription === null ? null : evaluateSubscriptionAccess(subscription);
   // Soft-gate: si MP no está configurado (prod sin billing activo todavía, o
   // dev), NO bloqueamos aunque el trial venza — encerrar a alguien sin vía de
   // pago solo lo pierde. El banner de trial sigue mostrándose como aviso.

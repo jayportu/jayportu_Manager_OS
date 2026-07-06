@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback, useMemo, memo } from "react";
 import { useRouter } from "next/navigation";
 import type { DjProfile, DjProfileUpdate } from "@/types/database";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,13 @@ import { AvatarUpload } from "./avatar-upload";
 import { GallerySection } from "./gallery-section";
 import { computeCompleteness } from "@/lib/match/completeness";
 import { X, TrendingUp, Check, AlertCircle } from "lucide-react";
+
+// Memoizados: solo re-renderizan si cambian SUS props (avatar/artistName/
+// gallery), no en cada tecla de otros campos del form. Ambos usan sus props
+// únicamente como estado inicial (useState(prop)), así que memoizar no cambia
+// comportamiento — solo evita re-renders innecesarios.
+const AvatarUploadMemo = memo(AvatarUpload);
+const GallerySectionMemo = memo(GallerySection);
 
 const GENRE_SUGGESTIONS = [
   "House",
@@ -48,6 +55,16 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   ) {
     setForm((f) => ({ ...f, [field]: value }));
   }
+
+  // Callback estable para AvatarUpload (memoizado) — evita recrear la función
+  // en cada render, que anularía el memo del hijo.
+  const handleAvatarChange = useCallback(
+    (url: string) => setForm((f) => ({ ...f, avatar_url: url })),
+    []
+  );
+  // Referencia estable de la galería (antes `form.gallery ?? []` creaba un
+  // array nuevo por render).
+  const galleryInitial = useMemo(() => form.gallery ?? [], [form.gallery]);
 
   function addGenre(g: string) {
     const trimmed = g.trim();
@@ -202,10 +219,10 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
           Identidad
         </h2>
-        <AvatarUpload
+        <AvatarUploadMemo
           initialUrl={form.avatar_url}
           artistName={form.artist_name}
-          onChange={(url) => update("avatar_url", url)}
+          onChange={handleAvatarChange}
         />
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -259,7 +276,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
           Fotos para tu press kit público. Organízalas en carpetas (ej. Live,
           Estudio) y se muestran con un visor a tamaño real.
         </p>
-        <GallerySection initialGallery={form.gallery ?? []} />
+        <GallerySectionMemo initialGallery={galleryInitial} />
       </Card>
 
       {/* Estilos musicales */}
