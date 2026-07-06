@@ -13,7 +13,8 @@
  * metadata jsonb, no se requiere migración.
  */
 import { useEffect, useRef, useState } from "react";
-import QRCode from "qrcode";
+// `qrcode` (~30 KB) se importa dinámicamente dentro de los handlers: solo se
+// baja cuando el usuario genera/descarga un QR, no al cargar el press kit.
 import { Button } from "@/components/ui/button";
 import {
   QrCode,
@@ -64,18 +65,29 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
   const preset = UTM_PRESETS.find((p) => p.value === selectedSource);
   const finalUrl = buildUrl(publicUrl, selectedSource, preset?.medium ?? "");
 
-  // Generar QR en canvas cada vez que cambia la URL final
+  // Generar QR en canvas cada vez que cambia la URL final. `qrcode` se
+  // importa dinámicamente aquí (lazy) para no cargarlo al montar el press kit.
   useEffect(() => {
-    if (!showQR || !canvasRef.current) return;
-    void QRCode.toCanvas(canvasRef.current, finalUrl, {
-      width: 360,
-      margin: 2,
-      errorCorrectionLevel: "M",
-      color: {
-        dark: "#0A0A0A",
-        light: "#F4EFE7",
-      },
-    });
+    if (!showQR) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let cancelled = false;
+    void (async () => {
+      const QRCode = (await import("qrcode")).default;
+      if (cancelled) return;
+      await QRCode.toCanvas(canvas, finalUrl, {
+        width: 360,
+        margin: 2,
+        errorCorrectionLevel: "M",
+        color: {
+          dark: "#0A0A0A",
+          light: "#F4EFE7",
+        },
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [showQR, finalUrl]);
 
   async function handleCopy() {
@@ -106,6 +118,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
   }
 
   async function downloadSVG() {
+    const QRCode = (await import("qrcode")).default;
     const svg = await QRCode.toString(finalUrl, {
       type: "svg",
       margin: 2,
