@@ -47,8 +47,11 @@ export async function bulkUpsertLeads(
     city: r.city || "",
     country: r.country || "Chile",
     address: r.address || "",
-    lat: r.lat ?? null,
-    lng: r.lng ?? null,
+    // BL-05 / PRIV-001: NO almacenamos coordenadas GPS de leads (minimización;
+    // decisión de privacidad). Se descartan en la persistencia aunque el
+    // scraping (Overpass/OSM) las traiga. La dirección de texto sí se conserva.
+    lat: null,
+    lng: null,
     instagram: r.instagram || "",
     whatsapp: r.whatsapp || "",
     email: r.email || "",

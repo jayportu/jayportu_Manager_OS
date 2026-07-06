@@ -83,9 +83,13 @@ export function AvailabilitySection({ profile }: Props) {
             className="text-orange hover:underline"
           >
             dropgigs.com/dj
-          </a>
-          . Bookers y venues lo pueden ver. Activa &ldquo;disponible para
-          tocar&rdquo; cuando estés tomando shows.
+          </a>{" "}
+          y puede <strong>aparecer en buscadores</strong> (Google, etc.) con tu
+          nombre artístico, foto, ciudad y redes. Tu email y WhatsApp{" "}
+          <strong>no</strong> se muestran públicamente. Si ocultas tu perfil
+          (abajo), sale del directorio, del sitemap y de buscadores; solo queda
+          accesible por el link directo a tu press kit. Activa &ldquo;disponible
+          para tocar&rdquo; cuando estés tomando shows.
         </p>
       </div>
 
@@ -104,8 +108,8 @@ export function AvailabilitySection({ profile }: Props) {
           </div>
           <p className="text-xs text-fg-muted mt-1">
             {hiddenFromDirectory
-              ? "Tu perfil no aparece en dropgigs.com/dj. Solo accesible por link directo a tu press kit."
-              : "Aparece en el directorio público, los bookers pueden encontrarte."}
+              ? "Fuera del directorio, del sitemap y de buscadores (noindex). Solo accesible por el link directo a tu press kit."
+              : "Aparece en el directorio público y puede indexarse en buscadores; los bookers pueden encontrarte."}
           </p>
         </div>
         <button

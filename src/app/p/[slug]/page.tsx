@@ -57,6 +57,12 @@ export async function generateMetadata({
   return {
     title,
     description,
+    // BL-05: si el DJ ocultó su perfil del directorio, también lo sacamos de
+    // buscadores (noindex). El press kit sigue accesible por link directo,
+    // pero deja de indexarse → "opt-out real" de la publicación.
+    robots: profile.hidden_from_directory
+      ? { index: false, follow: false }
+      : undefined,
     alternates: { canonical: `/p/${slug}` },
     openGraph: {
       title,
