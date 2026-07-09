@@ -155,15 +155,15 @@ export function Sidebar({
   showLugares = true,
 }: SidebarProps) {
   const pathname = usePathname();
-  // Acordeón: los grupos con hijos arrancan expandidos (descubribilidad). El
-  // estado vive en memoria del sidebar → persiste entre navegaciones (el
-  // layout no se re-monta); se reinicia al recargar. El label navega; el
-  // caret sólo colapsa/expande.
+  // Acordeón: los grupos con hijos arrancan COLAPSADOS; se expanden al
+  // presionar el caret. El estado vive en memoria del sidebar → persiste
+  // entre navegaciones (el layout no se re-monta); se reinicia al recargar.
+  // El label navega; el caret sólo colapsa/expande.
   const [openItems, setOpenItems] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
       NAV_GROUPS.flatMap((g) => g.items)
         .filter((i) => i.children && i.children.length > 0)
-        .map((i) => [i.href, true])
+        .map((i) => [i.href, false])
     )
   );
   const toggleItem = (href: string) =>

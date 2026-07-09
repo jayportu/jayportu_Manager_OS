@@ -150,13 +150,13 @@ export function MobileMenu({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   // Acordeón (mismo comportamiento que el sidebar desktop): los grupos con
-  // hijos arrancan expandidos; el caret colapsa/expande sin navegar. Persiste
+  // hijos arrancan COLAPSADOS; se expanden al presionar el caret. Persiste
   // mientras el drawer esté montado.
   const [openItems, setOpenItems] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
       NAV_GROUPS.flatMap((g) => g.items)
         .filter((i) => i.children && i.children.length > 0)
-        .map((i) => [i.href, true])
+        .map((i) => [i.href, false])
     )
   );
   const toggleItem = (href: string) =>
