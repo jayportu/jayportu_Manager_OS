@@ -94,24 +94,38 @@ export async function syncEventsForUser(userId: string): Promise<{
     maxResults: "250",
   });
 
-  const res = await fetch(
-    `${CAL_API_BASE}/calendars/primary/events?${params.toString()}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
-  );
+  let events: GCalEventMin[];
+  try {
+    const res = await fetch(
+      `${CAL_API_BASE}/calendars/primary/events?${params.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        // Timeout: sin esto, una conexión colgada de Google mantenía viva la
+        // función serverless hasta maxDuration y, como el batch es secuencial,
+        // bloqueaba el sync del resto de usuarios esa hora. 10s cubre la
+        // latencia normal de la Calendar API.
+        signal: AbortSignal.timeout(10_000),
+      }
+    );
 
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      return {
+        ok: false,
+        pulled: 0,
+        error: `Google ${res.status}: ${txt.slice(0, 200)}`,
+      };
+    }
+
+    const json = (await res.json()) as { items?: GCalEventMin[] };
+    events = json.items || [];
+  } catch (e) {
     return {
       ok: false,
       pulled: 0,
-      error: `Google ${res.status}: ${txt.slice(0, 200)}`,
+      error: e instanceof Error ? e.message : "calendar fetch failed",
     };
   }
-
-  const json = (await res.json()) as { items?: GCalEventMin[] };
-  const events = json.items || [];
 
   // 4. Insert / update eventos.
   // OJO: NO usamos upsert con `type`, porque `type` es clasificación del lado
@@ -196,8 +210,20 @@ export async function syncEventsForAllUsers(): Promise<{
   const userIds = (connections || []).map((c: { user_id: string }) => c.user_id);
   const results = [];
   for (const userId of userIds) {
-    const r = await syncEventsForUser(userId);
-    results.push({ user_id: userId, ...r });
+    // Blindaje del batch: el fallo (o timeout) de un usuario NO debe abortar
+    // el sync del resto. syncEventsForUser ya devuelve errores como objeto,
+    // pero este try/catch cubre cualquier throw inesperado.
+    try {
+      const r = await syncEventsForUser(userId);
+      results.push({ user_id: userId, ...r });
+    } catch (e) {
+      results.push({
+        user_id: userId,
+        ok: false,
+        pulled: 0,
+        error: e instanceof Error ? e.message : "sync threw",
+      });
+    }
   }
   return { users: userIds.length, results };
 }

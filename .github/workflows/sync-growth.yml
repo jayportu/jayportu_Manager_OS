@@ -10,8 +10,8 @@ name: Sync Growth platforms (daily)
 
 on:
   schedule:
-    # 12:00 UTC todos los días (9am Santiago verano, 8am invierno)
-    - cron: "0 12 * * *"
+    # 12:25 UTC todos los días (escalonado: expire-beta corre 12:10)
+    - cron: "25 12 * * *"
   workflow_dispatch: {}
 
 jobs:

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedUser } from "@/lib/supabase/server";
 import {
   ensureBookerAccount,
   claimBookingsByEmail,
@@ -28,10 +28,7 @@ export default async function BookerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCachedUser();
   if (!user) redirect("/login?next=/booker/requests");
 
   // Si es DJ, no puede estar acá

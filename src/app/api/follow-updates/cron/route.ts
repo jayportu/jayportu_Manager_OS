@@ -52,6 +52,7 @@ interface DjProfileRow {
 
 interface FollowerRow {
   user_id: string;
+  dj_user_id: string;
 }
 
 function getSiteUrl(): string {
@@ -196,15 +197,21 @@ export async function GET(req: Request) {
   // 4. Resolver emails de followers (puede tener varios users) — paginado
   const allFollowerIds = new Set<string>();
   const followersByDj = new Map<string, string[]>();
-  for (const djId of djIds) {
-    const { data: followers } = await admin
+  // Antes: N+1 (un SELECT de booker_favorites por cada DJ). Ahora: una sola
+  // query batched con .in(djIds) y agrupado en memoria. Usa el índice
+  // idx_booker_favorites_dj_notify. Mismo resultado; escala con nº de DJs.
+  {
+    const { data: favorites } = await admin
       .from("booker_favorites")
-      .select("user_id")
-      .eq("dj_user_id", djId)
+      .select("user_id, dj_user_id")
+      .in("dj_user_id", djIds)
       .eq("notify_email", true);
-    const ids = ((followers ?? []) as FollowerRow[]).map((f) => f.user_id);
-    followersByDj.set(djId, ids);
-    ids.forEach((id) => allFollowerIds.add(id));
+    for (const f of (favorites ?? []) as FollowerRow[]) {
+      const list = followersByDj.get(f.dj_user_id) ?? [];
+      list.push(f.user_id);
+      followersByDj.set(f.dj_user_id, list);
+      allFollowerIds.add(f.user_id);
+    }
   }
 
   const emailsByUser = new Map<string, string>();

@@ -10,7 +10,7 @@ name: Pulso de beta (weekly digest)
 
 on:
   schedule:
-    - cron: "0 13 * * 1"
+    - cron: "40 13 * * 1"
   workflow_dispatch: {}
 
 jobs:

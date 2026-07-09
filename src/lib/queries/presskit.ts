@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { santiagoToUtcISO } from "@/lib/tz";
 import type {
@@ -143,10 +143,7 @@ export async function getBookingByViewToken(token: string): Promise<
 
 // ─── Owner-only queries (con session) ────────────────────────────────
 async function getUserOrThrow() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getCachedUser();
   if (!user) throw new Error("No autenticado");
   return { supabase, user };
 }

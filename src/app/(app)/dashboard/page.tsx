@@ -70,7 +70,10 @@ export default async function DashboardPage() {
     listPendingFollowUps(10),
     countPendingFollowUps(),
     listRecentInteractions(8),
-    listContacts({ orderBy: "score" }),
+    // Solo se usan los 5 primeros (top5 = topContacts.slice(0,5)). Antes esto
+    // bajaba hasta 1000 filas para mostrar 5 → limit:5. Los KPIs/totales reales
+    // van por countContacts (count exacto), no por el largo de esta lista.
+    listContacts({ orderBy: "score", limit: 5 }),
   ]);
 
   // Saludo según hora local de Santiago (Vercel corre en UTC).

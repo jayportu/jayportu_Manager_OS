@@ -58,6 +58,10 @@ async function fetchInboundBody(
           Authorization: `Bearer ${process.env.RESEND_API_KEY ?? ""}`,
           "User-Agent": "drop-inbound-webhook",
         },
+        // Timeout: un cuelgue de Resend no debe mantener viva la función del
+        // webhook (Resend reintenta → amplificación). El AbortError cae en el
+        // catch → null (el webhook responde igual).
+        signal: AbortSignal.timeout(8_000),
       }
     );
     if (!res.ok) return null;
@@ -174,6 +178,8 @@ export async function POST(req: Request) {
           html: bodyHtml,
           reply_to: fromEmail || undefined,
         }),
+        // Timeout: reenvío best-effort; no debe quedar colgado.
+        signal: AbortSignal.timeout(8_000),
       }).catch((e) => console.warn("[resend-webhook] forward fail", e));
     }
     return NextResponse.json({ ok: true, inbound: true });
