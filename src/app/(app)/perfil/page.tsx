@@ -2,6 +2,7 @@ import { getMyProfile } from "@/lib/queries/dj-profile";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ProfileForm } from "./profile-form";
+import { AvailabilitySection } from "./availability-section";
 
 export default async function PerfilPage() {
   const profile = await getMyProfile();
@@ -29,6 +30,10 @@ export default async function PerfilPage() {
       </div>
 
       <ProfileForm initialProfile={profile} />
+
+      <div className="mt-12 pt-8 border-t border-border">
+        <AvailabilitySection profile={profile} />
+      </div>
     </div>
   );
 }
