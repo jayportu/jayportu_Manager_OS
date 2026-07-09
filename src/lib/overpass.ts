@@ -290,6 +290,68 @@ export async function runOverpassQuery(
 }
 
 /**
+ * Mirrors públicos de Overpass (mismo orden de failover que el proxy
+ * `/api/overpass`). Usados por `runOverpassDirect` para consultas server-side.
+ */
+export const OVERPASS_MIRRORS = [
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+];
+
+/**
+ * Ejecuta una query Overpass DIRECTO contra los mirrors (server-side, sin
+ * pasar por el proxy `/api/overpass`, que existe para el browser por CORS).
+ * Hace failover entre mirrors; lanza si todos fallan.
+ */
+export async function runOverpassDirect(
+  ql: string,
+  signal?: AbortSignal
+): Promise<OverpassResponse> {
+  const body = new URLSearchParams({ data: ql });
+  const errors: string[] = [];
+  for (const url of OVERPASS_MIRRORS) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "DROP/0.13 (https://dropgigs.com)",
+        },
+        body,
+        signal: signal ?? AbortSignal.timeout(25_000),
+      });
+      if (res.ok) return (await res.json()) as OverpassResponse;
+      errors.push(`${new URL(url).hostname}: ${res.status}`);
+    } catch (e) {
+      errors.push(
+        `${new URL(url).hostname}: ${e instanceof Error ? e.message : "error"}`
+      );
+    }
+  }
+  throw new Error(`Overpass no respondió: ${errors.join(" · ")}`);
+}
+
+/**
+ * Arma una query Overpass de venues candidatos (clubs, bares, salas de
+ * eventos) para un bounding box arbitrario ("south,west,north,east").
+ * Generaliza los presets de Santiago a cualquier ciudad.
+ */
+export function buildVenueQueryForBbox(bbox: string): string {
+  return `
+[out:json][timeout:25];
+(
+  nwr["amenity"="nightclub"](${bbox});
+  nwr["amenity"="bar"](${bbox});
+  nwr["amenity"="pub"](${bbox});
+  nwr["amenity"="events_venue"](${bbox});
+  nwr["amenity"="community_centre"](${bbox});
+);
+out center tags;
+`.trim();
+}
+
+/**
  * Normaliza un elemento Overpass al shape de lead.
  */
 export function normalizeOverpassElement(
