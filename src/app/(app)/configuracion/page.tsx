@@ -4,7 +4,6 @@ import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ExportButton } from "./export-button";
-import { OllamaSetup } from "./ollama-setup";
 import { GmailSetup } from "./gmail-setup";
 import { PlatformAccountsSection } from "./platform-accounts-section";
 import { PushSetup } from "./push-setup";
@@ -131,15 +130,6 @@ export default async function ConfiguracionPage() {
           semanal de snapshot.
         </p>
         <PushSetup />
-      </div>
-
-      <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">IA local (Ollama)</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Corre IA gratis en tu Mac sin pagar APIs. Estado en vivo, instrucciones
-          de setup y check de modelo descargado.
-        </p>
-        <OllamaSetup />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
