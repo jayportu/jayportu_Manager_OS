@@ -78,7 +78,7 @@ const NAV_GROUPS: NavGroup[] = [
         ],
       },
       { href: "/redes", label: "Redes & Cuentas", icon: Share2 },
-      { href: "/link-in-bio", label: "Link-in-bio", icon: Link2, comingSoon: true },
+      { href: "/link-in-bio", label: "Link-in-bio", icon: Link2 },
     ],
   },
   {
