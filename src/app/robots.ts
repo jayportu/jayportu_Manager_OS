@@ -65,7 +65,6 @@ export default function robots(): MetadataRoute.Robots {
           "/welcome",
           "/login",
           "/gmail",
-          "/ia",
           "/mas",
           "/plantillas",
           "/logout",

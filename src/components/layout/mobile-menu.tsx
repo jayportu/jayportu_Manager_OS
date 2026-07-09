@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ComingSoonBadge } from "@/components/coming-soon";
 import {
   X,
   LayoutDashboard,
@@ -17,6 +18,13 @@ import {
   Mail,
   TrendingUp,
   Settings,
+  User,
+  SlidersHorizontal,
+  Link2,
+  Share2,
+  Ticket,
+  ListChecks,
+  LifeBuoy,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,23 +47,91 @@ export const MOBILE_MENU_OPEN_EVENT = "drop:mobile-menu-open";
  * se cierra con X, click en backdrop, ESC, o al cambiar de ruta.
  */
 
+interface NavChild {
+  href: string;
+  label: string;
+}
+
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
+  comingSoon?: boolean;
+  children?: NavChild[];
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/crm", label: "CRM", icon: Users },
-  { href: "/descubrir", label: "Descubrir", icon: Compass },
-  { href: "/campanas", label: "Campañas", icon: Megaphone },
-  { href: "/calendario", label: "Calendario", icon: CalendarDays },
-  { href: "/press-kit", label: "Press kit", icon: FileImage },
-  { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
-  { href: "/gmail", label: "Correo", icon: Mail },
-  { href: "/growth", label: "Growth", icon: TrendingUp },
-  { href: "/configuracion", label: "Configuración", icon: Settings },
+interface NavGroup {
+  section?: string;
+  items: NavItem[];
+}
+
+// Mismo agrupamiento que el sidebar desktop (sin "Lugares": el drawer mobile
+// no recibe showLugares, así que se omite igual que antes).
+const NAV_GROUPS: NavGroup[] = [
+  { items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    section: "PERFIL",
+    items: [
+      { href: "/perfil", label: "Perfil", icon: User },
+      {
+        href: "/press-kit",
+        label: "Press kit",
+        icon: FileImage,
+        children: [
+          { href: "/press-kit/stats", label: "Estadísticas" },
+          { href: "/press-kit", label: "Bookings" },
+        ],
+      },
+      { href: "/redes", label: "Redes & Cuentas", icon: Share2 },
+      { href: "/link-in-bio", label: "Link-in-bio", icon: Link2, comingSoon: true },
+    ],
+  },
+  {
+    section: "NEGOCIO",
+    items: [
+      {
+        href: "/crm",
+        label: "CRM",
+        icon: Users,
+        children: [{ href: "/crm/recurrentes", label: "Recurrentes" }],
+      },
+      { href: "/descubrir", label: "Descubrir", icon: Compass },
+      { href: "/campanas", label: "Campañas", icon: Megaphone },
+      { href: "/gmail", label: "Correo", icon: Mail },
+      { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
+      { href: "/convocatorias", label: "Convocatorias", icon: Ticket, comingSoon: true },
+    ],
+  },
+  {
+    section: "AGENDA",
+    items: [
+      { href: "/calendario", label: "Calendario", icon: CalendarDays },
+      {
+        href: "/growth",
+        label: "Growth",
+        icon: TrendingUp,
+        children: [
+          { href: "/growth/posts", label: "Posts" },
+          { href: "/growth/ads", label: "Ads" },
+        ],
+      },
+      { href: "/tareas", label: "Tareas", icon: ListChecks, comingSoon: true },
+    ],
+  },
+  {
+    section: "PRODUCCIÓN",
+    items: [
+      { href: "/configuracion#tech-rider", label: "Tech rider", icon: SlidersHorizontal },
+    ],
+  },
+  {
+    section: "AYUDA",
+    items: [{ href: "/soporte", label: "Soporte", icon: LifeBuoy, comingSoon: true }],
+  },
+  {
+    section: "SISTEMA",
+    items: [{ href: "/configuracion", label: "Configuración", icon: Settings }],
+  },
 ];
 
 interface MobileMenuProps {
@@ -73,6 +149,18 @@ export function MobileMenu({
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // Acordeón (mismo comportamiento que el sidebar desktop): los grupos con
+  // hijos arrancan expandidos; el caret colapsa/expande sin navegar. Persiste
+  // mientras el drawer esté montado.
+  const [openItems, setOpenItems] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(
+      NAV_GROUPS.flatMap((g) => g.items)
+        .filter((i) => i.children && i.children.length > 0)
+        .map((i) => [i.href, true])
+    )
+  );
+  const toggleItem = (href: string) =>
+    setOpenItems((prev) => ({ ...prev, [href]: !prev[href] }));
 
   const displayName =
     artistName && artistName.trim().length > 0
@@ -161,34 +249,110 @@ export function MobileMenu({
           </button>
         </div>
 
-        {/* Nav items (mismos que sidebar desktop) */}
+        {/* Nav agrupada (mismo agrupamiento que sidebar desktop) */}
         <nav className="flex-1 overflow-y-auto py-2">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const isActive =
-              pathname === href ||
-              (href !== "/dashboard" && pathname.startsWith(href));
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "flex items-center gap-3 px-[22px] py-[11px] font-mono text-[12px] font-bold uppercase tracking-[0.08em] border-l-[3px] border-transparent transition-colors",
-                  isActive
-                    ? "bg-orange text-ink border-l-border"
-                    : "text-[#aaa] hover:bg-[#1a1a1a] hover:text-white"
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "w-4 h-4 shrink-0",
-                    isActive ? "text-fg" : "text-orange"
-                  )}
-                  strokeWidth={2.25}
-                />
-                <span className="truncate">{label}</span>
-              </Link>
-            );
-          })}
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={group.section ?? `m-top-${gi}`}>
+              {group.section && (
+                <div className="px-[22px] pt-[13px] pb-[4px] font-mono text-[9px] font-bold tracking-[0.14em] text-[#555]">
+                  {group.section}
+                </div>
+              )}
+              {group.items.map(({ href, label, icon: Icon, comingSoon, children }) => {
+                const isHash = href.includes("#");
+                const isActive =
+                  !isHash &&
+                  (pathname === href ||
+                    (href !== "/dashboard" && pathname.startsWith(href)));
+                const hasChildren = !!(children && children.length > 0);
+                const isOpen = hasChildren ? !!openItems[href] : false;
+                return (
+                  <div key={href}>
+                    {/* Fila: el label (Link) navega; el caret (button) togglea. */}
+                    <div
+                      className={cn(
+                        "grid grid-cols-[1fr_auto] items-center border-l-[3px] transition-colors",
+                        isActive
+                          ? "bg-orange text-ink border-l-border"
+                          : "text-[#aaa] border-transparent"
+                      )}
+                    >
+                      <Link
+                        href={href}
+                        className={cn(
+                          "flex items-center gap-3 px-[22px] py-[11px] min-w-0 font-mono text-[12px] font-bold uppercase tracking-[0.08em]",
+                          !isActive && "hover:bg-[#1a1a1a] hover:text-white"
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "w-4 h-4 shrink-0",
+                            isActive ? "text-fg" : "text-orange"
+                          )}
+                          strokeWidth={2.25}
+                        />
+                        <span className="truncate">{label}</span>
+                        {comingSoon && (
+                          <span className="shrink-0">
+                            <ComingSoonBadge text="PRÓXIMAMENTE" />
+                          </span>
+                        )}
+                      </Link>
+                      {hasChildren && (
+                        <button
+                          type="button"
+                          onClick={() => toggleItem(href)}
+                          aria-expanded={isOpen}
+                          aria-label={`${isOpen ? "Colapsar" : "Expandir"} ${label}`}
+                          className={cn(
+                            "self-stretch flex items-center px-[18px] transition-colors",
+                            isActive ? "text-ink" : "text-[#777] hover:text-white"
+                          )}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "text-[14px] leading-none transition-transform duration-150",
+                              isOpen && "rotate-90"
+                            )}
+                          >
+                            ›
+                          </span>
+                        </button>
+                      )}
+                    </div>
+
+                    {hasChildren && isOpen && (
+                      <div className="bg-[#0d0d0d]">
+                        {children!.map((child) => {
+                          const childActive =
+                            pathname === child.href ||
+                            pathname.startsWith(child.href + "/");
+                          return (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              className={cn(
+                                "flex items-center gap-2 pl-[46px] pr-[22px] py-[9px] font-mono text-[11px] font-bold uppercase tracking-[0.06em] border-l-[3px] border-transparent transition-colors",
+                                childActive
+                                  ? "text-orange"
+                                  : "text-[#8a8a8a] hover:text-white"
+                              )}
+                            >
+                              <span aria-hidden="true" className="text-[#3a3a3a]">
+                                └
+                              </span>
+                              <span className="truncate">{child.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
 
           {isAdmin && (
             <>

@@ -131,14 +131,17 @@ export function ComingSoon({
 /**
  * <ComingSoonBadge /> — badge mini para usar en sidebar/nav items.
  * Pegarlo al lado del label cuando el item está marcado como comingSoon.
+ *
+ * `text` permite variar la etiqueta visible (default "pronto"). El lado DJ
+ * usa "PRÓXIMAMENTE"; el booker mantiene "pronto" (no pasa prop).
  */
-export function ComingSoonBadge() {
+export function ComingSoonBadge({ text = "pronto" }: { text?: string }) {
   return (
     <span
-      className="font-mono text-[8px] font-bold tracking-[0.12em] uppercase px-[5px] py-[1px] bg-orange/15 text-orange border border-orange/40"
+      className="font-mono text-[8px] font-bold tracking-[0.12em] uppercase px-[5px] py-[1px] bg-orange/15 text-orange border border-orange/40 whitespace-nowrap"
       aria-label="Próximamente"
     >
-      pronto
+      {text}
     </span>
   );
 }

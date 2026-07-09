@@ -2,9 +2,7 @@ import { getContact } from "@/lib/queries/contacts";
 import { listInteractionsByContact } from "@/lib/queries/interactions";
 import { listFollowUpsByContact } from "@/lib/queries/follow-ups";
 import { getMyProfile } from "@/lib/queries/dj-profile";
-import { buildContactContext } from "@/lib/ai/prompts";
 import { buildVars } from "@/lib/templates/variables";
-import { AIPanel } from "./ai-panel";
 import { TemplatePicker } from "./template-picker";
 import { NewEventButton } from "../../calendario/new-event-button";
 import { notFound } from "next/navigation";
@@ -45,13 +43,8 @@ export default async function ContactDetailPage({ params }: PageProps) {
     getMyProfile(),
   ]);
 
-  // Contexto para la IA
-  const contactContext = buildContactContext(contact, interactions, djProfile);
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
-  const presskitUrl = djProfile?.public_slug
-    ? `${baseUrl}/p/${djProfile.public_slug}`
-    : "";
 
   // Vars para plantillas (resuelve {contact_name}, {my_name}, {presskit_url}, etc.)
   const templateVars = buildVars(contact, djProfile, baseUrl);
@@ -264,19 +257,9 @@ export default async function ContactDetailPage({ params }: PageProps) {
         </div>
         <div className="text-[10px] text-fg-subtle mt-3">
           Calculado automáticamente. Mejora completando info, registrando
-          interacciones recientes y moviendo el estado del pipeline. La IA local
-          (Sprint 4) va a refinar esto.
+          interacciones recientes y moviendo el estado del pipeline.
         </div>
       </Card>
-
-      {/* IA Panel */}
-      <AIPanel
-        contactId={contact.id}
-        contactContext={contactContext}
-        presskitUrl={presskitUrl}
-        contactWhatsapp={contact.whatsapp}
-        contactEmail={contact.email}
-      />
 
       {/* Follow-ups */}
       <FollowUpsSection contactId={contact.id} followUps={followUps} />
