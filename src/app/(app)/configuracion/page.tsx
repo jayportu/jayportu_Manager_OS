@@ -1,15 +1,10 @@
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
-import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ExportButton } from "./export-button";
-import { OllamaSetup } from "./ollama-setup";
 import { GmailSetup } from "./gmail-setup";
-import { PlatformAccountsSection } from "./platform-accounts-section";
 import { PushSetup } from "./push-setup";
-import { PressKitSection } from "./press-kit-section";
-import { AvailabilitySection } from "./availability-section";
 import { TechRiderSection } from "./tech-rider-section";
 import { AutoPostSection } from "./auto-post-section";
 import { ChangePasswordSection } from "./change-password-section";
@@ -20,7 +15,6 @@ export default async function ConfiguracionPage() {
   const gmailConnection = await getMyGmailConnection();
   const gmailConfigured =
     !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
-  const platformAccounts = await listPlatformAccounts();
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
@@ -68,10 +62,6 @@ export default async function ConfiguracionPage() {
         </Link>
       )}
 
-      <div>
-        <AvailabilitySection profile={profile} />
-      </div>
-
       <div id="tech-rider" className="mt-12 pt-8 border-t border-border scroll-mt-24">
         <TechRiderSection
           initialIdeal={profile.tech_rider_ideal}
@@ -83,31 +73,6 @@ export default async function ConfiguracionPage() {
 
       <div id="auto-post" className="mt-12 pt-8 border-t border-border scroll-mt-24">
         <AutoPostSection profile={profile} />
-      </div>
-
-      <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Press kit</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Elige si tu página pública se arma automáticamente con tus datos
-          o si quieres mostrar un PDF propio que ya tengas diseñado.
-        </p>
-        <PressKitSection
-          mode={profile.press_kit_mode}
-          pdfUrl={profile.press_kit_pdf_url}
-          pdfFilename={profile.press_kit_pdf_filename}
-          pdfSizeBytes={profile.press_kit_pdf_size_bytes}
-          publicSlug={profile.public_slug}
-        />
-      </div>
-
-      <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Cuentas externas</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Conecta tus perfiles públicos para que los snapshots de Growth se
-          actualicen solos. SoundCloud usa scraping HTML público — 100% gratis y
-          sin OAuth.
-        </p>
-        <PlatformAccountsSection accounts={platformAccounts} />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
@@ -131,15 +96,6 @@ export default async function ConfiguracionPage() {
           semanal de snapshot.
         </p>
         <PushSetup />
-      </div>
-
-      <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">IA local (Ollama)</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Corre IA gratis en tu Mac sin pagar APIs. Estado en vivo, instrucciones
-          de setup y check de modelo descargado.
-        </p>
-        <OllamaSetup />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
