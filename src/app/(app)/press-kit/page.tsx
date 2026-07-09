@@ -16,7 +16,6 @@ import {
   Inbox,
   FileText,
   Wand2,
-  Settings,
 } from "lucide-react";
 import {
   PRESSKIT_EVENT_LABELS,
@@ -25,6 +24,7 @@ import {
 import { CopyLinkButton } from "./copy-link-button";
 import { SlugEditor } from "./slug-editor";
 import { ShareTools } from "./share-tools";
+import { PressKitSection } from "./press-kit-section";
 import { relativeTime } from "@/lib/format";
 
 export default async function PressKitAdminPage() {
@@ -128,15 +128,20 @@ export default async function PressKitAdminPage() {
                 Abrir PDF <ExternalLink className="w-3 h-3" />
               </a>
             )}
-            <Link
-              href="/configuracion"
-              className="text-xs text-fg-muted hover:text-accent inline-flex items-center gap-1 justify-end"
-            >
-              Cambiar modo <Settings className="w-3 h-3" />
-            </Link>
           </div>
         </div>
       </Card>
+
+      {/* Editor de modo del press kit (movido desde Configuración) */}
+      <div className="mb-6">
+        <PressKitSection
+          mode={profile.press_kit_mode}
+          pdfUrl={profile.press_kit_pdf_url}
+          pdfFilename={profile.press_kit_pdf_filename}
+          pdfSizeBytes={profile.press_kit_pdf_size_bytes}
+          publicSlug={profile.public_slug}
+        />
+      </div>
 
       {/* URL pública */}
       <Card className="p-6 mb-6">
