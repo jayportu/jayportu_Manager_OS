@@ -270,7 +270,9 @@ export async function getPitchTokenBalance(): Promise<PitchTokenBalance> {
  * Y verified_at no nulo. Se lee con service_role (RLS de booker_accounts
  * es select-own). Incluye flag de interés del DJ logueado.
  */
-export async function listDirectoryVenues(): Promise<DirectoryVenue[]> {
+export async function listDirectoryVenues(
+  filters?: { city?: string; type?: string }
+): Promise<DirectoryVenue[]> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -279,14 +281,18 @@ export async function listDirectoryVenues(): Promise<DirectoryVenue[]> {
 
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const admin = createAdminClient();
-  const { data: venues } = await admin
+  let vq = admin
     .from("booker_accounts")
     .select(
       "user_id, full_name, booker_type, city, country, bio, website_url, instagram_url, accepts_pitches"
     )
     .eq("in_directory", true)
-    .not("verified_at", "is", null)
-    .order("verified_at", { ascending: false });
+    .not("verified_at", "is", null);
+  // Filtros opcionales (Fase 3): ciudad (case-insensitive) + tipo. Sin filtros
+  // = comportamiento original (todos los verificados).
+  if (filters?.city) vq = vq.ilike("city", filters.city);
+  if (filters?.type) vq = vq.eq("booker_type", filters.type);
+  const { data: venues } = await vq.order("verified_at", { ascending: false });
 
   type VenueRow = Omit<DirectoryVenue, "interested">;
   const list = (venues ?? []) as VenueRow[];
