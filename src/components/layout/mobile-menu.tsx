@@ -115,7 +115,7 @@ const NAV_GROUPS: NavGroup[] = [
           { href: "/growth/ads", label: "Ads" },
         ],
       },
-      { href: "/tareas", label: "Tareas", icon: ListChecks, comingSoon: true },
+      { href: "/tareas", label: "Tareas", icon: ListChecks },
     ],
   },
   {
