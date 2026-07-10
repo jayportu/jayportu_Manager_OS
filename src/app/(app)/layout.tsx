@@ -4,7 +4,6 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { PresenceHeartbeat } from "@/components/dj/presence-heartbeat";
 import { Topbar } from "@/components/layout/topbar";
 import { MobileMenu } from "@/components/layout/mobile-menu";
-import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { NpsModal } from "@/components/feedback/nps-modal";
 import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
 import { SubscriptionRequiredModal } from "@/components/subscription/subscription-required-modal";
@@ -71,11 +70,6 @@ export default async function AppLayout({
   }
 
   if (!profile?.onboarding_completed_at) redirect("/welcome");
-
-  // El widget de feedback flotante solo aparece a beta users activos
-  // o al admin (para que pueda probar el widget también).
-  const showFeedbackWidget =
-    profile?.beta_status === "active" || profile?.is_admin === true;
 
   // Estado beta (banner/NPS) y suscripción son independientes entre sí → se
   // resuelven en paralelo (antes: dos awaits en serie). La suscripción solo se
@@ -168,8 +162,6 @@ export default async function AppLayout({
         artistName={profile?.artist_name ?? null}
         avatarUrl={profile?.avatar_url ?? null}
       />
-      {/* Sprint 23.5 — Widget feedback flotante (beta users + admin) */}
-      {showFeedbackWidget && <FeedbackWidget />}
       {/* Sprint 23.5 — Modal NPS día 7 / día 15 (solo beta active con hito pendiente) */}
       {betaState.pendingNps && <NpsModal milestone={betaState.pendingNps} />}
       {/* Sprint 23.5 — Tracker silent de page_view (cero impacto en LCP) */}

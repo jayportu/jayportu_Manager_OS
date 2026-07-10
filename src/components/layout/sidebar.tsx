@@ -124,7 +124,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     section: "AYUDA",
-    items: [{ href: "/soporte", label: "Soporte", icon: LifeBuoy, comingSoon: true }],
+    items: [{ href: "/soporte", label: "Soporte", icon: LifeBuoy }],
   },
   {
     section: "SISTEMA",
