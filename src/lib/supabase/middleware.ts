@@ -14,6 +14,7 @@ const PUBLIC_PATHS = [
   "/_next",
   "/favicon.ico",
   "/p/", // press kit públicos
+  "/l/", // Fase 4 — link-in-bio público (Linktree) para fans anónimos, sin login
   "/dj", // Sprint 20 — directorio público de DJs
   "/e/", // RA-7 — página pública de evento + RSVP de fans (sin cuenta)
   "/eventos", // feed público de eventos para fans
@@ -24,7 +25,10 @@ const PUBLIC_PATHS = [
   "/privacy", // Security #7 — política privacidad pública (footer landing/login, Google OAuth, Ley 19.628)
   "/sitemap.xml", // Sprint 20 — sitemap dinámico
   "/robots.txt", // Sprint 20 — robots
-  "/api/track", // tracking endpoint (press kit)
+  // OJO: "/api/track" NO va acá como prefijo — colisiona con "/api/tracklist/*"
+  // (startsWith lo marcaría público y saltearía getUser). Se matchea EXACTO en
+  // isPublic más abajo. Los routes /api/tracklist/* validan sesión adentro, así
+  // que hoy no es explotable, pero un route nuevo /api/track* heredaría el hueco.
   "/api/site-track", // tráfico del sitio (pageviews anónimos → /admin/trafico)
   "/api/event-rsvp", // RA-7 — submit del RSVP de fans (sin cuenta)
   "/api/booking", // formulario público
@@ -57,7 +61,18 @@ const INVITE_TTL = 60 * 60 * 24 * 7;
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  // UI Lab (/ui-experiments): exploración aislada con datos ficticios. Público
+  // SOLO cuando se sirve desde localhost/127.0.0.1 (desarrollo) para poder abrir
+  // los mockups en el navegador local. En el dominio de producción (dropgigs.com)
+  // o en previews *.vercel.app el host NO es localhost → sigue privado (redirige
+  // a /login), sin cambiar en nada el comportamiento productivo. Basado en host
+  // (no en NODE_ENV) para ser robusto en el Edge runtime del middleware.
+  const host = request.headers.get("host") ?? "";
+  const isLocalDev = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+  const isPublic =
+    pathname === "/api/track" || // pixel de press kit (match EXACTO, ver nota arriba)
+    PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
+    (isLocalDev && pathname.startsWith("/ui-experiments"));
 
   // /login y /signup* necesitan contexto de sesión: redirigen a un usuario ya
   // logueado fuera de esas pantallas y setean cookies de invite/founding abajo.

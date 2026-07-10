@@ -121,7 +121,11 @@ export function TasksView({
   }
 
   function addTask() {
-    if (!title.trim()) return;
+    // Sin la guarda de `pending`, un segundo Enter en el input (que NO está en
+    // un <form>, así que no hereda el disabled del botón) mientras el server
+    // action está en vuelo creaba una tarea duplicada — el título solo se
+    // limpia en el callback de éxito.
+    if (pending || !title.trim()) return;
     run(
       () =>
         createTaskAction({

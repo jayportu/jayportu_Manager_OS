@@ -10,6 +10,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { refreshAccessToken } from "@/lib/gmail/oauth";
+import { decryptToken, encryptToken } from "@/lib/gmail/token-crypto";
 import type { CalendarEventType } from "@/lib/calendar/types";
 
 interface GCalEventMin {
@@ -54,12 +55,19 @@ export async function syncEventsForUser(userId: string): Promise<{
     return { ok: false, pulled: 0, error: "No connection" };
   }
 
-  // 2. Refrescar token si está por expirar (60s margin)
-  let accessToken = conn.access_token as string;
+  // 2. Refrescar token si está por expirar (60s margin).
+  // Los tokens pueden estar cifrados en reposo (GMAIL_TOKEN_ENC_KEY seteada):
+  // se descifran al leer para el header Bearer / el refresh, y el token nuevo
+  // se re-cifra al guardar. Mismo patrón que src/lib/gmail/client.ts — sin esto
+  // el cron mandaba el string "enc:v1:…" a Google y el sync fallaba (401 /
+  // invalid_grant) para TODOS los usuarios en producción.
+  let accessToken = decryptToken(conn.access_token as string);
   const expiresAt = new Date(conn.expires_at as string).getTime();
   if (expiresAt - Date.now() < 60_000) {
     try {
-      const fresh = await refreshAccessToken(conn.refresh_token as string);
+      const fresh = await refreshAccessToken(
+        decryptToken(conn.refresh_token as string)
+      );
       accessToken = fresh.access_token;
       const newExpiresAt = new Date(
         Date.now() + fresh.expires_in * 1000
@@ -67,7 +75,7 @@ export async function syncEventsForUser(userId: string): Promise<{
       await admin
         .from("gmail_connections")
         .update({
-          access_token: fresh.access_token,
+          access_token: encryptToken(fresh.access_token),
           expires_at: newExpiresAt,
           token_type: fresh.token_type,
         })
