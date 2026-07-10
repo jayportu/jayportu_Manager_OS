@@ -1,16 +1,23 @@
 name: Expire beta users daily
 
-# Corre 1 vez al día a las 12:00 UTC (08:00 Santiago verano, 09:00 invierno).
 # Busca beta users cuyo beta_approved_at + 15 días ya pasó y los marca
 # como expired. Manda email de aviso vía Resend.
+#
+# ⏸️ PAUSADO (2026-07-10): mientras la beta sea GRATIS y la fase sea
+# TRACCIÓN (que los DJs usen la app), no queremos botarlos a los 15 días.
+# El cron diario había dejado 11 DJs bloqueados tras el BetaExpiredModal;
+# se reactivaron y se quitó el disparador `schedule`. Para reanudar la
+# expiración cuando se active la monetización, descomentar el bloque
+# `schedule` de abajo. Mientras tanto se puede correr a mano con
+# workflow_dispatch si hiciera falta.
 #
 # Setup necesario (mismos secrets que los otros workflows):
 # - GitHub secret CRON_SECRET
 # - GitHub secret APP_URL = https://jayportu-manager-os.vercel.app
 
 on:
-  schedule:
-    - cron: "10 12 * * *"
+  # schedule:
+  #   - cron: "10 12 * * *"
   workflow_dispatch: {}
 
 jobs:
