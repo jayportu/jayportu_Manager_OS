@@ -62,9 +62,13 @@ export function SupportForm({
         mensaje,
         imageDataUrl,
       };
-      const r = await enviarSoporte(values);
-      if (r.ok) setDone(true);
-      else setErr(r.error);
+      try {
+        const r = await enviarSoporte(values);
+        if (r.ok) setDone(true);
+        else setErr(r.error);
+      } catch {
+        setErr("Error de red. Intenta de nuevo.");
+      }
     });
   }
 
@@ -84,20 +88,22 @@ export function SupportForm({
     <div className="flex flex-col gap-3 max-w-xl">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
-          <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+          <label htmlFor="sop-nombre" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
             Nombre
           </label>
           <input
+            id="sop-nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
           />
         </div>
         <div className="flex-1">
-          <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+          <label htmlFor="sop-email" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
             Email
           </label>
           <input
+            id="sop-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
@@ -107,10 +113,11 @@ export function SupportForm({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <label htmlFor="sop-categoria" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
           Tipo de consulta
         </label>
         <select
+          id="sop-categoria"
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
           className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
@@ -124,10 +131,11 @@ export function SupportForm({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <label htmlFor="sop-mensaje" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
           Mensaje
         </label>
         <textarea
+          id="sop-mensaje"
           value={mensaje}
           onChange={(e) => setMensaje(e.target.value)}
           rows={6}
@@ -141,7 +149,7 @@ export function SupportForm({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <label htmlFor="sop-imagen" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
           Adjuntar imagen (opcional)
         </label>
         {imageDataUrl ? (
@@ -162,6 +170,7 @@ export function SupportForm({
           </div>
         ) : (
           <input
+            id="sop-imagen"
             type="file"
             accept="image/*"
             onChange={handleFile}
