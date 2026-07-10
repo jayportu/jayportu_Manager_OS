@@ -1,5 +1,6 @@
 import "server-only";
 import { getCachedUser } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getMyBookerAccount } from "@/lib/queries/booker";
 import { getMyProfile } from "@/lib/queries/dj-profile";
 
@@ -160,18 +161,17 @@ export async function setApplicationStatus(
   status: ApplicationStatus
 ): Promise<{ djUserId: string; gigTitle: string }> {
   const { supabase } = await requireUser();
-  // Traer la app + gig para devolver datos de notificación (RLS: booker dueño).
-  const { data: app, error: e1 } = await supabase
-    .from("gig_applications")
-    .select("id, dj_user_id, open_gig_id")
-    .eq("id", id)
-    .single();
-  if (e1 || !app) throw new Error("Postulación no encontrada.");
-  const { error: e2 } = await supabase
+  // El UPDATE es la fuente de verdad: si RLS bloquea la escritura (p.ej. el DJ
+  // postulante, que solo puede leer), PostgREST no devuelve error, solo 0 filas.
+  // Por eso exigimos la fila actualizada en vez de confiar en un SELECT previo.
+  const { data: app, error } = await supabase
     .from("gig_applications")
     .update({ status })
-    .eq("id", id);
-  if (e2) throw new Error(e2.message);
+    .eq("id", id)
+    .select("id, dj_user_id, open_gig_id")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!app) throw new Error("No se pudo actualizar la postulación.");
   const { data: gig } = await supabase
     .from("open_gigs")
     .select("title")
@@ -254,7 +254,12 @@ export async function listMyApplications(): Promise<
   const apps = (data ?? []) as GigApplication[];
   if (apps.length === 0) return [];
   const gigIds = Array.from(new Set(apps.map((a) => a.open_gig_id)));
-  const { data: gigs } = await supabase
+  // Admin: RLS en open_gigs solo permite leer gigs "open" o propios del booker,
+  // así que una vez que el booker cierra el gig, el DJ pierde acceso vía cliente
+  // user-scoped aunque su postulación (ya filtrada por dj_user_id arriba) siga
+  // referenciándolo. El DJ es dueño de esas filas, así que es seguro resolverlas.
+  const admin = createAdminClient();
+  const { data: gigs } = await admin
     .from("open_gigs")
     .select(GIG_COLS)
     .in("id", gigIds);
