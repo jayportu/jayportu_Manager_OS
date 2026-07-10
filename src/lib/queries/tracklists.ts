@@ -59,7 +59,16 @@ export async function getOrCreateTracklistForEvent(
     })
     .select("*")
     .single();
-  if (error) throw new Error(error.message);
+  if (error) {
+    // Carrera check-then-insert: si dos aperturas concurrentes del mismo gig
+    // pasan el check y ambas insertan, el índice único por calendar_event_id
+    // (migración 0019) rechaza la 2ª con 23505. Re-leemos en vez de tirar 500.
+    if (error.code === "23505") {
+      const again = await getTracklistByEventId(calendarEventId);
+      if (again) return again;
+    }
+    throw new Error(error.message);
+  }
   return data as Tracklist;
 }
 

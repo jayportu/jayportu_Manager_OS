@@ -39,10 +39,14 @@ export async function addSuppression(
   if (!e.includes("@")) return;
   try {
     const admin = createAdminClient();
+    // `.eq` (no `.ilike`): el email ya viene normalizado (lowercase) y el índice
+    // único es sobre lower(email) (migración 0052). Con `.ilike`, un email con
+    // "_"/"%" (p.ej. maria_jose@gmail.com) los trataba como comodines → podía
+    // matchear otra baja y saltarse el insert de la baja real (seguía enviando).
     const { data: existing } = await admin
       .from("email_suppressions")
       .select("id")
-      .ilike("email", e)
+      .eq("email", e)
       .maybeSingle();
     if (existing) return;
     await admin
@@ -83,7 +87,10 @@ export async function getSuppressionCounts(): Promise<SuppressionCounts> {
 /** Quita un correo de la lista de bajas (re-suscribir). Solo admin. */
 export async function removeSuppression(email: string): Promise<void> {
   const admin = createAdminClient();
-  await admin.from("email_suppressions").delete().ilike("email", clean(email));
+  // `.eq` (no `.ilike`): con `.ilike` un email con "_"/"%" borraba TODAS las
+  // filas que matcheaban el patrón → re-suscribía en silencio a otros usuarios
+  // que sí habían pedido la baja. El email ya viene normalizado (lowercase).
+  await admin.from("email_suppressions").delete().eq("email", clean(email));
 }
 
 /**

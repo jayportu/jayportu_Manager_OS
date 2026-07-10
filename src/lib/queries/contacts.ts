@@ -359,7 +359,11 @@ export async function bulkInsertContacts(
       // auto-score. Antes SIEMPRE se auto-scoreaba → el score del CSV que el
       // preview mostraba se perdía en silencio.
       if (typeof r.score === "number") {
-        return { ...r, score: r.score, score_reason: "Importado del CSV", user_id: user.id };
+        // Clamp server-side a 0–100 (CHECK de migración 0002). El form ya
+        // clampea al parsear, pero sin esto un score fuera de rango que llegue
+        // al helper viola el CHECK y aborta el batch entero (un solo mal valor).
+        const score = Math.min(100, Math.max(0, Math.round(r.score)));
+        return { ...r, score, score_reason: "Importado del CSV", user_id: user.id };
       }
       const { score, score_reason } = await applyAutoScore(null, r, 0, null);
       return { ...r, score, score_reason, user_id: user.id };

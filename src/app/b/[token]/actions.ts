@@ -95,8 +95,10 @@ export async function submitCounterofferAction(
     return { ok: false, error: "No se pudo guardar la contraoferta." };
   }
 
-  // Track event para KPIs del DJ
-  await admin.from("presskit_events").insert({
+  // Track event para KPIs del DJ (best-effort: no debe romper la contraoferta).
+  // Logueamos el error si aparece — antes se tragaba en silencio y por eso la
+  // regresión del CHECK (migración 0070) pasó desapercibida.
+  const { error: trackErr } = await admin.from("presskit_events").insert({
     user_id: booking.user_id, // user_id del DJ
     event: "counter_submitted",
     metadata: {
@@ -105,6 +107,9 @@ export async function submitCounterofferAction(
       counter_event_date: eventDate ?? null,
     },
   });
+  if (trackErr) {
+    console.error("submitCounterofferAction tracking insert error:", trackErr);
+  }
 
   // C5 — Push notification al DJ
   try {

@@ -121,6 +121,17 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
     .single();
 
   if (error) {
+    // Carrera en la primera visita: dos requests concurrentes pasan el check de
+    // existencia y ambos insertan; el 2º choca con la PK user_id (23505). En vez
+    // de mandar al usuario a /?error=booker_init, re-leemos la fila ya creada.
+    if (error.code === "23505") {
+      const { data: again } = await supabase
+        .from("booker_accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (again) return again as BookerAccount;
+    }
     console.error("ensureBookerAccount insert error", error);
     return null;
   }

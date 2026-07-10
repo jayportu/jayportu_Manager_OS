@@ -49,16 +49,20 @@ async function sendBookingConfirmedEmails(bookingId: string): Promise<void> {
     if (!booking) return;
 
     const admin = createAdminClient();
+    // La columna es `public_slug` (migración 0003), NO `slug`. Pedir `slug`
+    // hacía que PostgREST rechazara TODO el select (42703) → djRaw quedaba null
+    // y el correo de confirmación de booking salía con remitente "DJ" y sin link
+    // al press kit. También la URL usaba /dj/ pero la ruta pública real es /p/.
     const { data: djRaw } = await admin
       .from("dj_profile")
-      .select("artist_name, public_email, slug")
+      .select("artist_name, public_email, public_slug")
       .eq("user_id", user.id)
       .maybeSingle();
 
     const djProfile = djRaw as {
       artist_name?: string;
       public_email?: string;
-      slug?: string;
+      public_slug?: string;
     } | null;
     const b = booking as {
       name?: string;
@@ -72,8 +76,8 @@ async function sendBookingConfirmedEmails(bookingId: string): Promise<void> {
     const djArtistName = djProfile?.artist_name ?? "DJ";
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dropgigs.com";
     const dashboardUrl = `${siteUrl}/press-kit/bookings/${bookingId}`;
-    const pressKitUrl = djProfile?.slug
-      ? `${siteUrl}/dj/${djProfile.slug}`
+    const pressKitUrl = djProfile?.public_slug
+      ? `${siteUrl}/p/${djProfile.public_slug}`
       : siteUrl;
 
     let eventDateLabel = "";
