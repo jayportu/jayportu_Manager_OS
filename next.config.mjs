@@ -1,5 +1,6 @@
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -136,4 +137,29 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// ─── Sentry: source maps en build → trazas de PROD legibles ───────────────
+// Sin source maps, un error en prod sale minificado (`sN`/`iz`, `<script>:1:…`)
+// y es imposible de diagnosticar. withSentryConfig los sube en `next build`.
+//
+// DORMIDO sin SENTRY_AUTH_TOKEN: se exporta la config tal cual → build idéntico
+// y cero overhead (mismo criterio que el resto de la integración Sentry). Se
+// activa poniendo SENTRY_AUTH_TOKEN + SENTRY_ORG en Vercel (ver .env.example).
+const sentryUploadEnabled = Boolean(process.env.SENTRY_AUTH_TOKEN);
+
+export default sentryUploadEnabled
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT || "dropgigs",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      // Silencioso salvo en CI (donde el log de subida sí es útil).
+      silent: !process.env.CI,
+      // Sube también los chunks del cliente que Next sirve fuera de las páginas
+      // → mejor cobertura de stack traces.
+      widenClientFileUpload: true,
+      // Tree-shake el logger interno de Sentry del bundle cliente.
+      disableLogger: true,
+      // No dejar los .map servidos públicamente (no exponer el código fuente);
+      // se suben a Sentry y se borran del output tras la subida.
+      sourcemaps: { deleteSourcemapsAfterUpload: true },
+    })
+  : nextConfig;
