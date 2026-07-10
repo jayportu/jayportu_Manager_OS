@@ -61,13 +61,12 @@ export async function markViewedAction(id: string): Promise<Result> {
 
 export async function decideApplicationAction(
   applicationId: string,
-  djUserId: string,
   accept: boolean
 ): Promise<Result> {
   const blocked = await guard();
   if (blocked) return { ok: false, error: blocked };
   try {
-    const { gigTitle } = await setApplicationStatus(
+    const { djUserId, gigTitle } = await setApplicationStatus(
       applicationId,
       accept ? "accepted" : "rejected"
     );
@@ -75,12 +74,13 @@ export async function decideApplicationAction(
     if (accept) {
       const { supabase, user } = await getCachedUser();
       if (user) {
-        await supabase
+        const { error } = await supabase
           .from("booker_favorites")
           .upsert(
             { user_id: user.id, dj_user_id: djUserId },
             { onConflict: "user_id,dj_user_id" }
           );
+        if (error) console.error(error);
       }
     }
     await notifyDjApplicationResult(djUserId, gigTitle, accept);
