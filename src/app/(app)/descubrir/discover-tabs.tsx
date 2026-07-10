@@ -53,6 +53,10 @@ export function DiscoverTabs({ presets }: Props) {
   const [manualType, setManualType] = useState<ContactType>("productora");
 
   async function handleRunPreset(presetId: string) {
+    // Guarda de concurrencia: el fetch a Overpass (abajo) tarda segundos y
+    // `isPending` (que deshabilita el botón) recién se activa DESPUÉS del fetch,
+    // así que sin esto un segundo click lanzaba consultas Overpass concurrentes.
+    if (running) return;
     setResult(null);
     setRunning(presetId);
 

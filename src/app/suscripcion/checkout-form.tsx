@@ -46,7 +46,15 @@ export function CheckoutForm({ userEmail }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (status === "tokenizing" || status === "subscribing") return;
+    // Incluye "success": tras suscribir hay ~600ms hasta el router.push en los
+    // que `busy` es false y el botón queda habilitado; sin este guard un click
+    // en esa ventana re-tokenizaba y creaba una segunda preapproval en MP.
+    if (
+      status === "tokenizing" ||
+      status === "subscribing" ||
+      status === "success"
+    )
+      return;
 
     const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
     if (!publicKey) {
