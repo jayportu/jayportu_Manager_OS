@@ -99,7 +99,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/campanas", label: "Campañas", icon: Megaphone },
       { href: "/gmail", label: "Correo", icon: Mail },
       { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
-      { href: "/convocatorias", label: "Convocatorias", icon: Ticket, comingSoon: true },
+      { href: "/convocatorias", label: "Convocatorias", icon: Ticket },
     ],
   },
   {

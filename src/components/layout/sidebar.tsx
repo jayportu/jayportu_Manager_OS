@@ -96,7 +96,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
       // "Lugares" se filtra si no hay venues verificados (ver showLugares).
       { href: "/lugares", label: "Lugares", icon: Building2 },
-      { href: "/convocatorias", label: "Convocatorias", icon: Ticket, comingSoon: true },
+      { href: "/convocatorias", label: "Convocatorias", icon: Ticket },
     ],
   },
   {
