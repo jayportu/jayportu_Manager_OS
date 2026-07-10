@@ -11,7 +11,7 @@ export default async function ConvocatoriasPage() {
   const profile = await getMyProfile();
   if (!profile) redirect("/login");
   const [gigs, myApps] = await Promise.all([
-    listOpenGigs({ city: profile.city ?? "" }),
+    listOpenGigs({}),
     listMyApplications(),
   ]);
   const appliedGigIds = myApps.map((a) => a.open_gig_id);
