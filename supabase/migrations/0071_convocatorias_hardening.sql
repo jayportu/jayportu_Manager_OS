@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════════
--- Migration 0070 — Convocatorias hardening (fast-follows de Fase 8)
+-- Migration 0071 — Convocatorias hardening (fast-follows de Fase 8)
 -- ────────────────────────────────────────────────────────────────────
 -- (1) Congela columnas inmutables de gig_applications: la RLS solo puede
 --     restringir POR FILA, no por columna, así que un booker dueño del gig
@@ -38,5 +38,5 @@ create trigger trg_open_gigs_updated_at
   for each row execute function public.set_updated_at();
 
 -- ════════════════════════════════════════════════════════════════════
--- ✓ Migration 0070 lista
+-- ✓ Migration 0071 lista
 -- ════════════════════════════════════════════════════════════════════
