@@ -168,10 +168,11 @@ export async function setApplicationStatus(
     .from("gig_applications")
     .update({ status })
     .eq("id", id)
+    .eq("status", "pending") // solo se decide una postulación pendiente (evita flip-flop / re-notificar)
     .select("id, dj_user_id, open_gig_id")
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!app) throw new Error("No se pudo actualizar la postulación.");
+  if (!app) throw new Error("La postulación ya fue decidida o no está disponible.");
   const { data: gig } = await supabase
     .from("open_gigs")
     .select("title")
@@ -218,16 +219,17 @@ export async function getOpenGig(id: string): Promise<OpenGig | null> {
 export async function applyToGig(
   gigId: string,
   input: { message: string; availability: string }
-): Promise<{ bookerUserId: string; gigTitle: string }> {
+): Promise<{ bookerUserId: string; gigTitle: string; djName: string }> {
   const { supabase, user } = await requireUser();
   const gig = await getOpenGig(gigId);
   if (!gig) throw new Error("Convocatoria no encontrada.");
   if (gig.status !== "open") throw new Error("Esta convocatoria ya no recibe postulaciones.");
   const profile = await getMyProfile();
+  const djName = profile?.artist_name || "DJ";
   const { error } = await supabase.from("gig_applications").insert({
     open_gig_id: gigId,
     dj_user_id: user.id,
-    dj_display_name: profile?.artist_name || "DJ",
+    dj_display_name: djName,
     dj_slug: profile?.public_slug || "",
     message: input.message.trim().slice(0, 2000),
     availability: input.availability.trim().slice(0, 500),
@@ -237,7 +239,7 @@ export async function applyToGig(
     if (error.code === "23505") throw new Error("Ya postulaste a esta convocatoria.");
     throw new Error(error.message);
   }
-  return { bookerUserId: gig.booker_user_id, gigTitle: gig.title };
+  return { bookerUserId: gig.booker_user_id, gigTitle: gig.title, djName };
 }
 
 export async function listMyApplications(): Promise<

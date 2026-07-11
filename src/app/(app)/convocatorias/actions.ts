@@ -25,9 +25,9 @@ export async function applyToGigAction(
   if (blocked) return { ok: false, error: blocked };
   if (!input.message.trim()) return { ok: false, error: "Escribe un mensaje de postulación." };
   try {
-    const { bookerUserId, gigTitle } = await applyToGig(gigId, input);
+    const { bookerUserId, gigTitle, djName } = await applyToGig(gigId, input);
     // Notificar al booker (best-effort, no bloquea).
-    await notifyBookerNewApplication(bookerUserId, gigTitle, "Un DJ");
+    await notifyBookerNewApplication(bookerUserId, gigTitle, djName);
     revalidatePath("/convocatorias");
     return { ok: true };
   } catch (e) {
