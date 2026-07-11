@@ -53,36 +53,36 @@ export function PublishGigForm({
     <div className="border-2 border-border p-4 space-y-3">
       <h2 className="font-semibold">Publicar convocatoria</h2>
       <div>
-        <label className={labelCls}>Título</label>
-        <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Buscamos DJ house para sábado 12" />
+        <label htmlFor="gf-title" className={labelCls}>Título</label>
+        <input id="gf-title" className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Buscamos DJ house para sábado 12" />
       </div>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
-          <label className={labelCls}>Fecha del evento</label>
-          <input type="date" className={inputCls} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+          <label htmlFor="gf-date" className={labelCls}>Fecha del evento</label>
+          <input id="gf-date" type="date" className={inputCls} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
         </div>
         <div className="flex-1">
-          <label className={labelCls}>Ciudad</label>
-          <input className={inputCls} value={city} onChange={(e) => setCity(e.target.value)} />
+          <label htmlFor="gf-city" className={labelCls}>Ciudad</label>
+          <input id="gf-city" className={inputCls} value={city} onChange={(e) => setCity(e.target.value)} />
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
-          <label className={labelCls}>Género/estilo (opcional)</label>
-          <input className={inputCls} value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="house, techno…" />
+          <label htmlFor="gf-genre" className={labelCls}>Género/estilo (opcional)</label>
+          <input id="gf-genre" className={inputCls} value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="house, techno…" />
         </div>
         <div className="flex-1">
-          <label className={labelCls}>Presupuesto CLP (opcional)</label>
-          <input type="number" className={inputCls} value={budget} onChange={(e) => setBudget(e.target.value)} />
+          <label htmlFor="gf-budget" className={labelCls}>Presupuesto CLP (opcional)</label>
+          <input id="gf-budget" type="number" className={inputCls} value={budget} onChange={(e) => setBudget(e.target.value)} />
         </div>
         <div className="flex-1">
-          <label className={labelCls}>Deadline postular (opcional)</label>
-          <input type="date" className={inputCls} value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          <label htmlFor="gf-deadline" className={labelCls}>Deadline postular (opcional)</label>
+          <input id="gf-deadline" type="date" className={inputCls} value={deadline} onChange={(e) => setDeadline(e.target.value)} />
         </div>
       </div>
       <div>
-        <label className={labelCls}>Descripción</label>
-        <textarea rows={4} className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Detalles del evento, requisitos, horario…" />
+        <label htmlFor="gf-desc" className={labelCls}>Descripción</label>
+        <textarea id="gf-desc" rows={4} className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Detalles del evento, requisitos, horario…" />
       </div>
       {err && <div className="text-xs text-danger">{err}</div>}
       <button
