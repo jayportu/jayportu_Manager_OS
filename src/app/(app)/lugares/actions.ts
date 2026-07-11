@@ -99,10 +99,18 @@ export async function sendPitchAction(
   const admin = createAdminClient();
   const { data: venue } = await admin
     .from("booker_accounts")
-    .select("accepts_pitches, verified_at, in_directory")
+    .select("accepts_pitches, verified_at, in_directory, account_status")
     .eq("user_id", bookerUserId)
     .maybeSingle();
-  if (!venue || !venue.accepts_pitches || !venue.verified_at || !venue.in_directory) {
+  // F0/S6: un lugar suspendido/baneado no recibe pitches (además de los gates
+  // de negocio accepts_pitches/verified/in_directory).
+  if (
+    !venue ||
+    venue.account_status !== "active" ||
+    !venue.accepts_pitches ||
+    !venue.verified_at ||
+    !venue.in_directory
+  ) {
     return { ok: false, error: "Este lugar no está recibiendo pitches." };
   }
 

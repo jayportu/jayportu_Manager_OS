@@ -3,6 +3,17 @@ import { getCachedUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getMyBookerAccount } from "@/lib/queries/booker";
 import { getMyProfile } from "@/lib/queries/dj-profile";
+import { AccountSuspendedError } from "@/lib/queries/beta-guard";
+import {
+  bookerMaxOpenGigs,
+  bookerGigCreatePerDay,
+  djApplyPerDay,
+} from "@/lib/limits";
+
+/** Ventana rolling de 24h como ISO, para caps "por día" confiables en DB. */
+function last24hISO(): string {
+  return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+}
 
 export type GigStatus = "open" | "closed";
 export type ApplicationStatus = "pending" | "accepted" | "rejected";
@@ -102,7 +113,38 @@ export async function createGig(input: CreateGigInput): Promise<string> {
   const { supabase, user } = await requireUser();
   const booker = await getMyBookerAccount();
   if (!booker) throw new Error("Solo cuentas de booker pueden publicar.");
+  // F0 — defensa en profundidad: un booker suspendido/baneado no publica aunque
+  // el guard de la action fallara (la RLS de 0072 lo blindará también en DB).
+  if (booker.account_status !== "active") {
+    throw new AccountSuspendedError(booker.account_status === "banned");
+  }
   if (!booker.verified_at) throw new Error("Tu cuenta debe estar verificada para publicar convocatorias.");
+
+  // Cap de convocatorias abiertas simultáneas (anti-spam de marketplace).
+  const maxOpen = bookerMaxOpenGigs();
+  const { count: openCount } = await supabase
+    .from("open_gigs")
+    .select("id", { count: "exact", head: true })
+    .eq("booker_user_id", user.id)
+    .eq("status", "open");
+  if ((openCount ?? 0) >= maxOpen) {
+    throw new Error(
+      `Alcanzaste el máximo de ${maxOpen} convocatorias abiertas. Cierra alguna para publicar otra.`
+    );
+  }
+
+  // Rate limit de creación por día (rolling 24h; conteo confiable en DB).
+  const { count: dayCount } = await supabase
+    .from("open_gigs")
+    .select("id", { count: "exact", head: true })
+    .eq("booker_user_id", user.id)
+    .gte("created_at", last24hISO());
+  if ((dayCount ?? 0) >= bookerGigCreatePerDay()) {
+    throw new Error(
+      "Alcanzaste el máximo de convocatorias por día. Intenta de nuevo mañana."
+    );
+  }
+
   const { data, error } = await supabase
     .from("open_gigs")
     .insert({
@@ -224,6 +266,19 @@ export async function applyToGig(
   const gig = await getOpenGig(gigId);
   if (!gig) throw new Error("Convocatoria no encontrada.");
   if (gig.status !== "open") throw new Error("Esta convocatoria ya no recibe postulaciones.");
+
+  // Rate limit de postulaciones por día (rolling 24h) — además del unique 1/gig.
+  const { count: appsToday } = await supabase
+    .from("gig_applications")
+    .select("id", { count: "exact", head: true })
+    .eq("dj_user_id", user.id)
+    .gte("created_at", last24hISO());
+  if ((appsToday ?? 0) >= djApplyPerDay()) {
+    throw new Error(
+      "Alcanzaste el máximo de postulaciones por día. Intenta de nuevo mañana."
+    );
+  }
+
   const profile = await getMyProfile();
   const djName = profile?.artist_name || "DJ";
   const { error } = await supabase.from("gig_applications").insert({

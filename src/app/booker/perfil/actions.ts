@@ -9,7 +9,7 @@
  * protect_booker_verification los blinda contra cualquier rol != service).
  */
 
-import { createClient } from "@/lib/supabase/server";
+import { guardBookerActive } from "@/lib/queries/booker-guard";
 import { revalidatePath } from "next/cache";
 import type { BookerType } from "@/types/database";
 import { BOOKER_TYPES } from "@/types/database";
@@ -35,11 +35,9 @@ const VALID_TYPES = BOOKER_TYPES.map((t) => t.value) as readonly string[];
 export async function updateBookerProfileAction(
   input: BookerProfileInput
 ): Promise<Result> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Sesión expirada. Vuelve a entrar." };
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false, error: g.error };
+  const { supabase, user } = g;
 
   const fullName = input.full_name.trim();
   if (!fullName) return { ok: false, error: "El nombre es obligatorio." };

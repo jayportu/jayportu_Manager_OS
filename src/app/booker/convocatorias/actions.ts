@@ -8,15 +8,21 @@ import {
   type CreateGigInput,
 } from "@/lib/queries/convocatorias";
 import { notifyDjApplicationResult } from "@/lib/queries/convocatorias-notify";
-import { assertBetaActive } from "@/lib/queries/beta-guard";
+import { assertBookerActive } from "@/lib/queries/booker-guard";
 import { getCachedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 type Result = { ok: true } | { ok: false; error: string };
 
-async function guard(): Promise<string | null> {
+/**
+ * F0 — antes usaba `assertBetaActive`, que lee `dj_profile` y por tanto era un
+ * NO-OP para bookers. Ahora exige cuenta de booker activa (y verificada donde
+ * corresponde). Devuelve el mensaje de error en vez de lanzar, para encajar con
+ * el tipo `Result`.
+ */
+async function guard(opts?: { requireVerified?: boolean }): Promise<string | null> {
   try {
-    await assertBetaActive();
+    await assertBookerActive(opts);
     return null;
   } catch (e) {
     return e instanceof Error ? e.message : "No autorizado.";
@@ -26,7 +32,7 @@ async function guard(): Promise<string | null> {
 export async function createGigAction(
   input: CreateGigInput
 ): Promise<Result & { id?: string }> {
-  const blocked = await guard();
+  const blocked = await guard({ requireVerified: true });
   if (blocked) return { ok: false, error: blocked };
   if (!input.title?.trim()) return { ok: false, error: "Ponle un título a la convocatoria." };
   try {
@@ -51,6 +57,8 @@ export async function closeGigAction(id: string): Promise<Result> {
 }
 
 export async function markViewedAction(id: string): Promise<Result> {
+  const blocked = await guard();
+  if (blocked) return { ok: false, error: blocked };
   try {
     await markApplicationViewed(id);
     return { ok: true };

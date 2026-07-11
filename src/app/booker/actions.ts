@@ -2,9 +2,13 @@
 
 /**
  * Server actions del Booker.
+ *
+ * F0 — todas pasan por `guardBookerActive()`: exige sesión + cuenta de booker
+ * existente + no suspendida/baneada, antes de escribir. Reemplaza al chequeo
+ * suelto de sesión (que dejaba operar por POST directo a un booker suspendido).
  */
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { guardBookerActive } from "@/lib/queries/booker-guard";
 
 /**
  * Toggle favorite: si existe → delete; si no → insert. RLS garantiza
@@ -18,11 +22,9 @@ export async function toggleFavoriteAction(
   if (!djUserId || typeof djUserId !== "string") {
     return { ok: false, error: "djUserId inválido" };
   }
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "No hay sesión" };
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false, error: g.error };
+  const { supabase, user } = g;
 
   // No permitir que un DJ se favoritee a sí mismo (edge case)
   if (user.id === djUserId) {
@@ -67,11 +69,9 @@ export async function markPitchViewedAction(
   pitchId: string
 ): Promise<{ ok: boolean }> {
   if (!pitchId) return { ok: false };
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false };
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false };
+  const { supabase, user } = g;
   await supabase
     .from("venue_pitches")
     .update({ viewed_at: new Date().toISOString() })
@@ -96,11 +96,9 @@ export async function toggleFollowNotifyAction(
   if (!djUserId || typeof djUserId !== "string") {
     return { ok: false, error: "djUserId inválido" };
   }
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "No hay sesión" };
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false, error: g.error };
+  const { supabase, user } = g;
 
   if (user.id === djUserId) {
     return { ok: false, error: "No puedes seguirte a ti mismo" };
