@@ -24,8 +24,12 @@ export default async function BookerConvocatoriasPage() {
         <PublishGigForm defaultCity={booker.city} defaultCountry={booker.country} />
       ) : (
         <div className="border-2 border-dashed border-border p-6 text-sm text-fg-muted">
-          Tu cuenta debe estar <b>verificada</b> para publicar convocatorias. Te
-          avisaremos cuando esté lista.
+          Tu cuenta está <b>en revisión</b>. Apenas quede verificada te avisamos
+          por email y vas a poder publicar convocatorias. Mientras tanto puedes{" "}
+          <a href="/booker/buscar" className="text-orange underline hover:no-underline">
+            buscar y contactar DJs
+          </a>
+          .
         </div>
       )}
 

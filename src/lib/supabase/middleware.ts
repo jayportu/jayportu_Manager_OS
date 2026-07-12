@@ -40,6 +40,8 @@ const PUBLIC_PATHS = [
   "/api/onboarding-nudge/cron", // nudge perfil incompleto (protegido con CRON_SECRET)
   "/api/pulso/cron", // digest semanal del pulso de beta (protegido con CRON_SECRET)
   "/api/admin/dj-verify", // verificación automática de DJs (protegido con DJ_VERIFY_SECRET en header)
+  "/api/admin/booker-verify", // n8n: verificación de bookers (protegido con BOOKER_N8N_SECRET en header)
+  "/api/admin/matching-candidates", // n8n: candidatos DJ para un gig (protegido con BOOKER_N8N_SECRET en header)
   "/api/unsubscribe", // List-Unsubscribe header target (Gmail bulk sender req)
   "/api/resend/webhook", // Webhook de Resend (verifica firma Svix adentro)
   "/api/mp/webhook", // Webhook de MercadoPago (verifica firma HMAC adentro) — sin esto MP redirige a /login y los pagos nunca se procesan
