@@ -16,6 +16,7 @@ const PUBLIC_PATHS = [
   "/p/", // press kit públicos
   "/l/", // Fase 4 — link-in-bio público (Linktree) para fans anónimos, sin login
   "/dj", // Sprint 20 — directorio público de DJs
+  "/bookers", // F2e — landing público de venta para bookers/organizadores
   "/e/", // RA-7 — página pública de evento + RSVP de fans (sin cuenta)
   "/eventos", // feed público de eventos para fans
   "/b/", // Bloque B — vista tokenizada del booker sin login
