@@ -120,7 +120,7 @@ export function BookerSignupForm() {
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/booker/requests`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/booker/buscar`,
         captchaToken: captchaToken || undefined,
         data: {
           account_type: "booker",
@@ -152,7 +152,7 @@ export function BookerSignupForm() {
     // Si Supabase está en modo email-confirm OFF (auto-confirm), data.session existe
     if (data.session) {
       router.refresh();
-      router.push("/booker/requests");
+      router.push("/booker/buscar");
       return;
     }
 

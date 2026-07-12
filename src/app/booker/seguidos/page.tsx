@@ -53,7 +53,7 @@ export default async function BookerSeguidosPage() {
             SEGUIDOS<span className="text-orange">.</span>
           </h1>
           <Link
-            href="/dj"
+            href="/booker/buscar"
             className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -286,7 +286,7 @@ function EmptyState() {
         enterarte cuando publique disponibilidad o agende shows.
       </p>
       <Link
-        href="/dj"
+        href="/booker/buscar"
         className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
       >
         <Plus className="w-4 h-4" />
