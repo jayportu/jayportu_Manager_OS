@@ -17,7 +17,7 @@ import type { BookingSubmission, AccountStatus } from "@/types/database";
  * ¿Hay al menos un lugar verificado en el directorio? Se usa para mostrar/ocultar
  * "Lugares" del sidebar (UX): mientras no haya venues el ítem no aparece (no lleva
  * a una página vacía) y vuelve solo al verificarse el primero. Cacheado por-request.
- * Mismos filtros que listDirectoryVenues (in_directory + verified_at).
+ * Mismos filtros que listDirectoryVenues (in_directory + verified_at + activo).
  */
 export const hasDirectoryVenues = cache(
   async function hasDirectoryVenues(): Promise<boolean> {
@@ -27,7 +27,8 @@ export const hasDirectoryVenues = cache(
       .from("booker_accounts")
       .select("user_id", { count: "exact", head: true })
       .eq("in_directory", true)
-      .not("verified_at", "is", null);
+      .not("verified_at", "is", null)
+      .eq("account_status", "active"); // F0/S6: no contar suspendidos/baneados
     return (count ?? 0) > 0;
   }
 );
@@ -298,7 +299,8 @@ export async function listDirectoryVenues(
       "user_id, full_name, booker_type, city, country, bio, website_url, instagram_url, accepts_pitches"
     )
     .eq("in_directory", true)
-    .not("verified_at", "is", null);
+    .not("verified_at", "is", null)
+    .eq("account_status", "active"); // F0/S6: ocultar venues suspendidos/baneados
   // Filtros opcionales (Fase 3): ciudad (case-insensitive) + tipo. Sin filtros
   // = comportamiento original (todos los verificados).
   if (filters?.city) vq = vq.ilike("city", filters.city);
