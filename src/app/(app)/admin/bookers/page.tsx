@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Building2 } from "lucide-react";
+import { Building2, BadgeCheck } from "lucide-react";
 import { assertAdmin } from "@/lib/queries/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BOOKER_TYPES } from "@/types/database";
@@ -24,6 +24,8 @@ interface BookerRow {
   in_directory: boolean;
   accepts_pitches: boolean;
   verified_at: string | null;
+  verification_requested_at: string | null;
+  verification_evidence: string | null;
   is_founding: boolean;
   account_status: AccountStatus;
   created_at: string;
@@ -36,12 +38,19 @@ export default async function AdminBookersPage() {
   const { data } = await admin
     .from("booker_accounts")
     .select(
-      "user_id, full_name, email, booker_type, city, country, in_directory, accepts_pitches, verified_at, is_founding, account_status, created_at"
+      "user_id, full_name, email, booker_type, city, country, in_directory, accepts_pitches, verified_at, verification_requested_at, verification_evidence, is_founding, account_status, created_at"
     )
     .order("created_at", { ascending: false });
   const bookers = (data as BookerRow[]) ?? [];
 
   const verifiedCount = bookers.filter((b) => b.verified_at).length;
+  // F2b — cola de verificación self-service: pidieron, aún no verificados, activos.
+  const pending = bookers.filter(
+    (b) =>
+      b.verification_requested_at &&
+      !b.verified_at &&
+      b.account_status === "active"
+  );
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
@@ -63,6 +72,45 @@ export default async function AdminBookersPage() {
           ← Backoffice
         </a>
       </div>
+
+      {pending.length > 0 && (
+        <Card className="mb-6 overflow-hidden border-warning/40">
+          <div className="bg-warning/10 border-b border-warning/30 px-4 py-2.5 flex items-center gap-2">
+            <BadgeCheck className="w-4 h-4 text-warning" />
+            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-warning">
+              Pendientes de verificación · {pending.length}
+            </span>
+          </div>
+          <ul className="divide-y divide-border">
+            {pending.map((b) => (
+              <li key={b.user_id} className="p-4 flex flex-col sm:flex-row sm:items-start gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm">
+                    {b.full_name || <span className="text-fg-subtle italic">sin nombre</span>}
+                    <span className="text-fg-muted font-normal"> · {b.email}</span>
+                  </div>
+                  <div className="text-[11px] text-fg-subtle mt-0.5">
+                    {TYPE_LABEL[b.booker_type] ?? b.booker_type}
+                    {b.city ? ` · ${b.city}` : ""} · pidió {shortDate(b.verification_requested_at ?? "")}
+                  </div>
+                  {b.verification_evidence && (
+                    <p className="text-[13px] text-fg-muted mt-2 whitespace-pre-wrap break-words border-l-2 border-border pl-3">
+                      {b.verification_evidence}
+                    </p>
+                  )}
+                </div>
+                <div className="shrink-0">
+                  <VerifyBookerButton
+                    bookerUserId={b.user_id}
+                    verified={false}
+                    name={b.full_name || b.email}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {bookers.length === 0 ? (
         <Card className="p-8 text-center text-sm text-fg-muted">

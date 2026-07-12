@@ -68,6 +68,55 @@ export function bookerBienvenidaEmailText(input: {
 
 
 // ---------------------------------------------------------------------------
+// 21b. Operaciones: booker verificado (F2b)
+// ---------------------------------------------------------------------------
+
+export function bookerVerificadoEmailHtml(input: {
+  bookerName: string;
+  gigsUrl: string;
+}): string {
+  const { bookerName, gigsUrl } = input;
+  const content = `
+              <p style="font-size:16px; margin:0 0 20px 0;">Hola ${escapeHtml(bookerName)},</p>
+              <p style="font-size:15px; margin:0 0 16px 0;">
+                Tu cuenta quedó <strong style="color:${ORANGE};">verificada</strong> en DROP<span style="color:${ORANGE};">.</span> 🎉
+              </p>
+              <p style="font-size:14px; color:${MUTED}; margin:0 0 24px 0;">
+                Ahora puedes publicar convocatorias para que los DJs que calzan con tu evento
+                te postulen — además del badge ✓ que ven los DJs cuando los contactas.
+              </p>
+              <p style="margin:0 0 24px 0;">${ctaButton("Publicar una convocatoria", gigsUrl)}</p>
+              <p style="font-size:15px; margin:0;">DROP<span style="color:${ORANGE};">.</span> Team</p>`;
+  return wrapEmail({
+    title: "Tu cuenta de booker está verificada",
+    preheader: "Ya puedes publicar convocatorias y recibir postulaciones de DJs.",
+    content,
+    footerReason: "Recibes este mensaje porque tienes una cuenta de booker en DROP. (dropgigs.com).",
+  });
+}
+
+export function bookerVerificadoEmailText(input: {
+  bookerName: string;
+  gigsUrl: string;
+}): string {
+  const { bookerName, gigsUrl } = input;
+  return [
+    `Hola ${bookerName},`,
+    "",
+    "Tu cuenta quedó verificada en DROP. 🎉",
+    "",
+    "Ahora puedes publicar convocatorias para que los DJs que calzan con tu evento te postulen,",
+    "además del badge ✓ que ven los DJs cuando los contactas.",
+    "",
+    `Publicar una convocatoria: ${gigsUrl}`,
+    "",
+    "--",
+    "Recibes este mensaje porque tienes una cuenta de booker en DROP. (dropgigs.com).",
+  ].join("\n");
+}
+
+
+// ---------------------------------------------------------------------------
 // 22. Booking: booker no responde cotización en 3 días
 // ---------------------------------------------------------------------------
 

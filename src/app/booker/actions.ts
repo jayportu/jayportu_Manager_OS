@@ -138,6 +138,54 @@ export async function toggleFollowNotifyAction(
 }
 
 /**
+ * F2b — Solicitud de verificación self-service. El booker deja una evidencia
+ * (link a IG/web/RUT/etc.) y queda en la cola "Pendientes" de /admin/bookers.
+ * Setea verification_requested_at/evidence en su PROPIA fila (RLS update_own);
+ * verified_at sigue blindado por el trigger → no puede auto-verificarse.
+ */
+export async function requestBookerVerification(
+  evidence: string
+): Promise<{ ok: boolean; error?: string }> {
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false, error: g.error };
+  const { supabase, user } = g;
+
+  // ¿Ya está verificado? No hace falta pedir.
+  const { data: acct } = await supabase
+    .from("booker_accounts")
+    .select("verified_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if ((acct as { verified_at: string | null } | null)?.verified_at) {
+    return { ok: true };
+  }
+
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("booker_accounts")
+    .update({
+      verification_requested_at: now,
+      verification_evidence: evidence.trim().slice(0, 1000),
+      updated_at: now,
+    })
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+
+  try {
+    await supabase.from("usage_events").insert({
+      user_id: user.id,
+      event: "booker_verification_requested",
+      page: "/booker/perfil",
+    });
+  } catch {
+    /* tracking best-effort */
+  }
+
+  revalidatePath("/booker/perfil");
+  return { ok: true };
+}
+
+/**
  * F0/C-04 — Aceptación DIFERIDA de Términos+Privacidad.
  *
  * Para cuentas de booker creadas antes de que el signup registrara el
