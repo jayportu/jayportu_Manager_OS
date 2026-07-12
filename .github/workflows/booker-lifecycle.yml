@@ -1,0 +1,47 @@
+name: Booker lifecycle (daily)
+
+# F4 — Correos de lifecycle del booker: noResponde (DJ), favorito (DJ),
+# sinBooking (booker 7d), inactivo30d (booker win-back). Un solo endpoint corre
+# los 4 jobs; cada uno está gateado por su flag BOOKER_*_ENABLED en Vercel.
+#
+# DORMIDO por defecto: mientras los flags no estén en "true", el endpoint corre
+# en dry-run (no manda nada, solo loguea a quién mandaría). Corre 1 vez al día a
+# las 14:30 UTC (~10:30-11:30 Santiago).
+#
+# Secrets (mismos que los otros workflows): CRON_SECRET, APP_URL.
+
+on:
+  schedule:
+    - cron: "30 14 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Hit booker-lifecycle cron endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::APP_URL o CRON_SECRET no configurados en GitHub Secrets"
+            exit 1
+          fi
+
+          echo "Calling $APP_URL/api/booker-lifecycle/cron"
+          HTTP_CODE=$(curl -s -o /tmp/booker-lifecycle-response.json -w "%{http_code}" \
+            -X GET "$APP_URL/api/booker-lifecycle/cron" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            --max-time 290)
+
+          echo "HTTP $HTTP_CODE"
+          echo "--- Response ---"
+          cat /tmp/booker-lifecycle-response.json
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::booker-lifecycle cron failed with status $HTTP_CODE"
+            exit 1
+          fi

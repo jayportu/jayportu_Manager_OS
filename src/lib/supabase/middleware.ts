@@ -38,6 +38,7 @@ const PUBLIC_PATHS = [
   "/api/beta/expire-cron", // Sprint 23.5 cron (protegido con CRON_SECRET)
   "/api/follow-updates/cron", // Sprint RA-3 cron (protegido con CRON_SECRET)
   "/api/onboarding-nudge/cron", // nudge perfil incompleto (protegido con CRON_SECRET)
+  "/api/booker-lifecycle/cron", // F4 crons de lifecycle del booker (protegido con CRON_SECRET)
   "/api/pulso/cron", // digest semanal del pulso de beta (protegido con CRON_SECRET)
   "/api/admin/dj-verify", // verificación automática de DJs (protegido con DJ_VERIFY_SECRET en header)
   "/api/admin/booker-verify", // n8n: verificación de bookers (protegido con BOOKER_N8N_SECRET en header)
