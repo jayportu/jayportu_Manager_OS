@@ -5,6 +5,7 @@ import {
   claimBookingsByEmail,
 } from "@/lib/queries/booker";
 import { consumeFoundingInviteIfAny } from "@/lib/queries/founding-invites";
+import { maybeSendBookerWelcomeEmail } from "@/lib/queries/booker-activation-emails";
 import { BookerTopBar } from "./top-bar";
 import { BookerTosGate } from "./booker-tos-gate";
 
@@ -69,6 +70,13 @@ export default async function BookerLayout({
 
     // Backfill: linkear bookings viejos hechos con este email
     await claimBookingsByEmail();
+
+    // F1 — welcome email (one-shot vía flag welcome_email_sent_at). Solo si el
+    // booker ya consintió ToS/Privacidad (si no, primero ve el interstitial y no
+    // tiene sentido darle la bienvenida aún). Best-effort: no rompe el layout.
+    if (booker.tos_accepted_at) {
+      await maybeSendBookerWelcomeEmail();
+    }
 
     backfilledUsers.add(user.id);
   }

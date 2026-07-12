@@ -150,6 +150,22 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
     console.error("ensureBookerAccount insert error", error);
     return null;
   }
+
+  // F1 — evento de funnel: alta de booker (solo en la creación real de la fila).
+  // Best-effort, insert directo con el client del user (RLS usage_events_insert_own).
+  try {
+    await supabase.from("usage_events").insert({
+      user_id: user.id,
+      event: "booker_signup_completed",
+      page: "/signup/booker",
+      metadata: {
+        booker_type: typeof meta.booker_type === "string" ? meta.booker_type : "otro",
+      },
+    });
+  } catch {
+    /* tracking best-effort */
+  }
+
   return created as BookerAccount;
 }
 
