@@ -14,7 +14,7 @@ import { ChevronDown } from "lucide-react";
  */
 const PROFILE_LINKS: { label: string; href: string; available?: boolean }[] = [
   { label: "DJ", href: "/beta", available: true },
-  { label: "Booker", href: "/#perfiles" },
+  { label: "Booker", href: "/signup/booker", available: true },
   { label: "Fotógrafo", href: "/#perfiles" },
   { label: "Audiovisual", href: "/#perfiles" },
 ];
