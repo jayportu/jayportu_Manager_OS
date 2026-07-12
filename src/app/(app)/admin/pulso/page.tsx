@@ -1,5 +1,5 @@
 import { assertAdmin } from "@/lib/queries/admin";
-import { getPulso } from "@/lib/queries/pulso";
+import { getPulso, getBookerFunnel } from "@/lib/queries/pulso";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -19,13 +19,20 @@ export default async function PulsoPage({ searchParams }: PageProps) {
   await assertAdmin();
   const sp = await searchParams;
   const days = RANGES.includes(Number(sp.d)) ? Number(sp.d) : 7;
-  const p = await getPulso(days);
+  const [p, bf] = await Promise.all([getPulso(days), getBookerFunnel(days)]);
 
   const funnel = [
     { n: "01", label: "Aprobados", value: p.approved, of: null as number | null },
     { n: "02", label: "Registrados", value: p.registered, of: p.approved },
     { n: "03", label: "Perfil completo", value: p.onboarded, of: p.registered },
     { n: "04", label: "Con evento público", value: p.withEvent, of: p.onboarded, accent: true },
+  ];
+
+  const bookerFunnel = [
+    { n: "01", label: "Registrados", value: bf.registered, of: null as number | null },
+    { n: "02", label: "Verificados", value: bf.verified, of: bf.registered },
+    { n: "03", label: "Envió solicitud", value: bf.withRequest, of: bf.registered },
+    { n: "04", label: "Publicó convocatoria", value: bf.withGig, of: bf.verified, accent: true },
   ];
 
   return (
@@ -76,6 +83,38 @@ export default async function PulsoPage({ searchParams }: PageProps) {
           {"// "}Conversión registrado → perfil completo: <b className="text-fg">{pct(p.onboarded, p.registered)}</b>
           {" · "}«Aprobados» = solicitudes en beta_requests (los correos de campaña enviados son un número aparte, ~705 ola 1 + ~809 ola 2).
         </p>
+      </div>
+
+      {/* Embudo de bookers (F2c) */}
+      <div className="border-2 border-border bg-bg-panel p-5 mb-5">
+        <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
+          — Embudo de bookers (demanda · acumulado)
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {bookerFunnel.map((s) => (
+            <div key={s.n} className="border-2 border-border p-3">
+              <div className={`font-display text-3xl leading-none ${s.accent ? "text-orange" : "text-fg"}`}>{s.value}</div>
+              <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mt-1">{s.n} · {s.label}</div>
+              {s.of != null && (
+                <div className="font-mono text-[10px] text-fg-subtle mt-0.5">{pct(s.value, s.of)} de registrados</div>
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="font-mono text-[11px] text-fg-subtle mt-3">
+          {"// "}Verificación: <b className="text-fg">{pct(bf.verified, bf.registered)}</b> de los registrados
+          {bf.verifyPending > 0 && (
+            <> · <b className="text-orange">{bf.verifyPending}</b> pendientes en <Link href="/admin/bookers" className="underline">la cola</Link></>
+          )}
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-2 border-border mt-4">
+          <Kpi label="Visitas /bookers" value={bf.visitsLanding} sub={`${days}d`} />
+          <Kpi label="Visitas signup" value={bf.visitsSignup} sub={`${days}d`} />
+          <Kpi label="Altas" value={bf.evSignup} sub={`${days}d · evento`} />
+          <Kpi label="Verificados" value={bf.evVerified} sub={`${days}d · evento`} />
+          <Kpi label="Contactos" value={bf.evContact} sub={`${days}d · a DJs`} />
+          <Kpi label="Convocatorias" value={bf.evGig} sub={`${days}d · creadas`} />
+        </div>
       </div>
 
       {/* Esta semana / ventana */}
