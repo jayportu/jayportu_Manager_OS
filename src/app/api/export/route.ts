@@ -2,7 +2,8 @@
  * GET /api/export
  *
  * Backup completo del usuario autenticado en formato JSON.
- * Incluye todas las tablas del schema actual.
+ * Incluye todas las tablas del schema actual — lado DJ y lado booker
+ * (acceso del titular · Ley 21.719 / GDPR).
  */
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
@@ -18,6 +19,9 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
+
+  // Filtro OR para tablas donde el usuario puede ser el DJ o el booker.
+  const djOrBooker = `dj_user_id.eq.${user.id},booker_user_id.eq.${user.id}`;
 
   const [
     { data: dj_profile },
@@ -35,8 +39,15 @@ export async function GET() {
     { data: content_posts },
     { data: platform_snapshots },
     { data: platform_accounts },
+    // ── Lado booker + convocatorias (acceso del titular) ──
+    { data: booker_account },
+    { data: booker_favorites },
+    { data: open_gigs },
+    { data: gig_applications },
+    { data: venue_pitches },
+    { data: venue_interest },
   ] = await Promise.all([
-    supabase.from("dj_profile").select("*").eq("user_id", user.id).single(),
+    supabase.from("dj_profile").select("*").eq("user_id", user.id).maybeSingle(),
     supabase.from("contacts").select("*").eq("user_id", user.id),
     supabase.from("interactions").select("*").eq("user_id", user.id),
     supabase.from("follow_ups").select("*").eq("user_id", user.id),
@@ -51,13 +62,20 @@ export async function GET() {
     supabase.from("content_posts").select("*").eq("user_id", user.id),
     supabase.from("platform_snapshots").select("*").eq("user_id", user.id),
     supabase.from("platform_accounts").select("*").eq("user_id", user.id),
+    // Lado booker: cuenta propia + favoritos + convocatorias publicadas +
+    // postulaciones enviadas (como DJ) + pitches / intereses (como DJ o booker).
+    supabase.from("booker_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    supabase.from("booker_favorites").select("*").eq("user_id", user.id),
+    supabase.from("open_gigs").select("*").eq("booker_user_id", user.id),
+    supabase.from("gig_applications").select("*").eq("dj_user_id", user.id),
+    supabase.from("venue_pitches").select("*").or(djOrBooker),
+    supabase.from("venue_interest").select("*").or(djOrBooker),
   ]);
 
   const payload = {
     meta: {
       app: "DROP",
       version: "0.13.0",
-      sprint: 18,
       exported_at: new Date().toISOString(),
       user_email: user.email,
       user_id: user.id,
@@ -77,6 +95,12 @@ export async function GET() {
     content_posts: content_posts || [],
     platform_snapshots: platform_snapshots || [],
     platform_accounts: platform_accounts || [],
+    booker_account,
+    booker_favorites: booker_favorites || [],
+    open_gigs: open_gigs || [],
+    gig_applications: gig_applications || [],
+    venue_pitches: venue_pitches || [],
+    venue_interest: venue_interest || [],
     counts: {
       contacts: contacts?.length ?? 0,
       interactions: interactions?.length ?? 0,
@@ -92,6 +116,11 @@ export async function GET() {
       content_posts: content_posts?.length ?? 0,
       platform_snapshots: platform_snapshots?.length ?? 0,
       platform_accounts: platform_accounts?.length ?? 0,
+      booker_favorites: booker_favorites?.length ?? 0,
+      open_gigs: open_gigs?.length ?? 0,
+      gig_applications: gig_applications?.length ?? 0,
+      venue_pitches: venue_pitches?.length ?? 0,
+      venue_interest: venue_interest?.length ?? 0,
     },
   };
 
