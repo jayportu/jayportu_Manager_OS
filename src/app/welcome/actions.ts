@@ -5,6 +5,8 @@ import { maybeSendWelcomeEmail } from "@/lib/queries/activation-emails";
 import { upsertPlatformAccount } from "@/lib/queries/platform-accounts";
 import { revalidatePath } from "next/cache";
 import { TOS_VERSION } from "@/lib/legal";
+import { recordConsent } from "@/lib/queries/consents";
+import { createClient } from "@/lib/supabase/server";
 import type { DjProfileUpdate } from "@/types/database";
 
 export interface IdentityInput {
@@ -86,6 +88,30 @@ export async function completeOnboarding(acceptTos = false) {
     patch.tos_version = TOS_VERSION;
   }
   await updateMyProfile(patch);
+
+  // BL-08 — registro append-only del consentimiento del DJ en user_consents
+  // (histórico demostrable con IP/UA), en paridad con el flujo de booker
+  // (ensureBookerAccount / acceptBookerTos). Antes el consentimiento del DJ solo
+  // quedaba en dj_profile.tos_accepted_at. Best-effort: no rompe el onboarding.
+  //  - acceptTos=true  → aceptación diferida (signup con OAuth), ocurre ahora.
+  //  - acceptTos=false → ya aceptó en el signup (email/pass); esta es la primera
+  //    captura server-side con headers de la request.
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await recordConsent({
+        userId: user.id,
+        version: TOS_VERSION,
+        source: acceptTos ? "dj_onboarding" : "signup_dj",
+      });
+    }
+  } catch (e) {
+    console.error("completeOnboarding recordConsent:", e);
+  }
+
   // E1 · Correo de bienvenida (best-effort, one-shot; no rompe el onboarding).
   await maybeSendWelcomeEmail();
   revalidatePath("/dashboard");
