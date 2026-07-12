@@ -11,6 +11,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { santiagoMonthStartUtcISO } from "@/lib/tz";
+import { TOS_VERSION } from "@/lib/legal";
 import type { BookingSubmission, AccountStatus } from "@/types/database";
 
 /**
@@ -57,6 +58,9 @@ export interface BookerAccount {
   account_status_reason: string | null;
   account_status_changed_at: string | null;
   account_status_changed_by: string | null;
+  /** Migration 0073 — consentimiento (F0/C-04): ToS+Privacidad. NULL = pendiente. */
+  tos_accepted_at: string | null;
+  tos_version: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -107,6 +111,7 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
 
   // Crear desde user_metadata
   const meta = user.user_metadata || {};
+  const tosAccepted = meta.tos_accepted === "true" || meta.tos_accepted === true;
   const { data: created, error } = await supabase
     .from("booker_accounts")
     .insert({
@@ -117,6 +122,15 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
         typeof meta.booker_type === "string" ? meta.booker_type : "otro",
       city: typeof meta.city === "string" ? meta.city : "",
       country: typeof meta.country === "string" ? meta.country : "",
+      // F0/C-04 — persistir el consentimiento del signup acá (handle_new_user
+      // no crea la fila del booker). Solo si el signup lo marcó.
+      ...(tosAccepted
+        ? {
+            tos_accepted_at: new Date().toISOString(),
+            tos_version:
+              typeof meta.tos_version === "string" ? meta.tos_version : TOS_VERSION,
+          }
+        : {}),
     })
     .select("*")
     .single();

@@ -24,6 +24,7 @@ import {
   fetchCities,
 } from "@/lib/geo/countries";
 import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
+import { TOS_VERSION } from "@/lib/legal";
 
 const BOOKER_TYPES = [
   { value: "venue", label: "Venue / Club / Bar" },
@@ -67,6 +68,10 @@ export function BookerSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  // Aceptación de Términos — obligatoria al crear cuenta (click-wrap). La
+  // metadata tos_accepted/tos_version la persiste ensureBookerAccount en
+  // booker_accounts (handle_new_user no crea la fila del booker).
+  const [tosAccepted, setTosAccepted] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState(0);
   function resetCaptcha() {
@@ -103,6 +108,14 @@ export function BookerSignupForm() {
       return;
     }
 
+    if (!tosAccepted) {
+      setError(
+        "Tienes que aceptar los Términos de servicio y la Política de privacidad para crear tu cuenta."
+      );
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -115,6 +128,8 @@ export function BookerSignupForm() {
           booker_type: bookerType,
           city: city.trim(),
           country,
+          tos_accepted: "true",
+          tos_version: TOS_VERSION,
         },
       },
     });
@@ -264,6 +279,36 @@ export function BookerSignupForm() {
         </div>
       )}
 
+      <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={tosAccepted}
+          onChange={(e) => setTosAccepted(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-orange cursor-pointer"
+        />
+        <span>
+          He leído y acepto los{" "}
+          <a
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-fg underline hover:text-orange transition-colors"
+          >
+            Términos de servicio
+          </a>{" "}
+          y la{" "}
+          <a
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-fg underline hover:text-orange transition-colors"
+          >
+            Política de privacidad
+          </a>
+          .
+        </span>
+      </label>
+
       {TURNSTILE_ENABLED && (
         <TurnstileWidget
           key={captchaKey}
@@ -276,7 +321,7 @@ export function BookerSignupForm() {
         type="submit"
         variant="default"
         size="lg"
-        disabled={loading || (TURNSTILE_ENABLED && !captchaToken)}
+        disabled={loading || !tosAccepted || (TURNSTILE_ENABLED && !captchaToken)}
         className="w-full"
       >
         {loading ? "Creando cuenta…" : "Crear cuenta gratis →"}
