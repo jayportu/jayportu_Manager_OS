@@ -6,6 +6,7 @@ import {
 } from "@/lib/queries/booker";
 import { consumeFoundingInviteIfAny } from "@/lib/queries/founding-invites";
 import { BookerTopBar } from "./top-bar";
+import { BookerTosGate } from "./booker-tos-gate";
 
 /**
  * Guard en memoria (por instancia del server) para no re-correr los backfills
@@ -78,7 +79,13 @@ export default async function BookerLayout({
         fullName={booker.full_name || (user.email ?? "Booker")}
         email={user.email ?? ""}
       />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        {/* F0/C-04 — aceptación diferida: si no aceptó ToS/Privacidad, se
+            bloquea el portal con el interstitial. `=== null` (no falsy) para
+            que, si la columna 0073 aún no existe, el valor undefined no active
+            el gate (fail-open pre-migración). */}
+        {booker.tos_accepted_at === null ? <BookerTosGate /> : children}
+      </main>
       <footer className="bg-ink text-white border-t-2 border-orange py-3 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · BOOKER PORTAL · v0.13

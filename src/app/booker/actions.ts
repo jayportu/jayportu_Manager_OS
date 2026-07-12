@@ -9,6 +9,7 @@
  */
 import { revalidatePath } from "next/cache";
 import { guardBookerActive } from "@/lib/queries/booker-guard";
+import { TOS_VERSION } from "@/lib/legal";
 
 /**
  * Toggle favorite: si existe → delete; si no → insert. RLS garantiza
@@ -133,4 +134,26 @@ export async function toggleFollowNotifyAction(
   revalidatePath("/booker/seguidos");
   revalidatePath("/dj");
   return { ok: true, favorited: true, notifyEmail: true };
+}
+
+/**
+ * F0/C-04 — Aceptación DIFERIDA de Términos+Privacidad.
+ *
+ * Para cuentas de booker creadas antes de que el signup registrara el
+ * consentimiento (tos_accepted_at NULL). El interstitial del portal
+ * (BookerTosGate) la invoca; sin aceptar, el booker no puede operar. No se
+ * backfillea nada: la aceptación queda con la fecha real del click.
+ */
+export async function acceptBookerTos(): Promise<{ ok: boolean; error?: string }> {
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false, error: g.error };
+  const { supabase, user } = g;
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("booker_accounts")
+    .update({ tos_accepted_at: now, tos_version: TOS_VERSION, updated_at: now })
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/booker", "layout");
+  return { ok: true };
 }
