@@ -16,6 +16,24 @@ function inviteLink(token: string): string {
   return `${origin}/signup/booker?founding=${token}`;
 }
 
+/** Una invitación pendiente pero pasada su fecha de vencimiento ya no activa. */
+function isExpired(inv: FoundingInvite): boolean {
+  return (
+    inv.status === "pending" &&
+    !!inv.expires_at &&
+    new Date(inv.expires_at).getTime() < Date.now()
+  );
+}
+
+function shortDate(iso: string | null): string {
+  if (!iso) return "—";
+  try {
+    return new Date(iso).toLocaleDateString("es-CL", { day: "2-digit", month: "short" });
+  } catch {
+    return "—";
+  }
+}
+
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-warning/15 border-warning/30 text-warning",
   accepted: "bg-success/15 border-success/30 text-success",
@@ -171,6 +189,7 @@ export function FoundingInvitesClient({
                 <th className="px-3 py-2.5 font-semibold">Nombre</th>
                 <th className="px-3 py-2.5 font-semibold">Estado</th>
                 <th className="px-3 py-2.5 font-semibold">Enviada</th>
+                <th className="px-3 py-2.5 font-semibold">Vence</th>
                 <th className="px-3 py-2.5 font-semibold text-right">Acción</th>
               </tr>
             </thead>
@@ -192,9 +211,21 @@ export function FoundingInvitesClient({
                     >
                       {STATUS_LABEL[inv.status] ?? inv.status}
                     </span>
+                    {isExpired(inv) && (
+                      <span className="ml-1 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border bg-danger/15 border-danger/30 text-danger">
+                        caducada
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2.5 text-fg-muted text-xs whitespace-nowrap">
                     {inv.invite_sent_at ? "Sí" : "—"}
+                  </td>
+                  <td
+                    className={`px-3 py-2.5 text-xs whitespace-nowrap ${
+                      isExpired(inv) ? "text-danger" : "text-fg-muted"
+                    }`}
+                  >
+                    {inv.status === "pending" ? shortDate(inv.expires_at) : "—"}
                   </td>
                   <td className="px-3 py-2.5 text-right whitespace-nowrap">
                     {inv.status === "pending" && inv.invite_token && (

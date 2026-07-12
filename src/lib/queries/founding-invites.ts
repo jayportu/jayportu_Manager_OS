@@ -15,6 +15,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 /** Cookie HttpOnly donde el middleware guarda el token del link de invite. */
 export const FOUNDING_COOKIE = "dropfounding_invite_token";
 
+/** Vida útil de una invitación Founding pendiente antes de caducar. */
+export const FOUNDING_INVITE_TTL_DAYS = 30;
+
 export interface FoundingInvite {
   id: string;
   email: string;
@@ -26,9 +29,15 @@ export interface FoundingInvite {
   accepted_user_id: string | null;
   invited_by: string | null;
   created_at: string;
+  expires_at: string | null;
 }
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+/** ISO del vencimiento a partir de ahora (now + TTL). */
+function freshExpiry(): string {
+  return new Date(Date.now() + FOUNDING_INVITE_TTL_DAYS * 86_400_000).toISOString();
+}
 
 // ─── Admin ──────────────────────────────────────────────────────────────
 
@@ -51,8 +60,10 @@ export async function createFoundingInvite(input: {
   const admin = createAdminClient();
   const token = crypto.randomUUID();
   const now = new Date().toISOString();
+  const expiresAt = freshExpiry();
 
-  // ¿Ya hay una invitación pendiente para este email? → refrescarla.
+  // ¿Ya hay una invitación pendiente para este email? → refrescarla (token y
+  // ventana de vencimiento nuevos: re-enviar renueva los 30 días).
   const { data: existing } = await admin
     .from("founding_invites")
     .select("id")
@@ -68,6 +79,7 @@ export async function createFoundingInvite(input: {
         full_name: fullName,
         invited_by: input.invitedBy,
         invite_sent_at: null,
+        expires_at: expiresAt,
         updated_at: now,
       })
       .eq("id", existing.id);
@@ -83,6 +95,7 @@ export async function createFoundingInvite(input: {
       invite_token: token,
       status: "pending",
       invited_by: input.invitedBy,
+      expires_at: expiresAt,
     })
     .select("id")
     .single();
@@ -95,7 +108,7 @@ export async function listFoundingInvites(): Promise<FoundingInvite[]> {
   const { data } = await admin
     .from("founding_invites")
     .select(
-      "id, email, full_name, invite_token, status, invite_sent_at, accepted_at, accepted_user_id, invited_by, created_at"
+      "id, email, full_name, invite_token, status, invite_sent_at, accepted_at, accepted_user_id, invited_by, created_at, expires_at"
     )
     .order("created_at", { ascending: false });
   return (data ?? []) as FoundingInvite[];
@@ -128,6 +141,7 @@ interface InviteRow {
   invite_token: string | null;
   accepted_user_id: string | null;
   invited_by: string | null;
+  expires_at: string | null;
 }
 
 /**
@@ -156,7 +170,7 @@ export async function consumeFoundingInviteIfAny(opts: {
   if (token) {
     const { data } = await admin
       .from("founding_invites")
-      .select("id, email, status, invite_token, accepted_user_id, invited_by")
+      .select("id, email, status, invite_token, accepted_user_id, invited_by, expires_at")
       .eq("invite_token", token)
       .maybeSingle();
     row = (data as InviteRow | null) ?? null;
@@ -171,7 +185,7 @@ export async function consumeFoundingInviteIfAny(opts: {
   if (!row && opts.userEmail) {
     const { data } = await admin
       .from("founding_invites")
-      .select("id, email, status, invite_token, accepted_user_id, invited_by")
+      .select("id, email, status, invite_token, accepted_user_id, invited_by, expires_at")
       .eq("email", opts.userEmail.toLowerCase())
       .eq("status", "pending")
       .maybeSingle();
@@ -184,6 +198,15 @@ export async function consumeFoundingInviteIfAny(opts: {
   if (!row) return { activated: false, reason: "no_invite_found" };
   if (row.status !== "pending") {
     return { activated: false, reason: `status_${row.status}` };
+  }
+  // F2d — vencimiento: una invitación pendiente pero caducada no activa. El admin
+  // puede re-enviarla desde /admin/founding-invites (renueva token + ventana).
+  if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
+    console.warn("[founding-invite] invitación caducada", {
+      userId: opts.userId.slice(0, 8),
+      via,
+    });
+    return { activated: false, reason: "expired" };
   }
   if (!opts.userEmail) return { activated: false, reason: "no_user_email" };
   if (opts.userEmail.toLowerCase() !== row.email.toLowerCase()) {
