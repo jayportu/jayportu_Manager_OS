@@ -12,6 +12,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { santiagoMonthStartUtcISO } from "@/lib/tz";
 import { TOS_VERSION } from "@/lib/legal";
+import { recordConsent } from "@/lib/queries/consents";
 import type { BookingSubmission, AccountStatus } from "@/types/database";
 
 /**
@@ -164,6 +165,15 @@ export async function ensureBookerAccount(): Promise<BookerAccount | null> {
     });
   } catch {
     /* tracking best-effort */
+  }
+
+  // BL-08 — registro append-only del consentimiento (histórico con IP/UA).
+  if (tosAccepted) {
+    await recordConsent({
+      userId: user.id,
+      version: typeof meta.tos_version === "string" ? meta.tos_version : TOS_VERSION,
+      source: "signup_booker",
+    });
   }
 
   return created as BookerAccount;
