@@ -62,6 +62,8 @@ export interface BookerAccount {
   /** Migration 0073 — consentimiento (F0/C-04): ToS+Privacidad. NULL = pendiente. */
   tos_accepted_at: string | null;
   tos_version: string | null;
+  /** Migration 0078 — onboarding del booker (F2a). NULL = ver el wizard. */
+  onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
