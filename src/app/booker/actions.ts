@@ -10,6 +10,7 @@
 import { revalidatePath } from "next/cache";
 import { guardBookerActive } from "@/lib/queries/booker-guard";
 import { TOS_VERSION } from "@/lib/legal";
+import { recordConsent } from "@/lib/queries/consents";
 
 /**
  * Toggle favorite: si existe → delete; si no → insert. RLS garantiza
@@ -154,6 +155,8 @@ export async function acceptBookerTos(): Promise<{ ok: boolean; error?: string }
     .update({ tos_accepted_at: now, tos_version: TOS_VERSION, updated_at: now })
     .eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
+  // BL-08 — registro append-only del consentimiento diferido (con IP/UA).
+  await recordConsent({ userId: user.id, version: TOS_VERSION, source: "deferred_booker" });
   revalidatePath("/booker", "layout");
   return { ok: true };
 }
