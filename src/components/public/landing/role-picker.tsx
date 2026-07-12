@@ -4,11 +4,10 @@ import { Disc3, Handshake, Camera, Clapperboard, type LucideIcon } from "lucide-
 const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
 
 /**
- * "Elige tu perfil" del landing. DROP parte con los DJs; el resto de la escena
- * (booker + roles creativos que ya prometemos en el FAQ) se muestra como
+ * "Elige tu perfil" del landing. DJ y Booker son links reales (→ /beta y
+ * → /signup/booker); los roles creativos (fotógrafo/audiovisual) siguen como
  * "próximamente" para comunicar la visión sin ofrecer un signup que aún no
- * existe. Solo la tarjeta de DJ es un link real (→ /beta); las demás son
- * informativas (no clickeables). Server component — sin JS de cliente.
+ * existe. Server component — sin JS de cliente.
  */
 type Role = {
   icon: LucideIcon;
@@ -32,6 +31,9 @@ const ROLES: Role[] = [
     icon: Handshake,
     title: "Booker",
     desc: "Encuentra y contrata al talento indicado para tu evento.",
+    active: true,
+    href: "/signup/booker",
+    cta: "Encontrar mi DJ →",
   },
   {
     icon: Camera,

@@ -260,7 +260,7 @@ export default async function RootPage() {
   );
 }
 
-/** FAQ del landing. En beta = gratis; precio futuro DJ $5.990/mes (IVA incl.). Booker en pausa. */
+/** FAQ del landing. En beta = gratis; precio futuro DJ $5.990/mes (IVA incl.). Booker: cuenta gratis siempre. */
 const FAQ: { q: string; a: React.ReactNode }[] = [
   {
     q: "¿DROP es gratis?",
@@ -268,7 +268,8 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
       <>
         <b>Ahora la beta es gratis</b> — sin tarjeta. Cuando salgamos de beta, la
         suscripción de DJ será <b>$5.990/mes</b> (IVA incl.), con 15 días gratis
-        para probar.
+        para probar. Si eres <b>booker</b>, crear tu cuenta y contratar DJs es{" "}
+        <b>gratis, siempre</b>.
       </>
     ),
   },
