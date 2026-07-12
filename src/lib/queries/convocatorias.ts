@@ -163,6 +163,24 @@ export async function createGig(input: CreateGigInput): Promise<string> {
     .select("id")
     .single();
   if (error) throw new Error(error.message);
+
+  // F1 — evento de funnel: convocatoria publicada. Best-effort.
+  try {
+    await supabase.from("usage_events").insert({
+      user_id: user.id,
+      event: "booker_gig_created",
+      page: "/booker/convocatorias",
+      metadata: {
+        city: (input.city || booker.city || "").trim() || null,
+        genre: (input.genre || "").trim() || null,
+        has_budget: input.budget_clp != null,
+        has_deadline: !!input.application_deadline,
+      },
+    });
+  } catch {
+    /* tracking best-effort */
+  }
+
   return (data as { id: string }).id;
 }
 

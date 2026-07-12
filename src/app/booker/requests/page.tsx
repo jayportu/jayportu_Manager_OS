@@ -149,7 +149,7 @@ function EmptyState() {
         acá con el estado en vivo.
       </p>
       <Link
-        href="/dj"
+        href="/booker/buscar"
         className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
       >
         Buscar DJs
