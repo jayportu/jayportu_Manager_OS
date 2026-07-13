@@ -52,6 +52,9 @@ export interface BookerAccount {
   accepts_pitches: boolean;
   verified_at: string | null;
   verified_by: string | null;
+  /** Migration 0079 — verificación self-service (F2b): el booker pide, el admin aprueba. */
+  verification_requested_at: string | null;
+  verification_evidence: string | null;
   /** Fase 2 — booker fundador (perks: acceso anticipado a features nuevas). */
   is_founding: boolean;
   /** Migration 0063 — moderación de cuentas de booker (suspender / banear) */

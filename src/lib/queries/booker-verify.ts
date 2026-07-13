@@ -10,6 +10,13 @@ import "server-only";
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail, isResendConfigured } from "@/lib/email/resend";
+import {
+  bookerVerificadoEmailHtml,
+  bookerVerificadoEmailText,
+} from "@/lib/email/templates/booker";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://dropgigs.com";
 
 export type BookerVerifyResult =
   | {
@@ -20,20 +27,31 @@ export type BookerVerifyResult =
     }
   | { ok: false; status: "not_found"; user_id: string };
 
+/**
+ * Verifica un booker con service_role (bypassa el trigger). Idempotente.
+ * `via` queda en el evento de funnel para distinguir origen (n8n 1-clic vs
+ * admin). En una verificación FRESCA manda el email "verificado" (best-effort).
+ */
 export async function verifyBookerByAdmin(
   userId: string,
-  verifiedBy?: string | null
+  verifiedBy?: string | null,
+  via: string = "n8n"
 ): Promise<BookerVerifyResult> {
   const admin = createAdminClient();
 
   const { data: existing } = await admin
     .from("booker_accounts")
-    .select("user_id, verified_at")
+    .select("user_id, verified_at, full_name, email")
     .eq("user_id", userId)
     .maybeSingle();
   if (!existing) return { ok: false, status: "not_found", user_id: userId };
 
-  const row = existing as { user_id: string; verified_at: string | null };
+  const row = existing as {
+    user_id: string;
+    verified_at: string | null;
+    full_name: string | null;
+    email: string | null;
+  };
   if (row.verified_at) {
     return {
       ok: true,
@@ -58,10 +76,33 @@ export async function verifyBookerByAdmin(
       user_id: userId,
       event: "booker_verified",
       page: "/api/admin/booker-verify",
-      metadata: { via: "n8n" },
+      metadata: { via },
     });
   } catch {
     /* tracking best-effort */
+  }
+
+  // Email "verificado" (best-effort; one-shot natural: solo en verificación fresca).
+  try {
+    if (isResendConfigured()) {
+      let email = row.email || "";
+      if (!email) {
+        const { data: u } = await admin.auth.admin.getUserById(userId);
+        email = u?.user?.email ?? "";
+      }
+      if (email) {
+        const bookerName = row.full_name || "";
+        const gigsUrl = `${SITE}/booker/convocatorias`;
+        await sendEmail({
+          to: email,
+          subject: "Tu cuenta de booker está verificada",
+          html: bookerVerificadoEmailHtml({ bookerName, gigsUrl }),
+          text: bookerVerificadoEmailText({ bookerName, gigsUrl }),
+        });
+      }
+    }
+  } catch (e) {
+    console.error("[booker-verify] email verificado:", e);
   }
 
   return {

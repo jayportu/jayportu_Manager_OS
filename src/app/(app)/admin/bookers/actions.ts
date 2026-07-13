@@ -11,6 +11,7 @@
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/queries/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyBookerByAdmin } from "@/lib/queries/booker-verify";
 
 type Result = { ok: true; verified: boolean } | { ok: false; error: string };
 
@@ -20,18 +21,23 @@ export async function setBookerVerifiedAction(
 ): Promise<Result> {
   try {
     const { userId: adminId } = await assertAdmin();
-    const admin = createAdminClient();
 
-    const { error } = await admin
-      .from("booker_accounts")
-      .update({
-        verified_at: verified ? new Date().toISOString() : null,
-        verified_by: verified ? adminId : null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", bookerUserId);
-
-    if (error) return { ok: false, error: error.message };
+    if (verified) {
+      // Verificar: pasa por verifyBookerByAdmin (idempotente, emite evento de
+      // funnel + manda el email "verificado" en la verificación fresca). Mismo
+      // camino que el 1-clic de n8n, para que ambos flujos queden consistentes.
+      const res = await verifyBookerByAdmin(bookerUserId, adminId, "admin");
+      if (!res.ok) return { ok: false, error: "Booker no encontrado" };
+    } else {
+      // Quitar verificación: update directo con service_role (bypassa trigger).
+      const admin = createAdminClient();
+      const now = new Date().toISOString();
+      const { error } = await admin
+        .from("booker_accounts")
+        .update({ verified_at: null, verified_by: null, updated_at: now })
+        .eq("user_id", bookerUserId);
+      if (error) return { ok: false, error: error.message };
+    }
 
     revalidatePath("/admin/bookers");
     return { ok: true, verified };

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getMyBookerAccount } from "@/lib/queries/booker";
 import { BookerProfileForm } from "./booker-profile-form";
+import { BookerVerificationRequest } from "./verification-request";
 
 /**
  * Fase 1 booker — Perfil editable del booker.
@@ -47,6 +48,11 @@ export default async function BookerPerfilPage() {
           DJs cuando los contactes. El email es tu acceso y no se cambia acá.
         </p>
       </div>
+
+      <BookerVerificationRequest
+        verified={!!booker.verified_at}
+        requested={!!booker.verification_requested_at}
+      />
 
       <BookerProfileForm
         initial={{
