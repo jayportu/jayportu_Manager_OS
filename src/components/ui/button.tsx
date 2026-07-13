@@ -34,6 +34,10 @@ const buttonVariants = cva(
           "border-transparent bg-transparent text-fg hover:bg-ink hover:text-orange",
         link:
           "border-transparent bg-transparent text-orange underline-offset-4 hover:underline tracking-normal normal-case font-sans font-semibold",
+        clay:
+          "hos-clay-btn rounded-full border-transparent font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/85 active:translate-y-px",
+        clayPrimary:
+          "rounded-full border-transparent bg-[rgb(var(--drop-orange))] font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0B0B0B] shadow-[inset_0_1px_0_rgba(255,255,255,.5),5px_5px_13px_#060606] active:translate-y-px",
       },
       size: {
         default: "h-10 px-4 py-2",
