@@ -32,7 +32,7 @@ const ROLES: Role[] = [
     title: "Booker",
     desc: "Encuentra y contrata al talento indicado para tu evento.",
     active: true,
-    href: "/signup/booker",
+    href: "/bookers",
     cta: "Encontrar mi DJ →",
   },
   {
