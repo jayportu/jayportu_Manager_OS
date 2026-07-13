@@ -66,6 +66,10 @@ export function Topbar({
   const router = useRouter();
   const supabase = createClient();
 
+  // Foco visible naranja, consistente con Sidebar/MobileMenu (mismo string).
+  const FOCUS_RING =
+    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E85A0C]";
+
   async function handleLogout() {
     await supabase.auth.signOut();
     // Al cerrar sesión va al LANDING público (/), no a /login — consistente con
@@ -95,7 +99,7 @@ export function Topbar({
           window.dispatchEvent(new CustomEvent(MOBILE_MENU_OPEN_EVENT))
         }
         aria-label="Abrir menú"
-        className="md:hidden h-10 w-10 -ml-2 mr-1 flex items-center justify-center text-fg hover:text-orange transition-colors shrink-0"
+        className={`md:hidden h-10 w-10 -ml-2 mr-1 flex items-center justify-center text-fg hover:text-orange transition-colors shrink-0 ${FOCUS_RING}`}
       >
         <Menu className="w-6 h-6" strokeWidth={2.25} />
       </button>
@@ -135,7 +139,7 @@ export function Topbar({
       {trialLabel && trialBannerColor && (
         <a
           href="/suscripcion"
-          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor}`}
+          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor} ${FOCUS_RING}`}
           title="Click para suscribirte ahora"
         >
           {trialLabel}
@@ -153,7 +157,7 @@ export function Topbar({
         </span>
         <button
           onClick={handleLogout}
-          className="h-9 px-3 border-2 border-border bg-ink text-orange hover:bg-orange hover:text-ink font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5"
+          className={`h-9 px-3 border-2 border-border bg-ink text-orange hover:bg-orange hover:text-ink font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5 ${FOCUS_RING}`}
         >
           <LogOut className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">SALIR</span>
