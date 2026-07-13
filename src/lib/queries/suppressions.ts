@@ -84,6 +84,29 @@ export async function getSuppressionCounts(): Promise<SuppressionCounts> {
   return { total: rows.length, byReason };
 }
 
+/**
+ * ¿Este correo está en la lista de bajas? Para chequear antes de enviar en
+ * crons de lifecycle (defensa además de la supresión propia de Resend).
+ * Fail-open: ante un error transitorio devuelve false (no bloquea toda la
+ * corrida); el backstop real es la supresión a nivel Resend.
+ */
+export async function isSuppressed(email: string): Promise<boolean> {
+  const e = clean(email);
+  if (!e.includes("@")) return false;
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("email_suppressions")
+      .select("id")
+      .eq("email", e)
+      .maybeSingle();
+    return !!data;
+  } catch (err) {
+    console.error("[suppressions] isSuppressed", (err as Error).message);
+    return false;
+  }
+}
+
 /** Quita un correo de la lista de bajas (re-suscribir). Solo admin. */
 export async function removeSuppression(email: string): Promise<void> {
   const admin = createAdminClient();
