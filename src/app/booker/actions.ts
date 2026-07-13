@@ -137,6 +137,76 @@ export async function toggleFollowNotifyAction(
   return { ok: true, favorited: true, notifyEmail: true };
 }
 
+/** Valores válidos de booker_type (check de la migración 0021). */
+const BOOKER_TYPE_VALUES = new Set([
+  "venue",
+  "productora",
+  "agencia",
+  "evento_privado",
+  "casamiento",
+  "corporativo",
+  "festival",
+  "otro",
+]);
+
+export interface BookerOnboardingInput {
+  fullName: string;
+  bookerType: string;
+  city: string;
+  whatsapp: string;
+  instagramUrl: string;
+  websiteUrl: string;
+}
+
+/**
+ * F2a — Cierra el wizard de bienvenida del booker. Guarda/enriquece el perfil
+ * (nombre, tipo, ciudad, contacto) y marca onboarding_completed_at. El layout
+ * de /booker muestra el wizard in-place mientras onboarding_completed_at === null
+ * (mismo patrón que BookerTosGate). Emite evento de funnel (best-effort).
+ */
+export async function completeBookerOnboarding(
+  input: BookerOnboardingInput
+): Promise<{ ok: boolean; error?: string }> {
+  const g = await guardBookerActive();
+  if ("error" in g) return { ok: false, error: g.error };
+  const { supabase, user } = g;
+
+  const fullName = input.fullName.trim().slice(0, 80);
+  if (!fullName) return { ok: false, error: "Necesitamos tu nombre para continuar." };
+  const bookerType = BOOKER_TYPE_VALUES.has(input.bookerType) ? input.bookerType : "otro";
+  const now = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("booker_accounts")
+    .update({
+      full_name: fullName,
+      booker_type: bookerType,
+      city: input.city.trim().slice(0, 60),
+      whatsapp: input.whatsapp.trim().slice(0, 40),
+      instagram_url: input.instagramUrl.trim().slice(0, 200),
+      website_url: input.websiteUrl.trim().slice(0, 200),
+      onboarding_completed_at: now,
+      updated_at: now,
+    })
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+
+  // F1 — evento de funnel (best-effort; RLS usage_events_insert_own).
+  try {
+    await supabase.from("usage_events").insert({
+      user_id: user.id,
+      event: "booker_onboarding_completed",
+      page: "/booker/welcome",
+      metadata: { booker_type: bookerType },
+    });
+  } catch {
+    /* tracking best-effort */
+  }
+
+  revalidatePath("/booker", "layout");
+  return { ok: true };
+}
+
 /**
  * F0/C-04 — Aceptación DIFERIDA de Términos+Privacidad.
  *

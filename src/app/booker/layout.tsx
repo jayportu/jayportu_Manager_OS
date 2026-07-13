@@ -8,6 +8,7 @@ import { consumeFoundingInviteIfAny } from "@/lib/queries/founding-invites";
 import { maybeSendBookerWelcomeEmail } from "@/lib/queries/booker-activation-emails";
 import { BookerTopBar } from "./top-bar";
 import { BookerTosGate } from "./booker-tos-gate";
+import { BookerWelcomeWizard } from "./booker-welcome-wizard";
 
 /**
  * Guard en memoria (por instancia del server) para no re-correr los backfills
@@ -88,11 +89,27 @@ export default async function BookerLayout({
         email={user.email ?? ""}
       />
       <main className="flex-1">
-        {/* F0/C-04 — aceptación diferida: si no aceptó ToS/Privacidad, se
-            bloquea el portal con el interstitial. `=== null` (no falsy) para
-            que, si la columna 0073 aún no existe, el valor undefined no active
-            el gate (fail-open pre-migración). */}
-        {booker.tos_accepted_at === null ? <BookerTosGate /> : children}
+        {/* Gates in-place (sin redirect → sin loops), en orden:
+            1) F0/C-04 — aceptación diferida de ToS/Privacidad (legal primero).
+            2) F2a — wizard de bienvenida del booker.
+            `=== null` estricto (no falsy): si la columna aún no existe
+            (pre-migración), el valor undefined NO activa el gate (fail-open). */}
+        {booker.tos_accepted_at === null ? (
+          <BookerTosGate />
+        ) : booker.onboarding_completed_at === null ? (
+          <BookerWelcomeWizard
+            initial={{
+              fullName: booker.full_name || "",
+              bookerType: booker.booker_type || "otro",
+              city: booker.city || "",
+              whatsapp: booker.whatsapp || "",
+              instagramUrl: booker.instagram_url || "",
+              websiteUrl: booker.website_url || "",
+            }}
+          />
+        ) : (
+          children
+        )}
       </main>
       <footer className="bg-ink text-white border-t-2 border-orange py-3 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
