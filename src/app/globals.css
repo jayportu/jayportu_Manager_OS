@@ -224,7 +224,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hos-sweep, .hos-clay-btn,
+  .hos-sweep, .hos-clay-btn, .hos-clay,
   .animate-pulse, .animate-blink, .animate-logo-strobe, .animate-ticker-scroll {
     transition: none !important;
     animation: none !important;

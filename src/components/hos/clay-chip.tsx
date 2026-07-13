@@ -1,5 +1,4 @@
-const ORANGE = "#E85A0C";
-const INK = "#0B0B0B";
+import { ORANGE, INK } from "./tokens";
 
 /* — Chip de filtro (clay, toggle) — */
 export function ClayChip({ children, active }: { children: React.ReactNode; active?: boolean }) {

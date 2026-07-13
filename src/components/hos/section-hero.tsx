@@ -1,6 +1,5 @@
 import { MonoLabel } from "./mono-label";
-
-const ORANGE = "#E85A0C";
+import { ORANGE } from "./tokens";
 
 /* — Hero de sección canónico (arregla el hero inconsistente) — */
 export function SectionHero({

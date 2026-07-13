@@ -1,4 +1,4 @@
-const INK = "#0B0B0B";
+import { INK } from "./tokens";
 
 /* — Badge canónico (estados) — */
 const BADGE_TONE: Record<"up" | "warn" | "down" | "info" | "neutral", string> = {

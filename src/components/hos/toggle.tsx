@@ -1,8 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-const ORANGE = "#E85A0C";
+import { ORANGE } from "./tokens";
 
 /* — Toggle (switch controlado, role="switch", foco naranja, target ≥44px) — */
 export function Toggle({
