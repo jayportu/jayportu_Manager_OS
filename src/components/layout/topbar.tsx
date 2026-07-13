@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, LogOut, Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { MOBILE_MENU_OPEN_EVENT } from "./mobile-menu";
@@ -15,9 +15,11 @@ interface TopbarProps {
 }
 
 /**
- * DROP. — Topbar (Type Beat).
- * Bg cream con borde inferior 2px ink. Mobile: logo + ticker.
- * Desktop: search + email + cerrar sesión en estilo brutalist.
+ * DROP. — Topbar (Hybrid OS · glass).
+ * Panel frosted (blur + fondo semi-transparente, UNA sola capa de blur en el
+ * `<header>`) sobre el fondo oscuro de la app — mismo lenguaje que
+ * `src/components/layout/sidebar.tsx` y `_kit/shell.tsx`. Mobile: logo + banners.
+ * Desktop: banners + email + cerrar sesión. Sin buscador (búsqueda real = T1 aparte).
  */
 export function Topbar({
   userEmail,
@@ -75,8 +77,11 @@ export function Topbar({
 
   return (
     <header
-      className="border-b-2 border-border bg-cream flex items-center gap-3 shrink-0 relative w-full overflow-hidden"
+      className="border-b border-white/10 flex items-center gap-3 shrink-0 relative w-full overflow-hidden"
       style={{
+        background: "rgba(18,18,18,0.5)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         paddingTop: "env(safe-area-inset-top)",
         paddingLeft: "calc(env(safe-area-inset-left) + 1.25rem)",
         paddingRight: "calc(env(safe-area-inset-right) + 1.25rem)",
@@ -105,10 +110,10 @@ export function Topbar({
             fontSize: "24px",
             lineHeight: 1,
             letterSpacing: "-0.02em",
-            color: "#0A0A0A",
+            color: "rgb(var(--drop-fg))",
           }}
         >
-          DROP<span style={{ color: "#E85A0C", marginLeft: "-0.06em" }}>.</span>
+          DROP<span style={{ color: "rgb(var(--drop-orange))", marginLeft: "-0.06em" }}>.</span>
         </span>
         <span className="ml-3 font-mono text-[9px] font-bold tracking-[0.15em] text-fg-muted hidden sm:inline">
           — THE DJ OS
@@ -137,17 +142,9 @@ export function Topbar({
         </a>
       )}
 
-      {/* Search (desktop) */}
-      <div className="hidden md:flex flex-1 max-w-md relative">
-        <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          placeholder="BUSCAR CONTACTO, VENUE, FECHA…"
-          className="w-full h-10 pl-10 pr-4 bg-bg-panel border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.05em] placeholder:text-fg-subtle focus:outline-none focus:border-orange transition-colors"
-        />
-      </div>
-
-      <div className="flex-1 md:hidden" />
+      {/* Spacer — empuja email + logout a la derecha (antes lo hacía el
+          buscador en desktop; búsqueda real = ticket T1 aparte). */}
+      <div className="flex-1" />
 
       {/* User actions */}
       <div className="flex items-center gap-3">
