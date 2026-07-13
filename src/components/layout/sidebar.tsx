@@ -6,27 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ComingSoonBadge } from "@/components/coming-soon";
-import {
-  LayoutDashboard,
-  Users,
-  Compass,
-  Megaphone,
-  CalendarDays,
-  FileImage,
-  LayoutTemplate,
-  Mail,
-  TrendingUp,
-  Settings,
-  Building2,
-  User,
-  SlidersHorizontal,
-  Link2,
-  Share2,
-  Ticket,
-  ListChecks,
-  LifeBuoy,
-  type LucideIcon,
-} from "lucide-react";
+import { NAV_GROUPS, filterNav, type NavGroup } from "@/lib/nav-config";
 
 /**
  * DROP. — Sidebar desktop (Type Beat brutalist poster).
@@ -40,97 +20,6 @@ import {
  * Items con `comingSoon: true` muestran badge "pronto" y la página interna
  * renderiza <ComingSoon /> en lugar de la UI real (beta cerrada).
  */
-
-interface NavChild {
-  href: string;
-  label: string;
-}
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  comingSoon?: boolean;
-  children?: NavChild[];
-}
-
-interface NavGroup {
-  /** Cabecera de sección (mono, mayúsculas). Sin section = bloque suelto arriba. */
-  section?: string;
-  items: NavItem[];
-}
-
-const NAV_GROUPS: NavGroup[] = [
-  { items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] },
-  {
-    section: "PERFIL",
-    items: [
-      { href: "/perfil", label: "Perfil", icon: User },
-      {
-        href: "/press-kit",
-        label: "Press kit",
-        icon: FileImage,
-        children: [
-          { href: "/press-kit/stats", label: "Estadísticas" },
-          // El inbox de bookings vive dentro de /press-kit (el índice
-          // /press-kit/bookings redirige ahí). Apuntamos al padre.
-          { href: "/press-kit", label: "Bookings" },
-        ],
-      },
-      { href: "/redes", label: "Redes & Cuentas", icon: Share2 },
-      { href: "/link-in-bio", label: "Link-in-bio", icon: Link2 },
-    ],
-  },
-  {
-    section: "NEGOCIO",
-    items: [
-      {
-        href: "/crm",
-        label: "CRM",
-        icon: Users,
-        children: [{ href: "/crm/recurrentes", label: "Recurrentes" }],
-      },
-      { href: "/descubrir", label: "Descubrir", icon: Compass },
-      { href: "/campanas", label: "Campañas", icon: Megaphone },
-      { href: "/gmail", label: "Correo", icon: Mail },
-      { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
-      // "Lugares" se filtra si no hay venues verificados (ver showLugares).
-      { href: "/lugares", label: "Lugares", icon: Building2 },
-      { href: "/convocatorias", label: "Convocatorias", icon: Ticket },
-    ],
-  },
-  {
-    section: "AGENDA",
-    items: [
-      { href: "/calendario", label: "Calendario", icon: CalendarDays },
-      {
-        href: "/growth",
-        label: "Growth",
-        icon: TrendingUp,
-        children: [
-          { href: "/growth/posts", label: "Posts" },
-          { href: "/growth/ads", label: "Ads" },
-        ],
-      },
-      { href: "/tareas", label: "Tareas", icon: ListChecks },
-    ],
-  },
-  {
-    section: "PRODUCCIÓN",
-    // Tech rider vive dentro de Configuración; lo surfaceamos con ancla directa.
-    items: [
-      { href: "/configuracion#tech-rider", label: "Tech rider", icon: SlidersHorizontal },
-    ],
-  },
-  {
-    section: "AYUDA",
-    items: [{ href: "/soporte", label: "Soporte", icon: LifeBuoy }],
-  },
-  {
-    section: "SISTEMA",
-    items: [{ href: "/configuracion", label: "Configuración", icon: Settings }],
-  },
-];
 
 interface SidebarProps {
   userEmail?: string;
@@ -168,10 +57,7 @@ export function Sidebar({
   );
   const toggleItem = (href: string) =>
     setOpenItems((prev) => ({ ...prev, [href]: !prev[href] }));
-  const navGroups: NavGroup[] = NAV_GROUPS.map((g) => ({
-    ...g,
-    items: showLugares ? g.items : g.items.filter((i) => i.href !== "/lugares"),
-  })).filter((g) => g.items.length > 0);
+  const navGroups: NavGroup[] = filterNav(NAV_GROUPS, { showLugares });
   const displayName = artistName && artistName.trim().length > 0
     ? artistName.trim().toUpperCase()
     : "TU NOMBRE";

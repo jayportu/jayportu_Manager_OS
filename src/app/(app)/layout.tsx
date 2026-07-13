@@ -161,6 +161,7 @@ export default async function AppLayout({
         isAdmin={profile?.is_admin === true}
         artistName={profile?.artist_name ?? null}
         avatarUrl={profile?.avatar_url ?? null}
+        showLugares={showLugares}
       />
       {/* Sprint 23.5 — Modal NPS día 7 / día 15 (solo beta active con hito pendiente) */}
       {betaState.pendingNps && <NpsModal milestone={betaState.pendingNps} />}

@@ -6,27 +6,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ComingSoonBadge } from "@/components/coming-soon";
-import {
-  X,
-  LayoutDashboard,
-  Users,
-  Compass,
-  Megaphone,
-  CalendarDays,
-  FileImage,
-  LayoutTemplate,
-  Mail,
-  TrendingUp,
-  Settings,
-  User,
-  SlidersHorizontal,
-  Link2,
-  Share2,
-  Ticket,
-  ListChecks,
-  LifeBuoy,
-  type LucideIcon,
-} from "lucide-react";
+import { X } from "lucide-react";
+import { NAV_GROUPS, filterNav } from "@/lib/nav-config";
 
 /**
  * Evento que el Topbar dispara desde su botón hamburguesa para abrir este
@@ -47,98 +28,13 @@ export const MOBILE_MENU_OPEN_EVENT = "drop:mobile-menu-open";
  * se cierra con X, click en backdrop, ESC, o al cambiar de ruta.
  */
 
-interface NavChild {
-  href: string;
-  label: string;
-}
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  comingSoon?: boolean;
-  children?: NavChild[];
-}
-
-interface NavGroup {
-  section?: string;
-  items: NavItem[];
-}
-
-// Mismo agrupamiento que el sidebar desktop (sin "Lugares": el drawer mobile
-// no recibe showLugares, así que se omite igual que antes).
-const NAV_GROUPS: NavGroup[] = [
-  { items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] },
-  {
-    section: "PERFIL",
-    items: [
-      { href: "/perfil", label: "Perfil", icon: User },
-      {
-        href: "/press-kit",
-        label: "Press kit",
-        icon: FileImage,
-        children: [
-          { href: "/press-kit/stats", label: "Estadísticas" },
-          { href: "/press-kit", label: "Bookings" },
-        ],
-      },
-      { href: "/redes", label: "Redes & Cuentas", icon: Share2 },
-      { href: "/link-in-bio", label: "Link-in-bio", icon: Link2 },
-    ],
-  },
-  {
-    section: "NEGOCIO",
-    items: [
-      {
-        href: "/crm",
-        label: "CRM",
-        icon: Users,
-        children: [{ href: "/crm/recurrentes", label: "Recurrentes" }],
-      },
-      { href: "/descubrir", label: "Descubrir", icon: Compass },
-      { href: "/campanas", label: "Campañas", icon: Megaphone },
-      { href: "/gmail", label: "Correo", icon: Mail },
-      { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
-      { href: "/convocatorias", label: "Convocatorias", icon: Ticket },
-    ],
-  },
-  {
-    section: "AGENDA",
-    items: [
-      { href: "/calendario", label: "Calendario", icon: CalendarDays },
-      {
-        href: "/growth",
-        label: "Growth",
-        icon: TrendingUp,
-        children: [
-          { href: "/growth/posts", label: "Posts" },
-          { href: "/growth/ads", label: "Ads" },
-        ],
-      },
-      { href: "/tareas", label: "Tareas", icon: ListChecks },
-    ],
-  },
-  {
-    section: "PRODUCCIÓN",
-    items: [
-      { href: "/configuracion#tech-rider", label: "Tech rider", icon: SlidersHorizontal },
-    ],
-  },
-  {
-    section: "AYUDA",
-    items: [{ href: "/soporte", label: "Soporte", icon: LifeBuoy }],
-  },
-  {
-    section: "SISTEMA",
-    items: [{ href: "/configuracion", label: "Configuración", icon: Settings }],
-  },
-];
-
 interface MobileMenuProps {
   userEmail?: string;
   isAdmin?: boolean;
   artistName?: string | null;
   avatarUrl?: string | null;
+  /** "Lugares" solo se muestra si hay venues verificados (mismo valor que Sidebar). */
+  showLugares?: boolean;
 }
 
 export function MobileMenu({
@@ -146,6 +42,7 @@ export function MobileMenu({
   isAdmin = false,
   artistName,
   avatarUrl,
+  showLugares = true,
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -161,6 +58,7 @@ export function MobileMenu({
   );
   const toggleItem = (href: string) =>
     setOpenItems((prev) => ({ ...prev, [href]: !prev[href] }));
+  const navGroups = filterNav(NAV_GROUPS, { showLugares });
 
   const displayName =
     artistName && artistName.trim().length > 0
@@ -251,7 +149,7 @@ export function MobileMenu({
 
         {/* Nav agrupada (mismo agrupamiento que sidebar desktop) */}
         <nav className="flex-1 overflow-y-auto py-2">
-          {NAV_GROUPS.map((group, gi) => (
+          {navGroups.map((group, gi) => (
             <div key={group.section ?? `m-top-${gi}`}>
               {group.section && (
                 <div className="px-[22px] pt-[13px] pb-[4px] font-mono text-[9px] font-bold tracking-[0.14em] text-[#555]">
