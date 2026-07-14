@@ -1,5 +1,6 @@
 import { listPlatformAccounts } from "@/lib/queries/platform-accounts";
 import { PlatformAccountsSection } from "./platform-accounts-section";
+import { SectionHero } from "@/components/hos";
 
 /**
  * /redes — "Redes & Cuentas". Conexión de cuentas externas (SoundCloud,
@@ -11,16 +12,11 @@ export default async function RedesPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Redes &amp; Cuentas
-        </h1>
-        <p className="text-sm text-fg-muted mt-1">
-          Conecta tus perfiles públicos para que los snapshots de Growth se
-          actualicen solos. SoundCloud usa scraping HTML público — gratis y sin
-          OAuth.
-        </p>
-      </div>
+      <SectionHero
+        kicker="Perfil · Redes & Cuentas"
+        title="Redes & Cuentas"
+        sub="Conecta tus perfiles públicos para que los snapshots de Growth se actualicen solos. SoundCloud usa scraping HTML público — gratis y sin OAuth."
+      />
       <PlatformAccountsSection accounts={accounts} />
     </div>
   );
