@@ -10,9 +10,11 @@ import {
   Send,
   Clock,
   Eye,
+  Coins,
 } from "lucide-react";
 import { BOOKER_TYPES } from "@/types/database";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, Badge, Alert, FIELD } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 import type { DirectoryVenue, PitchStatus } from "@/lib/queries/booker";
 import { toggleVenueInterestAction, sendPitchAction } from "./actions";
 
@@ -76,140 +78,157 @@ export function VenueCard({
   }
 
   return (
-    <Card className="flex flex-col overflow-hidden">
-      <div className="p-4 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="font-semibold text-fg leading-tight flex items-center gap-1.5">
-              {venue.full_name || "Lugar"}
-              <BadgeCheck className="w-4 h-4 text-success shrink-0" />
-            </div>
-            <div className="text-xs text-fg-muted mt-0.5">
-              {TYPE_LABEL[venue.booker_type] ?? venue.booker_type}
-              {loc && ` · ${loc}`}
-            </div>
+    <GlassPanel>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="flex items-center gap-1.5 font-display text-xl leading-tight">
+            <span className="truncate">{venue.full_name || "Lugar"}</span>
+            <BadgeCheck className="w-4 h-4 shrink-0 text-success" />
+          </h3>
+          <div className="mt-1 font-mono text-[10px] uppercase tracking-wider text-white/45">
+            {TYPE_LABEL[venue.booker_type] ?? venue.booker_type}
+            {loc && ` · ${loc}`}
           </div>
-          {venue.accepts_pitches && (
-            <span className="shrink-0 inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider text-accent bg-accent-soft border border-accent/30 rounded px-1.5 py-0.5">
-              Acepta pitches
-            </span>
-          )}
         </div>
-
-        {venue.bio && (
-          <p className="text-sm text-fg-muted mt-3 leading-relaxed line-clamp-3">
-            {venue.bio}
-          </p>
-        )}
-
-        {(site || ig) && (
-          <div className="flex flex-wrap gap-3 mt-3">
-            {site && (
-              <a href={site} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline inline-flex items-center gap-1">
-                <Globe className="w-3.5 h-3.5" /> Sitio
-              </a>
-            )}
-            {ig && (
-              <a href={ig} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline inline-flex items-center gap-1">
-                <Instagram className="w-3.5 h-3.5" /> Instagram
-              </a>
-            )}
-          </div>
-        )}
-
-        {/* Form de pitch inline */}
-        {showForm && (
-          <div className="mt-4 space-y-2 border-t border-border pt-3">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              maxLength={600}
-              rows={3}
-              placeholder="Quién eres, tu sonido, por qué encajas en este lugar…"
-              className="w-full border-2 border-border bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent resize-y"
-            />
-            <input
-              type="text"
-              value={availability}
-              onChange={(e) => setAvailability(e.target.value)}
-              maxLength={200}
-              placeholder="Disponibilidad (ej. viernes y sábados de marzo)"
-              className="w-full border-2 border-border bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent"
-            />
-            <div className="text-[11px] text-fg-subtle">
-              Se adjunta tu press kit. Cuesta 🪙1 token (se devuelve si no lo ven en 14 días).
-            </div>
-          </div>
-        )}
+        {venue.accepts_pitches && <Badge tone="info">Acepta pitches</Badge>}
       </div>
 
+      {venue.bio && (
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/60">
+          {venue.bio}
+        </p>
+      )}
+
+      {(site || ig) && (
+        <div className="mt-3 flex flex-wrap gap-3">
+          {site && (
+            <a
+              href={site}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-[rgb(var(--drop-orange))] hover:underline"
+            >
+              <Globe className="w-3.5 h-3.5" /> Sitio
+            </a>
+          )}
+          {ig && (
+            <a
+              href={ig}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-[rgb(var(--drop-orange))] hover:underline"
+            >
+              <Instagram className="w-3.5 h-3.5" /> Instagram
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Form de pitch inline */}
+      {showForm && (
+        <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            maxLength={600}
+            rows={3}
+            placeholder="Quién eres, tu sonido, por qué encajas en este lugar…"
+            className={`${FIELD} resize-y`}
+          />
+          <input
+            type="text"
+            value={availability}
+            onChange={(e) => setAvailability(e.target.value)}
+            maxLength={200}
+            placeholder="Disponibilidad (ej. viernes y sábados de marzo)"
+            className={FIELD}
+          />
+          <div className="flex items-center gap-1.5 text-[11px] text-white/40">
+            <Coins className="w-3 h-3 shrink-0 text-[rgb(var(--drop-orange))]" />
+            Se adjunta tu press kit. Cuesta 1 token (se devuelve si no lo ven en 14
+            días).
+          </div>
+        </div>
+      )}
+
       {/* Acciones */}
-      <div className="border-t border-border">
+      <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
         {/* Estado del pitch (si ya mandó) */}
         {pitchStatus === "viewed" && (
-          <div className="flex items-center justify-center gap-2 px-4 py-2.5 bg-success/10 text-success font-mono text-[11px] font-bold uppercase tracking-wider">
-            <Eye className="w-3.5 h-3.5" /> Pitch visto
-          </div>
+          <Badge tone="up" solid>
+            <Eye className="w-3 h-3" /> Pitch visto
+          </Badge>
         )}
         {pitchStatus === "pending" && (
-          <div className="flex items-center justify-center gap-2 px-4 py-2.5 bg-bg-subtle text-fg-muted font-mono text-[11px] font-bold uppercase tracking-wider">
-            <Clock className="w-3.5 h-3.5" /> Pitch enviado · pendiente
-          </div>
+          <Badge tone="neutral">
+            <Clock className="w-3 h-3" /> Pitch enviado · pendiente
+          </Badge>
         )}
 
         {/* Botón de pitch (si acepta y no mandó aún) */}
         {venue.accepts_pitches && pitchStatus === "none" && !showForm && (
-          <button
+          <Button
             type="button"
-            onClick={() => (noTokens ? setErr("Sin tokens de pitch este mes. Renuevan el 1.") : setShowForm(true))}
+            variant="clay"
+            size="sm"
+            className={`w-full ${noTokens ? "cursor-not-allowed opacity-50" : ""}`}
+            onClick={() =>
+              noTokens
+                ? setErr("Sin tokens de pitch este mes. Renuevan el 1.")
+                : setShowForm(true)
+            }
             title={noTokens ? "Sin tokens este mes (renuevan el 1)" : undefined}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 border-b border-border text-fg hover:bg-bg-subtle font-mono text-[11px] font-bold uppercase tracking-wider transition-colors ${
-              noTokens ? "opacity-50 cursor-not-allowed" : ""
-            }`}
           >
-            <Send className="w-3.5 h-3.5" /> Pitch · 🪙1
-          </button>
+            <Send /> Pitch · 1 token
+          </Button>
         )}
         {showForm && (
-          <div className="flex">
-            <button
+          <div className="flex gap-2">
+            <Button
               type="button"
-              onClick={() => { setShowForm(false); setErr(null); }}
+              variant="clay"
+              size="sm"
+              className="flex-1"
+              onClick={() => {
+                setShowForm(false);
+                setErr(null);
+              }}
               disabled={pending}
-              className="flex-1 px-4 py-2.5 border-b border-r border-border text-fg-muted hover:bg-bg-subtle font-mono text-[11px] font-bold uppercase tracking-wider"
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="clayPrimary"
+              size="sm"
+              className="flex-1"
               onClick={submitPitch}
               disabled={pending}
-              className="flex-1 px-4 py-2.5 border-b border-border bg-accent text-white hover:bg-accent/90 font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50"
             >
               {pending ? "Enviando…" : "Enviar pitch"}
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Interés (siempre, gratis) */}
-        <button
+        <Button
           type="button"
+          variant={interested ? "clayPrimary" : "clay"}
+          size="sm"
+          className="w-full"
           onClick={toggleInterest}
           disabled={pending}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50 ${
-            interested ? "bg-accent text-white hover:bg-accent/90" : "text-fg hover:bg-bg-subtle"
-          }`}
         >
-          <Star className={`w-3.5 h-3.5 ${interested ? "fill-current" : ""}`} />
+          <Star className={interested ? "fill-current" : ""} />
           {interested ? "Te interesa tocar acá" : "Me gustaría tocar acá"}
-        </button>
+        </Button>
       </div>
 
       {err && (
-        <div className="text-[10px] text-danger px-4 py-1.5 text-center border-t border-border">
-          {err}
+        <div className="mt-3">
+          <Alert tone="danger">{err}</Alert>
         </div>
       )}
-    </Card>
+    </GlassPanel>
   );
 }

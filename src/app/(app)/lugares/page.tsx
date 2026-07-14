@@ -7,6 +7,8 @@ import { BOOKER_TYPES } from "@/types/database";
 import { VenueCard } from "./venue-card";
 import { SuggestedVenueCard } from "./suggested-venue-card";
 import { Building2, Coins, Compass, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SectionHero, GlassPanel, MonoLabel, EmptyState, SELECT } from "@/components/hos";
 
 /**
  * Fase 3 — Lugares HÍBRIDO (lado DJ):
@@ -57,91 +59,89 @@ export default async function LugaresPage({
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="mb-5">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Building2 className="w-6 h-6 text-accent" />
-          Lugares
-        </h1>
-        <p className="text-sm text-fg-muted mt-1 max-w-xl">
-          Venues verificados en DROP (mándales un pitch) y sugerencias de tu
-          ciudad para prospectar y sumar a tu CRM.
-        </p>
-      </div>
-
-      {/* Barra de tokens de pitch */}
-      <div className="flex items-center justify-between gap-3 flex-wrap border-2 border-border bg-ink text-white px-4 py-3 mb-5">
-        <div className="flex items-center gap-2 text-sm">
-          <Coins className="w-4 h-4 text-orange" />
-          <span className="font-display text-lg text-orange tabular-nums">
-            {tokens.available}/{tokens.allowance}
+      <SectionHero
+        kicker="Negocio · Lugares"
+        title="Lugares"
+        sub="Venues verificados en DROP (mándales un pitch) y sugerencias de tu ciudad para prospectar y sumar a tu CRM."
+        actions={
+          <span className="hos-clay inline-flex items-center gap-2 rounded-full px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/85">
+            <Coins className="w-3.5 h-3.5 text-[rgb(var(--drop-orange))]" aria-hidden />
+            <span className="tabular-nums text-[rgb(var(--drop-orange))]">
+              {tokens.available}/{tokens.allowance}
+            </span>
+            tokens de pitch
           </span>
-          <span>tokens de pitch este mes</span>
-          <span className="font-mono text-[10px] text-white/50 uppercase tracking-wider hidden sm:inline">
-            · renuevan el 1 · cada pitch = 🪙1
-          </span>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filtros (GET form, sin JS): ciudad + tipo */}
-      <form method="get" className="flex flex-wrap items-end gap-3 mb-8">
-        <label className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
-            Ciudad
-          </span>
-          <select
-            name="city"
-            defaultValue={suggestCity}
-            className="border-2 border-border bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent"
-          >
-            {cityOptions.map((c) => (
-              <option key={c} value={c}>
-                {c}
+      <GlassPanel className="mb-8">
+        <form method="get" className="flex flex-wrap items-end gap-3">
+          <div className="min-w-[160px]">
+            <label
+              htmlFor="filter-city"
+              className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wider text-white/50"
+            >
+              Ciudad
+            </label>
+            <select
+              id="filter-city"
+              name="city"
+              defaultValue={suggestCity}
+              className={SELECT}
+            >
+              {cityOptions.map((c) => (
+                <option key={c} value={c} className="bg-bg-panel">
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="min-w-[160px]">
+            <label
+              htmlFor="filter-type"
+              className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wider text-white/50"
+            >
+              Tipo (verificados)
+            </label>
+            <select
+              id="filter-type"
+              name="type"
+              defaultValue={sp.type ?? ""}
+              className={SELECT}
+            >
+              <option value="" className="bg-bg-panel">
+                Todos
               </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
-            Tipo (verificados)
-          </span>
-          <select
-            name="type"
-            defaultValue={sp.type ?? ""}
-            className="border-2 border-border bg-bg-panel px-2.5 py-2 text-sm outline-none focus:border-accent"
-          >
-            <option value="">Todos</option>
-            {BOOKER_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="submit"
-          className="px-4 py-2 border-2 border-border bg-accent text-white font-mono text-[11px] font-bold uppercase tracking-wider hover:bg-accent/90"
-        >
-          Filtrar
-        </button>
-      </form>
+              {BOOKER_TYPES.map((t) => (
+                <option key={t.value} value={t.value} className="bg-bg-panel">
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button type="submit" variant="clay" size="sm">
+            Filtrar
+          </Button>
+        </form>
+      </GlassPanel>
 
       {/* ── Sección: Verificados ── */}
-      <div className="flex items-center gap-2 mb-3">
-        <Building2 className="w-4 h-4 text-accent" />
-        <h2 className="text-sm font-semibold uppercase tracking-wider">
-          Verificados en DROP
-        </h2>
+      <div className="mb-3">
+        <MonoLabel>Verificados en DROP</MonoLabel>
       </div>
       {venues.length === 0 ? (
-        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center mb-10">
-          <p className="text-sm text-fg-muted max-w-md mx-auto">
-            No hay venues verificados
-            {sp.city || sp.type ? " con esos filtros" : " todavía"}. Prueba con
-            los sugeridos de abajo.
-          </p>
+        <div className="mb-10">
+          <EmptyState
+            icon={Building2}
+            title="Sin verificados"
+            sub={`No hay venues verificados${
+              sp.city || sp.type ? " con esos filtros" : " todavía"
+            }. Prueba con los sugeridos de abajo.`}
+          />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+        <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {venues.map((v) => (
             <VenueCard key={v.user_id} venue={v} tokensAvailable={tokens.available} />
           ))}
@@ -149,13 +149,10 @@ export default async function LugaresPage({
       )}
 
       {/* ── Sección: Sugeridos (OSM) — streaming ── */}
-      <div className="flex items-center gap-2 mb-1">
-        <Compass className="w-4 h-4 text-orange" />
-        <h2 className="text-sm font-semibold uppercase tracking-wider">
-          Sugeridos en {suggestCity}
-        </h2>
+      <div className="mb-2">
+        <MonoLabel>Sugeridos en {suggestCity}</MonoLabel>
       </div>
-      <p className="text-xs text-fg-muted mb-3 flex items-center gap-1">
+      <p className="mb-4 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-white/40">
         <MapPin className="w-3 h-3" />
         Sin verificar — traídos de OpenStreetMap. Verifica los datos antes de
         contactar.
@@ -180,29 +177,30 @@ async function SuggestedSection({
 
   if (suggested.error) {
     return (
-      <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-        <p className="text-sm text-fg-muted">{suggested.error}</p>
-      </div>
+      <EmptyState
+        icon={Compass}
+        title="No pudimos cargar sugerencias"
+        sub={suggested.error}
+      />
     );
   }
   if (suggested.venues.length === 0) {
     return (
-      <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-        <p className="text-sm text-fg-muted">
-          No encontramos sugerencias para {city}. Prueba con otra ciudad en el
-          filtro.
-        </p>
-      </div>
+      <EmptyState
+        icon={Compass}
+        title={`Sin sugerencias para ${city}`}
+        sub="Prueba con otra ciudad en el filtro."
+      />
     );
   }
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {suggested.venues.map((v) => (
           <SuggestedVenueCard key={v.sourceId} venue={v} />
         ))}
       </div>
-      <p className="mt-6 font-mono text-[10px] text-fg-subtle uppercase tracking-wider">
+      <p className="mt-6 font-mono text-[10px] uppercase tracking-wider text-white/40">
         {suggested.attribution}
       </p>
     </>
@@ -213,14 +211,14 @@ async function SuggestedSection({
 function SuggestedSkeleton({ city }: { city: string }) {
   return (
     <div>
-      <p className="text-sm text-fg-muted mb-4">
+      <p className="mb-4 font-mono text-[11px] uppercase tracking-wider text-white/40">
         Buscando venues en {city}…
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="border-2 border-border rounded-lg h-32 animate-pulse bg-bg-subtle"
+            className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/[0.04]"
           />
         ))}
       </div>
