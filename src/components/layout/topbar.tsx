@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, LogOut, Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { MOBILE_MENU_OPEN_EVENT } from "./mobile-menu";
@@ -15,9 +15,11 @@ interface TopbarProps {
 }
 
 /**
- * DROP. — Topbar (Type Beat).
- * Bg cream con borde inferior 2px ink. Mobile: logo + ticker.
- * Desktop: search + email + cerrar sesión en estilo brutalist.
+ * DROP. — Topbar (Hybrid OS · glass).
+ * Panel frosted (blur + fondo semi-transparente, UNA sola capa de blur en el
+ * `<header>`) sobre el fondo oscuro de la app — mismo lenguaje que
+ * `src/components/layout/sidebar.tsx` y `_kit/shell.tsx`. Mobile: logo + banners.
+ * Desktop: banners + email + cerrar sesión. Sin buscador (búsqueda real = T1 aparte).
  */
 export function Topbar({
   userEmail,
@@ -64,6 +66,10 @@ export function Topbar({
   const router = useRouter();
   const supabase = createClient();
 
+  // Foco visible naranja, consistente con Sidebar/MobileMenu (mismo string).
+  const FOCUS_RING =
+    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E85A0C]";
+
   async function handleLogout() {
     await supabase.auth.signOut();
     // Al cerrar sesión va al LANDING público (/), no a /login — consistente con
@@ -75,8 +81,11 @@ export function Topbar({
 
   return (
     <header
-      className="border-b-2 border-border bg-cream flex items-center gap-3 shrink-0 relative w-full overflow-hidden"
+      className="border-b border-white/10 flex items-center gap-3 shrink-0 relative w-full overflow-hidden"
       style={{
+        background: "rgba(18,18,18,0.5)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         paddingTop: "env(safe-area-inset-top)",
         paddingLeft: "calc(env(safe-area-inset-left) + 1.25rem)",
         paddingRight: "calc(env(safe-area-inset-right) + 1.25rem)",
@@ -90,7 +99,7 @@ export function Topbar({
           window.dispatchEvent(new CustomEvent(MOBILE_MENU_OPEN_EVENT))
         }
         aria-label="Abrir menú"
-        className="md:hidden h-10 w-10 -ml-2 mr-1 flex items-center justify-center text-fg hover:text-orange transition-colors shrink-0"
+        className={`md:hidden h-10 w-10 -ml-2 mr-1 flex items-center justify-center text-fg hover:text-orange transition-colors shrink-0 ${FOCUS_RING}`}
       >
         <Menu className="w-6 h-6" strokeWidth={2.25} />
       </button>
@@ -105,10 +114,10 @@ export function Topbar({
             fontSize: "24px",
             lineHeight: 1,
             letterSpacing: "-0.02em",
-            color: "#0A0A0A",
+            color: "rgb(var(--drop-fg))",
           }}
         >
-          DROP<span style={{ color: "#E85A0C", marginLeft: "-0.06em" }}>.</span>
+          DROP<span style={{ color: "rgb(var(--drop-orange))", marginLeft: "-0.06em" }}>.</span>
         </span>
         <span className="ml-3 font-mono text-[9px] font-bold tracking-[0.15em] text-fg-muted hidden sm:inline">
           — THE DJ OS
@@ -130,24 +139,16 @@ export function Topbar({
       {trialLabel && trialBannerColor && (
         <a
           href="/suscripcion"
-          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor}`}
+          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor} ${FOCUS_RING}`}
           title="Click para suscribirte ahora"
         >
           {trialLabel}
         </a>
       )}
 
-      {/* Search (desktop) */}
-      <div className="hidden md:flex flex-1 max-w-md relative">
-        <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          placeholder="BUSCAR CONTACTO, VENUE, FECHA…"
-          className="w-full h-10 pl-10 pr-4 bg-bg-panel border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.05em] placeholder:text-fg-subtle focus:outline-none focus:border-orange transition-colors"
-        />
-      </div>
-
-      <div className="flex-1 md:hidden" />
+      {/* Spacer — empuja email + logout a la derecha (antes lo hacía el
+          buscador en desktop; búsqueda real = ticket T1 aparte). */}
+      <div className="flex-1" />
 
       {/* User actions */}
       <div className="flex items-center gap-3">
@@ -156,7 +157,7 @@ export function Topbar({
         </span>
         <button
           onClick={handleLogout}
-          className="h-9 px-3 border-2 border-border bg-ink text-orange hover:bg-orange hover:text-ink font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5"
+          className={`h-9 px-3 border-2 border-border bg-ink text-orange hover:bg-orange hover:text-ink font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5 ${FOCUS_RING}`}
         >
           <LogOut className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">SALIR</span>

@@ -6,27 +6,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ComingSoonBadge } from "@/components/coming-soon";
-import {
-  X,
-  LayoutDashboard,
-  Users,
-  Compass,
-  Megaphone,
-  CalendarDays,
-  FileImage,
-  LayoutTemplate,
-  Mail,
-  TrendingUp,
-  Settings,
-  User,
-  SlidersHorizontal,
-  Link2,
-  Share2,
-  Ticket,
-  ListChecks,
-  LifeBuoy,
-  type LucideIcon,
-} from "lucide-react";
+import { X } from "lucide-react";
+import { NAV_GROUPS, filterNav } from "@/lib/nav-config";
 
 /**
  * Evento que el Topbar dispara desde su botón hamburguesa para abrir este
@@ -36,116 +17,39 @@ import {
 export const MOBILE_MENU_OPEN_EVENT = "drop:mobile-menu-open";
 
 /**
- * Menú mobile · drawer desplegable que reemplaza el BottomNav.
+ * Menú mobile · drawer desplegable que reemplaza el BottomNav (Hybrid OS ·
+ * glass). Panel frosted (blur + fondo semi-transparente, UNA sola capa de
+ * blur en el `<aside>`) sobre el backdrop oscuro — mismo lenguaje que
+ * `src/components/layout/sidebar.tsx` y `_kit/shell.tsx` (drawer mobile).
  *
  * Mismo set de items y mismos íconos que el sidebar desktop, en formato
- * lista vertical. El bloque de Artista al pie es clickeable → /perfil
- * (igual que en el sidebar).
+ * lista vertical, item activo en bloque CLAY naranja. El bloque de Artista
+ * al pie es clickeable → /perfil (igual que en el sidebar).
  *
- * Trigger: el botón hamburguesa vive en este mismo componente, posicionado
- * para encajar en la zona izquierda del Topbar mobile. Se abre con click,
- * se cierra con X, click en backdrop, ESC, o al cambiar de ruta.
+ * Trigger: el botón hamburguesa vive en Topbar, posicionado para encajar en
+ * la zona izquierda del Topbar mobile. Se abre con click, se cierra con X,
+ * click en backdrop, ESC, o al cambiar de ruta.
  */
-
-interface NavChild {
-  href: string;
-  label: string;
-}
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  comingSoon?: boolean;
-  children?: NavChild[];
-}
-
-interface NavGroup {
-  section?: string;
-  items: NavItem[];
-}
-
-// Mismo agrupamiento que el sidebar desktop (sin "Lugares": el drawer mobile
-// no recibe showLugares, así que se omite igual que antes).
-const NAV_GROUPS: NavGroup[] = [
-  { items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] },
-  {
-    section: "PERFIL",
-    items: [
-      { href: "/perfil", label: "Perfil", icon: User },
-      {
-        href: "/press-kit",
-        label: "Press kit",
-        icon: FileImage,
-        children: [
-          { href: "/press-kit/stats", label: "Estadísticas" },
-          { href: "/press-kit", label: "Bookings" },
-        ],
-      },
-      { href: "/redes", label: "Redes & Cuentas", icon: Share2 },
-      { href: "/link-in-bio", label: "Link-in-bio", icon: Link2 },
-    ],
-  },
-  {
-    section: "NEGOCIO",
-    items: [
-      {
-        href: "/crm",
-        label: "CRM",
-        icon: Users,
-        children: [{ href: "/crm/recurrentes", label: "Recurrentes" }],
-      },
-      { href: "/descubrir", label: "Descubrir", icon: Compass },
-      { href: "/campanas", label: "Campañas", icon: Megaphone },
-      { href: "/gmail", label: "Correo", icon: Mail },
-      { href: "/plantillas", label: "Plantillas", icon: LayoutTemplate },
-      { href: "/convocatorias", label: "Convocatorias", icon: Ticket },
-    ],
-  },
-  {
-    section: "AGENDA",
-    items: [
-      { href: "/calendario", label: "Calendario", icon: CalendarDays },
-      {
-        href: "/growth",
-        label: "Growth",
-        icon: TrendingUp,
-        children: [
-          { href: "/growth/posts", label: "Posts" },
-          { href: "/growth/ads", label: "Ads" },
-        ],
-      },
-      { href: "/tareas", label: "Tareas", icon: ListChecks },
-    ],
-  },
-  {
-    section: "PRODUCCIÓN",
-    items: [
-      { href: "/configuracion#tech-rider", label: "Tech rider", icon: SlidersHorizontal },
-    ],
-  },
-  {
-    section: "AYUDA",
-    items: [{ href: "/soporte", label: "Soporte", icon: LifeBuoy }],
-  },
-  {
-    section: "SISTEMA",
-    items: [{ href: "/configuracion", label: "Configuración", icon: Settings }],
-  },
-];
 
 interface MobileMenuProps {
   userEmail?: string;
   isAdmin?: boolean;
   artistName?: string | null;
   avatarUrl?: string | null;
+  /** "Lugares" solo se muestra si hay venues verificados (mismo valor que Sidebar). */
+  showLugares?: boolean;
 }
+
+// Foco visible naranja, consistente con Sidebar/Topbar.
+const FOCUS_RING =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E85A0C]";
 
 export function MobileMenu({
   userEmail,
   isAdmin = false,
   artistName,
   avatarUrl,
+  showLugares = true,
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -161,6 +65,7 @@ export function MobileMenu({
   );
   const toggleItem = (href: string) =>
     setOpenItems((prev) => ({ ...prev, [href]: !prev[href] }));
+  const navGroups = filterNav(NAV_GROUPS, { showLugares });
 
   const displayName =
     artistName && artistName.trim().length > 0
@@ -197,7 +102,7 @@ export function MobileMenu({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — dim plano, sin blur (el blur vive solo en el panel) */}
       <div
         className={cn(
           "md:hidden fixed inset-0 z-[60] bg-ink/70 transition-opacity duration-200",
@@ -207,19 +112,24 @@ export function MobileMenu({
         aria-hidden="true"
       />
 
-      {/* Drawer */}
+      {/* Drawer — panel glass frosted (única capa de blur) */}
       <aside
         className={cn(
-          "md:hidden fixed inset-y-0 left-0 z-[70] w-[280px] max-w-[85vw] bg-ink text-white border-r-2 border-orange flex flex-col overflow-hidden transition-transform duration-300 ease-out",
+          "md:hidden fixed inset-y-0 left-0 z-[70] w-[280px] max-w-[85vw] text-white border-r border-white/10 flex flex-col overflow-hidden transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "-translate-x-full"
         )}
+        style={{
+          background: "rgba(16,16,16,0.92)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+        }}
         role="dialog"
         aria-modal="true"
         aria-label="Menú principal"
       >
         {/* Header naranja con close */}
         <div
-          className="shrink-0 px-[18px] py-[14px] bg-orange text-ink border-b-2 border-border flex items-center justify-between"
+          className="shrink-0 px-[18px] py-[14px] bg-orange text-ink border-b-2 border-white/10 flex items-center justify-between"
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 14px)" }}
         >
           <div>
@@ -243,19 +153,23 @@ export function MobileMenu({
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Cerrar menú"
-            className="h-9 w-9 flex items-center justify-center border-2 border-border hover:bg-ink hover:text-orange transition-colors"
+            className={cn(
+              "h-9 w-9 flex items-center justify-center border-2 border-border hover:bg-ink hover:text-orange transition-colors",
+              FOCUS_RING
+            )}
           >
             <X className="w-5 h-5" strokeWidth={2.25} />
           </button>
         </div>
 
         {/* Nav agrupada (mismo agrupamiento que sidebar desktop) */}
-        <nav className="flex-1 overflow-y-auto py-2">
-          {NAV_GROUPS.map((group, gi) => (
+        <nav className="flex-1 overflow-y-auto py-2 px-3" aria-label="Navegación">
+          {navGroups.map((group, gi) => (
             <div key={group.section ?? `m-top-${gi}`}>
               {group.section && (
-                <div className="px-[22px] pt-[13px] pb-[4px] font-mono text-[9px] font-bold tracking-[0.14em] text-[#555]">
-                  {group.section}
+                <div className="flex items-center gap-2 px-2 pt-3 pb-1 font-mono text-[9px] font-bold tracking-[0.16em] uppercase text-white/35">
+                  <span>{group.section}</span>
+                  <span className="h-px flex-1 bg-white/10" />
                 </div>
               )}
               {group.items.map(({ href, label, icon: Icon, comingSoon, children }) => {
@@ -268,26 +182,37 @@ export function MobileMenu({
                 const isOpen = hasChildren ? !!openItems[href] : false;
                 return (
                   <div key={href}>
-                    {/* Fila: el label (Link) navega; el caret (button) togglea. */}
+                    {/* Fila: el label (Link) navega; el caret (button) togglea.
+                        Activo = clay naranja (mismo tratamiento que Sidebar/
+                        NavList del kit). */}
                     <div
                       className={cn(
-                        "grid grid-cols-[1fr_auto] items-center border-l-[3px] transition-colors",
-                        isActive
-                          ? "bg-orange text-ink border-l-border"
-                          : "text-[#aaa] border-transparent"
+                        "grid grid-cols-[1fr_auto] items-center rounded-xl transition-colors",
+                        isActive ? "text-ink" : "text-white/70"
                       )}
+                      style={
+                        isActive
+                          ? {
+                              background: "rgb(var(--drop-orange))",
+                              boxShadow:
+                                "inset 0 1px 0 rgba(255,255,255,.4), 4px 4px 11px #070707",
+                            }
+                          : undefined
+                      }
                     >
                       <Link
                         href={href}
+                        aria-current={isActive ? "page" : undefined}
                         className={cn(
-                          "flex items-center gap-3 px-[22px] py-[11px] min-w-0 font-mono text-[12px] font-bold uppercase tracking-[0.08em]",
-                          !isActive && "hover:bg-[#1a1a1a] hover:text-white"
+                          "flex items-center gap-2.5 rounded-xl px-3 py-3 min-w-0 font-mono text-[12px] font-bold uppercase tracking-[0.08em]",
+                          !isActive && "hover:bg-white/8 hover:text-white",
+                          FOCUS_RING
                         )}
                       >
                         <Icon
                           className={cn(
                             "w-4 h-4 shrink-0",
-                            isActive ? "text-fg" : "text-orange"
+                            isActive ? "text-ink" : "text-orange"
                           )}
                           strokeWidth={2.25}
                         />
@@ -305,8 +230,9 @@ export function MobileMenu({
                           aria-expanded={isOpen}
                           aria-label={`${isOpen ? "Colapsar" : "Expandir"} ${label}`}
                           className={cn(
-                            "self-stretch flex items-center px-[18px] transition-colors",
-                            isActive ? "text-ink" : "text-[#777] hover:text-white"
+                            "self-stretch flex items-center px-3 transition-colors",
+                            isActive ? "text-ink" : "text-white/40 hover:text-white",
+                            FOCUS_RING
                           )}
                         >
                           <span
@@ -323,7 +249,7 @@ export function MobileMenu({
                     </div>
 
                     {hasChildren && isOpen && (
-                      <div className="bg-[#0d0d0d]">
+                      <div className="ml-4 mt-0.5 mb-1 flex flex-col border-l border-white/12 pl-3">
                         {children!.map((child) => {
                           const childActive =
                             pathname === child.href ||
@@ -332,16 +258,15 @@ export function MobileMenu({
                             <Link
                               key={child.href}
                               href={child.href}
+                              aria-current={childActive ? "page" : undefined}
                               className={cn(
-                                "flex items-center gap-2 pl-[46px] pr-[22px] py-[9px] font-mono text-[11px] font-bold uppercase tracking-[0.06em] border-l-[3px] border-transparent transition-colors",
+                                "py-2 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors",
                                 childActive
                                   ? "text-orange"
-                                  : "text-[#8a8a8a] hover:text-white"
+                                  : "text-white/50 hover:text-white",
+                                FOCUS_RING
                               )}
                             >
-                              <span aria-hidden="true" className="text-[#3a3a3a]">
-                                └
-                              </span>
                               <span className="truncate">{child.label}</span>
                             </Link>
                           );
@@ -356,15 +281,26 @@ export function MobileMenu({
 
           {isAdmin && (
             <>
-              <div className="my-[10px] mx-[22px] border-t-2 border-dashed border-[#2a2a2a]" />
+              <div className="my-[10px] border-t-2 border-dashed border-white/10" />
               <Link
                 href="/admin"
+                aria-current={pathname.startsWith("/admin") ? "page" : undefined}
                 className={cn(
-                  "mx-[22px] px-3 py-[7px] border border-orange font-mono text-[10px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2",
+                  "mb-1 flex items-center justify-center gap-2 rounded-xl px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors",
                   pathname.startsWith("/admin")
-                    ? "bg-orange text-ink"
-                    : "text-orange hover:bg-orange hover:text-ink"
+                    ? "text-ink"
+                    : "border border-white/15 text-orange hover:bg-white/8",
+                  FOCUS_RING
                 )}
+                style={
+                  pathname.startsWith("/admin")
+                    ? {
+                        background: "rgb(var(--drop-orange))",
+                        boxShadow:
+                          "inset 0 1px 0 rgba(255,255,255,.4), 4px 4px 11px #070707",
+                      }
+                    : undefined
+                }
               >
                 + ADMIN · BACKSTAGE
               </Link>
@@ -372,10 +308,13 @@ export function MobileMenu({
           )}
         </nav>
 
-        {/* Artist card al pie — clickeable → /perfil (mirror desktop) */}
+        {/* Artist card al pie — clickeable → /perfil, clay (mirror desktop) */}
         <Link
           href="/perfil"
-          className="shrink-0 m-[14px] p-[12px] bg-[#161616] border border-[#2a2a2a] relative hover:bg-[#202020] transition-colors"
+          className={cn(
+            "hos-clay shrink-0 m-3 rounded-2xl p-3 relative transition-opacity hover:opacity-90",
+            FOCUS_RING
+          )}
         >
           <div
             className="absolute -top-[8px] left-[12px] bg-ink px-[6px] font-mono text-[8px] font-bold text-orange"
@@ -392,11 +331,11 @@ export function MobileMenu({
                 alt={displayName}
                 width={38}
                 height={38}
-                className="w-[38px] h-[38px] object-cover shrink-0"
+                className="w-[38px] h-[38px] rounded-full object-cover shrink-0"
               />
             ) : (
               <div
-                className="w-[38px] h-[38px] bg-orange text-ink flex items-center justify-center shrink-0"
+                className="w-[38px] h-[38px] rounded-full bg-orange text-ink flex items-center justify-center shrink-0"
                 style={{
                   fontFamily:
                     "var(--font-anton), Impact, system-ui, sans-serif",
@@ -420,7 +359,7 @@ export function MobileMenu({
                 {displayName}
               </div>
               <div
-                className="font-mono text-[8px] text-[#666] mt-[2px] truncate"
+                className="font-mono text-[8px] text-white/40 mt-[2px] truncate"
                 style={{ letterSpacing: "0.04em" }}
               >
                 {userEmail || "DJ · LATAM"}
@@ -432,10 +371,13 @@ export function MobileMenu({
         {/* Bloque contacto — mirror del sidebar desktop */}
         <a
           href="mailto:hola@dropgigs.com"
-          className="block shrink-0 mx-[14px] mb-[14px] px-[14px] py-[10px] border-t border-[#2a2a2a] group transition-opacity hover:opacity-100 opacity-80"
+          className={cn(
+            "block shrink-0 mx-3 mb-3 px-[14px] py-[10px] border-t border-white/10 group transition-opacity hover:opacity-100 opacity-80",
+            FOCUS_RING
+          )}
         >
           <div
-            className="font-mono text-[8px] text-[#666] group-hover:text-orange transition-colors"
+            className="font-mono text-[8px] text-white/40 group-hover:text-orange transition-colors"
             style={{ letterSpacing: "0.08em" }}
           >
             <span className="text-orange">→</span>&nbsp; CONTACTO

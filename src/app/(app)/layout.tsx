@@ -134,6 +134,24 @@ export default async function AppLayout({
     {/* Latido de presencia: marca al DJ como "LIVE" para los bookers. */}
     <PresenceHeartbeat />
     <div className="flex h-screen overflow-hidden">
+      {/* Hybrid OS — campo ambiente naranja detrás del shell: gradientes radiales
+          puros (sin blur/backdrop-filter propio → costo cero), para que el
+          sidebar/topbar glass (que sí llevan backdrop-filter) tengan algo de
+          color cálido que difuminar. Fixed + z-0 + primer hijo del shell:
+          pinta detrás de Sidebar/Topbar/main (que son position:relative sin
+          z-index propio, así que se apilan después en el orden del DOM).
+          Mismo recipe que el mockup aprobado en
+          `src/app/ui-experiments/app-redesign/_kit/shell.tsx`. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(75% 55% at 88% -8%, rgba(232,90,12,0.17), transparent 60%)," +
+            "radial-gradient(60% 55% at -8% 6%, rgba(232,90,12,0.13), transparent 55%)," +
+            "radial-gradient(55% 60% at 55% 118%, rgba(110,168,254,0.05), transparent 60%)",
+        }}
+      />
       {/* Sidebar fijo (desktop) — se mantiene en su lugar, scrollea internamente si hace falta */}
       <Sidebar
         userEmail={user.email}
@@ -161,6 +179,7 @@ export default async function AppLayout({
         isAdmin={profile?.is_admin === true}
         artistName={profile?.artist_name ?? null}
         avatarUrl={profile?.avatar_url ?? null}
+        showLugares={showLugares}
       />
       {/* Sprint 23.5 — Modal NPS día 7 / día 15 (solo beta active con hito pendiente) */}
       {betaState.pendingNps && <NpsModal milestone={betaState.pendingNps} />}
