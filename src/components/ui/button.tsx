@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
  *   - destructive: bg danger + texto blanco
  *   - secondary: alias de outline (compat retro)
  *   - link: texto subrayable
+ *   - clay: botón pill clay mate (Hybrid OS)
+ *   - clayPrimary: pill naranja Hybrid OS
  */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 border-2",
@@ -34,6 +36,10 @@ const buttonVariants = cva(
           "border-transparent bg-transparent text-fg hover:bg-ink hover:text-orange",
         link:
           "border-transparent bg-transparent text-orange underline-offset-4 hover:underline tracking-normal normal-case font-sans font-semibold",
+        clay:
+          "hos-clay-btn rounded-full border-transparent font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/85 active:translate-y-px",
+        clayPrimary:
+          "rounded-full border-transparent bg-[rgb(var(--drop-orange))] font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0B0B0B] shadow-[var(--hos-clay-btn)] active:translate-y-px",
       },
       size: {
         default: "h-10 px-4 py-2",
