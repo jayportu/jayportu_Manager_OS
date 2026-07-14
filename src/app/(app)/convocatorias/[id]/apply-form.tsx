@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { Send, Check } from "lucide-react";
 import { applyToGigAction } from "../actions";
+import { GlassPanel, Alert, FIELD } from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function ApplyForm({
   gigId,
@@ -18,22 +21,18 @@ export function ApplyForm({
   const [availability, setAvailability] = useState("");
 
   if (alreadyApplied) {
-    return (
-      <div className="border-2 border-border p-4 text-sm text-fg-muted">
-        Ya postulaste a esta convocatoria.
-      </div>
-    );
+    return <Alert tone="info">Ya postulaste a esta convocatoria.</Alert>;
   }
 
   if (done) {
     return (
-      <div className="border-2 border-border p-8 text-center">
+      <GlassPanel className="text-center">
         <Check className="w-10 h-10 text-accent mx-auto mb-3" />
-        <h2 className="text-xl font-bold">¡Postulación enviada!</h2>
-        <p className="text-sm text-fg-muted mt-2">
+        <h2 className="font-display text-xl">¡Postulación enviada!</h2>
+        <p className="text-sm text-white/55 mt-2">
           El organizador recibirá tu mensaje y disponibilidad.
         </p>
-      </div>
+      </GlassPanel>
     );
   }
 
@@ -55,61 +54,61 @@ export function ApplyForm({
   }
 
   return (
-    <div className="flex flex-col gap-3 max-w-xl">
-      <div>
-        <label
-          htmlFor="apply-message"
-          className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1"
-        >
-          Mensaje
-        </label>
-        <textarea
-          id="apply-message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={5}
-          maxLength={2000}
-          placeholder="Cuéntale al organizador por qué eres la mejor opción para esta fecha…"
-          required
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent resize-none"
-        />
-        <div className="text-[10px] text-fg-muted text-right font-mono">
-          {message.length}/2000
+    <GlassPanel>
+      <div className="flex flex-col gap-3">
+        <div>
+          <label
+            htmlFor="apply-message"
+            className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+          >
+            Mensaje
+          </label>
+          <textarea
+            id="apply-message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={5}
+            maxLength={2000}
+            placeholder="Cuéntale al organizador por qué eres la mejor opción para esta fecha…"
+            required
+            className={cn(FIELD, "resize-none")}
+          />
+          <div className="text-[10px] text-white/40 text-right font-mono">
+            {message.length}/2000
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="apply-availability"
+            className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+          >
+            Disponibilidad
+          </label>
+          <input
+            id="apply-availability"
+            value={availability}
+            onChange={(e) => setAvailability(e.target.value)}
+            maxLength={500}
+            placeholder="Ej. Disponible toda la fecha, llego un día antes"
+            className={FIELD}
+          />
+        </div>
+
+        {err && <Alert tone="danger">{err}</Alert>}
+
+        <div>
+          <Button
+            type="button"
+            variant="clayPrimary"
+            onClick={submit}
+            disabled={pending || !message.trim()}
+          >
+            <Send className="w-4 h-4" />
+            {pending ? "Enviando…" : "Postular"}
+          </Button>
         </div>
       </div>
-
-      <div>
-        <label
-          htmlFor="apply-availability"
-          className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1"
-        >
-          Disponibilidad
-        </label>
-        <input
-          id="apply-availability"
-          value={availability}
-          onChange={(e) => setAvailability(e.target.value)}
-          maxLength={500}
-          placeholder="Ej. Disponible toda la fecha, llego un día antes"
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
-        />
-      </div>
-
-      {err && (
-        <div className="text-xs text-danger border-2 border-danger/40 bg-danger/10 p-2">
-          {err}
-        </div>
-      )}
-
-      <button
-        type="button"
-        onClick={submit}
-        disabled={pending || !message.trim()}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-white font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50"
-      >
-        <Send className="w-4 h-4" />
-        {pending ? "Enviando…" : "Postular"}
-      </button>
-    </div>
+    </GlassPanel>
   );
 }
