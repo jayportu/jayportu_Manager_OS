@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getLatestSnapshotsByPlatform } from "@/lib/queries/growth";
+import { SectionHero } from "@/components/hos";
 import { NewGrowthCampaignForm } from "./new-growth-form";
 
 interface PageProps {
@@ -20,24 +21,17 @@ export default async function NuevaGrowthCampaignPage({ searchParams }: PageProp
     <div className="p-6 md:p-10 max-w-3xl mx-auto">
       <Link
         href="/growth/ads"
-        className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-white/50 hover:text-white"
       >
         <ArrowLeft className="w-4 h-4" />
         Volver a Campañas
       </Link>
 
-      <div className="border-2 border-border bg-bg-panel p-6 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — NUEVA CAMPAÑA · {defaultPaid ? "PAGADA" : "ORGÁNICA"}
-        </div>
-        <h1 className="font-display text-4xl leading-none mt-2">
-          REGISTRAR CAMPAÑA<span className="text-orange">.</span>
-        </h1>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
-          Define objetivo, plataformas y plazo. DROP toma snapshot inicial automático
-          para calcular crecimiento.
-        </p>
-      </div>
+      <SectionHero
+        kicker={`Growth · Nueva campaña · ${defaultPaid ? "Pagada" : "Orgánica"}`}
+        title="Registrar campaña"
+        sub="Define objetivo, plataformas y plazo. DROP toma snapshot inicial automático para calcular crecimiento."
+      />
 
       <NewGrowthCampaignForm baselines={baselines} defaultPaid={defaultPaid} />
     </div>

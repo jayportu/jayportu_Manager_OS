@@ -1,5 +1,4 @@
 import { listContentPosts, listGrowthCampaigns } from "@/lib/queries/growth";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -18,6 +17,25 @@ import {
 } from "@/types/database";
 import { shortDate, relativeTime } from "@/lib/format";
 import { PostsBoard } from "./posts-board";
+import {
+  SectionHero,
+  GlassPanel,
+  ClayChip,
+  Badge,
+  EmptyState,
+} from "@/components/hos";
+
+/* Estado de post → tono de Badge (semántico) */
+const POST_STATUS_TONE: Record<
+  PostStatus,
+  "up" | "warn" | "down" | "info" | "neutral"
+> = {
+  idea: "neutral",
+  borrador: "neutral",
+  planeado: "info",
+  publicado: "up",
+  cancelado: "down",
+};
 
 interface PageProps {
   searchParams: Promise<{
@@ -41,54 +59,37 @@ export default async function GrowthPostsPage({ searchParams }: PageProps) {
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <Link
         href="/growth"
-        className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-white/50 hover:text-white"
       >
         <ArrowLeft className="w-4 h-4" />
         Volver a Growth
       </Link>
 
-      {/* Hero brutalist */}
-      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative overflow-hidden">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — GROWTH · CALENDARIO DE CONTENIDO
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
-          POSTS<span className="text-orange">.</span>
-        </h1>
-        <p className="text-sm text-fg-muted mt-2 max-w-2xl">
-          Planea qué postear y cuándo. Drag &amp; drop entre columnas para cambiar
-          estado: idea → borrador → programado → publicado.
-        </p>
-        <div className="mt-4 flex gap-2 flex-wrap items-center">
-          <Button asChild variant="orange">
+      <SectionHero
+        kicker="Growth · Contenido"
+        title="Posts"
+        sub="Tu pipeline de contenido, de la idea a publicado. Arrastra entre columnas para cambiar estado: idea → borrador → programado → publicado."
+        actions={
+          <Button asChild variant="clayPrimary" size="sm">
             <Link href="/growth/posts/nuevo">
               <Plus className="w-4 h-4" />
               Nuevo post
             </Link>
           </Button>
-          <div className="ml-auto flex items-center gap-1">
-            <Link
-              href="/growth/posts?view=board"
-              className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
-                view === "board"
-                  ? "bg-ink text-orange border-border"
-                  : "border-border text-fg hover:bg-ink hover:text-orange"
-              }`}
-            >
-              Trello
-            </Link>
-            <Link
-              href="/growth/posts?view=list"
-              className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
-                view === "list"
-                  ? "bg-ink text-orange border-border"
-                  : "border-border text-fg hover:bg-ink hover:text-orange"
-              }`}
-            >
-              Lista
-            </Link>
-          </div>
-        </div>
+        }
+      />
+
+      {/* Toggle de vista — SSR: ClayChip envuelto en <Link>, hrefs intactos */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <span className="mr-1 font-mono text-[10px] uppercase tracking-wider text-white/40">
+          Vista
+        </span>
+        <Link href="/growth/posts?view=board">
+          <ClayChip active={view === "board"}>Tablero</ClayChip>
+        </Link>
+        <Link href="/growth/posts?view=list">
+          <ClayChip active={view === "list"}>Lista</ClayChip>
+        </Link>
       </div>
 
       {view === "board" ? (
@@ -116,17 +117,13 @@ function ListView({
   const platformQuery = sp.platform ? `&platform=${sp.platform}` : "";
   return (
     <>
-      {/* Filtros simples */}
-      <div className="flex items-center gap-1.5 flex-wrap mb-5">
-        <Link
-          href={`/growth/posts?view=list${platformQuery}`}
-          className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
-            !sp.status
-              ? "bg-ink text-orange border-border"
-              : "border-border text-fg hover:bg-ink hover:text-orange"
-          }`}
-        >
-          Todos
+      {/* Filtros de estado — SSR: ClayChip en <Link>, querystring intacto */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <span className="mr-1 font-mono text-[10px] uppercase tracking-wider text-white/40">
+          Estado
+        </span>
+        <Link href={`/growth/posts?view=list${platformQuery}`}>
+          <ClayChip active={!sp.status}>Todos</ClayChip>
         </Link>
         {(
           ["idea", "borrador", "planeado", "publicado", "cancelado"] as PostStatus[]
@@ -134,91 +131,82 @@ function ListView({
           <Link
             key={s}
             href={`/growth/posts?view=list&status=${s}${platformQuery}`}
-            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 transition-colors ${
-              sp.status === s
-                ? "bg-ink text-orange border-border"
-                : "border-border text-fg hover:bg-ink hover:text-orange"
-            }`}
           >
-            {POST_STATUS_LABELS[s]}
+            <ClayChip active={sp.status === s}>{POST_STATUS_LABELS[s]}</ClayChip>
           </Link>
         ))}
       </div>
 
       {posts.length === 0 ? (
-        <Card className="p-10 text-center">
-          <PlayCircle className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
-          <h3 className="font-semibold mb-1">Sin posts</h3>
-          <p className="text-sm text-fg-muted mb-4 max-w-md mx-auto">
-            Cuando publiques un reel, post, set o video, regístralo acá para
-            llevar tracking de métricas.
-          </p>
-          <Button asChild variant="orange">
-            <Link href="/growth/posts/nuevo">+ Registrar primer post</Link>
-          </Button>
-        </Card>
+        <EmptyState
+          icon={PlayCircle}
+          title="Sin posts"
+          sub="Cuando publiques un reel, post, set o video, regístralo acá para llevar tracking de métricas."
+          action={
+            <Button asChild variant="clayPrimary">
+              <Link href="/growth/posts/nuevo">
+                <Plus className="w-4 h-4" />
+                Registrar primer post
+              </Link>
+            </Button>
+          }
+        />
       ) : (
-        <Card className="overflow-hidden">
-          <ul>
-            {posts.map((p, i) => (
-              <li
+        <GlassPanel>
+          <div className="flex flex-col gap-2">
+            {posts.map((p) => (
+              <Link
                 key={p.id}
-                className={`px-4 py-3 ${
-                  i > 0 ? "border-t border-border" : ""
-                } hover:bg-bg-subtle transition-colors`}
+                href={`/growth/posts/${p.id}`}
+                className="group flex items-start justify-between gap-3 rounded-xl border border-white/10 px-4 py-3 transition-colors hover:border-white/25"
+                style={{ background: "rgba(255,255,255,.03)" }}
               >
-                <Link
-                  href={`/growth/posts/${p.id}`}
-                  className="flex items-start justify-between gap-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold truncate">
-                        {p.title || "(sin título)"}
-                      </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-border">
-                        {SOCIAL_PLATFORM_LABELS[p.platform]}
-                      </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange text-ink border border-border">
-                        {POST_FORMAT_LABELS[p.format]}
-                      </span>
-                      <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border-2 border-border bg-cream">
-                        {POST_STATUS_LABELS[p.status]}
-                      </span>
-                      {p.growth_campaign_id &&
-                        campaignMap.has(p.growth_campaign_id) && (
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
-                            ▶ {campaignMap.get(p.growth_campaign_id)}
-                          </span>
-                        )}
-                    </div>
-                    <div className="font-mono text-[10px] text-fg-muted mt-1 flex gap-3 flex-wrap">
-                      {p.published_at && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> Publicado{" "}
-                          {relativeTime(p.published_at)}
-                        </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold truncate group-hover:text-orange transition-colors">
+                      {p.title || "(sin título)"}
+                    </span>
+                    <Badge tone="neutral">
+                      {SOCIAL_PLATFORM_LABELS[p.platform]}
+                    </Badge>
+                    <Badge tone="info">{POST_FORMAT_LABELS[p.format]}</Badge>
+                    <Badge tone={POST_STATUS_TONE[p.status]}>
+                      {POST_STATUS_LABELS[p.status]}
+                    </Badge>
+                    {p.growth_campaign_id &&
+                      campaignMap.has(p.growth_campaign_id) && (
+                        <Badge tone="neutral">
+                          <PlayCircle className="w-2.5 h-2.5" />
+                          {campaignMap.get(p.growth_campaign_id)}
+                        </Badge>
                       )}
-                      {!p.published_at && p.planned_at && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> Programado{" "}
-                          {shortDate(p.planned_at)}
-                        </span>
-                      )}
-                      {p.views !== null && p.views > 0 && (
-                        <span>{p.views.toLocaleString("es-CL")} views</span>
-                      )}
-                      {p.likes !== null && p.likes > 0 && (
-                        <span>{p.likes.toLocaleString("es-CL")} likes</span>
-                      )}
-                    </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-fg-muted shrink-0 mt-1" />
-                </Link>
-              </li>
+                  <div className="text-[11px] text-white/45 mt-1 flex gap-3 flex-wrap">
+                    {p.published_at && (
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> Publicado{" "}
+                        {relativeTime(p.published_at)}
+                      </span>
+                    )}
+                    {!p.published_at && p.planned_at && (
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> Programado{" "}
+                        {shortDate(p.planned_at)}
+                      </span>
+                    )}
+                    {p.views !== null && p.views > 0 && (
+                      <span>{p.views.toLocaleString("es-CL")} views</span>
+                    )}
+                    {p.likes !== null && p.likes > 0 && (
+                      <span>{p.likes.toLocaleString("es-CL")} likes</span>
+                    )}
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-white/40 shrink-0 mt-1" />
+              </Link>
             ))}
-          </ul>
-        </Card>
+          </div>
+        </GlassPanel>
       )}
     </>
   );

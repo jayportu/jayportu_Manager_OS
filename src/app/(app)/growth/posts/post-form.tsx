@@ -3,12 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SelectNative } from "@/components/ui/select-native";
+import { GlassPanel, MonoLabel, Alert } from "@/components/hos";
 import {
   SOCIAL_PLATFORMS,
   SOCIAL_PLATFORM_LABELS,
@@ -144,10 +144,9 @@ export function PostForm({ initial, campaigns, defaultCampaignId }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          General
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>General</MonoLabel>
         <div className="grid md:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label htmlFor="platform">Plataforma</Label>
@@ -205,12 +204,12 @@ export function PostForm({ initial, campaigns, defaultCampaignId }: Props) {
             placeholder="https://instagram.com/p/..."
           />
         </div>
-      </Card>
+        </div>
+      </GlassPanel>
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Estado y fechas
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Estado y fechas</MonoLabel>
         <div className="grid md:grid-cols-3 gap-3">
           <div className="space-y-2">
             <Label htmlFor="status">Estado</Label>
@@ -264,12 +263,12 @@ export function PostForm({ initial, campaigns, defaultCampaignId }: Props) {
             </SelectNative>
           </div>
         )}
-      </Card>
+        </div>
+      </GlassPanel>
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Métricas (opcional, registro manual)
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Métricas (opcional, registro manual)</MonoLabel>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <MetricInput id="views" label="Views" value={views} onChange={setViews} />
           <MetricInput id="likes" label="Likes" value={likes} onChange={setLikes} />
@@ -299,27 +298,33 @@ export function PostForm({ initial, campaigns, defaultCampaignId }: Props) {
             placeholder="Aprendizajes, qué funcionó, qué no..."
           />
         </div>
-      </Card>
+        </div>
+      </GlassPanel>
 
       {error && (
-        <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded p-3">
+        <Alert tone="danger" title="Error">
           {error}
-        </div>
+        </Alert>
       )}
 
       <div className="flex items-center justify-between flex-wrap gap-2">
         {initial && (
           <Button
             type="button"
-            variant="outline"
+            variant="clay"
             onClick={handleDelete}
             disabled={isPending}
-            className="text-danger border-danger/30 hover:bg-danger/10 hover:text-danger"
+            className="text-danger"
           >
             Borrar
           </Button>
         )}
-        <Button type="submit" disabled={isPending} className="ml-auto">
+        <Button
+          type="submit"
+          variant="clayPrimary"
+          disabled={isPending}
+          className="ml-auto"
+        >
           {isPending
             ? "Guardando…"
             : initial

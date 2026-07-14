@@ -64,9 +64,9 @@ export function GrowthCampaignActions({ campaignId, status }: Props) {
       </SelectNative>
       <Button
         onClick={handleDelete}
-        variant="outline"
+        variant="clay"
         size="sm"
-        className="text-danger border-danger/30 hover:bg-danger/10 hover:text-danger"
+        className="text-danger"
         disabled={isPending}
       >
         Borrar

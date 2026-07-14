@@ -4,21 +4,46 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Calendar, Copy } from "lucide-react";
+import {
+  Calendar,
+  Copy,
+  PlayCircle,
+  Instagram,
+  Youtube,
+  Music2,
+  Twitter,
+  Facebook,
+  Cloud,
+  Share2,
+  type LucideIcon,
+} from "lucide-react";
 import {
   type ContentPost,
   type PostStatus,
+  type SocialPlatform,
   SOCIAL_PLATFORM_LABELS,
 } from "@/types/database";
 import { updateContentPostAction, duplicateContentPostAction } from "../actions";
 import { shortDate, relativeTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
-const COLUMNS: { status: PostStatus; label: string; tint: string }[] = [
-  { status: "idea", label: "Ideas", tint: "bg-cream" },
-  { status: "borrador", label: "Borrador", tint: "bg-cream" },
-  { status: "planeado", label: "Programado", tint: "bg-bg-panel" },
-  { status: "publicado", label: "Publicado", tint: "bg-orange" },
+const COLUMNS: { status: PostStatus; label: string; accent?: boolean }[] = [
+  { status: "idea", label: "Ideas" },
+  { status: "borrador", label: "Borrador" },
+  { status: "planeado", label: "Programado" },
+  { status: "publicado", label: "Publicado", accent: true },
 ];
+
+/* Plataforma → icono lucide (reemplaza el marcador ▶) */
+const PLATFORM_ICON: Record<SocialPlatform, LucideIcon> = {
+  instagram: Instagram,
+  youtube: Youtube,
+  soundcloud: Cloud,
+  tiktok: Music2,
+  twitter: Twitter,
+  facebook: Facebook,
+  otro: Share2,
+};
 
 interface Props {
   posts: ContentPost[];
@@ -126,38 +151,50 @@ export function PostsBoard({ posts, campaignMap }: Props) {
             key={col.status}
             onDragOver={onDragOver}
             onDrop={(e) => onDrop(e, col.status)}
-            className="border-2 border-border bg-bg-panel min-h-[300px] flex flex-col"
+            className="flex min-h-[300px] flex-col overflow-hidden rounded-2xl border border-white/10"
+            style={{ background: "rgba(255,255,255,.02)" }}
           >
-            <div className="border-b-2 border-border p-3 flex items-center justify-between bg-cream">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em]">
-                — {col.label}
+            <div
+              className={cn(
+                "flex items-center justify-between border-b border-white/10 px-3 py-2.5",
+                col.accent && "bg-orange/10"
+              )}
+            >
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/70">
+                {col.label}
               </span>
-              <span className="font-display text-lg leading-none bg-ink text-orange px-2 py-0.5">
+              <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[9px] text-white/60">
                 {colPosts.length.toString().padStart(2, "0")}
               </span>
             </div>
-            <div className="p-2 flex-1 flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-2 p-2.5">
               {colPosts.length === 0 ? (
-                <div className="font-mono text-[10px] text-fg-subtle text-center py-6">
+                <div className="py-6 text-center font-mono text-[10px] uppercase tracking-wider text-white/25">
                   arrastra acá
                 </div>
               ) : (
                 colPosts.map((p) => {
                   const isDragging = dragging === p.id;
+                  const PlatIcon = PLATFORM_ICON[p.platform];
                   return (
                     <div
                       key={p.id}
                       draggable
                       onDragStart={(e) => onDragStart(e, p.id)}
                       onDragEnd={onDragEnd}
-                      className={`border-2 border-border bg-bg-panel p-2.5 cursor-grab active:cursor-grabbing transition-opacity ${
-                        isDragging ? "opacity-40" : "hover:shadow-[4px_4px_0_#E85A0C]"
-                      }`}
+                      className={cn(
+                        "rounded-xl border border-white/10 p-2.5 cursor-grab active:cursor-grabbing transition-all",
+                        isDragging
+                          ? "opacity-40"
+                          : "hover:border-white/25 hover:shadow-[4px_4px_0_rgb(var(--drop-orange))]"
+                      )}
+                      style={{ background: "rgba(255,255,255,.04)" }}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-orange">
-                          ▶ {SOCIAL_PLATFORM_LABELS[p.platform]}
-                        </div>
+                        <span className="inline-flex items-center gap-1 font-mono text-[9px] font-bold uppercase tracking-wider text-orange">
+                          <PlatIcon className="w-2.5 h-2.5" />
+                          {SOCIAL_PLATFORM_LABELS[p.platform]}
+                        </span>
                         <button
                           type="button"
                           onClick={(e) => handleDuplicate(e, p.id)}
@@ -165,7 +202,7 @@ export function PostsBoard({ posts, campaignMap }: Props) {
                           draggable={false}
                           title="Duplicar post"
                           aria-label={`Duplicar post ${p.title || "sin título"}`}
-                          className="shrink-0 -mr-0.5 -mt-0.5 p-1 text-fg-subtle hover:text-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                          className="shrink-0 -mr-0.5 -mt-0.5 p-1 text-white/40 hover:text-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange transition-colors"
                         >
                           <Copy className="w-3 h-3" />
                         </button>
@@ -176,7 +213,7 @@ export function PostsBoard({ posts, campaignMap }: Props) {
                       >
                         {p.title || "(sin título)"}
                       </Link>
-                      <div className="font-mono text-[9px] text-fg-muted mt-1.5 flex flex-wrap gap-2">
+                      <div className="font-mono text-[9px] text-white/45 mt-1.5 flex flex-wrap gap-2">
                         {p.planned_at && !p.published_at && (
                           <span className="flex items-center gap-1">
                             <Calendar className="w-2.5 h-2.5" />
@@ -188,23 +225,24 @@ export function PostsBoard({ posts, campaignMap }: Props) {
                         )}
                         {p.growth_campaign_id &&
                           cMap.has(p.growth_campaign_id) && (
-                            <span className="truncate">
-                              ▶ {cMap.get(p.growth_campaign_id)}
+                            <span className="inline-flex items-center gap-1 truncate">
+                              <PlayCircle className="w-2.5 h-2.5" />
+                              {cMap.get(p.growth_campaign_id)}
                             </span>
                           )}
                       </div>
                       {p.hashtags && p.hashtags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
+                        <div className="mt-2 flex flex-wrap gap-1.5">
                           {p.hashtags.slice(0, 3).map((h) => (
                             <span
                               key={h}
-                              className="font-mono text-[8px] text-orange"
+                              className="font-mono text-[9px] text-orange"
                             >
                               #{h}
                             </span>
                           ))}
                           {p.hashtags.length > 3 && (
-                            <span className="font-mono text-[8px] text-fg-muted">
+                            <span className="font-mono text-[9px] text-white/45">
                               +{p.hashtags.length - 3}
                             </span>
                           )}
