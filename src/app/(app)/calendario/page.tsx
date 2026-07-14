@@ -5,8 +5,7 @@ import {
 } from "@/lib/queries/calendar-events";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/card";
-import { Calendar, AlertCircle, Download, ListMusic, Globe } from "lucide-react";
+import { Calendar, Download, ListMusic, Globe, Lock } from "lucide-react";
 import Link from "next/link";
 import { SyncButton } from "./sync-button";
 import { NewEventButton } from "./new-event-button";
@@ -14,7 +13,7 @@ import { AutoSync } from "./auto-sync";
 import { FinanceEditDialog } from "./finance-edit";
 import { EventEditDialog } from "./event-edit";
 import { CalendarViewToggle } from "./view-toggle";
-import { MonthView, resolveMonth } from "./month-view";
+import { MonthView, resolveMonth, payTone, type PayTone } from "./month-view";
 import { CobrosView } from "./cobros-view";
 import type { CobrosRange } from "@/lib/calendar/cobros";
 import { dateTime, shortDate, relativeTime, formatClp } from "@/lib/format";
@@ -23,6 +22,7 @@ import {
   type CalendarEventRow,
   type PaymentStatus,
 } from "@/lib/calendar/types";
+import { SectionHero, KpiTile, Alert, EmptyState, MonoLabel, Badge } from "@/components/hos";
 
 interface PageProps {
   searchParams: Promise<{
@@ -93,119 +93,91 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {conn && <AutoSync lastSyncAt={conn.last_sync_at} staleMinutes={5} />}
 
-      {/* Hero brutalist */}
-      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — CALENDARIO · GIGS Y EVENTOS
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
-          AGENDA<span className="text-orange">.</span>
-        </h1>
-        <p className="text-sm text-fg-muted mt-2">
-          {upcoming.length} próximos · {past.length} pasados
-          {conn && (
-            <>
-              {" "}· conectado a{" "}
-              <span className="text-fg">{conn.google_email}</span>
-            </>
-          )}
-        </p>
+      <SectionHero
+        kicker="Agenda · Calendario"
+        title="Fechas"
+        sub={
+          `${upcoming.length} próximos · ${past.length} pasados` +
+          (conn ? ` · conectado a ${conn.google_email}` : "")
+        }
+        actions={
+          <>
+            <CalendarViewToggle current={view} />
+            {conn && <SyncButton />}
+            <NewEventButton />
+            <a
+              href={`/api/export/finance?from=${now.getFullYear()}-01-01&to=${now.getFullYear() + 1}-01-01`}
+              className="hos-clay-btn inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/85 transition-transform active:translate-y-px hover:text-orange"
+              download
+              title="Exportar CSV de finanzas año actual"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export CSV
+            </a>
+          </>
+        }
+      />
+
+      {/* Línea fina bajo el hero: tip de conexión Google o info de última sync
+          (SectionHero.sub es plain string — este detalle vive aparte). */}
+      <p className="-mt-3 mb-5 font-mono text-[10px] uppercase tracking-wider text-white/35">
         {conn ? (
-          <p className="font-mono text-[10px] text-fg-subtle mt-1">
-            Última sync: {relativeTime(conn.last_sync_at)} · auto al abrir
-          </p>
+          <>Última sync: {relativeTime(conn.last_sync_at)} · auto al abrir</>
         ) : (
-          <p className="font-mono text-[10px] text-fg-subtle mt-1">
+          <>
             Tip:{" "}
             <Link href="/configuracion" className="text-orange hover:underline">
               conecta Google
             </Link>{" "}
             para sincronizar tus shows automáticamente (opcional).
-          </p>
+          </>
         )}
-        <div className="mt-4 flex gap-2 flex-wrap items-center">
-          <CalendarViewToggle current={view} />
-          {conn && <SyncButton />}
-          <NewEventButton />
-          <a
-            href={`/api/export/finance?from=${now.getFullYear()}-01-01&to=${now.getFullYear() + 1}-01-01`}
-            className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3 py-2 border-2 border-border bg-cream hover:bg-ink hover:text-orange transition-colors"
-            download
-            title="Exportar CSV de finanzas año actual"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Export CSV
-          </a>
-        </div>
-      </div>
+      </p>
 
       {/* Sprint 19 — KPIs financieros del mes */}
       {view === "lista" && kpis.totalGigs > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
-          <div className="bg-bg-panel p-4 border-t-2 border-t-accent border-r-2 border-border border-b-2 md:border-b-0">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-              — COBRADO ESTE MES
-            </div>
-            <div className="font-display text-3xl leading-none mt-2 text-accent">
-              {formatClp(kpis.totalCobrado)}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">
-              {kpis.gigsPagados} {kpis.gigsPagados === 1 ? "gig" : "gigs"} CLP
-            </div>
-          </div>
-          <div className="bg-bg-panel p-4 md:border-r-2 border-border border-b-2 md:border-b-0">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-              — TOTAL GIGS
-            </div>
-            <div className="font-display text-3xl leading-none mt-2 text-fg">
-              {kpis.totalGigs.toString().padStart(2, "0")}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">
-              {kpis.monthLabel.toUpperCase()}
-            </div>
-          </div>
-          <div className="bg-bg-panel p-4 border-r-2 border-border">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-              — PROMEDIO / GIG
-            </div>
-            <div className="font-display text-3xl leading-none mt-2 text-fg">
-              {kpis.avgPerGig > 0 ? formatClp(kpis.avgPerGig) : "—"}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">SOLO PAGADOS</div>
-          </div>
-          <div className="bg-bg-panel p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-warning">
-              — PENDIENTE COBRO
-            </div>
-            <div className="font-display text-3xl leading-none mt-2 text-warning">
-              {kpis.totalPendiente > 0 ? formatClp(kpis.totalPendiente) : "—"}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-warning">
-              {kpis.gigsPendientes}{" "}
-              {kpis.gigsPendientes === 1 ? "venue debe" : "venues deben"}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-5">
+          <KpiTile
+            label="Cobrado este mes"
+            value={formatClp(kpis.totalCobrado)}
+            delta={`${kpis.gigsPagados} ${kpis.gigsPagados === 1 ? "gig" : "gigs"} CLP`}
+            tone="up"
+          />
+          <KpiTile
+            label="Total gigs"
+            value={kpis.totalGigs.toString().padStart(2, "0")}
+            delta={kpis.monthLabel.toUpperCase()}
+            tone="flat"
+          />
+          <KpiTile
+            label="Promedio / gig"
+            value={kpis.avgPerGig > 0 ? formatClp(kpis.avgPerGig) : "—"}
+            delta="Solo pagados"
+            tone="flat"
+          />
+          <KpiTile
+            label="Pendiente cobro"
+            value={kpis.totalPendiente > 0 ? formatClp(kpis.totalPendiente) : "—"}
+            delta={`${kpis.gigsPendientes} ${kpis.gigsPendientes === 1 ? "venue debe" : "venues deben"}`}
+            accent
+          />
         </div>
       )}
 
       {sp.error && (
-        <Card className="p-4 mb-5 bg-danger/10 border-2 border-danger">
-          <div className="flex gap-2 text-sm text-danger">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <div>
-              <div className="font-semibold">Error</div>
-              <div className="text-xs mt-1 opacity-80">{sp.error}</div>
-            </div>
-          </div>
-        </Card>
+        <div className="mb-5">
+          <Alert tone="danger" title="Error">
+            {sp.error}
+          </Alert>
+        </div>
       )}
 
       {sp.synced && (
-        <Card className="p-3 mb-4 bg-success/10 border-2 border-success">
-          <div className="text-sm text-success">
-            ✓ {sp.synced} eventos revisados desde Google Calendar.
-          </div>
-        </Card>
+        <div className="mb-4">
+          <Alert tone="success">
+            {sp.synced} eventos revisados desde Google Calendar.
+          </Alert>
+        </div>
       )}
 
       {view === "cobros" && <CobrosView range={range} />}
@@ -213,29 +185,24 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {view === "mes" && <MonthView year={monthSel.year} month={monthSel.month} />}
 
       {view === "lista" && events.length === 0 && (
-        <Card className="p-10 text-center">
-          <Calendar className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
-          <h3 className="font-semibold mb-1">Sin eventos aún</h3>
-          <p className="text-sm text-fg-muted mb-5 max-w-md mx-auto">
-            Crea tu primer evento
-            {conn
-              ? " o sincroniza tu Google Calendar para traer los existentes."
-              : "."}
-          </p>
-          <div className="flex justify-center gap-2 flex-wrap">
-            {conn && <SyncButton />}
-            <NewEventButton />
-          </div>
-        </Card>
+        <EmptyState
+          icon={Calendar}
+          title="Sin eventos aún"
+          sub={`Crea tu primer evento${conn ? " o sincroniza tu Google Calendar para traer los existentes." : "."}`}
+          action={
+            <div className="flex justify-center gap-2 flex-wrap">
+              {conn && <SyncButton />}
+              <NewEventButton />
+            </div>
+          }
+        />
       )}
 
       {/* Próximos */}
       {view === "lista" && upcoming.length > 0 && (
         <section className="mb-8">
-          <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-            — PRÓXIMOS
-          </h2>
-          <ul className="space-y-2">
+          <MonoLabel className="mb-3 block">Próximos</MonoLabel>
+          <ul className="flex flex-col gap-2">
             {upcoming.map((ev) => (
               <EventRow
                 key={ev.id}
@@ -251,10 +218,10 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
       {view === "lista" && past.length > 0 && (
         <section className="mb-8">
           <details>
-            <summary className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3 cursor-pointer">
-              — ÚLTIMOS 30 DÍAS ({past.length})
+            <summary className="cursor-pointer mb-3">
+              <MonoLabel>{`Últimos 30 días (${past.length})`}</MonoLabel>
             </summary>
-            <ul className="space-y-2 mt-3">
+            <ul className="flex flex-col gap-2 mt-3">
               {past
                 .slice()
                 .reverse()
@@ -272,6 +239,16 @@ export default async function CalendarioPage({ searchParams }: PageProps) {
     </div>
   );
 }
+
+/* Tinte del bloque-fecha según el tono de pago (sutil, sin blur) — mismos
+   tokens que el Badge; solo cambia la opacidad para no competir con el resto
+   de la fila. */
+const DATE_TINT: Record<PayTone, string> = {
+  up: "rgb(var(--drop-success) / .14)",
+  warn: "rgb(var(--drop-warning) / .14)",
+  info: "rgb(var(--drop-info) / .14)",
+  neutral: "rgba(255,255,255,.04)",
+};
 
 function EventRow({
   ev,
@@ -292,64 +269,59 @@ function EventRow({
   const isShow = ev.type === "show";
   const hasAmount = ev.amount_clp !== null && ev.amount_clp > 0;
   const status: PaymentStatus = ev.payment_status;
-
-  // Tinte según estado de pago (solo si tiene amount o status != none)
-  let tint = "border-border bg-bg-panel";
-  if (hasAmount && status === "paid") tint = "border-success bg-success/5";
-  else if (hasAmount && status === "pending") tint = "border-warning bg-warning/5";
-  else if (hasAmount && status === "partial") tint = "border-info bg-info/5";
+  const tone = payTone(status, hasAmount);
 
   return (
-    <li className={`border-2 ${tint} px-4 py-3`}>
+    <li
+      className="rounded-xl border border-white/8 px-4 py-3"
+      style={{ background: "var(--hos-clay-bg)" }}
+    >
       <div className="flex items-start gap-4">
-        <div className="flex flex-col items-center min-w-[44px]">
+        <div
+          className="flex shrink-0 flex-col items-center justify-center rounded-lg px-2.5 py-2"
+          style={{ background: DATE_TINT[tone], minWidth: 44 }}
+        >
           <div className="font-display text-2xl leading-none text-orange">
             {dayInTz}
           </div>
-          <div className="font-mono text-[9px] uppercase tracking-widest text-fg-muted mt-0.5">
+          <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
             {d.toLocaleString("es-CL", { month: "short", timeZone: "America/Santiago" })}
           </div>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold truncate">{ev.title}</span>
-            <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 border border-border bg-cream">
+            <span className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/10 text-white/45">
               {CALENDAR_EVENT_TYPE_LABELS[ev.type]}
             </span>
             {hasAmount && (
-              <span
-                className={`font-mono text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 border-2 border-border ${
-                  status === "paid"
-                    ? "bg-success text-white dark:text-ink"
-                    : status === "pending"
-                    ? "bg-warning text-white dark:text-ink"
-                    : status === "partial"
-                    ? "bg-info text-white dark:text-ink"
-                    : "bg-cream"
-                }`}
-              >
+              <Badge tone={tone} solid={status !== "none"}>
                 {formatClp(ev.amount_clp)}
                 {status !== "none" && ` · ${PAYMENT_STATUS_LABELS[status]}`}
-              </span>
+              </Badge>
             )}
           </div>
-          <div className="font-mono text-[11px] text-fg-muted mt-1">
+          <div className="font-mono text-[11px] text-white/40 mt-1">
             {ev.all_day ? shortDate(ev.start_at) : dateTime(ev.start_at)}
             {ev.location ? ` · ${ev.location}` : ""}
           </div>
           {ev.description && (
-            <div className="text-xs text-fg-subtle mt-1 truncate">
+            <div className="text-xs text-white/35 mt-1 truncate">
               {ev.description}
             </div>
           )}
 
           {/* Sprint 19 — Highlight notas privadas del contacto */}
           {privateNote && (
-            <div className="mt-3 p-2.5 bg-ink text-white border-2 border-border relative">
-              <div className="absolute -top-2 left-3 bg-orange text-ink px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider">
-                🔒 RECUERDA
+            <div
+              className="mt-3 rounded-lg p-2.5 relative"
+              style={{ background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.08)" }}
+            >
+              <div className="absolute -top-2 left-3 inline-flex items-center gap-1 rounded-full bg-orange text-ink px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider">
+                <Lock className="w-2.5 h-2.5" aria-hidden="true" />
+                RECUERDA
               </div>
-              <p className="text-xs leading-relaxed whitespace-pre-wrap mt-1">
+              <p className="text-xs leading-relaxed whitespace-pre-wrap mt-1 text-white/80">
                 {privateNote}
               </p>
             </div>
@@ -386,7 +358,7 @@ function EventRow({
           {isShow && (
             <Link
               href={`/calendario/${ev.id}/tracklist`}
-              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              className="hos-clay-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-orange transition-colors"
               title="Editar tracklist del set"
             >
               <ListMusic className="w-3 h-3" />
@@ -396,7 +368,7 @@ function EventRow({
           {isShow && (
             <Link
               href={`/calendario/${ev.id}/evento`}
-              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[10px] font-bold uppercase tracking-wider transition-colors"
+              className="hos-clay-btn inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-orange transition-colors"
               title="Publicar como evento público + RSVP"
             >
               <Globe className="w-3 h-3" />
