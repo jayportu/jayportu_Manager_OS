@@ -2,8 +2,15 @@ import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { listContacts } from "@/lib/queries/contacts";
 import { listTemplates } from "@/lib/queries/templates";
 import { listSentEmails } from "@/lib/queries/interactions";
-import { Card } from "@/components/ui/card";
-import { Mail, AlertCircle, Info, Send } from "lucide-react";
+import {
+  SectionHero,
+  GlassPanel,
+  MonoLabel,
+  Badge,
+  Alert,
+  EmptyState,
+} from "@/components/hos";
+import { Mail, Send } from "lucide-react";
 import { ConnectGmailButton } from "./connect-button";
 import { DisconnectForm } from "./disconnect-form";
 import { ComposeForm } from "./compose-form";
@@ -23,67 +30,52 @@ export default async function GmailPage({ searchParams }: PageProps) {
   if (!connection) {
     return (
       <div className="p-6 md:p-10 max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Correo
-          </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            Conecta tu cuenta de Google para enviar correos a tus contactos del
-            CRM y sincronizar tu calendario. DROP. nunca lee tu bandeja: solo
-            envía.
-          </p>
-        </div>
+        <SectionHero
+          kicker="Negocio · Correo"
+          title="Correo"
+          sub="Conecta tu cuenta de Google para enviar correos a tus contactos del CRM y sincronizar tu calendario. DROP. nunca lee tu bandeja: solo envía."
+        />
 
         {sp.error && (
-          <Card className="p-4 mb-5 bg-danger/10 border-danger/30">
-            <div className="flex gap-2 text-sm text-danger">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <div>
-                <div className="font-semibold">Error al conectar</div>
-                <div className="text-xs mt-1 opacity-80">{sp.error}</div>
-              </div>
-            </div>
-          </Card>
+          <div className="mb-5">
+            <Alert tone="danger" title="Error al conectar">
+              {sp.error}
+            </Alert>
+          </div>
         )}
 
-        <Card className="p-8 text-center">
-          <Mail className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
-          <h3 className="font-semibold text-lg mb-1">Correo no conectado</h3>
-          <p className="text-sm text-fg-muted mb-6 max-w-md mx-auto">
-            Conecta la cuenta de Google que uses para booking y escribe tus
-            correos sin salir de DROP.
-          </p>
-          <ConnectGmailButton />
-          <div className="mt-6 max-w-md mx-auto text-left bg-bg-panel border border-border rounded-md p-4">
-            <div className="flex gap-2">
-              <Info className="w-4 h-4 shrink-0 mt-0.5 text-accent" />
-              <div className="text-xs text-fg-muted space-y-1.5">
-                <p className="font-semibold text-fg">
-                  Si Google muestra un aviso de “app no verificada”
-                </p>
-                <p>
-                  Es normal mientras completamos la verificación. Para
-                  continuar:
-                </p>
-                <ol className="list-decimal pl-4 space-y-1">
-                  <li>
-                    Haz clic en{" "}
-                    <span className="font-semibold text-fg">
-                      “Configuración avanzada”
-                    </span>
-                  </li>
-                  <li>
-                    Luego en{" "}
-                    <span className="font-semibold text-fg">
-                      “Ir a dropgigs.com (no seguro)”
-                    </span>
-                  </li>
-                  <li>Acepta los permisos y listo.</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <EmptyState
+          icon={Mail}
+          title="Correo no conectado"
+          sub="Conecta la cuenta de Google que uses para booking y escribe tus correos sin salir de DROP."
+          action={<ConnectGmailButton />}
+        />
+
+        <div className="mt-4">
+          <Alert tone="info">
+            <p className="font-semibold text-white">
+              Si Google muestra un aviso de “app no verificada”
+            </p>
+            <p className="mt-1">
+              Es normal mientras completamos la verificación. Para continuar:
+            </p>
+            <ol className="list-decimal pl-4 space-y-1 mt-1.5">
+              <li>
+                Haz clic en{" "}
+                <span className="font-semibold text-white">
+                  “Configuración avanzada”
+                </span>
+              </li>
+              <li>
+                Luego en{" "}
+                <span className="font-semibold text-white">
+                  “Ir a dropgigs.com (no seguro)”
+                </span>
+              </li>
+              <li>Acepta los permisos y listo.</li>
+            </ol>
+          </Alert>
+        </div>
       </div>
     );
   }
@@ -107,25 +99,41 @@ export default async function GmailPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Correo
-          </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            Enviando como{" "}
-            <span className="text-fg">{connection.google_email}</span>
-          </p>
+      <SectionHero
+        kicker="Negocio · Correo"
+        title="Correo"
+        sub="Escribe y envía correos a tus contactos del CRM sin salir de DROP. Nunca leemos tu bandeja: solo enviamos."
+      />
+
+      {/* Banner cuenta conectada */}
+      <GlassPanel className="mb-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-[rgb(var(--drop-orange))]"
+            style={{ background: "rgba(255,255,255,.03)" }}
+          >
+            <Mail width={16} height={16} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <MonoLabel>Cuenta conectada</MonoLabel>
+              <Badge tone="up">Conectado</Badge>
+            </div>
+            <div className="mt-0.5 truncate text-sm text-white/80">
+              Conectado como{" "}
+              <span className="font-semibold text-white">
+                {connection.google_email}
+              </span>
+            </div>
+          </div>
+          <DisconnectForm />
         </div>
-        <DisconnectForm />
-      </div>
+      </GlassPanel>
 
       {sp.connected === "1" && (
-        <Card className="p-3 mb-4 bg-success/10 border-success/30">
-          <div className="text-sm text-success">
-            ✓ Google conectado exitosamente.
-          </div>
-        </Card>
+        <div className="mb-4">
+          <Alert tone="success">Google conectado exitosamente.</Alert>
+        </div>
       )}
 
       <ComposeForm
@@ -135,43 +143,45 @@ export default async function GmailPage({ searchParams }: PageProps) {
       />
 
       <div className="mt-6">
-        <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-fg-muted mb-3">
-          Correos enviados
-        </h3>
-        {sent.length === 0 ? (
-          <Card className="p-6 text-center">
-            <Send className="w-8 h-8 mx-auto text-fg-subtle mb-2" />
-            <p className="text-sm text-fg-muted">
-              Aún no envías correos desde DROP.
-            </p>
-          </Card>
-        ) : (
-          <Card className="divide-y divide-border p-0 overflow-hidden">
-            {sent.map((s) => (
-              <div
-                key={s.id}
-                className="flex items-center justify-between gap-3 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <div className="text-sm text-fg truncate">
-                    {s.note || "(sin asunto)"}
-                  </div>
-                  {s.contact_name && (
-                    <div className="text-xs text-fg-muted truncate">
-                      Para {s.contact_name}
+        <GlassPanel>
+          <MonoLabel className="mb-3 block">Correos enviados</MonoLabel>
+          {sent.length === 0 ? (
+            <EmptyState
+              icon={Send}
+              title="Aún no envías correos"
+              sub="Los correos que envíes desde DROP aparecerán aquí."
+            />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {sent.map((s) => (
+                <li
+                  key={s.id}
+                  className="rounded-xl border border-white/8 px-3 py-2.5"
+                  style={{ background: "rgba(255,255,255,.03)" }}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-white">
+                        {s.note || "(sin asunto)"}
+                      </div>
+                      {s.contact_name && (
+                        <div className="truncate text-xs text-white/50">
+                          Para {s.contact_name}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="text-[11px] text-fg-subtle shrink-0">
-                  {new Date(s.happened_at).toLocaleDateString("es-CL", {
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </div>
-              </div>
-            ))}
-          </Card>
-        )}
+                    <div className="shrink-0 text-[11px] text-white/40">
+                      {new Date(s.happened_at).toLocaleDateString("es-CL", {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </GlassPanel>
       </div>
     </div>
   );

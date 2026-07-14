@@ -20,7 +20,7 @@ export function DisconnectForm() {
   }
   return (
     <form action="/api/gmail/disconnect" method="POST" onSubmit={handleSubmit}>
-      <Button type="submit" variant="outline" size="sm">
+      <Button type="submit" variant="clay" size="sm">
         <Unlink className="w-4 h-4" />
         Desconectar
       </Button>
