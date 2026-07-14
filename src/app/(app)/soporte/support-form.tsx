@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { Send, Check, Paperclip, X } from "lucide-react";
 import { compressImage } from "@/lib/images/compress-image";
+import { GlassPanel, MonoLabel, Alert, FIELD, SELECT } from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { enviarSoporte, type SoporteFormValues } from "./actions";
 
 const CATEGORIAS = [
@@ -12,6 +15,9 @@ const CATEGORIAS = [
   "Cuenta y pagos",
   "Otro",
 ];
+
+const LBL =
+  "mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40";
 
 export function SupportForm({
   defaultNombre,
@@ -74,126 +80,131 @@ export function SupportForm({
 
   if (done) {
     return (
-      <div className="border-2 border-border p-8 text-center">
-        <Check className="w-10 h-10 text-accent mx-auto mb-3" />
-        <h2 className="text-xl font-bold">Recibimos tu mensaje</h2>
-        <p className="text-sm text-fg-muted mt-2">
-          Te responderemos a <b>{email}</b> lo antes posible.
+      <GlassPanel className="text-center">
+        <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-ink">
+          <Check className="h-6 w-6" />
+        </span>
+        <h2 className="font-display text-2xl leading-none">Recibimos tu mensaje</h2>
+        <p className="mt-2 text-sm text-white/55">
+          Te responderemos a <b className="text-white/80">{email}</b> lo antes posible.
         </p>
-      </div>
+      </GlassPanel>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 max-w-xl">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
-          <label htmlFor="sop-nombre" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
-            Nombre
-          </label>
-          <input
-            id="sop-nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
-          />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="sop-email" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
-            Email
-          </label>
-          <input
-            id="sop-email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent font-mono"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="sop-categoria" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
-          Tipo de consulta
-        </label>
-        <select
-          id="sop-categoria"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
-        >
-          {CATEGORIAS.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="sop-mensaje" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
-          Mensaje
-        </label>
-        <textarea
-          id="sop-mensaje"
-          value={mensaje}
-          onChange={(e) => setMensaje(e.target.value)}
-          rows={6}
-          maxLength={4000}
-          placeholder="Cuéntanos en qué te ayudamos…"
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent resize-none"
-        />
-        <div className="text-[10px] text-fg-muted text-right font-mono">
-          {mensaje.length}/4000
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="sop-imagen" className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
-          Adjuntar imagen (opcional)
-        </label>
-        {imageDataUrl ? (
-          <div className="border-2 border-border p-2 flex items-center gap-2 text-sm">
-            <Paperclip className="w-4 h-4 shrink-0" />
-            <span className="flex-1 min-w-0 truncate">{imageName} · listo</span>
-            <button
-              type="button"
-              onClick={() => {
-                setImageDataUrl("");
-                setImageName("");
-              }}
-              className="text-danger hover:opacity-80"
-              title="Quitar"
-            >
-              <X className="w-4 h-4" />
-            </button>
+    <GlassPanel>
+      <MonoLabel>Nueva consulta</MonoLabel>
+      <div className="mt-3 space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex-1">
+            <label htmlFor="sop-nombre" className={LBL}>
+              Nombre
+            </label>
+            <input
+              id="sop-nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className={FIELD}
+            />
           </div>
-        ) : (
-          <input
-            id="sop-imagen"
-            type="file"
-            accept="image/*"
-            onChange={handleFile}
-            className="w-full text-xs"
-          />
-        )}
-      </div>
-
-      {err && (
-        <div className="text-xs text-danger border-2 border-danger/40 bg-danger/10 p-2">
-          {err}
+          <div className="flex-1">
+            <label htmlFor="sop-email" className={LBL}>
+              Email
+            </label>
+            <input
+              id="sop-email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              className={FIELD}
+            />
+          </div>
         </div>
-      )}
 
-      <button
-        type="button"
-        onClick={submit}
-        disabled={pending || !mensaje.trim()}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-white font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50"
-      >
-        <Send className="w-4 h-4" />
-        {pending ? "Enviando…" : "Enviar consulta"}
-      </button>
-    </div>
+        <div>
+          <label htmlFor="sop-categoria" className={LBL}>
+            Tipo de consulta
+          </label>
+          <select
+            id="sop-categoria"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            className={SELECT}
+          >
+            {CATEGORIAS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="sop-mensaje" className={LBL}>
+            Mensaje
+          </label>
+          <textarea
+            id="sop-mensaje"
+            value={mensaje}
+            onChange={(e) => setMensaje(e.target.value)}
+            rows={6}
+            maxLength={4000}
+            placeholder="Cuéntanos en qué te ayudamos…"
+            className={cn(FIELD, "resize-none")}
+          />
+          <div className="mt-0.5 text-right font-mono text-[10px] text-white/35">
+            {mensaje.length}/4000
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="sop-imagen" className={LBL}>
+            Adjuntar imagen (opcional)
+          </label>
+          {imageDataUrl ? (
+            <div className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2 text-sm">
+              <Paperclip className="h-4 w-4 shrink-0 text-white/50" />
+              <span className="min-w-0 flex-1 truncate text-white/70">
+                {imageName} · listo
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setImageDataUrl("");
+                  setImageName("");
+                }}
+                className="text-white/40 hover:text-danger"
+                title="Quitar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <input
+              id="sop-imagen"
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              className="w-full cursor-pointer rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-3 py-2.5 font-mono text-[11px] text-white/45 hover:border-orange/40 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-white/10 file:px-3 file:py-1 file:font-mono file:text-[10px] file:font-bold file:uppercase file:tracking-wider file:text-white/80"
+            />
+          )}
+        </div>
+
+        {err && <Alert tone="danger">{err}</Alert>}
+
+        <div className="pt-1">
+          <Button
+            type="button"
+            variant="clayPrimary"
+            onClick={submit}
+            disabled={pending || !mensaje.trim()}
+          >
+            <Send className="h-4 w-4" />
+            {pending ? "Enviando…" : "Enviar consulta"}
+          </Button>
+        </div>
+      </div>
+    </GlassPanel>
   );
 }
