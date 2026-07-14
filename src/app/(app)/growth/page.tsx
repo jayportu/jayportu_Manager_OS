@@ -5,15 +5,16 @@ import {
   getLatestSnapshotsByPlatform,
 } from "@/lib/queries/growth";
 import { getMyProfile } from "@/lib/queries/dj-profile";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   TrendingUp,
-  TrendingDown,
   ArrowRight,
   Calendar,
+  Eye,
+  Heart,
   ExternalLink,
+  Plus,
 } from "lucide-react";
 import {
   SOCIAL_PLATFORM_LABELS,
@@ -21,9 +22,43 @@ import {
   POST_FORMAT_LABELS,
   POST_STATUS_LABELS,
   type SocialPlatform,
+  type GrowthCampaignStatus,
+  type PostStatus,
 } from "@/types/database";
 import { SnapshotDialog } from "./snapshot-dialog";
 import { relativeTime, shortDate } from "@/lib/format";
+import {
+  SectionHero,
+  GlassPanel,
+  KpiTile,
+  Badge,
+  EmptyState,
+  MonoLabel,
+} from "@/components/hos";
+
+/* Estado de campaña → tono de Badge (Hybrid OS) */
+const CAMPAIGN_STATUS_TONE: Record<
+  GrowthCampaignStatus,
+  "up" | "warn" | "down" | "info" | "neutral"
+> = {
+  draft: "neutral",
+  active: "up",
+  paused: "warn",
+  done: "info",
+  archived: "neutral",
+};
+
+/* Estado de post → tono de Badge (semántico) */
+const POST_STATUS_TONE: Record<
+  PostStatus,
+  "up" | "warn" | "down" | "info" | "neutral"
+> = {
+  idea: "neutral",
+  borrador: "neutral",
+  planeado: "info",
+  publicado: "up",
+  cancelado: "down",
+};
 
 export default async function GrowthPage() {
   const [campaigns, recentPosts, deltas, snapshots, profile] = await Promise.all([
@@ -65,241 +100,231 @@ export default async function GrowthPage() {
     : null;
   const bestDeltaValue = bestDelta?.delta ?? 0;
 
+  // Subtítulo del hero — mismos datos, sin brutalismo inline.
+  const heroSub =
+    bestDelta && bestDeltaValue > 0
+      ? `${SOCIAL_PLATFORM_LABELS[bestDelta.platform]} lidera el crecimiento (+${bestDeltaValue}). Registro manual + snapshots auto sync para mover esta cifra mes a mes.`
+      : "Crecimiento de audiencia en IG, YouTube, SoundCloud y demás. Registro manual o sync auto para medir lo que importa.";
+
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — GROWTH · DESDE TU ÚLTIMA ACTUALIZACIÓN
-        </div>
-        <div className="mt-2 flex flex-wrap items-end gap-4 justify-between">
-          <h1 className="font-display text-4xl md:text-6xl leading-none">
-            {deltaLabel} SEGUIDORE{deltaAbs === 1 ? "" : "S"}
-            <span className="text-orange">.</span>
-          </h1>
-          <div className="flex gap-2 flex-wrap">
-            <Button asChild variant="outline" size="sm">
-              <Link href="/growth/posts">
-                <Calendar className="w-4 h-4" />
-                Posts
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/growth/ads">
-                <TrendingUp className="w-4 h-4" />
-                Ads
-              </Link>
-            </Button>
-            <SnapshotDialog
-              existingSnapshots={snapshots}
-              buttonVariant="default"
-            />
+      <SectionHero
+        kicker="Agenda · Growth"
+        title="Crecimiento"
+        sub={heroSub}
+        actions={
+          <Button asChild variant="clayPrimary" size="sm">
+            <Link href="/growth/posts/nuevo">
+              <Plus className="w-4 h-4" />
+              Nuevo post
+            </Link>
+          </Button>
+        }
+      />
+
+      {/* Delta de seguidores — número grande en panel del sistema */}
+      <GlassPanel className="mb-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <MonoLabel>Desde tu última actualización</MonoLabel>
+            <div className="mt-2 font-display text-4xl leading-none md:text-6xl">
+              {deltaLabel} SEGUIDORE{deltaAbs === 1 ? "" : "S"}
+              <span className="text-orange">.</span>
+            </div>
           </div>
+          <SnapshotDialog existingSnapshots={snapshots} buttonVariant="default" />
         </div>
-        <p className="text-sm text-fg-muted mt-2 max-w-2xl">
-          {bestDelta && bestDeltaValue > 0 ? (
-            <>
-              <strong>{SOCIAL_PLATFORM_LABELS[bestDelta.platform]}</strong>{" "}
-              lidera el crecimiento (+{bestDeltaValue}). Registro manual +
-              snapshots auto sync para mover esta cifra mes a mes.
-            </>
-          ) : (
-            <>
-              Crecimiento de audiencia en IG, YouTube, SoundCloud y demás.
-              Registro manual o sync auto para medir lo que importa.
-            </>
-          )}
-        </p>
-      </div>
+      </GlassPanel>
 
       {/* Empty state primera vez */}
       {isFirstTime && (
-        <Card className="p-8 mb-6 bg-accent-soft border-accent/30">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-accent text-bg flex items-center justify-center font-bold shrink-0">
-              !
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-base mb-1">
-                Empieza registrando tu estado actual
-              </h3>
-              <p className="text-sm text-fg-muted mb-3">
-                Para medir tu crecimiento, necesito saber con cuántos
-                seguidores tienes en cada plataforma. Tarda 30 segundos.
-              </p>
+        <div className="mb-6">
+          <EmptyState
+            icon={TrendingUp}
+            title="Empieza registrando tu estado actual"
+            sub="Para medir tu crecimiento, necesito saber con cuántos seguidores tienes en cada plataforma. Tarda 30 segundos."
+            action={
               <SnapshotDialog
                 existingSnapshots={snapshots}
                 buttonLabel="Actualizar mis stats ahora"
               />
-            </div>
-          </div>
-        </Card>
+            }
+          />
+        </div>
       )}
 
       {/* KPIs por plataforma */}
       {(deltas.length > 0 || missingPlatforms.length > 0) && (
         <section className="mb-7">
-          <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3">
-            Plataformas
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <MonoLabel>Plataformas</MonoLabel>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {deltas.map((d) => (
               <PlatformKpi key={d.platform} delta={d} />
             ))}
-            {missingPlatforms.map((p) => (
-              <PlatformEmpty
-                key={p.platform}
-                platform={p.platform}
-                snapshots={snapshots}
-              />
-            ))}
           </div>
+          {missingPlatforms.length > 0 && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {missingPlatforms.map((p) => (
+                <PlatformEmpty
+                  key={p.platform}
+                  platform={p.platform}
+                  snapshots={snapshots}
+                />
+              ))}
+            </div>
+          )}
         </section>
       )}
 
       {/* Ads activos */}
       <section className="mb-7">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold">
-            Ads activos
-          </h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <MonoLabel>Ads activos</MonoLabel>
           <Link
             href="/growth/ads"
-            className="text-xs text-accent hover:underline"
+            className="font-mono text-[10px] uppercase tracking-wider text-orange hover:underline"
           >
             Ver todas →
           </Link>
         </div>
         {campaigns.length === 0 ? (
-          <Card className="p-6 text-center">
-            <p className="text-sm text-fg-muted mb-3">
-              No tienes campañas activas. Una campaña te ayuda a planificar
-              contenido coordinado para crecer.
-            </p>
-            <Button asChild>
-              <Link href="/growth/ads/nueva">+ Crear campaña</Link>
-            </Button>
-          </Card>
+          <EmptyState
+            icon={TrendingUp}
+            title="Sin campañas activas"
+            sub="Una campaña te ayuda a planificar contenido coordinado para crecer."
+            action={
+              <Button asChild variant="clayPrimary">
+                <Link href="/growth/ads/nueva">
+                  <Plus className="w-4 h-4" />
+                  Crear campaña
+                </Link>
+              </Button>
+            }
+          />
         ) : (
-          <div className="space-y-2">
-            {campaigns.map((c) => (
-              <Link key={c.id} href={`/growth/ads/${c.id}`}>
-                <Card className="p-4 hover:border-accent/30 transition-colors group cursor-pointer">
+          <GlassPanel>
+            <div className="flex flex-col gap-2">
+              {campaigns.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/growth/ads/${c.id}`}
+                  className="group block rounded-xl border border-white/10 px-4 py-3 transition-colors hover:border-white/25"
+                  style={{ background: "rgba(255,255,255,.03)" }}
+                >
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-sm group-hover:text-accent transition-colors">
+                        <h3 className="font-semibold text-sm group-hover:text-orange transition-colors">
                           {c.name}
                         </h3>
-                        <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-secondary border border-border text-fg-muted">
+                        <Badge
+                          tone={CAMPAIGN_STATUS_TONE[c.status]}
+                          solid={c.status === "active"}
+                        >
                           {GROWTH_CAMPAIGN_STATUS_LABELS[c.status]}
-                        </span>
+                        </Badge>
                         {c.platforms.map((p) => (
-                          <span
-                            key={p}
-                            className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent"
-                          >
+                          <Badge key={p} tone="info">
                             {SOCIAL_PLATFORM_LABELS[p]}
-                          </span>
+                          </Badge>
                         ))}
                       </div>
                       {c.goal && (
-                        <p className="text-xs text-fg-muted mt-1.5">
-                          {c.goal}
-                        </p>
+                        <p className="text-xs text-white/55 mt-1.5">{c.goal}</p>
                       )}
                       {c.end_date && (
-                        <p className="text-[10px] text-fg-subtle mt-1">
+                        <p className="text-[10px] text-white/40 mt-1">
                           Termina {shortDate(c.end_date)}
                         </p>
                       )}
                     </div>
-                    <ArrowRight className="w-5 h-5 text-fg-muted group-hover:text-accent transition-colors shrink-0" />
+                    <ArrowRight className="w-5 h-5 text-white/40 group-hover:text-orange transition-colors shrink-0" />
                   </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          </GlassPanel>
         )}
       </section>
 
       {/* Posts recientes */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold">
-            Posts recientes
-          </h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <MonoLabel>Posts recientes</MonoLabel>
           <Link
             href="/growth/posts"
-            className="text-xs text-accent hover:underline"
+            className="font-mono text-[10px] uppercase tracking-wider text-orange hover:underline"
           >
             Ver todos →
           </Link>
         </div>
         {recentPosts.length === 0 ? (
-          <Card className="p-6 text-center">
-            <p className="text-sm text-fg-muted mb-3">
-              Aún no registraste posts. Anota lo que publiques para hacer
-              tracking de qué funciona mejor.
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/growth/posts/nuevo">+ Registrar post</Link>
-            </Button>
-          </Card>
+          <EmptyState
+            icon={Calendar}
+            title="Aún no registraste posts"
+            sub="Anota lo que publiques para hacer tracking de qué funciona mejor."
+            action={
+              <Button asChild variant="clay">
+                <Link href="/growth/posts/nuevo">
+                  <Plus className="w-4 h-4" />
+                  Registrar post
+                </Link>
+              </Button>
+            }
+          />
         ) : (
-          <Card className="overflow-hidden">
-            <ul>
-              {recentPosts.map((p, i) => (
-                <li
+          <GlassPanel>
+            <div className="flex flex-col gap-2">
+              {recentPosts.map((p) => (
+                <Link
                   key={p.id}
-                  className={`px-4 py-3 ${
-                    i > 0 ? "border-t border-border" : ""
-                  } hover:bg-bg-subtle transition-colors`}
+                  href={`/growth/posts/${p.id}`}
+                  className="group flex items-start justify-between gap-3 rounded-xl border border-white/10 px-4 py-3 transition-colors hover:border-white/25"
+                  style={{ background: "rgba(255,255,255,.03)" }}
                 >
-                  <Link
-                    href={`/growth/posts/${p.id}`}
-                    className="flex items-start justify-between gap-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold truncate">
-                          {p.title || "(sin título)"}
-                        </span>
-                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary border border-border text-fg-muted">
-                          {SOCIAL_PLATFORM_LABELS[p.platform]}
-                        </span>
-                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent">
-                          {POST_FORMAT_LABELS[p.format]}
-                        </span>
-                        {p.status !== "publicado" && (
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-warning">
-                            {POST_STATUS_LABELS[p.status]}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-fg-muted mt-1 flex gap-3 flex-wrap">
-                        {p.published_at && (
-                          <span>Publicado {relativeTime(p.published_at)}</span>
-                        )}
-                        {!p.published_at && p.planned_at && (
-                          <span>Planeado {shortDate(p.planned_at)}</span>
-                        )}
-                        {p.views !== null && p.views > 0 && (
-                          <span>👁 {p.views.toLocaleString("es-CL")}</span>
-                        )}
-                        {p.likes !== null && p.likes > 0 && (
-                          <span>❤ {p.likes.toLocaleString("es-CL")}</span>
-                        )}
-                      </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold truncate group-hover:text-orange transition-colors">
+                        {p.title || "(sin título)"}
+                      </span>
+                      <Badge tone="neutral">
+                        {SOCIAL_PLATFORM_LABELS[p.platform]}
+                      </Badge>
+                      <Badge tone="info">{POST_FORMAT_LABELS[p.format]}</Badge>
+                      {p.status !== "publicado" && (
+                        <Badge tone={POST_STATUS_TONE[p.status]}>
+                          {POST_STATUS_LABELS[p.status]}
+                        </Badge>
+                      )}
                     </div>
-                    {p.url && (
-                      <ExternalLink className="w-4 h-4 text-fg-muted shrink-0 mt-1" />
-                    )}
-                  </Link>
-                </li>
+                    <div className="text-[11px] text-white/45 mt-1 flex gap-3 flex-wrap">
+                      {p.published_at && (
+                        <span>Publicado {relativeTime(p.published_at)}</span>
+                      )}
+                      {!p.published_at && p.planned_at && (
+                        <span>Planeado {shortDate(p.planned_at)}</span>
+                      )}
+                      {p.views !== null && p.views > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {p.views.toLocaleString("es-CL")}
+                        </span>
+                      )}
+                      {p.likes !== null && p.likes > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <Heart className="w-3 h-3" />
+                          {p.likes.toLocaleString("es-CL")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {p.url && (
+                    <ExternalLink className="w-4 h-4 text-white/40 shrink-0 mt-1" />
+                  )}
+                </Link>
               ))}
-            </ul>
-          </Card>
+            </div>
+          </GlassPanel>
         )}
       </section>
     </div>
@@ -314,32 +339,22 @@ function PlatformEmpty({
   snapshots: Record<string, import("@/types/database").PlatformSnapshot | null>;
 }) {
   return (
-    <Card className="p-4 border-dashed border-orange/40 bg-orange/5">
-      <div className="flex items-center justify-between gap-1">
-        <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
-          {SOCIAL_PLATFORM_LABELS[platform]}
-        </div>
-        <span
-          className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-orange/20 border border-orange/40 text-orange"
-          title="Sin snapshots todavía"
-        >
-          sin datos
-        </span>
-      </div>
-      <div className="font-display text-3xl leading-none mt-1.5 text-fg-subtle">—</div>
-      <div className="text-[10px] text-fg-subtle mt-0.5">
-        {platform === "instagram"
-          ? "Sin auto-sync (manual)"
-          : "Carga tu primer snapshot"}
-      </div>
-      <div className="mt-2">
+    <EmptyState
+      icon={TrendingUp}
+      title={SOCIAL_PLATFORM_LABELS[platform]}
+      sub={
+        platform === "instagram"
+          ? "Sin auto-sync (manual). Carga tu primer snapshot."
+          : "Carga tu primer snapshot."
+      }
+      action={
         <SnapshotDialog
           existingSnapshots={snapshots}
           buttonLabel="Registrar"
           buttonVariant="outline"
         />
-      </div>
-    </Card>
+      }
+    />
   );
 }
 
@@ -355,54 +370,40 @@ function PlatformKpi({
     source: "manual" | "auto" | null;
   };
 }) {
+  const deltaStr =
+    delta.delta !== null && delta.delta !== 0
+      ? `${delta.delta > 0 ? "+" : ""}${delta.delta.toLocaleString("es-CL")}${
+          delta.delta_pct !== null
+            ? ` (${delta.delta_pct > 0 ? "+" : ""}${delta.delta_pct}%)`
+            : ""
+        }`
+      : undefined;
+  const tone =
+    delta.delta !== null && delta.delta > 0
+      ? "up"
+      : delta.delta !== null && delta.delta < 0
+        ? "down"
+        : "flat";
+
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between gap-1">
-        <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
-          {SOCIAL_PLATFORM_LABELS[delta.platform]}
-        </div>
-        {delta.source === "auto" && (
-          <span
-            className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent"
-            title="Última actualización vía sync automático"
-          >
-            auto
-          </span>
-        )}
-      </div>
-      <div className="font-display text-3xl leading-none mt-1.5">
-        {delta.followers !== null
-          ? delta.followers.toLocaleString("es-CL")
-          : "—"}
-      </div>
-      <div className="text-[10px] text-fg-subtle mt-0.5">Seguidores</div>
-      {delta.delta !== null && delta.delta !== 0 && (
-        <div
-          className={`text-xs mt-2 flex items-center gap-1 ${
-            delta.delta > 0 ? "text-success" : "text-danger"
-          }`}
-        >
-          {delta.delta > 0 ? (
-            <TrendingUp className="w-3 h-3" />
-          ) : (
-            <TrendingDown className="w-3 h-3" />
-          )}
-          {delta.delta > 0 ? "+" : ""}
-          {delta.delta.toLocaleString("es-CL")}
-          {delta.delta_pct !== null && (
-            <span>
-              {" "}
-              ({delta.delta_pct > 0 ? "+" : ""}
-              {delta.delta_pct}%)
-            </span>
-          )}
-        </div>
-      )}
+    <div>
+      <KpiTile
+        label={SOCIAL_PLATFORM_LABELS[delta.platform]}
+        value={
+          delta.followers !== null
+            ? delta.followers.toLocaleString("es-CL")
+            : "—"
+        }
+        sub="Seguidores"
+        delta={deltaStr}
+        tone={tone}
+        accent={delta.source === "auto"}
+      />
       {delta.snapshot_at && (
-        <div className="text-[10px] text-fg-subtle mt-1">
+        <div className="mt-1 px-1 font-mono text-[10px] uppercase tracking-wider text-white/40">
           {relativeTime(delta.snapshot_at)}
         </div>
       )}
-    </Card>
+    </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +11,7 @@ import {
   type PlatformSnapshot,
   type SocialPlatform,
 } from "@/types/database";
+import { Alert } from "@/components/hos";
 import { saveSnapshotsAction } from "./actions";
 
 // Solo las principales para Jaime (puede ampliar después)
@@ -110,24 +110,24 @@ export function SnapshotDialog({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
         >
-          <Card
-            className="bg-bg-panel w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl"
+          <div
+            className="hos-glass w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
+              <h2 className="font-display text-2xl leading-none">
                 Actualizar stats de mis cuentas
               </h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-fg-muted hover:text-fg"
+                className="text-white/40 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-fg-muted mb-4">
+            <p className="text-xs text-white/50 mb-4">
               Pon los valores actuales que ves en cada app. Cada vez que
               guardes se crea un snapshot — así vemos evolución.
             </p>
@@ -138,12 +138,13 @@ export function SnapshotDialog({
                 return (
                   <div
                     key={p}
-                    className="p-3 rounded-lg border border-border bg-bg"
+                    className="rounded-xl border border-white/10 p-3"
+                    style={{ background: "rgba(255,255,255,.03)" }}
                   >
                     <div className="text-sm font-semibold mb-2">
                       {SOCIAL_PLATFORM_LABELS[p]}
                       {prev && (
-                        <span className="text-[10px] text-fg-subtle ml-2 font-normal">
+                        <span className="text-[10px] text-white/40 ml-2 font-normal">
                           (anterior: {prev.followers ?? "—"} followers)
                         </span>
                       )}
@@ -194,27 +195,23 @@ export function SnapshotDialog({
                 );
               })}
 
-              {error && (
-                <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded p-2">
-                  {error}
-                </div>
-              )}
+              {error && <Alert tone="danger">{error}</Alert>}
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-border">
+              <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="clay"
                   onClick={() => setOpen(false)}
                   disabled={isPending}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" variant="clayPrimary" disabled={isPending}>
                   {isPending ? "Guardando…" : "Guardar snapshots"}
                 </Button>
               </div>
             </form>
-          </Card>
+          </div>
         </div>
       )}
     </>
