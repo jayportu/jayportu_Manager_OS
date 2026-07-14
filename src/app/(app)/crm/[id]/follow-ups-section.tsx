@@ -142,6 +142,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                 value={dueAt}
                 onChange={(e) => setDueAt(e.target.value)}
                 required
+                aria-label="Cuándo"
               />
             </div>
             <div className="space-y-1.5">
@@ -152,6 +153,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                 className={SELECT}
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as FollowUpPriority)}
+                aria-label="Prioridad"
               >
                 <option value="alta" className="bg-bg-panel">Alta</option>
                 <option value="normal" className="bg-bg-panel">Normal</option>
@@ -169,6 +171,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
               onChange={(e) => setNote(e.target.value)}
               placeholder="Mandar press kit + tarifa"
               required
+              aria-label="Qué hay que hacer"
             />
           </div>
 
@@ -191,6 +194,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                     className={FIELD}
                     value={recurrenceValue}
                     onChange={(e) => setRecurrenceValue(e.target.value)}
+                    aria-label="Cada"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -203,6 +207,7 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                     onChange={(e) =>
                       setRecurrenceUnit(e.target.value as RecurrenceUnit)
                     }
+                    aria-label="Unidad"
                   >
                     <option value="days" className="bg-bg-panel">Días</option>
                     <option value="weeks" className="bg-bg-panel">Semanas</option>
