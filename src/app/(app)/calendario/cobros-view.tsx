@@ -6,11 +6,12 @@ import { formatClp, shortDate, dateTime } from "@/lib/format";
 import {
   PAYMENT_STATUS_LABELS,
   type CalendarEventRow,
+  type PaymentStatus,
 } from "@/lib/calendar/types";
 import { KpiTile, Badge, ClayChip, EmptyState, MonoLabel } from "@/components/hos";
 import { FinanceEditDialog } from "./finance-edit";
 import { MarkPaidButton } from "./mark-paid-button";
-import { payTone } from "./month-view";
+import type { PayTone } from "./month-view";
 
 const RANGES: { key: CobrosRange; label: string }[] = [
   { key: "all", label: "Todo" },
@@ -126,10 +127,24 @@ export async function CobrosView({ range }: { range: CobrosRange }) {
 const ROW_CLASS = "flex items-start gap-4 rounded-xl border border-white/8 px-4 py-3";
 const ROW_STYLE = { background: "var(--hos-clay-bg)" } as const;
 
+/**
+ * Tono de la fila "por cobrar" — SOLO para esta vista (Cobros). Difiere de
+ * `payTone` (month-view.tsx): acá todo evento tiene monto (es la única forma
+ * de llegar a la lista "por cobrar"), y `none` (monto cargado, nunca marcado)
+ * debe resaltar como dinero pendiente igual que `pending` — señal pre-
+ * migración que `payTone` ya no da (ahí `none` es neutral). No tocar
+ * `payTone`: month-view y la lista general deben seguir tratando `none` como
+ * neutral.
+ */
+function cobroTone(status: PaymentStatus): PayTone {
+  if (status === "partial") return "info";
+  return "warn";
+}
+
 function CobroRow({ ev }: { ev: CalendarEventRow }) {
   const overdue = daysOverdue(ev.start_at);
   const status = ev.payment_status;
-  const tone = payTone(status, true);
+  const tone = cobroTone(status);
   return (
     <li className={ROW_CLASS} style={ROW_STYLE}>
       <div className="flex-1 min-w-0">
