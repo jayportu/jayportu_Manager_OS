@@ -210,7 +210,7 @@ function LinkRow({
           <Check className="w-4 h-4" />
         </button>
       )}
-      <ClayChipButton active={link.active} onClick={onToggle}>
+      <ClayChipButton active={link.active} onClick={onToggle} disabled={pending}>
         {link.active ? "activo" : "oculto"}
       </ClayChipButton>
       <button
