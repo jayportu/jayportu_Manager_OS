@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { listMyEvents } from "@/lib/queries/calendar-events";
-import type { CalendarEventRow } from "@/lib/calendar/types";
+import type { CalendarEventRow, PaymentStatus } from "@/lib/calendar/types";
+import { GlassPanel, Badge } from "@/components/hos";
 
 const DOW = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const MONTHS = [
@@ -27,17 +28,32 @@ function monthParam(y: number, m: number): string {
   return `${y}-${String(m).padStart(2, "0")}`;
 }
 
-/** Estilo del pill de evento según estado de pago (consistente con la vista lista). */
-function eventStyle(ev: CalendarEventRow): { pill: string; dot: string } {
-  const hasAmount = ev.amount_clp !== null && ev.amount_clp > 0;
-  if (hasAmount && ev.payment_status === "paid")
-    return { pill: "bg-success/15 text-success border border-success/30", dot: "bg-success" };
-  if (hasAmount && ev.payment_status === "pending")
-    return { pill: "bg-warning/15 text-warning border border-warning/30", dot: "bg-warning" };
-  if (hasAmount && ev.payment_status === "partial")
-    return { pill: "bg-info/15 text-info border border-info/30", dot: "bg-info" };
-  return { pill: "bg-bg-subtle text-fg-muted border border-border", dot: "bg-orange" };
+/**
+ * Tono semántico de pago (Badge) — FUENTE ÚNICA del mapeo estado→tono.
+ * Antes triplicado (tintes de `EventRow` en page.tsx, `CobroRow`/`CobradoRow`
+ * en cobros-view.tsx y el `eventStyle` de esta vista, cada uno con su propia
+ * lógica de colores). Ahora un solo lugar: los mismos 4 estados de pago
+ * (paid/pending/partial/none) siempre resuelven al mismo tono/color en las
+ * 3 vistas — page.tsx y cobros-view.tsx importan esta función desde acá.
+ */
+export type PayTone = "up" | "warn" | "info" | "neutral";
+
+export function payTone(status: PaymentStatus, hasAmount: boolean): PayTone {
+  if (hasAmount && status === "paid") return "up";
+  if (hasAmount && status === "pending") return "warn";
+  if (hasAmount && status === "partial") return "info";
+  return "neutral";
 }
+
+/* Color sólido por tono (mismos tokens que usa el Badge del kit) — para el
+   punto/realce de los pills del grid, donde el <Badge> completo (pill mayús-
+   cula) no cabe junto al título truncado del evento. */
+const TONE_DOT: Record<PayTone, string> = {
+  up: "rgb(var(--drop-success))",
+  warn: "rgb(var(--drop-warning))",
+  info: "rgb(var(--drop-info))",
+  neutral: "rgba(255,255,255,.4)",
+};
 
 /**
  * Resuelve el mes a mostrar desde el param `?month=YYYY-MM`. Si falta o es
@@ -102,15 +118,16 @@ export async function MonthView({ year, month }: { year: number; month: number }
   );
 
   const navBtn =
-    "inline-flex items-center justify-center w-9 h-9 border-2 border-border text-fg-muted hover:border-orange hover:text-orange transition-colors";
+    "hos-clay-btn inline-flex items-center justify-center w-9 h-9 rounded-full text-white/55 hover:text-orange transition-colors";
 
   return (
     <section className="mb-6">
-      <div className="border-2 border-border bg-bg-panel">
+      {/* Blur solo acá (contenedor top-level) — celdas y pills adentro son superficies sólidas */}
+      <GlassPanel>
         {/* Header: mes + navegación */}
-        <div className="flex items-center justify-between gap-3 p-4 border-b-2 border-border">
-          <div className="font-display text-2xl md:text-3xl leading-none">
-            {MONTHS[month - 1]} <span className="text-fg-muted">{year}</span>
+        <div className="flex items-center justify-between gap-3 pb-4">
+          <div className="font-display text-2xl leading-none md:text-3xl">
+            {MONTHS[month - 1]} <span className="text-white/40">{year}</span>
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -122,7 +139,7 @@ export async function MonthView({ year, month }: { year: number; month: number }
             </Link>
             <Link
               href="/calendario?view=mes"
-              className="inline-flex items-center h-9 px-3 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-fg-muted hover:border-orange hover:text-orange transition-colors"
+              className="hos-clay-btn inline-flex h-9 items-center rounded-full px-3 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-white/55 hover:text-orange transition-colors"
             >
               Hoy
             </Link>
@@ -137,19 +154,19 @@ export async function MonthView({ year, month }: { year: number; month: number }
         </div>
 
         {/* Días de la semana */}
-        <div className="grid grid-cols-7 border-b-2 border-border">
+        <div className="grid grid-cols-7 border-b border-white/10 pb-2">
           {DOW.map((d) => (
             <div
               key={d}
-              className="px-2 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-fg-muted"
+              className="px-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-white/35"
             >
               {d}
             </div>
           ))}
         </div>
 
-        {/* Grilla (gap-px sobre bg-border = líneas divisorias limpias) */}
-        <div className="grid grid-cols-7 gap-px bg-border">
+        {/* Grilla — celdas SÓLIDAS (sin backdrop-filter), separadas por un gap fino */}
+        <div className="mt-2 grid grid-cols-7 gap-1">
           {cells.map((cell) => {
             const evs = byDay.get(cell.key) ?? [];
             const isToday = cell.key === today;
@@ -158,61 +175,58 @@ export async function MonthView({ year, month }: { year: number; month: number }
             return (
               <div
                 key={cell.key}
-                className={`min-h-[88px] md:min-h-[108px] p-1.5 ${
-                  cell.inMonth ? "bg-bg-panel" : "bg-bg"
-                }`}
+                className="min-h-[88px] rounded-lg p-1.5 md:min-h-[108px]"
+                style={{ background: cell.inMonth ? "rgba(255,255,255,.03)" : "rgba(255,255,255,.01)" }}
               >
                 <div
                   className={
                     isToday
-                      ? "w-6 h-6 rounded-full bg-orange text-ink flex items-center justify-center font-mono text-[11px] font-bold"
-                      : `font-mono text-[12px] ${cell.inMonth ? "text-fg-muted" : "text-fg-subtle"}`
+                      ? "flex h-6 w-6 items-center justify-center rounded-full bg-orange font-mono text-[11px] font-bold text-ink"
+                      : `font-mono text-[12px] ${cell.inMonth ? "text-white/50" : "text-white/20"}`
                   }
                 >
                   {String(cell.d).padStart(2, "0")}
                 </div>
                 <div className="mt-1 space-y-1">
                   {shown.map((ev) => {
-                    const s = eventStyle(ev);
+                    const hasAmount = ev.amount_clp !== null && ev.amount_clp > 0;
+                    const tone = payTone(ev.payment_status, hasAmount);
                     return (
                       <Link
                         key={ev.id}
                         href={`/calendario/${ev.id}/evento`}
-                        className={`flex items-center gap-1.5 px-1.5 py-1 ${s.pill} hover:brightness-110 transition-[filter]`}
+                        className="flex items-center gap-1.5 rounded px-1.5 py-1 transition-[filter] hover:brightness-110"
+                        style={{ background: "rgba(255,255,255,.04)" }}
                         title={ev.title}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.dot}`} aria-hidden="true" />
-                        <span className="text-[11px] leading-none truncate hidden sm:block">
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ background: TONE_DOT[tone] }}
+                          aria-hidden="true"
+                        />
+                        <span className="text-[11px] leading-none truncate hidden sm:block text-white/75">
                           {ev.title}
                         </span>
                       </Link>
                     );
                   })}
                   {extra > 0 && (
-                    <div className="font-mono text-[9px] text-fg-subtle px-1.5">+{extra} más</div>
+                    <div className="font-mono text-[9px] text-white/30 px-1.5">+{extra} más</div>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
+      </GlassPanel>
 
-      {/* Leyenda + total del mes */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-3 px-1 font-mono text-[10px] uppercase tracking-[0.04em] text-fg-muted">
-        <span className="flex items-center gap-1.5">
-          <i className="w-2 h-2 rounded-full bg-success" /> Pagado
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="w-2 h-2 rounded-full bg-warning" /> Pendiente
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="w-2 h-2 rounded-full bg-info" /> Parcial
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="w-2 h-2 rounded-full bg-orange" /> Otro evento
-        </span>
-        <span className="ml-auto text-fg-subtle">
+      {/* Leyenda (mismos tonos del Badge) + total del mes */}
+      <div className="flex flex-wrap items-center gap-2 mt-3 px-1">
+        <Badge tone="up">Pagado</Badge>
+        <Badge tone="warn">Pendiente</Badge>
+        <Badge tone="info">Parcial</Badge>
+        <Badge tone="neutral">Otro evento</Badge>
+        <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.04em] text-white/35">
           {monthEventCount} {monthEventCount === 1 ? "evento" : "eventos"} este mes
         </span>
       </div>
