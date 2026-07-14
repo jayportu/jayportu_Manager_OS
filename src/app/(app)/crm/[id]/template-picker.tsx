@@ -3,11 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { SelectNative } from "@/components/ui/select-native";
-import { Label } from "@/components/ui/label";
 import {
   FileText,
   Copy,
@@ -27,6 +23,8 @@ import { whatsappLink } from "@/lib/format";
 import { fetchUserTemplatesAction, bumpTemplateUsageAction } from "./template-actions";
 import { addInteractionAction } from "../actions";
 import Link from "next/link";
+import { EmptyState, Alert, FIELD, SELECT } from "@/components/hos";
+import { cn } from "@/lib/utils";
 
 interface Props {
   contactId: string;
@@ -143,8 +141,8 @@ export function TemplatePicker({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} variant="outline">
-        <FileText className="w-4 h-4" />
+      <Button variant="clay" size="sm" onClick={() => setOpen(true)}>
+        <FileText className="h-3.5 w-3.5" />
         Usar plantilla
       </Button>
 
@@ -152,21 +150,24 @@ export function TemplatePicker({
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
+          role="dialog"
+          aria-modal="true"
         >
-          <Card
-            className="bg-bg-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl"
+          <div
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-bg-panel p-5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-2xl leading-none text-fg">
                 Plantilla para {contactName}
               </h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="text-fg-muted hover:text-fg"
+                aria-label="Cerrar"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
@@ -175,58 +176,68 @@ export function TemplatePicker({
             )}
 
             {templates && templates.length === 0 && (
-              <div className="text-center py-8">
-                <FileText className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
-                <p className="text-sm text-fg-muted mb-4">
-                  No tienes plantillas todavía.
-                </p>
-                <Button asChild>
-                  <Link href="/plantillas">Crear plantillas →</Link>
-                </Button>
-              </div>
+              <EmptyState
+                icon={FileText}
+                title="No tienes plantillas todavía"
+                action={
+                  <Button asChild variant="clayPrimary" size="sm">
+                    <Link href="/plantillas">Crear plantillas →</Link>
+                  </Button>
+                }
+              />
             )}
 
             {templates && templates.length > 0 && (
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tpl-select">Elige una plantilla</Label>
-                  <SelectNative
-                    id="tpl-select"
+                <div className="space-y-1.5">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
+                    Elige una plantilla
+                  </span>
+                  <select
+                    aria-label="Elige una plantilla"
+                    className={SELECT}
                     value={selectedId}
                     onChange={(e) => setSelectedId(e.target.value)}
                   >
                     {templates.map((t) => (
-                      <option key={t.id} value={t.id}>
+                      <option key={t.id} value={t.id} className="bg-bg-panel">
                         {t.name} · {TEMPLATE_CATEGORY_LABELS[t.category]} ·{" "}
                         {TEMPLATE_CHANNEL_LABELS[t.channel_suggested]}
                       </option>
                     ))}
-                  </SelectNative>
+                  </select>
                 </div>
 
                 {selected?.subject && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Asunto (email)</Label>
-                    <Input
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
+                      Asunto (email)
+                    </span>
+                    <input
+                      aria-label="Asunto (email)"
+                      className={FIELD}
                       value={resolveTemplate(selected.subject, vars).text}
                       readOnly
                     />
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <Label className="text-xs">Mensaje resuelto</Label>
-                  <Textarea
+                <div className="space-y-1.5">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
+                    Mensaje resuelto
+                  </span>
+                  <textarea
+                    aria-label="Mensaje resuelto"
                     value={resolvedText}
                     onChange={(e) => setResolvedText(e.target.value)}
                     rows={10}
-                    className="font-mono text-sm"
+                    className={cn(FIELD, "font-mono")}
                   />
                 </div>
 
                 {missing.length > 0 && (
-                  <div className="text-xs bg-warning/10 border border-warning/30 rounded p-3 text-warning">
-                    Faltan datos para resolver: {missing.map((m) => `{${m}}`).join(", ")}
+                  <Alert tone="warn" title="Faltan datos">
+                    {missing.map((m) => `{${m}}`).join(", ")}
                     {missing.includes("contact_person") && (
                       <div className="mt-1 text-fg-muted">
                         Edita el contacto para llenar la persona de contacto.
@@ -237,58 +248,48 @@ export function TemplatePicker({
                         Edita tu perfil DJ en{" "}
                         <Link
                           href="/configuracion"
-                          className="text-accent hover:underline"
+                          className="text-orange hover:underline"
                         >
                           configuración
                         </Link>{" "}
                         para llenar tus datos.
                       </div>
                     )}
-                  </div>
+                  </Alert>
                 )}
 
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
-                  <Button onClick={copyText} variant="outline" size="sm">
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+                  <Button variant="clay" size="sm" onClick={copyText}>
+                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copiado" : "Copiar"}
                   </Button>
                   {contactWhatsapp && (
-                    <Button onClick={openWhatsApp} size="sm">
-                      <MessageCircle className="w-4 h-4" />
+                    <Button variant="clayPrimary" size="sm" onClick={openWhatsApp}>
+                      <MessageCircle className="h-3.5 w-3.5" />
                       Abrir WhatsApp
                     </Button>
                   )}
                   {contactEmail && (
-                    <Button onClick={openEmail} variant="outline" size="sm">
-                      <Mail className="w-4 h-4" />
+                    <Button variant="clay" size="sm" onClick={openEmail}>
+                      <Mail className="h-3.5 w-3.5" />
                       Abrir email
                     </Button>
                   )}
                   <Button
-                    onClick={registerAsInteraction}
-                    variant="ghost"
+                    variant="clay"
                     size="sm"
+                    onClick={registerAsInteraction}
                     disabled={isPending}
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="h-3.5 w-3.5" />
                     Registrar como interacción enviada
                   </Button>
                 </div>
               </div>
             )}
-          </Card>
+          </div>
         </div>
       )}
     </>
-  );
-}
-
-// Wrapper Input para que sea solo readonly
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="flex h-10 w-full rounded-md border border-input bg-bg-panel px-3 py-2 text-sm text-foreground"
-    />
   );
 }

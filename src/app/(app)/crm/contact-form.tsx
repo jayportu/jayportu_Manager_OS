@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { SelectNative } from "@/components/ui/select-native";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 import {
   CONTACT_TYPES,
   CONTACT_STATUS,
@@ -164,12 +165,11 @@ export function ContactForm({ initial }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Identidad */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Identidad
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Identidad</MonoLabel>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nombre *</Label>
@@ -214,13 +214,13 @@ export function ContactForm({ initial }: Props) {
             />
           </div>
         </div>
-      </Card>
+        </div>
+      </GlassPanel>
 
       {/* Persona de contacto */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Persona de contacto
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Persona de contacto</MonoLabel>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="contact_person">Nombre</Label>
@@ -241,13 +241,13 @@ export function ContactForm({ initial }: Props) {
             />
           </div>
         </div>
-      </Card>
+        </div>
+      </GlassPanel>
 
       {/* Canales */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Canales de contacto
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Canales de contacto</MonoLabel>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="whatsapp">WhatsApp (con código país)</Label>
@@ -309,13 +309,13 @@ export function ContactForm({ initial }: Props) {
             />
           </div>
         </div>
-      </Card>
+        </div>
+      </GlassPanel>
 
       {/* Pipeline */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Pipeline
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Pipeline</MonoLabel>
         <div className="space-y-2">
           <Label htmlFor="status">Estado</Label>
           <SelectNative
@@ -358,14 +358,14 @@ export function ContactForm({ initial }: Props) {
             </div>
           </div>
         )}
-      </Card>
+        </div>
+      </GlassPanel>
 
       {/* Venue info — Sprint 20 (solo si type IN VENUE_TYPES) */}
       {isVenueType(form.type as ContactType) && (
-        <Card className="p-6 space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Info del venue
-          </h2>
+        <GlassPanel>
+          <div className="space-y-4">
+          <MonoLabel>Info del venue</MonoLabel>
           <p className="text-xs text-fg-muted -mt-2">
             Datos para que /descubrir pueda matchearte con otros DJs que
             buscan venues por capacidad o género.
@@ -423,14 +423,14 @@ export function ContactForm({ initial }: Props) {
               )}
             </div>
           </div>
-        </Card>
+          </div>
+        </GlassPanel>
       )}
 
       {/* Tags — Sprint 19 */}
-      <Card className="p-6 space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Tags
-        </h2>
+      <GlassPanel>
+        <div className="space-y-3">
+        <MonoLabel>Tags</MonoLabel>
         <p className="text-xs text-fg-muted -mt-1">
           Etiquetas libres para segmentar. Útil para filtrar en /crm y para
           campañas dirigidas. Lowercase, sin espacios (DROP las normaliza).
@@ -474,34 +474,36 @@ export function ContactForm({ initial }: Props) {
           />
           <Button
             type="button"
-            variant="outline"
+            variant="clay"
             onClick={() => tagInput.trim() && addTag(tagInput)}
           >
             + Tag
           </Button>
         </div>
-      </Card>
+        </div>
+      </GlassPanel>
 
       {/* Notas */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Notas
-        </h2>
+      <GlassPanel>
+        <div className="space-y-4">
+        <MonoLabel>Notas</MonoLabel>
         <Textarea
           value={form.notes || ""}
           onChange={(e) => update("notes", e.target.value)}
           rows={4}
           placeholder="Cualquier contexto adicional sobre este contacto."
         />
-      </Card>
+        </div>
+      </GlassPanel>
 
       {/* Notas privadas — Sprint 19 */}
-      <Card className="p-6 space-y-3" style={{ borderColor: "#0A0A0A", borderWidth: "2px" }}>
+      <div className="hos-clay space-y-3 overflow-hidden rounded-2xl border border-orange/25 p-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-orange flex items-center gap-2">
-            🔒 Notas privadas
-          </h2>
-          <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-ink text-orange">
+          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">
+            <Lock className="h-3 w-3" />
+            Notas privadas
+          </span>
+          <span className="rounded-full bg-orange px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink">
             solo tú
           </span>
         </div>
@@ -516,10 +518,10 @@ export function ContactForm({ initial }: Props) {
           rows={5}
           placeholder="Ej: Paga el lunes siguiente, no efectivo. Pide rider técnico. Hijo de un amigo del Marco."
         />
-      </Card>
+      </div>
 
       {/* Submit */}
-      <div className="sticky bottom-0 bg-bg/95 backdrop-blur border border-border rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+      <div className="sticky bottom-0 bg-bg/95 backdrop-blur border border-border rounded-2xl p-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           {message && (
             <div
@@ -535,15 +537,15 @@ export function ContactForm({ initial }: Props) {
           {initial && (
             <Button
               type="button"
-              variant="outline"
+              variant="clay"
               onClick={handleDelete}
               disabled={isPending || isDeleting}
-              className="text-danger border-danger/30 hover:bg-danger/10 hover:text-danger"
+              className="text-danger"
             >
               {isDeleting ? "Borrando…" : "Borrar"}
             </Button>
           )}
-          <Button type="submit" disabled={isPending || isDeleting}>
+          <Button type="submit" variant="clayPrimary" disabled={isPending || isDeleting}>
             {isPending ? "Guardando…" : initial ? "Guardar cambios" : "Crear contacto"}
           </Button>
         </div>

@@ -3,10 +3,6 @@
 import { useState, useTransition } from "react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { SelectNative } from "@/components/ui/select-native";
 import { CalendarPlus, Check, Trash2, Clock, RotateCw, Pause } from "lucide-react";
 import type {
   FollowUp,
@@ -21,6 +17,8 @@ import {
 } from "../actions";
 import { useRouter } from "next/navigation";
 import { dateTime } from "@/lib/format";
+import { GlassPanel, MonoLabel, EmptyState, Toggle, FIELD, SELECT } from "@/components/hos";
+import { cn } from "@/lib/utils";
 
 interface Props {
   contactId: string;
@@ -117,16 +115,13 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">
-          Próximos follow-ups{" "}
-          {pending.length > 0 && (
-            <span className="text-orange ml-1">({pending.length})</span>
-          )}
-        </h2>
-        <Button size="sm" variant="outline" onClick={() => setOpen(!open)}>
-          <CalendarPlus className="w-4 h-4" />
+    <GlassPanel className="mb-5">
+      <div className="mb-4 flex items-center justify-between">
+        <MonoLabel>
+          Próximos follow-ups{pending.length > 0 ? ` (${pending.length})` : ""}
+        </MonoLabel>
+        <Button variant="clay" size="sm" onClick={() => setOpen(!open)}>
+          <CalendarPlus className="h-3.5 w-3.5" />
           {open ? "Cancelar" : "Agendar"}
         </Button>
       </div>
@@ -134,99 +129,97 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
       {open && (
         <form
           onSubmit={handleAdd}
-          className="mb-4 p-4 bg-cream border-2 border-border space-y-3"
+          className="mb-4 space-y-3 rounded-xl border border-border bg-bg-subtle/40 p-4"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="due_at" className="text-xs">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
                 Cuándo
-              </Label>
-              <Input
-                id="due_at"
+              </span>
+              <input
                 type="datetime-local"
+                className={FIELD}
                 value={dueAt}
                 onChange={(e) => setDueAt(e.target.value)}
                 required
+                aria-label="Cuándo"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="priority" className="text-xs">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
                 Prioridad
-              </Label>
-              <SelectNative
-                id="priority"
+              </span>
+              <select
+                className={SELECT}
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as FollowUpPriority)}
+                aria-label="Prioridad"
               >
-                <option value="alta">Alta</option>
-                <option value="normal">Normal</option>
-                <option value="baja">Baja</option>
-              </SelectNative>
+                <option value="alta" className="bg-bg-panel">Alta</option>
+                <option value="normal" className="bg-bg-panel">Normal</option>
+                <option value="baja" className="bg-bg-panel">Baja</option>
+              </select>
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="note" className="text-xs">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
               Qué hay que hacer
-            </Label>
-            <Input
-              id="note"
+            </span>
+            <input
+              className={FIELD}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Mandar press kit + tarifa"
               required
+              aria-label="Qué hay que hacer"
             />
           </div>
 
           {/* Sprint 19 — Toggle recurrente */}
-          <div className="border-t-2 border-dashed border-border pt-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isRecurring}
-                onChange={(e) => setIsRecurring(e.target.checked)}
-                className="w-4 h-4 accent-orange"
-              />
-              <RotateCw className="w-4 h-4 text-orange" />
-              <span className="font-mono text-[11px] font-bold uppercase tracking-wider">
-                Hacer recurrente
-              </span>
-            </label>
+          <div className="border-t border-border pt-3">
+            <Toggle
+              checked={isRecurring}
+              onChange={setIsRecurring}
+              label="Hacer recurrente"
+            />
             {isRecurring && (
-              <div className="grid grid-cols-[80px_1fr] gap-2 mt-3 ml-6">
+              <div className="mt-3 grid grid-cols-[80px_1fr] gap-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="rec-value" className="text-[10px]">
+                  <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted">
                     Cada
-                  </Label>
-                  <Input
-                    id="rec-value"
+                  </span>
+                  <input
                     type="number"
                     min={1}
+                    className={FIELD}
                     value={recurrenceValue}
                     onChange={(e) => setRecurrenceValue(e.target.value)}
+                    aria-label="Cada"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="rec-unit" className="text-[10px]">
+                  <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted">
                     Unidad
-                  </Label>
-                  <SelectNative
-                    id="rec-unit"
+                  </span>
+                  <select
+                    className={SELECT}
                     value={recurrenceUnit}
                     onChange={(e) =>
                       setRecurrenceUnit(e.target.value as RecurrenceUnit)
                     }
+                    aria-label="Unidad"
                   >
-                    <option value="days">Días</option>
-                    <option value="weeks">Semanas</option>
-                    <option value="months">Meses</option>
-                  </SelectNative>
+                    <option value="days" className="bg-bg-panel">Días</option>
+                    <option value="weeks" className="bg-bg-panel">Semanas</option>
+                    <option value="months" className="bg-bg-panel">Meses</option>
+                  </select>
                 </div>
               </div>
             )}
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit" size="sm" variant="orange" disabled={isPending}>
+            <Button type="submit" variant="clayPrimary" size="sm" disabled={isPending}>
               {isPending ? "Guardando…" : "Agendar"}
             </Button>
           </div>
@@ -234,9 +227,11 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
       )}
 
       {pending.length === 0 && !open && (
-        <div className="text-sm text-fg-muted">
-          No tienes follow-ups pendientes con este contacto.
-        </div>
+        <EmptyState
+          icon={CalendarPlus}
+          title="Sin follow-ups pendientes"
+          sub="Agenda el próximo contacto con este lead."
+        />
       )}
 
       <ul className="flex flex-col gap-2">
@@ -250,18 +245,18 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
           return (
             <li
               key={f.id}
-              className="flex items-center gap-3 px-3 py-2 border-2 border-border bg-bg-panel"
+              className="flex items-center gap-3 rounded-xl border border-border bg-bg-subtle/40 px-3 py-2.5"
             >
               {f.is_recurring ? (
-                <RotateCw className={`w-4 h-4 shrink-0 text-orange`} />
+                <RotateCw className="h-4 w-4 shrink-0 text-orange" />
               ) : (
-                <Clock className={`w-4 h-4 shrink-0 ${priColor}`} />
+                <Clock className={cn("h-4 w-4 shrink-0", priColor)} />
               )}
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-sm text-fg">
                   {f.note || "(sin nota)"}
                   {f.is_recurring && (
-                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider ml-2 px-1.5 py-0.5 bg-orange text-ink border border-border">
+                    <span className="ml-2 rounded-full bg-orange px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink">
                       cada {f.recurrence_value}
                       {f.recurrence_unit === "days"
                         ? "d"
@@ -273,21 +268,21 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-fg-muted mt-0.5">
+                <div className="mt-0.5 text-xs text-fg-muted">
                   {dateTime(f.due_at)} · {f.priority}
                 </div>
               </div>
               <button
                 onClick={() => handleComplete(f.id)}
                 disabled={isPending}
-                className="p-1.5 hover:bg-success/10 text-success transition-colors"
+                className="rounded-full p-1.5 text-success transition-colors hover:bg-success/10"
                 title={
                   f.is_recurring
                     ? "Marcar hecho — se crea el siguiente automático"
                     : "Marcar hecho"
                 }
               >
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
               </button>
               {f.is_recurring && f.recurrence_series_id && (
                 <button
@@ -295,19 +290,19 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
                     handlePauseSeries(f.recurrence_series_id as string)
                   }
                   disabled={isPending}
-                  className="p-1.5 hover:bg-warning/10 text-warning transition-colors"
+                  className="rounded-full p-1.5 text-warning transition-colors hover:bg-warning/10"
                   title="Pausar recurrencia"
                 >
-                  <Pause className="w-4 h-4" />
+                  <Pause className="h-4 w-4" />
                 </button>
               )}
               <button
                 onClick={() => handleDelete(f.id)}
                 disabled={isPending}
-                className="p-1.5 hover:bg-danger/10 text-fg-muted hover:text-danger transition-colors"
+                className="rounded-full p-1.5 text-fg-muted transition-colors hover:bg-danger/10 hover:text-danger"
                 title="Borrar"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="h-4 w-4" />
               </button>
             </li>
           );
@@ -316,18 +311,18 @@ export function FollowUpsSection({ contactId, followUps }: Props) {
 
       {done.length > 0 && (
         <details className="mt-3">
-          <summary className="text-xs text-fg-muted cursor-pointer hover:text-fg">
+          <summary className="cursor-pointer text-xs text-fg-muted hover:text-fg">
             {done.length} {done.length === 1 ? "completado" : "completados"}
           </summary>
           <ul className="mt-2 flex flex-col gap-1.5">
             {done.map((f) => (
-              <li key={f.id} className="text-xs text-fg-subtle line-through pl-2">
+              <li key={f.id} className="pl-2 text-xs text-fg-subtle line-through">
                 {dateTime(f.due_at)} — {f.note}
               </li>
             ))}
           </ul>
         </details>
       )}
-    </Card>
+    </GlassPanel>
   );
 }
