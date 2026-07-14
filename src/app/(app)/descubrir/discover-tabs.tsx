@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SelectNative } from "@/components/ui/select-native";
@@ -24,6 +23,7 @@ import {
 } from "@/lib/overpass";
 import { CONTACT_TYPES, CONTACT_TYPE_LABELS, type ContactType } from "@/types/database";
 import Link from "next/link";
+import { GlassPanel, ClayChipButton, Alert } from "@/components/hos";
 
 interface Preset {
   id: string;
@@ -174,21 +174,30 @@ export function DiscoverTabs({ presets }: Props) {
   }
 
   return (
-    <Card className="p-5">
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-border mb-5">
-        <TabBtn active={tab === "osm"} onClick={() => setTab("osm")}>
-          <Globe2 className="w-4 h-4" />
+    <GlassPanel>
+      {/* Tabs — segmentado clay (client, preserva el cambio de tab) */}
+      <div className="mb-5 flex flex-wrap gap-2">
+        <ClayChipButton
+          active={tab === "osm"}
+          onClick={() => setTab("osm")}
+          icon={Globe2}
+        >
           OpenStreetMap
-        </TabBtn>
-        <TabBtn active={tab === "manual"} onClick={() => setTab("manual")}>
-          <ClipboardPaste className="w-4 h-4" />
+        </ClayChipButton>
+        <ClayChipButton
+          active={tab === "manual"}
+          onClick={() => setTab("manual")}
+          icon={ClipboardPaste}
+        >
           Pegar texto
-        </TabBtn>
-        <TabBtn active={tab === "csv"} onClick={() => setTab("csv")}>
-          <FileSpreadsheet className="w-4 h-4" />
+        </ClayChipButton>
+        <ClayChipButton
+          active={tab === "csv"}
+          onClick={() => setTab("csv")}
+          icon={FileSpreadsheet}
+        >
           CSV
-        </TabBtn>
+        </ClayChipButton>
       </div>
 
       {/* OSM tab */}
@@ -206,7 +215,7 @@ export function DiscoverTabs({ presets }: Props) {
                 type="button"
                 onClick={() => handleRunPreset(p.id)}
                 disabled={isPending}
-                className="text-left p-3 rounded-lg border border-border bg-bg hover:border-accent/30 hover:bg-bg-panel transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-left p-3 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/[0.03] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-between">
                   <div className="font-semibold text-sm">{p.label}</div>
@@ -270,11 +279,13 @@ booking@sonar.cl
             value={manualText}
             onChange={(e) => setManualText(e.target.value)}
             placeholder="Pega los leads aquí…"
+            aria-label="Texto a importar"
             className="font-mono text-sm"
           />
           <Button
             onClick={handleImportManual}
             disabled={isPending || !manualText.trim()}
+            variant="clayPrimary"
           >
             {isPending ? "Procesando…" : "Importar leads"}
           </Button>
@@ -289,7 +300,7 @@ booking@sonar.cl
             Si tienes una lista en CSV, puedes importarla directo al CRM (no
             pasa por la cola de Descubrir).
           </p>
-          <Button asChild variant="outline">
+          <Button asChild variant="clay">
             <Link href="/crm/importar">Ir a Importar CSV</Link>
           </Button>
         </div>
@@ -297,40 +308,12 @@ booking@sonar.cl
 
       {/* Result message */}
       {result && (
-        <div
-          className={`mt-4 text-sm rounded p-3 border ${
-            result.type === "ok"
-              ? "text-success bg-success/10 border-success/30"
-              : "text-danger bg-danger/10 border-danger/30"
-          }`}
-        >
-          {result.text}
+        <div className="mt-4">
+          <Alert tone={result.type === "ok" ? "success" : "danger"}>
+            {result.text}
+          </Alert>
         </div>
       )}
-    </Card>
-  );
-}
-
-function TabBtn({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-        active
-          ? "border-accent text-accent"
-          : "border-transparent text-fg-muted hover:text-fg"
-      }`}
-    >
-      {children}
-    </button>
+    </GlassPanel>
   );
 }

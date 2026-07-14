@@ -29,7 +29,7 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
 
   if (status === "added_to_crm" && promotedContactId) {
     return (
-      <Button asChild variant="outline" size="sm">
+      <Button asChild variant="clay" size="sm">
         <Link href={`/crm/${promotedContactId}`}>
           Ver en CRM <ExternalLink className="w-3.5 h-3.5" />
         </Link>
@@ -81,6 +81,7 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
       <Button
         onClick={handlePromote}
         disabled={isPending}
+        variant="clayPrimary"
         size="sm"
       >
         <ArrowRight className="w-4 h-4" />
@@ -90,8 +91,9 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
         <Button
           onClick={handleDismiss}
           disabled={isPending}
-          variant="ghost"
+          variant="clay"
           size="sm"
+          aria-label="Descartar lead"
         >
           <X className="w-4 h-4" />
         </Button>
@@ -99,9 +101,10 @@ export function LeadActions({ leadId, status, promotedContactId }: Props) {
         <Button
           onClick={handleDelete}
           disabled={isPending}
-          variant="ghost"
+          variant="clay"
           size="sm"
           className="text-danger hover:text-danger"
+          aria-label="Borrar lead"
         >
           <X className="w-4 h-4" />
         </Button>
