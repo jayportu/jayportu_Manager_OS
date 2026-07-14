@@ -31,7 +31,7 @@ export function DuplicateTemplateButton({ id, name }: { id: string; name: string
       disabled={pending}
       title={`Duplicar "${name}"`}
       aria-label={`Duplicar plantilla ${name}`}
-      className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border bg-bg-panel/85 backdrop-blur-sm text-[10px] font-mono font-bold uppercase tracking-wider text-fg-muted hover:text-accent hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 transition-colors"
+      className="hos-clay inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white/70 backdrop-blur-sm transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange disabled:opacity-50"
     >
       <Copy className="w-3.5 h-3.5" />
       {pending ? "…" : "Duplicar"}
