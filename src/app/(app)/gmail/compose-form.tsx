@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Send, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { GlassPanel, MonoLabel, Alert, FIELD, SELECT } from "@/components/hos";
+import { cn } from "@/lib/utils";
+import { Send, Sparkles } from "lucide-react";
 import { sendEmailAction } from "./actions";
 
 export interface ComposeContact {
@@ -18,9 +19,6 @@ export interface ComposeTemplate {
   subject: string;
   body: string;
 }
-
-const inputCls =
-  "w-full h-10 px-3 rounded-md bg-bg-panel border border-border text-sm placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-ring/40";
 
 export function ComposeForm({
   contacts,
@@ -77,46 +75,56 @@ export function ComposeForm({
   const canSend = to.trim() && subject.trim() && body.trim() && !sending;
 
   return (
-    <Card className="p-5">
-      <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-fg-muted mb-4">
-        Nuevo correo
-      </h3>
+    <GlassPanel>
+      <MonoLabel className="mb-4 block">Nuevo correo</MonoLabel>
 
       {result?.ok && (
-        <div className="flex gap-2 text-sm text-success bg-success/10 border border-success/30 rounded-md p-3 mb-4">
-          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>Correo enviado. La copia quedó en tus Enviados de Gmail.</span>
+        <div className="mb-4">
+          <Alert tone="success">
+            Correo enviado. La copia quedó en tus Enviados de Gmail.
+          </Alert>
         </div>
       )}
       {result && !result.ok && (
-        <div className="flex gap-2 text-sm text-danger bg-danger/10 border border-danger/30 rounded-md p-3 mb-4">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{result.error}</span>
+        <div className="mb-4">
+          <Alert tone="danger">{result.error}</Alert>
         </div>
       )}
 
       <div className="space-y-4">
         <div className="grid md:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-fg-muted mb-1.5">
+            <label
+              htmlFor="compose-contact"
+              className="block text-xs text-fg-muted mb-1.5"
+            >
               Contacto del CRM
             </label>
             <select
+              id="compose-contact"
               value={contactId}
               onChange={(e) => pickContact(e.target.value)}
-              className={inputCls}
+              className={SELECT}
             >
-              <option value="">— Elige un contacto —</option>
+              <option value="" className="bg-bg-panel">
+                — Elige un contacto —
+              </option>
               {contacts.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="bg-bg-panel">
                   {c.name} · {c.email}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs text-fg-muted mb-1.5">Para</label>
+            <label
+              htmlFor="compose-to"
+              className="block text-xs text-fg-muted mb-1.5"
+            >
+              Para
+            </label>
             <input
+              id="compose-to"
               type="email"
               value={to}
               onChange={(e) => {
@@ -124,28 +132,34 @@ export function ComposeForm({
                 setContactId("");
               }}
               placeholder="correo@destinatario.com"
-              className={inputCls}
+              className={FIELD}
             />
           </div>
         </div>
 
         {templates.length > 0 && (
           <div>
-            <label className="block text-xs text-fg-muted mb-1.5">
+            <label
+              htmlFor="compose-template"
+              className="block text-xs text-fg-muted mb-1.5"
+            >
               <Sparkles className="w-3 h-3 inline -mt-0.5 mr-1 text-accent" />
               Insertar plantilla
             </label>
             <select
+              id="compose-template"
               defaultValue=""
               onChange={(e) => {
                 pickTemplate(e.target.value);
                 e.currentTarget.value = "";
               }}
-              className={inputCls}
+              className={SELECT}
             >
-              <option value="">— Sin plantilla —</option>
+              <option value="" className="bg-bg-panel">
+                — Sin plantilla —
+              </option>
               {templates.map((t) => (
-                <option key={t.id} value={t.id}>
+                <option key={t.id} value={t.id} className="bg-bg-panel">
                   {t.name}
                 </option>
               ))}
@@ -154,24 +168,36 @@ export function ComposeForm({
         )}
 
         <div>
-          <label className="block text-xs text-fg-muted mb-1.5">Asunto</label>
+          <label
+            htmlFor="compose-subject"
+            className="block text-xs text-fg-muted mb-1.5"
+          >
+            Asunto
+          </label>
           <input
+            id="compose-subject"
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Asunto del correo"
-            className={inputCls}
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs text-fg-muted mb-1.5">Mensaje</label>
+          <label
+            htmlFor="compose-body"
+            className="block text-xs text-fg-muted mb-1.5"
+          >
+            Mensaje
+          </label>
           <textarea
+            id="compose-body"
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={9}
             placeholder="Escribe tu mensaje…"
-            className="w-full px-3 py-2 rounded-md bg-bg-panel border border-border text-sm leading-relaxed placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-ring/40 resize-y"
+            className={cn(FIELD, "resize-y leading-relaxed")}
           />
         </div>
 
@@ -181,12 +207,16 @@ export function ComposeForm({
             <span className="text-fg-muted">{googleEmail}</span>) · queda en tus
             Enviados.
           </p>
-          <Button onClick={handleSend} disabled={!canSend}>
+          <Button
+            onClick={handleSend}
+            disabled={!canSend}
+            variant="clayPrimary"
+          >
             <Send className="w-4 h-4" />
             {sending ? "Enviando…" : "Enviar"}
           </Button>
         </div>
       </div>
-    </Card>
+    </GlassPanel>
   );
 }
