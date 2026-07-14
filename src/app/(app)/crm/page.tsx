@@ -14,6 +14,21 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Plus, Upload, Users } from "lucide-react";
 import { relativeTime, initials, scoreColor } from "@/lib/format";
+import {
+  SectionHero,
+  KpiTile,
+  GlassPanel,
+  MonoLabel,
+  Badge,
+  ClayChip,
+  EmptyState,
+  Alert,
+  TableShell,
+  Th,
+  Td,
+  MobileRecordCard,
+  RecordRow,
+} from "@/components/hos";
 
 interface PageProps {
   searchParams: Promise<{
@@ -39,6 +54,47 @@ function buildHref(
   }
   const qs = params.toString();
   return qs ? `/crm?${qs}` : "/crm";
+}
+
+/* Estado → tono de Badge (mapeo semántico sobre los 11 estados del pipeline) */
+const STATUS_TONE: Record<ContactStatus, "up" | "warn" | "down" | "info" | "neutral"> = {
+  nuevo: "info",
+  contactado: "info",
+  respondio: "info",
+  interesado: "warn",
+  propuesta_enviada: "warn",
+  negociando: "warn",
+  confirmado: "up",
+  realizado: "up",
+  perdido: "down",
+  recontactar_despues: "neutral",
+  ignorar: "neutral",
+};
+
+/* Avatar con iniciales — tokens DROP (bg-orange/text-ink), sin hex */
+function Avatar({ name }: { name: string }) {
+  return (
+    <span
+      aria-hidden
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange font-display text-sm text-ink"
+    >
+      {initials(name)}
+    </span>
+  );
+}
+
+/* Score = pill con la forma de Badge, pero el color/número siguen 100% calculados
+ * por `scoreColor` (lib/format) — no se re-deriva un tono nuevo. Solo cambia el
+ * contenedor visual (pill redondeada mono, en vez del box brutalista anterior). */
+function ScoreChip({ score }: { score: number }) {
+  const sc = scoreColor(score);
+  return (
+    <span
+      className={`inline-flex min-w-[2.4rem] items-center justify-center rounded-full px-2.5 py-1 font-mono text-[11px] font-bold ${sc.bg} ${sc.text}`}
+    >
+      {score}
+    </span>
+  );
 }
 
 export default async function CrmPage({ searchParams }: PageProps) {
@@ -78,18 +134,16 @@ export default async function CrmPage({ searchParams }: PageProps) {
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      {/* ═══ Hero brutalist ═══ */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-5 relative overflow-hidden">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — CRM · CONTACTOS{isFiltered ? " · FILTRADOS" : ""}
-        </div>
-        <div className="mt-2 flex flex-wrap items-end gap-4 justify-between">
-          <h1 className="font-display text-4xl md:text-6xl leading-none">
-            {String(stats.total).padStart(2, "0")} CONTACTO
-            {stats.total === 1 ? "" : "S"}
-            <span className="text-orange">.</span>
-          </h1>
-          <div className="flex gap-2 flex-wrap">
+      <SectionHero
+        kicker="Negocio · CRM"
+        title={`${stats.total} CONTACTO${stats.total === 1 ? "" : "S"}`}
+        sub={
+          isFiltered
+            ? `Resultados filtrados de tu base de contactos — ${stats.total} coinciden con los filtros activos.`
+            : "Tu base de bookers, venues y productoras — filtra por tipo, estado y score."
+        }
+        actions={
+          <>
             <Button asChild variant="outline" size="sm">
               <Link href="/crm/importar">
                 <Upload className="w-4 h-4" />
@@ -102,93 +156,42 @@ export default async function CrmPage({ searchParams }: PageProps) {
                 Nuevo contacto
               </Link>
             </Button>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
-      {/* ═══ KPIs · grid 4 col zero-gap borde ink ═══ */}
+      {/* ═══ KPIs — Clay canónico ═══ */}
       {stats.total > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
-          <div className="bg-bg-panel p-4 border-r-2 border-border border-b-2 md:border-b-0">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-              — VENUES
-            </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-fg">
-              {String(venuesCount).padStart(2, "0")}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">
-              Clubes · bares · festivales
-            </div>
-          </div>
-          <div className="bg-bg-panel p-4 border-t-2 border-t-accent md:border-r-2 border-border border-b-2 md:border-b-0">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-              — EN PIPELINE
-            </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-accent">
-              {String(inPipeline).padStart(2, "0")}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">
-              Interesado · negociando · propuesta
-            </div>
-          </div>
-          <div className="bg-bg-panel p-4 border-r-2 border-border">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-              — SCORE PROMEDIO
-            </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-fg">
-              {scoreAvg || "—"}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">
-              {scoreAvg >= 70
-                ? "Calidad alta"
-                : scoreAvg >= 50
-                ? "Mixto"
-                : "Para depurar"}
-            </div>
-          </div>
-          <div className="bg-bg-panel p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-              — TOTAL
-            </div>
-            <div className="font-display text-3xl md:text-4xl leading-none mt-2 text-fg">
-              {String(stats.total).padStart(2, "0")}
-            </div>
-            <div className="font-mono text-[10px] mt-2 text-fg-muted">
-              {isFiltered ? "Filtrados" : "Todos los contactos"}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <KpiTile label="Venues" value={venuesCount} />
+          <KpiTile label="En pipeline" value={inPipeline} />
+          <KpiTile label="Score promedio" value={scoreAvg || "—"} />
+          <KpiTile label="Total" value={stats.total} accent />
         </div>
       )}
 
       {/* Sprint 19 — Filtro por tags */}
       {(allTags.length > 0 || activeTags.length > 0) && (
-        <Card className="p-4 mb-3">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange mb-2">
-            — TAGS · FILTRO AND
-          </div>
+        <GlassPanel className="mt-4">
+          <MonoLabel>Tags · filtro AND</MonoLabel>
           {activeTags.length > 0 && (
-            <div className="mb-3">
-              <div className="font-mono text-[9px] font-bold uppercase text-fg-muted mb-1.5">
+            <div className="mt-3">
+              <div className="mb-1.5 font-mono text-[9px] font-bold uppercase text-white/40">
                 Activos:
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {activeTags.map((t) => {
                   const remaining = activeTags.filter((x) => x !== t);
                   const newTags = remaining.length > 0 ? remaining.join(",") : undefined;
                   return (
-                    <Link
-                      key={t}
-                      href={buildHref(sp, { tag: undefined, tags: newTags })}
-                      className="inline-flex items-center gap-1.5 border-2 border-border bg-orange font-mono text-[10px] font-bold lowercase px-2 py-0.5"
-                    >
-                      <span>#{t}</span>
-                      <span className="text-fg/60">×</span>
+                    <Link key={t} href={buildHref(sp, { tag: undefined, tags: newTags })}>
+                      <ClayChip active>#{t} ×</ClayChip>
                     </Link>
                   );
                 })}
                 <Link
                   href={buildHref(sp, { tag: undefined, tags: undefined })}
-                  className="font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 underline text-fg-muted hover:text-fg"
+                  className="px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white/40 underline hover:text-white/70"
                 >
                   limpiar
                 </Link>
@@ -196,8 +199,8 @@ export default async function CrmPage({ searchParams }: PageProps) {
             </div>
           )}
           {allTags.length > 0 && (
-            <div>
-              <div className="font-mono text-[9px] font-bold uppercase text-fg-muted mb-1.5">
+            <div className="mt-3">
+              <div className="mb-1.5 font-mono text-[9px] font-bold uppercase text-white/40">
                 {activeTags.length > 0 ? "Sumar otro:" : "Filtrar por:"}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -207,24 +210,19 @@ export default async function CrmPage({ searchParams }: PageProps) {
                   .map((t) => {
                     const newTags = [...activeTags, t.tag].join(",");
                     return (
-                      <Link
-                        key={t.tag}
-                        href={buildHref(sp, { tag: undefined, tags: newTags })}
-                        className="inline-flex items-center gap-1.5 border-2 border-border bg-bg-subtle font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
-                      >
-                        <span>#{t.tag}</span>
-                        <span className="text-fg-muted">{t.count}</span>
+                      <Link key={t.tag} href={buildHref(sp, { tag: undefined, tags: newTags })}>
+                        <ClayChip>#{t.tag} {t.count}</ClayChip>
                       </Link>
                     );
                   })}
               </div>
             </div>
           )}
-        </Card>
+        </GlassPanel>
       )}
 
       {/* Filtros */}
-      <Card className="p-4 mb-5">
+      <Card className="p-4 mb-5 mt-4">
         <form className="grid grid-cols-1 md:grid-cols-5 gap-3" action="/crm">
           {/* Preserva los tags activos al aplicar los demás filtros */}
           {activeTags.length > 0 && (
@@ -272,141 +270,115 @@ export default async function CrmPage({ searchParams }: PageProps) {
 
       {/* Lista */}
       {contacts.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Users className="w-12 h-12 mx-auto text-fg-subtle mb-3" />
-          <h3 className="font-semibold text-base mb-1">Sin contactos aún</h3>
-          <p className="text-sm text-fg-muted mb-5 max-w-md mx-auto">
-            Empieza creando tu primer contacto manualmente o importando un CSV
-            de tu agenda existente.
-          </p>
-          <div className="flex justify-center gap-2">
-            <Button asChild variant="outline">
-              <Link href="/crm/importar">
-                <Upload className="w-4 h-4" />
-                Importar CSV
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/crm/nuevo">
-                <Plus className="w-4 h-4" />
-                Nuevo contacto
-              </Link>
-            </Button>
-          </div>
-        </Card>
+        <EmptyState
+          icon={Users}
+          title="Sin contactos aún"
+          sub="Empieza creando tu primer contacto manualmente o importando un CSV de tu agenda existente."
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button asChild variant="outline">
+                <Link href="/crm/importar">
+                  <Upload className="w-4 h-4" />
+                  Importar CSV
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/crm/nuevo">
+                  <Plus className="w-4 h-4" />
+                  Nuevo contacto
+                </Link>
+              </Button>
+            </div>
+          }
+        />
       ) : (
-        <Card className="overflow-hidden">
+        <GlassPanel>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <MonoLabel>Base de contactos</MonoLabel>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
+              {isFiltered ? "Filtrados" : "Todos"} · {contacts.length}
+              {listTruncated ? ` de ${stats.total}` : ""}
+            </span>
+          </div>
+
           {/* Tabla — tablet/desktop (md+) */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="hidden md:block">
+            <TableShell bare>
               <thead>
-                <tr className="border-b border-border text-xs uppercase tracking-wider text-fg-muted">
-                  <th className="text-left px-4 py-3 font-semibold">Nombre</th>
-                  <th className="text-left px-4 py-3 font-semibold hidden md:table-cell">Tipo</th>
-                  <th className="text-left px-4 py-3 font-semibold hidden lg:table-cell">Ciudad</th>
-                  <th className="text-left px-4 py-3 font-semibold hidden md:table-cell">Estado</th>
-                  <th className="text-left px-4 py-3 font-semibold">Score</th>
-                  <th className="text-left px-4 py-3 font-semibold hidden lg:table-cell">Último contacto</th>
+                <tr>
+                  <Th>Nombre</Th>
+                  <Th>Tipo</Th>
+                  <Th className="hidden lg:table-cell">Ciudad</Th>
+                  <Th>Estado</Th>
+                  <Th>Score</Th>
+                  <Th className="hidden lg:table-cell">Último contacto</Th>
                 </tr>
               </thead>
               <tbody>
-                {contacts.map((c) => {
-                  const sc = scoreColor(c.score);
-                  return (
-                    <tr
-                      key={c.id}
-                      className="border-b border-border last:border-0 hover:bg-bg-subtle transition-colors"
-                    >
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`/crm/${c.id}`}
-                          className="flex items-center gap-3 group"
-                        >
-                          <div className="w-9 h-9 rounded-full bg-bg-subtle text-fg border border-border flex items-center justify-center text-xs font-bold shrink-0">
-                            {initials(c.name)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-semibold text-fg group-hover:text-accent transition-colors truncate">
-                              {c.name}
-                            </div>
-                            <div className="text-xs text-fg-muted truncate md:hidden">
-                              {CONTACT_TYPE_LABELS[c.type]} · {c.city || "—"}
-                            </div>
-                          </div>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted hidden md:table-cell">
-                        {CONTACT_TYPE_LABELS[c.type]}
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted hidden lg:table-cell">
-                        {c.city || "—"}
-                      </td>
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 border-2 border-border bg-bg-subtle text-fg">
-                          {CONTACT_STATUS_LABELS[c.status]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-block min-w-[40px] text-center font-mono text-[11px] font-bold px-2 py-1 ${sc.bg} ${sc.text}`}
-                        >
-                          {c.score}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted text-xs hidden lg:table-cell">
-                        {relativeTime(c.last_contact_at)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {/* Tarjetas — móvil (<md): mismos datos sin scroll horizontal, y con
-              Estado + Último contacto que la tabla ocultaba en pantallas chicas. */}
-          <div className="md:hidden divide-y divide-border">
-            {contacts.map((c) => {
-              const sc = scoreColor(c.score);
-              return (
-                <Link
-                  key={c.id}
-                  href={`/crm/${c.id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-bg-subtle transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-bg-subtle text-fg border border-border flex items-center justify-center text-xs font-bold shrink-0">
-                    {initials(c.name)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-fg truncate">{c.name}</div>
-                    <div className="text-xs text-fg-muted truncate">
-                      {CONTACT_TYPE_LABELS[c.type]}
-                      {c.city ? ` · ${c.city}` : ""}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.06em] px-1.5 py-0.5 border border-border bg-bg-subtle text-fg">
-                        {CONTACT_STATUS_LABELS[c.status]}
-                      </span>
-                      <span className="font-mono text-[10px] text-fg-muted">
-                        {relativeTime(c.last_contact_at)}
-                      </span>
-                    </div>
-                  </div>
-                  <span
-                    className={`shrink-0 inline-block min-w-[36px] text-center font-mono text-[11px] font-bold px-2 py-1 ${sc.bg} ${sc.text}`}
+                {contacts.map((c) => (
+                  <tr
+                    key={c.id}
+                    className="border-b border-white/[0.06] transition-colors hover:bg-white/[0.06]"
                   >
-                    {c.score}
-                  </span>
-                </Link>
-              );
-            })}
+                    <Td>
+                      <Link href={`/crm/${c.id}`} className="group flex items-center gap-2.5">
+                        <Avatar name={c.name} />
+                        <span className="min-w-0 truncate font-semibold text-white/90 transition-colors group-hover:text-white">
+                          {c.name}
+                        </span>
+                      </Link>
+                    </Td>
+                    <Td>{CONTACT_TYPE_LABELS[c.type]}</Td>
+                    <Td className="hidden lg:table-cell">{c.city || "—"}</Td>
+                    <Td>
+                      <Badge tone={STATUS_TONE[c.status]}>{CONTACT_STATUS_LABELS[c.status]}</Badge>
+                    </Td>
+                    <Td>
+                      <ScoreChip score={c.score} />
+                    </Td>
+                    <Td className="hidden lg:table-cell">{relativeTime(c.last_contact_at)}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </TableShell>
           </div>
+
+          {/* Tarjetas — móvil (<md): mismos datos sin scroll horizontal, y con
+              Estado + Último contacto que la tabla oculta en pantallas chicas. */}
+          <div className="flex flex-col gap-2.5 md:hidden">
+            {contacts.map((c) => (
+              <Link key={c.id} href={`/crm/${c.id}`} className="block">
+                <MobileRecordCard
+                  title={
+                    <span className="flex items-center gap-2.5">
+                      <Avatar name={c.name} />
+                      <span className="truncate">{c.name}</span>
+                    </span>
+                  }
+                  meta={<ScoreChip score={c.score} />}
+                >
+                  <RecordRow k="Tipo">
+                    {CONTACT_TYPE_LABELS[c.type]}
+                    {c.city ? ` · ${c.city}` : ""}
+                  </RecordRow>
+                  <RecordRow k="Estado">
+                    <Badge tone={STATUS_TONE[c.status]}>{CONTACT_STATUS_LABELS[c.status]}</Badge>
+                  </RecordRow>
+                  <RecordRow k="Último">{relativeTime(c.last_contact_at)}</RecordRow>
+                </MobileRecordCard>
+              </Link>
+            ))}
+          </div>
+
           {listTruncated && (
-            <div className="px-4 py-3 border-t border-border font-mono text-[11px] text-fg-muted">
-              Mostrando los primeros {contacts.length} de {stats.total}. Usa los
-              filtros o la búsqueda para acotar.
+            <div className="mt-3">
+              <Alert tone="warn" title="Lista acotada">
+                Mostrando los primeros {contacts.length} de {stats.total}. Usa los filtros o la
+                búsqueda para acotar.
+              </Alert>
             </div>
           )}
-        </Card>
+        </GlassPanel>
       )}
     </div>
   );
