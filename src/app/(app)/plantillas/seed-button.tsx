@@ -30,7 +30,7 @@ export function SeedButton() {
   }
 
   return (
-    <Button onClick={handleSeed} disabled={isPending}>
+    <Button variant="clayPrimary" onClick={handleSeed} disabled={isPending}>
       <Sparkles className="w-4 h-4" />
       {isPending ? "Cargando…" : "Cargar 6 plantillas de ejemplo"}
     </Button>
