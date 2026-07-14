@@ -167,7 +167,8 @@ export function ContactForm({ initial }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Identidad */}
-      <GlassPanel className="space-y-4">
+      <GlassPanel>
+        <div className="space-y-4">
         <MonoLabel>Identidad</MonoLabel>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -213,10 +214,12 @@ export function ContactForm({ initial }: Props) {
             />
           </div>
         </div>
+        </div>
       </GlassPanel>
 
       {/* Persona de contacto */}
-      <GlassPanel className="space-y-4">
+      <GlassPanel>
+        <div className="space-y-4">
         <MonoLabel>Persona de contacto</MonoLabel>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -238,10 +241,12 @@ export function ContactForm({ initial }: Props) {
             />
           </div>
         </div>
+        </div>
       </GlassPanel>
 
       {/* Canales */}
-      <GlassPanel className="space-y-4">
+      <GlassPanel>
+        <div className="space-y-4">
         <MonoLabel>Canales de contacto</MonoLabel>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -304,10 +309,12 @@ export function ContactForm({ initial }: Props) {
             />
           </div>
         </div>
+        </div>
       </GlassPanel>
 
       {/* Pipeline */}
-      <GlassPanel className="space-y-4">
+      <GlassPanel>
+        <div className="space-y-4">
         <MonoLabel>Pipeline</MonoLabel>
         <div className="space-y-2">
           <Label htmlFor="status">Estado</Label>
@@ -351,11 +358,13 @@ export function ContactForm({ initial }: Props) {
             </div>
           </div>
         )}
+        </div>
       </GlassPanel>
 
       {/* Venue info — Sprint 20 (solo si type IN VENUE_TYPES) */}
       {isVenueType(form.type as ContactType) && (
-        <GlassPanel className="space-y-4">
+        <GlassPanel>
+          <div className="space-y-4">
           <MonoLabel>Info del venue</MonoLabel>
           <p className="text-xs text-fg-muted -mt-2">
             Datos para que /descubrir pueda matchearte con otros DJs que
@@ -414,11 +423,13 @@ export function ContactForm({ initial }: Props) {
               )}
             </div>
           </div>
+          </div>
         </GlassPanel>
       )}
 
       {/* Tags — Sprint 19 */}
-      <GlassPanel className="space-y-3">
+      <GlassPanel>
+        <div className="space-y-3">
         <MonoLabel>Tags</MonoLabel>
         <p className="text-xs text-fg-muted -mt-1">
           Etiquetas libres para segmentar. Útil para filtrar en /crm y para
@@ -469,10 +480,12 @@ export function ContactForm({ initial }: Props) {
             + Tag
           </Button>
         </div>
+        </div>
       </GlassPanel>
 
       {/* Notas */}
-      <GlassPanel className="space-y-4">
+      <GlassPanel>
+        <div className="space-y-4">
         <MonoLabel>Notas</MonoLabel>
         <Textarea
           value={form.notes || ""}
@@ -480,6 +493,7 @@ export function ContactForm({ initial }: Props) {
           rows={4}
           placeholder="Cualquier contexto adicional sobre este contacto."
         />
+        </div>
       </GlassPanel>
 
       {/* Notas privadas — Sprint 19 */}
