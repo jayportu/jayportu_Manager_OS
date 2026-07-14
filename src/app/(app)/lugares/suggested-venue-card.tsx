@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Globe, Instagram, Phone, Plus, Check, Sparkle } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, Badge, Alert } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 import type { SuggestedVenue } from "@/lib/queries/suggested-venues";
 import { addSuggestedVenueToCrmAction } from "./actions";
 
@@ -46,74 +47,88 @@ export function SuggestedVenueCard({ venue }: { venue: SuggestedVenue }) {
   }
 
   return (
-    <Card className="flex flex-col overflow-hidden">
-      <div className="p-4 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="font-semibold text-fg leading-tight">
-              {venue.name}
-            </div>
-            <div className="text-xs text-fg-muted mt-0.5">{venue.city}</div>
+    <GlassPanel>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="truncate font-display text-xl leading-tight">
+            {venue.name}
+          </h3>
+          <div className="mt-1 font-mono text-[10px] uppercase tracking-wider text-white/45">
+            {venue.city}
           </div>
-          <span
-            className="shrink-0 inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider text-fg-muted bg-bg-subtle border border-border rounded px-1.5 py-0.5"
-            title="Traído de OpenStreetMap · verifica los datos antes de contactar"
-          >
-            {venue.highConfidence && <Sparkle className="w-3 h-3 text-orange" />}
-            Sugerido · sin verificar
-          </span>
         </div>
-
-        {(site || ig || tel) && (
-          <div className="flex flex-wrap gap-3 mt-3">
-            {site && (
-              <a href={site} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline inline-flex items-center gap-1">
-                <Globe className="w-3.5 h-3.5" /> Sitio
-              </a>
+        <span title="Traído de OpenStreetMap · verifica los datos antes de contactar">
+          <Badge tone="neutral">
+            {venue.highConfidence && (
+              <Sparkle className="w-3 h-3 text-[rgb(var(--drop-orange))]" />
             )}
-            {ig && (
-              <a href={ig} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline inline-flex items-center gap-1">
-                <Instagram className="w-3.5 h-3.5" /> Instagram
-              </a>
-            )}
-            {tel && (
-              <a href={tel} className="text-xs text-accent hover:underline inline-flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5" /> Teléfono
-              </a>
-            )}
-          </div>
-        )}
-        {!site && !ig && !tel && (
-          <p className="text-[11px] text-fg-subtle mt-3 italic">
-            Sin contacto en OpenStreetMap — búscalo por nombre.
-          </p>
-        )}
+            Sugerido · sin verificar
+          </Badge>
+        </span>
       </div>
 
-      <button
+      {(site || ig || tel) && (
+        <div className="mt-3 flex flex-wrap gap-3">
+          {site && (
+            <a
+              href={site}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-[rgb(var(--drop-orange))] hover:underline"
+            >
+              <Globe className="w-3.5 h-3.5" /> Sitio
+            </a>
+          )}
+          {ig && (
+            <a
+              href={ig}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-[rgb(var(--drop-orange))] hover:underline"
+            >
+              <Instagram className="w-3.5 h-3.5" /> Instagram
+            </a>
+          )}
+          {tel && (
+            <a
+              href={tel}
+              className="inline-flex items-center gap-1 text-xs text-[rgb(var(--drop-orange))] hover:underline"
+            >
+              <Phone className="w-3.5 h-3.5" /> Teléfono
+            </a>
+          )}
+        </div>
+      )}
+      {!site && !ig && !tel && (
+        <p className="mt-3 text-[11px] italic text-white/40">
+          Sin contacto en OpenStreetMap — búscalo por nombre.
+        </p>
+      )}
+
+      <Button
         type="button"
+        variant={added ? "clay" : "clayPrimary"}
+        size="sm"
+        className={`mt-4 w-full ${added ? "text-success" : ""}`}
         onClick={add}
         disabled={pending || added}
-        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 border-t border-border font-mono text-[11px] font-bold uppercase tracking-wider transition-colors disabled:opacity-60 ${
-          added ? "bg-success/10 text-success" : "text-fg hover:bg-bg-subtle"
-        }`}
       >
         {added ? (
           <>
-            <Check className="w-3.5 h-3.5" /> En tu CRM
+            <Check /> En tu CRM
           </>
         ) : (
           <>
-            <Plus className="w-3.5 h-3.5" /> {pending ? "Agregando…" : "Agregar a mi CRM"}
+            <Plus /> {pending ? "Agregando…" : "Agregar a mi CRM"}
           </>
         )}
-      </button>
+      </Button>
 
       {err && (
-        <div className="text-[10px] text-danger px-4 py-1.5 text-center border-t border-border">
-          {err}
+        <div className="mt-3">
+          <Alert tone="danger">{err}</Alert>
         </div>
       )}
-    </Card>
+    </GlassPanel>
   );
 }
