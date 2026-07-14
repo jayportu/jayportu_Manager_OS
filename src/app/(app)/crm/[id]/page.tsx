@@ -15,15 +15,17 @@ import {
   Instagram,
   Globe,
   Phone,
+  Lock,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel, Badge } from "@/components/hos";
 import {
   CONTACT_TYPE_LABELS,
   CONTACT_STATUS_LABELS,
 } from "@/types/database";
 import { initials, scoreColor, normalizeUrl, whatsappLink } from "@/lib/format";
 import { computeScoreForContact, scoreLevel } from "@/lib/scoring";
+import { cn } from "@/lib/utils";
 import { InteractionTimeline } from "./interaction-timeline";
 import { AddInteractionButton } from "./add-interaction-button";
 import { FollowUpsSection } from "./follow-ups-section";
@@ -64,103 +66,105 @@ export default async function ContactDetailPage({ params }: PageProps) {
   const webUrl = contact.website ? normalizeUrl(contact.website) : null;
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-4xl p-6 md:p-10">
       {/* Back */}
       <Link
         href="/crm"
-        className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted hover:text-fg"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="h-3.5 w-3.5" />
         Volver a CRM
       </Link>
 
       {/* Header */}
-      <Card className="p-6 mb-5">
+      <GlassPanel className="mb-5">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-full bg-ink text-white border-2 border-border flex items-center justify-center font-bold text-lg shrink-0">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-orange font-display text-xl text-ink">
             {initials(contact.name)}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-bold tracking-tight">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="font-display text-3xl leading-none text-fg">
                 {contact.name}
               </h1>
               <span
-                className={`text-xs font-bold px-2 py-1 rounded ${sc.bg} ${sc.text}`}
+                className={cn(
+                  "inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.1em]",
+                  sc.bg,
+                  sc.text
+                )}
               >
                 {contact.score}
               </span>
-              <span className="text-xs px-2 py-1 rounded bg-secondary text-fg-muted border border-border">
-                {CONTACT_STATUS_LABELS[contact.status]}
-              </span>
+              <Badge>{CONTACT_STATUS_LABELS[contact.status]}</Badge>
             </div>
-            <div className="text-sm text-fg-muted mt-1">
+            <div className="mt-1.5 text-sm text-fg-muted">
               {CONTACT_TYPE_LABELS[contact.type]}
               {contact.city ? ` · ${contact.city}` : ""}
               {contact.country ? `, ${contact.country}` : ""}
               {contact.music_style ? ` · ${contact.music_style}` : ""}
             </div>
             {contact.contact_person && (
-              <div className="text-sm mt-2">
-                <span className="text-fg-muted">Contacto: </span>
+              <div className="mt-2 text-sm">
+                <span className="text-fg-subtle">Contacto: </span>
                 <span className="text-fg">{contact.contact_person}</span>
                 {contact.contact_role && (
-                  <span className="text-fg-muted"> · {contact.contact_role}</span>
+                  <span className="text-fg-subtle"> · {contact.contact_role}</span>
                 )}
               </div>
             )}
             {contact.score_reason && (
-              <div className="text-xs text-fg-muted mt-2 italic">
+              <div className="mt-2 text-xs italic text-fg-subtle">
                 &ldquo;{contact.score_reason}&rdquo;
               </div>
             )}
           </div>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="clay" size="sm">
             <Link href={`/crm/${contact.id}/editar`}>
-              <Edit className="w-4 h-4" />
+              <Edit className="h-3.5 w-3.5" />
               Editar
             </Link>
           </Button>
         </div>
 
         {/* Acciones rápidas */}
-        <div className="flex flex-wrap gap-2 mt-5 pt-5 border-t border-border">
+        <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-5">
           {waUrl && (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild variant="clay" size="sm">
               <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="h-3.5 w-3.5" />
                 WhatsApp
               </a>
             </Button>
           )}
           {mailtoUrl && (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild variant="clay" size="sm">
               <a href={mailtoUrl}>
-                <Mail className="w-4 h-4" />
+                <Mail className="h-3.5 w-3.5" />
                 Email
               </a>
             </Button>
           )}
           {igUrl && (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild variant="clay" size="sm">
               <a href={igUrl} target="_blank" rel="noopener noreferrer">
-                <Instagram className="w-4 h-4" />
+                <Instagram className="h-3.5 w-3.5" />
                 Instagram
               </a>
             </Button>
           )}
           {webUrl && (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild variant="clay" size="sm">
               <a href={webUrl} target="_blank" rel="noopener noreferrer">
-                <Globe className="w-4 h-4" />
+                <Globe className="h-3.5 w-3.5" />
                 Web
               </a>
             </Button>
           )}
           {contact.whatsapp && (
-            <Button asChild size="sm" variant="ghost">
+            <Button asChild variant="clay" size="sm">
               <a href={`tel:+${contact.whatsapp.replace(/\D/g, "")}`}>
-                <Phone className="w-4 h-4" />
+                <Phone className="h-3.5 w-3.5" />
                 Llamar
               </a>
             </Button>
@@ -179,112 +183,106 @@ export default async function ContactDetailPage({ params }: PageProps) {
             buttonSize="sm"
           />
         </div>
-      </Card>
+      </GlassPanel>
 
       {/* Sprint 19 — Tags */}
       {contact.tags && contact.tags.length > 0 && (
-        <Card className="p-5 mb-5">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange mb-3">
-            — TAGS
-          </div>
-          <div className="flex flex-wrap gap-1.5">
+        <GlassPanel className="mb-5">
+          <MonoLabel>Tags</MonoLabel>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {contact.tags.map((t) => (
               <Link
                 key={t}
                 href={`/crm?tag=${encodeURIComponent(t)}`}
-                className="inline-flex items-center border-2 border-border bg-cream font-mono text-[10px] font-bold lowercase px-2 py-0.5 hover:bg-orange transition-colors"
+                className="rounded-full border border-border px-2.5 py-1 font-mono text-[10px] font-bold lowercase text-fg-muted transition-colors hover:border-orange hover:text-orange"
               >
                 #{t}
               </Link>
             ))}
           </div>
-          <p className="text-[10px] text-fg-subtle mt-3">
+          <p className="mt-3 text-[10px] text-fg-subtle">
             Click en un tag para ver todos los contactos que lo tienen.
           </p>
-        </Card>
+        </GlassPanel>
       )}
 
       {/* Sprint 19 — Notas privadas (solo si hay contenido) */}
       {contact.private_notes && contact.private_notes.trim().length > 0 && (
-        <Card className="p-5 mb-5 bg-ink text-white" style={{ borderColor: "#0A0A0A" }}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-              🔒 NOTAS PRIVADAS
-            </div>
-            <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink">
+        <div className="hos-clay mb-5 overflow-hidden rounded-2xl border border-orange/25 p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">
+              <Lock className="h-3 w-3" />
+              Notas privadas
+            </span>
+            <span className="rounded-full bg-orange px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink">
               solo tú
             </span>
           </div>
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-fg">
             {contact.private_notes}
           </p>
-          <p className="text-[10px] text-orange mt-3 opacity-70">
+          <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-orange/70">
             Nunca exportado · nunca en press kit · nunca compartido.
           </p>
-        </Card>
+        </div>
       )}
 
       {/* Desglose del score */}
-      <Card className="p-6 mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
-            Score automático
-          </h2>
-          <span className={`text-xs ${sc.text}`}>{level.label}</span>
+      <GlassPanel className="mb-5">
+        <div className="mb-3 flex items-center justify-between">
+          <MonoLabel>Score automático</MonoLabel>
+          <span className={cn("text-xs", sc.text)}>{level.label}</span>
         </div>
-        <div className="flex items-center gap-4">
-          <div className={`font-display text-5xl ${sc.text}`}>
+        <div className="flex items-center gap-5">
+          <div className={cn("font-display text-5xl leading-none", sc.text)}>
             {breakdown.score}
           </div>
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-1.5">
+          <div className="grid flex-1 grid-cols-2 gap-1.5 md:grid-cols-3">
             {breakdown.factors.map((f, idx) => (
               <div
                 key={idx}
-                className="text-xs flex items-center gap-1.5 px-2 py-1 rounded bg-bg border border-border"
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-bg-subtle/40 px-2 py-1 text-xs"
               >
                 <span
-                  className={`font-bold ${
+                  className={cn(
+                    "font-bold",
                     f.value >= 0 ? "text-success" : "text-danger"
-                  }`}
+                  )}
                 >
                   {f.value >= 0 ? "+" : ""}
                   {f.value}
                 </span>
-                <span className="text-fg-muted truncate">{f.label}</span>
+                <span className="truncate text-fg-muted">{f.label}</span>
               </div>
             ))}
           </div>
         </div>
-        <div className="text-[10px] text-fg-subtle mt-3">
+        <div className="mt-3 text-[10px] text-fg-subtle">
           Calculado automáticamente. Mejora completando info, registrando
           interacciones recientes y moviendo el estado del pipeline.
         </div>
-      </Card>
+      </GlassPanel>
 
       {/* Follow-ups */}
       <FollowUpsSection contactId={contact.id} followUps={followUps} />
 
       {/* Timeline */}
-      <Card className="p-6 mt-5">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
-            Historial de interacciones
-          </h2>
+      <GlassPanel className="mt-5">
+        <div className="mb-5 flex items-center justify-between">
+          <MonoLabel>Historial de interacciones</MonoLabel>
           <AddInteractionButton contactId={contact.id} />
         </div>
         <InteractionTimeline interactions={interactions} />
-      </Card>
+      </GlassPanel>
 
       {/* Notas */}
       {contact.notes && (
-        <Card className="p-6 mt-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wider mb-3">
-            Notas
-          </h2>
-          <div className="text-sm text-fg whitespace-pre-wrap leading-relaxed">
+        <GlassPanel className="mt-5">
+          <MonoLabel>Notas</MonoLabel>
+          <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-fg">
             {contact.notes}
           </div>
-        </Card>
+        </GlassPanel>
       )}
     </div>
   );
