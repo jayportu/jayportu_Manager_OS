@@ -179,11 +179,11 @@ export function CampaignContactRow({
             {row.contact_name}
           </Link>
           <span
-            className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${sc.bg} ${sc.text}`}
+            className={`inline-flex items-center rounded-full px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider ${sc.bg} ${sc.text}`}
           >
             {row.contact_score}
           </span>
-          <span className="text-[10px] uppercase tracking-wider text-fg-muted">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
             {CONTACT_TYPE_LABELS[row.contact_type as ContactType]}
           </span>
         </div>
@@ -195,6 +195,7 @@ export function CampaignContactRow({
       </div>
 
       <SelectNative
+        aria-label={`Estado de ${row.contact_name}`}
         value={row.status}
         disabled={isPending}
         onChange={(e) => changeStatus(e.target.value as CampaignContactStatus)}
@@ -212,7 +213,7 @@ export function CampaignContactRow({
           <Button
             onClick={openWhatsApp}
             size="sm"
-            variant="outline"
+            variant="clay"
             title="Abrir WhatsApp con mensaje"
           >
             <MessageCircle className="w-4 h-4" />
@@ -220,7 +221,7 @@ export function CampaignContactRow({
           </Button>
         )}
         {row.contact_email && (campaignChannel === "email" || campaignChannel === "mixto") && (
-          <Button onClick={openEmail} size="sm" variant="outline" title="Email">
+          <Button onClick={openEmail} size="sm" variant="clay" title="Email">
             <Mail className="w-4 h-4" />
           </Button>
         )}
@@ -228,13 +229,13 @@ export function CampaignContactRow({
           <Button
             onClick={openInstagram}
             size="sm"
-            variant="outline"
+            variant="clay"
             title="Instagram"
           >
             <Instagram className="w-4 h-4" />
           </Button>
         )}
-        <Button asChild size="sm" variant="ghost" title="Ver ficha">
+        <Button asChild size="sm" variant="clay" title="Ver ficha">
           <Link href={`/crm/${row.contact_id}`}>
             <ExternalLink className="w-4 h-4" />
           </Link>
@@ -242,7 +243,8 @@ export function CampaignContactRow({
         <Button
           onClick={removeFromCampaign}
           size="sm"
-          variant="ghost"
+          variant="clay"
+          className="text-danger"
           disabled={isPending}
           title="Quitar de la campaña"
         >

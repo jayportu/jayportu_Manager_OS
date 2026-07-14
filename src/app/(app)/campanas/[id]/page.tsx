@@ -8,16 +8,36 @@ import { listContacts } from "@/lib/queries/contacts";
 import { getTemplate } from "@/lib/queries/templates";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
 import { ArrowLeft, Megaphone } from "lucide-react";
 import {
   CAMPAIGN_STATUS_LABELS,
   CAMPAIGN_CHANNEL_LABELS,
+  type CampaignStatus,
 } from "@/types/database";
 import { relativeTime } from "@/lib/format";
 import { CampaignContactRow } from "./contact-row";
 import { CampaignActions } from "./campaign-actions";
 import { AddContactsDialog } from "./add-contacts-dialog";
+import {
+  SectionHero,
+  KpiTile,
+  GlassPanel,
+  MonoLabel,
+  Badge,
+  EmptyState,
+} from "@/components/hos";
+
+/* Estado de campaña → tono de Badge (Hybrid OS) — igual mapeo que /campanas lista */
+const STATUS_TONE: Record<
+  CampaignStatus,
+  "up" | "warn" | "down" | "info" | "neutral"
+> = {
+  draft: "neutral",
+  active: "info",
+  paused: "warn",
+  done: "up",
+  archived: "neutral",
+};
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -57,61 +77,74 @@ export default async function CampaignDetailPage({ params }: PageProps) {
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <Link
         href="/campanas"
-        className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted hover:text-fg"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-3.5 h-3.5" />
         Volver a Campañas
       </Link>
 
-      <Card className="p-6 mb-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Megaphone className="w-5 h-5 text-accent shrink-0" />
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight">
-                {campaign.name}
-              </h1>
-              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-secondary border border-border text-fg-muted">
-                {CAMPAIGN_STATUS_LABELS[campaign.status]}
-              </span>
-              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent">
-                {CAMPAIGN_CHANNEL_LABELS[campaign.channel]}
-              </span>
-            </div>
-            {campaign.goal && (
-              <p className="text-sm text-fg-muted mt-2">{campaign.goal}</p>
-            )}
-            <div className="text-xs text-fg-subtle mt-2">
-              Creada {relativeTime(campaign.created_at)}
-              {template ? ` · Plantilla: ${template.name}` : ""}
-            </div>
-          </div>
-          <CampaignActions
-            campaignId={campaign.id}
-            status={campaign.status}
-          />
-        </div>
+      <SectionHero
+        kicker="Negocio · Campañas"
+        title={campaign.name}
+        sub={campaign.goal || undefined}
+        actions={
+          <CampaignActions campaignId={campaign.id} status={campaign.status} />
+        }
+      />
 
-        {/* KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-5 pt-5 border-t border-border">
-          <Kpi label="Total" value={total} />
-          <Kpi label="Pendientes" value={counts.pendiente || 0} />
-          <Kpi label="Enviados" value={sent} />
-          <Kpi
-            label="Respondieron"
-            value={responded}
-            highlight={responded > 0}
-          />
-          <Kpi
-            label="Conversión"
-            value={`${conversionRate}%`}
-            highlight={conversionRate >= 20}
-          />
+      {/* Badges de estado/canal + metadata */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <Badge tone={STATUS_TONE[campaign.status]}>
+          {CAMPAIGN_STATUS_LABELS[campaign.status]}
+        </Badge>
+        <Badge tone="info">{CAMPAIGN_CHANNEL_LABELS[campaign.channel]}</Badge>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
+          Creada {relativeTime(campaign.created_at)}
+          {template ? ` · Plantilla: ${template.name}` : ""}
+        </span>
+      </div>
+
+      {/* KPIs — kit KpiTile (reemplaza Kpi local) */}
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
+        <KpiTile label="Total" value={total} />
+        <KpiTile label="Pendientes" value={counts.pendiente || 0} />
+        <KpiTile label="Enviados" value={sent} />
+        <KpiTile
+          label="Respondieron"
+          value={responded}
+          accent={responded > 0}
+        />
+        <KpiTile
+          label="Conversión"
+          value={`${conversionRate}%`}
+          accent={conversionRate >= 20}
+        />
+      </div>
+
+      {/* Barra de conversión — track sólido, fill naranja (token) */}
+      {sent > 0 && (
+        <div className="mb-5">
+          <div className="mb-1.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-white/55">
+            <span>Conversión</span>
+            <span className="font-bold text-orange">{conversionRate}%</span>
+          </div>
+          <div
+            className="h-2.5 w-full overflow-hidden rounded-full"
+            style={{ background: "rgba(255,255,255,.09)" }}
+          >
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.min(100, Math.max(0, conversionRate))}%`,
+                background: "rgb(var(--drop-orange))",
+              }}
+            />
+          </div>
         </div>
-      </Card>
+      )}
 
       {/* Action: agregar contactos */}
-      <div className="flex justify-end mb-3">
+      <div className="mb-3 flex justify-end">
         <AddContactsDialog
           campaignId={campaign.id}
           candidates={candidates.map((c) => ({
@@ -126,25 +159,33 @@ export default async function CampaignDetailPage({ params }: PageProps) {
 
       {/* Lista de contactos */}
       {contacts.length === 0 ? (
-        <Card className="p-10 text-center">
-          <p className="text-sm text-fg-muted mb-3">
-            La campaña no tiene contactos.
-          </p>
-          <AddContactsDialog
-            campaignId={campaign.id}
-            candidates={candidates.map((c) => ({
-              id: c.id,
-              name: c.name,
-              type: c.type,
-              score: c.score,
-              tags: c.tags ?? [],
-            }))}
-            buttonLabel="Agregar primer contacto"
-            buttonVariant="default"
-          />
-        </Card>
+        <EmptyState
+          icon={Megaphone}
+          title="La campaña no tiene contactos."
+          sub="Agrega contactos de tu CRM para empezar a hacer push."
+          action={
+            <AddContactsDialog
+              campaignId={campaign.id}
+              candidates={candidates.map((c) => ({
+                id: c.id,
+                name: c.name,
+                type: c.type,
+                score: c.score,
+                tags: c.tags ?? [],
+              }))}
+              buttonLabel="Agregar primer contacto"
+              buttonVariant="clayPrimary"
+            />
+          }
+        />
       ) : (
-        <Card className="overflow-hidden">
+        <GlassPanel>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <MonoLabel>Contactos</MonoLabel>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
+              {contacts.length} en la campaña
+            </span>
+          </div>
           <ul>
             {contacts.map((c, i) => (
               <CampaignContactRow
@@ -161,33 +202,8 @@ export default async function CampaignDetailPage({ params }: PageProps) {
               />
             ))}
           </ul>
-        </Card>
+        </GlassPanel>
       )}
-    </div>
-  );
-}
-
-function Kpi({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number | string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="p-3 rounded-lg bg-bg border border-border">
-      <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
-        {label}
-      </div>
-      <div
-        className={`font-display text-2xl leading-none mt-1 ${
-          highlight ? "text-accent" : "text-fg"
-        }`}
-      >
-        {value}
-      </div>
     </div>
   );
 }

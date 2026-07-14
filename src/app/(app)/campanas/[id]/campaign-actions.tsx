@@ -50,6 +50,7 @@ export function CampaignActions({ campaignId, status }: Props) {
   return (
     <div className="flex items-center gap-2 shrink-0">
       <SelectNative
+        aria-label="Estado de la campaña"
         value={status}
         onChange={(e) => changeStatus(e.target.value as CampaignStatus)}
         disabled={isPending}
@@ -63,9 +64,9 @@ export function CampaignActions({ campaignId, status }: Props) {
       </SelectNative>
       <Button
         onClick={handleDelete}
-        variant="outline"
+        variant="clay"
         size="sm"
-        className="text-danger border-danger/30 hover:bg-danger/10 hover:text-danger"
+        className="text-danger"
         disabled={isPending}
       >
         Borrar
