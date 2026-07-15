@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel, Alert } from "@/components/hos";
 import { shortDate, dateTime } from "@/lib/format";
 import {
   acceptCounterofferAction,
@@ -81,11 +81,11 @@ export function CounterofferResponse({
   const finalDate = counterDate ?? originalDate;
 
   return (
-    <Card className="p-5 mb-5 border-2 border-orange bg-orange/5">
-      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-3">
-        — CONTRAOFERTA DEL BOOKER
+    <GlassPanel className="mb-5 border-orange/30">
+      <div className="mb-3">
+        <MonoLabel>Contraoferta del booker</MonoLabel>
         {counterAt && (
-          <span className="ml-2 text-fg-subtle font-normal normal-case tracking-wider">
+          <span className="ml-2 font-mono text-[10px] normal-case tracking-wider text-white/40">
             · recibida {dateTime(counterAt)}
           </span>
         )}
@@ -94,22 +94,17 @@ export function CounterofferResponse({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         {counterAmount && (
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-1">
               Nuevo monto propuesto
             </div>
             <div
-              style={{
-                fontFamily:
-                  "var(--font-anton), Impact, system-ui, sans-serif",
-                fontSize: "30px",
-                lineHeight: 1,
-              }}
-              className="text-fg"
+              className="font-display text-white"
+              style={{ fontSize: "30px", lineHeight: 1 }}
             >
               ${counterAmount.toLocaleString("es-CL")} CLP
             </div>
             {quotedAmount && quotedAmount !== counterAmount && (
-              <div className="font-mono text-[10px] text-fg-subtle mt-1">
+              <div className="font-mono text-[10px] text-white/40 mt-1">
                 Cotizado original: ${quotedAmount.toLocaleString("es-CL")} (
                 {counterAmount > quotedAmount ? "+" : ""}
                 {(((counterAmount - quotedAmount) / quotedAmount) * 100).toFixed(0)}
@@ -121,22 +116,17 @@ export function CounterofferResponse({
 
         {counterDate && (
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-1">
               Nueva fecha
             </div>
             <div
-              style={{
-                fontFamily:
-                  "var(--font-anton), Impact, system-ui, sans-serif",
-                fontSize: "26px",
-                lineHeight: 1,
-              }}
-              className="text-fg"
+              className="font-display text-white"
+              style={{ fontSize: "26px", lineHeight: 1 }}
             >
               {shortDate(counterDate)}
             </div>
             {originalDate && (
-              <div className="font-mono text-[10px] text-fg-subtle mt-1">
+              <div className="font-mono text-[10px] text-white/40 mt-1">
                 Original: {shortDate(originalDate)}
               </div>
             )}
@@ -145,17 +135,19 @@ export function CounterofferResponse({
       </div>
 
       {counterMessage && (
-        <div className="mb-4 p-3 bg-bg-panel border-2 border-border/20">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <div className="mb-4 p-3 rounded-xl border border-white/10 bg-white/[0.03]">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-1">
             Mensaje del booker
           </div>
-          <p className="text-sm whitespace-pre-line">“{counterMessage}”</p>
+          <p className="text-sm whitespace-pre-line text-white/80">
+            “{counterMessage}”
+          </p>
         </div>
       )}
 
       {error && (
-        <div className="border-2 border-danger bg-danger/10 px-3 py-2 text-sm text-danger mb-3">
-          {error}
+        <div className="mb-3">
+          <Alert tone="danger">{error}</Alert>
         </div>
       )}
 
@@ -164,7 +156,7 @@ export function CounterofferResponse({
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
-            variant="default"
+            variant="clayPrimary"
             size="sm"
             onClick={handleAccept}
             disabled={pending || !finalDate}
@@ -176,7 +168,7 @@ export function CounterofferResponse({
           </Button>
           <Button
             type="button"
-            variant="outline"
+            variant="clay"
             size="sm"
             onClick={() => setShowRecounter(true)}
             disabled={pending}
@@ -234,7 +226,7 @@ export function CounterofferResponse({
             </Button>
             <Button
               type="button"
-              variant="orange"
+              variant="clayPrimary"
               size="sm"
               onClick={handleRecounter}
               disabled={pending}
@@ -244,6 +236,6 @@ export function CounterofferResponse({
           </div>
         </div>
       )}
-    </Card>
+    </GlassPanel>
   );
 }
