@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
 import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
 
 interface FormState {
@@ -90,28 +91,28 @@ export function BetaForm() {
   // Estado de éxito (form se reemplaza con un thank-you)
   if (result?.ok) {
     return (
-      <div className="border-2 border-border bg-cream p-6">
-        <div className="font-mono text-[11px] font-bold uppercase tracking-[0.15em] text-orange mb-3">
-          — SOLICITUD ENVIADA
-        </div>
-        <h2 className="font-display text-4xl leading-none mb-3">
+      <GlassPanel padded={false} className="p-6">
+        <MonoLabel className="text-[11px] tracking-[0.15em]">
+          SOLICITUD ENVIADA
+        </MonoLabel>
+        <h2 className="font-display text-4xl leading-none mb-3 mt-3">
           {result.autoApproved ? "ESTÁS DENTRO" : "GRACIAS"}
           <span className="text-orange">.</span>
         </h2>
-        <p className="text-sm leading-relaxed">
+        <p className="text-sm leading-relaxed text-fg-muted">
           {result.autoApproved
             ? "Te mandamos tu acceso al correo — revísalo (también spam). Toca el link y armas tu press kit en minutos."
             : "La revisamos a mano (no es un bot) y te escribimos en 24-48 hrs. Si quedas, te llega un email con tu link de acceso."}
         </p>
 
         {/* Siguiente paso tangible mientras espera — para no enfriar al DJ */}
-        <div className="mt-5 border-t-2 border-border/10 pt-4">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-            — Mientras tanto
+        <div className="mt-5 border-t border-white/10 pt-4">
+          <div className="mb-3">
+            <MonoLabel>Mientras tanto</MonoLabel>
           </div>
           <a
             href="/dj"
-            className="flex items-center justify-between gap-3 border-2 border-border bg-bg-panel px-4 py-3 hover:bg-ink hover:text-orange transition-colors"
+            className="flex items-center justify-between gap-3 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3 transition-colors hover:border-orange/50 hover:bg-white/[0.07] hover:text-orange"
           >
             <span className="text-sm font-bold">
               Mira cómo se ve un press kit real
@@ -157,104 +158,106 @@ export function BetaForm() {
         >
           ← Enviar otra solicitud
         </button>
-      </div>
+      </GlassPanel>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border-2 border-border bg-cream p-5 space-y-4"
-    >
-      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-        — FORMULARIO DE SOLICITUD
-      </div>
+    <GlassPanel>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <MonoLabel>FORMULARIO DE SOLICITUD</MonoLabel>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="artist_name" className="text-xs uppercase tracking-wider">
-          Nombre artístico *
-        </Label>
-        <Input
-          id="artist_name"
-          required
-          maxLength={120}
-          value={form.artist_name}
-          onChange={(e) => update("artist_name", e.target.value)}
-          placeholder="ej: Lucía Vega"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-xs uppercase tracking-wider">
-          Email *
-        </Label>
-        <Input
-          id="email"
-          type="email"
-          required
-          maxLength={120}
-          value={form.email}
-          onChange={(e) => update("email", e.target.value)}
-          placeholder="hola@tudominio.com"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="instagram" className="text-xs uppercase tracking-wider">
-            Instagram
+          <Label htmlFor="artist_name" className="text-xs uppercase tracking-wider">
+            Nombre artístico *
           </Label>
           <Input
-            id="instagram"
-            maxLength={80}
-            value={form.instagram}
-            onChange={(e) => update("instagram", e.target.value)}
-            placeholder="@tuhandle"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="city" className="text-xs uppercase tracking-wider">
-            Ciudad
-          </Label>
-          <Input
-            id="city"
+            id="artist_name"
+            required
             maxLength={120}
-            value={form.city}
-            onChange={(e) => update("city", e.target.value)}
-            placeholder="Santiago, Chile"
+            value={form.artist_name}
+            onChange={(e) => update("artist_name", e.target.value)}
+            placeholder="ej: Lucía Vega"
+            className={FIELD}
           />
         </div>
-      </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="genres" className="text-xs uppercase tracking-wider">
-          Géneros (separados por coma)
-        </Label>
-        <Input
-          id="genres"
-          maxLength={200}
-          value={form.genres}
-          onChange={(e) => update("genres", e.target.value)}
-          placeholder="techno, house, breakbeat"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="motivation" className="text-xs uppercase tracking-wider">
-          ¿Qué problemáticas enfrentas hoy como DJ?
-        </Label>
-        <Textarea
-          id="motivation"
-          rows={3}
-          maxLength={600}
-          value={form.motivation}
-          onChange={(e) => update("motivation", e.target.value)}
-          placeholder="Cuéntanos qué te complica hoy y qué esperarías que una app te solucione…"
-        />
-        <div className="text-[10px] text-fg-subtle">
-          {form.motivation.length}/600
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs uppercase tracking-wider">
+            Email *
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            required
+            maxLength={120}
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            placeholder="hola@tudominio.com"
+            className={FIELD}
+          />
         </div>
-      </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="instagram" className="text-xs uppercase tracking-wider">
+              Instagram
+            </Label>
+            <Input
+              id="instagram"
+              maxLength={80}
+              value={form.instagram}
+              onChange={(e) => update("instagram", e.target.value)}
+              placeholder="@tuhandle"
+              className={FIELD}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="city" className="text-xs uppercase tracking-wider">
+              Ciudad
+            </Label>
+            <Input
+              id="city"
+              maxLength={120}
+              value={form.city}
+              onChange={(e) => update("city", e.target.value)}
+              placeholder="Santiago, Chile"
+              className={FIELD}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="genres" className="text-xs uppercase tracking-wider">
+            Géneros (separados por coma)
+          </Label>
+          <Input
+            id="genres"
+            maxLength={200}
+            value={form.genres}
+            onChange={(e) => update("genres", e.target.value)}
+            placeholder="techno, house, breakbeat"
+            className={FIELD}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="motivation" className="text-xs uppercase tracking-wider">
+            ¿Qué problemáticas enfrentas hoy como DJ?
+          </Label>
+          <Textarea
+            id="motivation"
+            rows={3}
+            maxLength={600}
+            value={form.motivation}
+            onChange={(e) => update("motivation", e.target.value)}
+            placeholder="Cuéntanos qué te complica hoy y qué esperarías que una app te solucione…"
+            className={FIELD}
+          />
+          <div className="text-[10px] text-fg-subtle">
+            {form.motivation.length}/600
+          </div>
+        </div>
 
       {/* Honeypot oculto, los bots tienden a llenarlo */}
       <input
@@ -274,32 +277,29 @@ export function BetaForm() {
         aria-hidden="true"
       />
 
-      {result && !result.ok && (
-        <div className="border-2 border-danger bg-danger/10 p-3 text-sm text-danger">
-          {result.error}
-        </div>
-      )}
+        {result && !result.ok && <Alert tone="danger">{result.error}</Alert>}
 
-      {TURNSTILE_ENABLED && (
-        <TurnstileWidget
-          key={captchaKey}
-          onVerify={setCaptchaToken}
-          onExpire={() => setCaptchaToken(null)}
-        />
-      )}
+        {TURNSTILE_ENABLED && (
+          <TurnstileWidget
+            key={captchaKey}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken(null)}
+          />
+        )}
 
-      <Button
-        type="submit"
-        variant="orange"
-        disabled={submitting || (TURNSTILE_ENABLED && !captchaToken)}
-        className="w-full"
-      >
-        {submitting ? "Enviando…" : "Enviar solicitud →"}
-      </Button>
+        <Button
+          type="submit"
+          variant="clayPrimary"
+          disabled={submitting || (TURNSTILE_ENABLED && !captchaToken)}
+          className="w-full"
+        >
+          {submitting ? "Enviando…" : "Enviar solicitud →"}
+        </Button>
 
-      <p className="text-[11px] text-fg-muted">
-        Te respondemos en 24-48hrs.
-      </p>
-    </form>
+        <p className="text-[11px] text-fg-muted">
+          Te respondemos en 24-48hrs.
+        </p>
+      </form>
+    </GlassPanel>
   );
 }

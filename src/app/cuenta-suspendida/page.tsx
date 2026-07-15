@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { GlassPanel, MonoLabel } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -54,10 +56,19 @@ export default async function CuentaSuspendidaPage() {
     null;
 
   return (
-    <div className="min-h-screen bg-bg text-fg flex items-center justify-center p-6">
-      <div className="max-w-lg w-full">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange mb-2">
-          — DROP.
+    <div className="relative min-h-screen overflow-hidden bg-bg text-fg flex items-center justify-center p-6">
+      {/* Ambiente radial (firma Hybrid OS, como el resto de Público) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 70% at 50% -10%, rgb(var(--drop-orange) / 0.10), transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 max-w-lg w-full">
+        <div className="mb-2">
+          <MonoLabel className="text-[10px] tracking-[0.15em]">DROP.</MonoLabel>
         </div>
         <h1
           className="leading-none mb-4"
@@ -70,7 +81,7 @@ export default async function CuentaSuspendidaPage() {
           <span className="text-orange">.</span>
         </h1>
 
-        <div className="border-2 border-border bg-bg-panel p-5 mb-6">
+        <GlassPanel className="mb-6">
           {isBanned ? (
             <p className="text-sm leading-relaxed">
               Tu cuenta fue cerrada de forma permanente por incumplimiento de
@@ -92,14 +103,14 @@ export default async function CuentaSuspendidaPage() {
           )}
 
           {reason && (
-            <div className="mt-4 pt-4 border-t border-border/15">
+            <div className="mt-4 pt-4 border-t border-white/10">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-muted mb-1">
                 — Motivo
               </div>
               <p className="text-sm text-fg">{reason}</p>
             </div>
           )}
-        </div>
+        </GlassPanel>
 
         <p className="text-sm text-fg-muted mb-6">
           ¿Dudas o quieres apelar? Escríbenos a{" "}
@@ -114,12 +125,9 @@ export default async function CuentaSuspendidaPage() {
 
         {/* POST (no GET): /logout solo cierra sesión por POST → evita CSRF de logout. */}
         <form method="POST" action="/logout">
-          <button
-            type="submit"
-            className="inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted hover:text-fg transition-colors"
-          >
+          <Button type="submit" variant="clay">
             ← Cerrar sesión
-          </button>
+          </Button>
         </form>
       </div>
     </div>
