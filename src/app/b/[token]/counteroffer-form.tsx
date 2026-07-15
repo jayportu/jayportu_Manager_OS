@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
 
 interface Props {
   token: string;
@@ -59,9 +60,9 @@ export function CounterofferForm({
 
   if (!open) {
     return (
-      <div className="border-2 border-dashed border-border bg-bg-panel p-5">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-2">
-          — ¿NO TE CIERRA ESTE MONTO?
+      <GlassPanel>
+        <div className="mb-2">
+          <MonoLabel>¿NO TE CIERRA ESTE MONTO?</MonoLabel>
         </div>
         <p className="text-sm text-fg mb-4 leading-relaxed">
           Puedes mandar una contraoferta con un monto distinto, otra fecha
@@ -70,94 +71,90 @@ export function CounterofferForm({
         </p>
         <Button
           type="button"
-          variant="outline"
+          variant="clay"
           size="sm"
           onClick={() => setOpen(true)}
         >
           Contraofertar →
         </Button>
-      </div>
+      </GlassPanel>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border-2 border-border bg-bg-panel p-5 space-y-4"
-    >
-      <div>
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-1">
-          — MANDAR CONTRAOFERTA
+    <GlassPanel>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <MonoLabel>MANDAR CONTRAOFERTA</MonoLabel>
+          <p className="text-xs text-fg-muted mt-1">
+            Llena al menos uno: monto, fecha o mensaje.
+          </p>
         </div>
-        <p className="text-xs text-fg-muted">
-          Llena al menos uno: monto, fecha o mensaje.
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="counter-amount">Tu propuesta (CLP)</Label>
+            <Input
+              id="counter-amount"
+              type="text"
+              placeholder={
+                quotedAmountClp
+                  ? `Cotizado: $${quotedAmountClp.toLocaleString("es-CL")}`
+                  : "$ 350.000"
+              }
+              value={amount}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "");
+                setAmount(v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : "");
+              }}
+              inputMode="numeric"
+              className={FIELD}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="counter-date">¿Otra fecha?</Label>
+            <Input
+              id="counter-date"
+              type="date"
+              min={new Date().toISOString().slice(0, 10)}
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              className={FIELD}
+            />
+          </div>
+        </div>
+
         <div className="space-y-1.5">
-          <Label htmlFor="counter-amount">Tu propuesta (CLP)</Label>
-          <Input
-            id="counter-amount"
-            type="text"
-            placeholder={
-              quotedAmountClp
-                ? `Cotizado: $${quotedAmountClp.toLocaleString("es-CL")}`
-                : "$ 350.000"
-            }
-            value={amount}
-            onChange={(e) => {
-              const v = e.target.value.replace(/\D/g, "");
-              setAmount(v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : "");
-            }}
-            inputMode="numeric"
+          <Label htmlFor="counter-msg">Mensaje (opcional)</Label>
+          <Textarea
+            id="counter-msg"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={3}
+            placeholder="Ej: el presupuesto cierra a $X. ¿Podemos cerrar el viernes en lugar del sábado?"
+            maxLength={500}
+            className={FIELD}
           />
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="counter-date">¿Otra fecha?</Label>
-          <Input
-            id="counter-date"
-            type="date"
-            min={new Date().toISOString().slice(0, 10)}
-            value={eventDate}
-            onChange={(e) => setEventDate(e.target.value)}
-          />
+        {error && <Alert tone="danger">{error}</Alert>}
+
+        <div className="flex flex-wrap gap-2 justify-end">
+          <Button
+            type="button"
+            variant="clay"
+            size="sm"
+            onClick={() => setOpen(false)}
+            disabled={pending}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit" variant="clayPrimary" size="sm" disabled={pending}>
+            {pending ? "Enviando…" : "Mandar contraoferta"}
+          </Button>
         </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="counter-msg">Mensaje (opcional)</Label>
-        <Textarea
-          id="counter-msg"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={3}
-          placeholder="Ej: el presupuesto cierra a $X. ¿Podemos cerrar el viernes en lugar del sábado?"
-          maxLength={500}
-        />
-      </div>
-
-      {error && (
-        <div className="border-2 border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </div>
-      )}
-
-      <div className="flex flex-wrap gap-2 justify-end">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setOpen(false)}
-          disabled={pending}
-        >
-          Cancelar
-        </Button>
-        <Button type="submit" variant="orange" size="sm" disabled={pending}>
-          {pending ? "Enviando…" : "Mandar contraoferta"}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </GlassPanel>
   );
 }
