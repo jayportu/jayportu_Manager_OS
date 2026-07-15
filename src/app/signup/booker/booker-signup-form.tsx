@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GlassPanel, Alert, FIELD, SELECT } from "@/components/hos";
 import {
   COUNTRIES,
   DEFAULT_COUNTRY,
@@ -164,10 +165,8 @@ export function BookerSignupForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border-2 border-border bg-bg-panel p-6 space-y-4"
-    >
+    <GlassPanel padded={false} className="p-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="full-name">Tu nombre</Label>
         <Input
@@ -180,6 +179,7 @@ export function BookerSignupForm() {
           minLength={2}
           maxLength={80}
           autoComplete="name"
+          className={FIELD}
         />
       </div>
 
@@ -193,6 +193,7 @@ export function BookerSignupForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
+          className={FIELD}
         />
       </div>
 
@@ -207,6 +208,7 @@ export function BookerSignupForm() {
           required
           minLength={6}
           autoComplete="new-password"
+          className={FIELD}
         />
       </div>
 
@@ -216,10 +218,10 @@ export function BookerSignupForm() {
           id="booker-type"
           value={bookerType}
           onChange={(e) => setBookerType(e.target.value)}
-          className="w-full border-2 border-border bg-cream px-3 py-2 text-sm font-mono"
+          className={SELECT}
         >
           {BOOKER_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
+            <option key={t.value} value={t.value} className="bg-bg-panel">
               {t.label}
             </option>
           ))}
@@ -237,10 +239,10 @@ export function BookerSignupForm() {
               setCity(""); // las ciudades cambian con el país
             }}
             required
-            className="w-full border-2 border-border bg-cream px-3 py-2 text-sm font-mono"
+            className={SELECT}
           >
             {COUNTRIES.map((c) => (
-              <option key={c.es} value={c.es}>
+              <option key={c.es} value={c.es} className="bg-bg-panel">
                 {c.es}
               </option>
             ))}
@@ -259,6 +261,7 @@ export function BookerSignupForm() {
             minLength={2}
             maxLength={60}
             autoComplete="address-level2"
+            className={FIELD}
           />
           <datalist id="city-options">
             {cities.map((c) => (
@@ -268,16 +271,8 @@ export function BookerSignupForm() {
         </div>
       </div>
 
-      {error && (
-        <div className="border-2 border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </div>
-      )}
-      {info && (
-        <div className="border-2 border-success bg-success/10 px-3 py-2 text-sm text-success">
-          {info}
-        </div>
-      )}
+      {error && <Alert tone="danger">{error}</Alert>}
+      {info && <Alert tone="success">{info}</Alert>}
 
       <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none">
         <input
@@ -319,7 +314,7 @@ export function BookerSignupForm() {
 
       <Button
         type="submit"
-        variant="default"
+        variant="clayPrimary"
         size="lg"
         disabled={loading || !tosAccepted || (TURNSTILE_ENABLED && !captchaToken)}
         className="w-full"
@@ -331,6 +326,7 @@ export function BookerSignupForm() {
         Al crear cuenta aceptas recibir notificaciones de tus requests y
         DJs guardados. Sin spam — puedes salir cuando quieras.
       </div>
-    </form>
+      </form>
+    </GlassPanel>
   );
 }

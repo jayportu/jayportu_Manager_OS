@@ -10,8 +10,17 @@ export const metadata: Metadata = {
 
 export default function BookerSignupPage() {
   return (
-    <main className="min-h-screen bg-bg flex flex-col">
-      <header className="bg-ink text-white border-b-2 border-orange py-5 px-6 flex items-center justify-between">
+    <main className="relative min-h-screen bg-bg flex flex-col overflow-hidden">
+      {/* Ambiente radial (firma Hybrid OS) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 60% at 50% -10%, rgb(var(--drop-orange) / 0.16), transparent 60%)",
+        }}
+      />
+      <header className="relative z-10 border-b border-white/10 text-white py-5 px-6 flex items-center justify-between">
         <Link
           href="/"
           className="select-none hover:opacity-90 transition-opacity"
@@ -30,7 +39,7 @@ export default function BookerSignupPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-orange mb-3 flex items-center gap-3">
             <span>— PORTAL BOOKER</span>
@@ -55,7 +64,7 @@ export default function BookerSignupPage() {
 
           <BookerSignupForm />
 
-          <div className="mt-6 pt-5 border-t border-border/15 space-y-3">
+          <div className="mt-6 pt-5 border-t border-white/10 space-y-3">
             <div className="text-[12px] text-fg-muted">
               ¿Ya tienes cuenta?{" "}
               <Link
@@ -75,7 +84,7 @@ export default function BookerSignupPage() {
         </div>
       </div>
 
-      <footer className="bg-ink text-white border-t-2 border-orange py-4 px-6 text-center">
+      <footer className="relative z-10 border-t border-white/10 text-white py-4 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · THE DJ OS
         </div>
