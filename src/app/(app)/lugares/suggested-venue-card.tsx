@@ -47,7 +47,7 @@ export function SuggestedVenueCard({ venue }: { venue: SuggestedVenue }) {
   }
 
   return (
-    <GlassPanel>
+    <GlassPanel sweep>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="truncate font-display text-xl leading-tight">
