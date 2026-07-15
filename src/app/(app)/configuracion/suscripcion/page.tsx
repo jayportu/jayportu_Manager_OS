@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import { SectionHero, GlassPanel, MonoLabel, Badge } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 import { isLegacyBetaUser } from "@/lib/queries/subscription";
 import { CancelSubscriptionButton } from "./cancel-subscription-button";
 import { ReactivateSubscriptionButton } from "./reactivate-subscription-button";
@@ -64,46 +66,27 @@ export default async function SubscripcionMiPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto">
-      <div className="mb-8">
-        <Link
-          href="/configuracion"
-          className="font-mono text-[10px] uppercase tracking-[0.1em] text-fg-muted hover:text-fg transition-colors"
-        >
-          ← Configuración
-        </Link>
-        <h1
-          className="leading-none mt-2"
-          style={{
-            fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-            fontSize: "48px",
-          }}
-        >
-          Mi suscripción<span className="text-orange">.</span>
-        </h1>
-      </div>
+      <Link
+        href="/configuracion"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-white/50 hover:text-white transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> Configuración
+      </Link>
+      <SectionHero kicker="Sistema · Suscripción" title="Mi suscripción" />
 
       {/* Estado principal */}
-      <Card className="p-6 mb-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+      <GlassPanel className="mb-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
-              — MI SUSCRIPCIÓN
-            </div>
-            <div
-              className="leading-none"
-              style={{
-                fontFamily:
-                  "var(--font-anton), Impact, system-ui, sans-serif",
-                fontSize: "32px",
-              }}
-            >
+            <MonoLabel>Mi suscripción</MonoLabel>
+            <div className="mt-1.5 font-display text-3xl leading-none">
               DROP. Pro<span className="text-orange">.</span>
             </div>
           </div>
           <StatusBadge subscription={subscription} />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="mt-5 flex flex-col gap-2 border-t border-white/10 pt-4">
           <Row label="Plan" value={`$${subscription.amount_clp.toLocaleString("es-CL")} / mes`} />
           {subscription.card_last_4 && (
             <Row
@@ -137,56 +120,50 @@ export default async function SubscripcionMiPage() {
 
         {/* CTAs según estado */}
         {subscription.status === "active" && (
-          <div className="flex gap-2 flex-wrap pt-4 border-t border-border">
+          <div className="mt-5 flex gap-2 flex-wrap border-t border-white/10 pt-4">
             <CancelSubscriptionButton />
           </div>
         )}
 
         {subscription.status === "cancelled" && (
-          <div className="flex gap-2 flex-wrap pt-4 border-t border-border">
+          <div className="mt-5 flex gap-2 flex-wrap border-t border-white/10 pt-4">
             <ReactivateSubscriptionButton />
-            <Link
-              href="/suscripcion"
-              className="inline-flex items-center gap-2 h-10 px-4 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
-            >
-              Reactivar con nueva tarjeta →
-            </Link>
+            <Button asChild variant="clay">
+              <Link href="/suscripcion">Reactivar con nueva tarjeta →</Link>
+            </Button>
           </div>
         )}
 
         {(subscription.status === "trial" || subscription.status === "expired" || subscription.status === "past_due") && (
-          <div className="flex gap-2 flex-wrap pt-4 border-t border-border">
-            <Link
-              href="/suscripcion"
-              className="inline-flex items-center gap-2 h-10 px-4 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
-            >
-              {subscription.status === "trial" ? "Suscribirme ahora →" : "Renovar suscripción →"}
-            </Link>
+          <div className="mt-5 flex gap-2 flex-wrap border-t border-white/10 pt-4">
+            <Button asChild variant="clayPrimary">
+              <Link href="/suscripcion">
+                {subscription.status === "trial" ? "Suscribirme ahora →" : "Renovar suscripción →"}
+              </Link>
+            </Button>
           </div>
         )}
-      </Card>
+      </GlassPanel>
 
       {/* Historial */}
-      <Card className="p-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-          — HISTORIAL DE PAGOS
-        </div>
+      <GlassPanel>
+        <MonoLabel>Historial de pagos</MonoLabel>
         {payments.length === 0 ? (
-          <p className="text-sm text-fg-muted">
+          <p className="mt-3 text-sm text-white/55">
             Todavía no hay pagos registrados. Cuando se confirme el primer
             cobro lo verás acá.
           </p>
         ) : (
-          <div className="space-y-1">
+          <div className="mt-3">
             {payments.map((p) => (
               <div
                 key={p.id}
-                className="grid grid-cols-[1fr_auto_auto] gap-3 items-baseline text-sm border-b border-border last:border-b-0 py-2"
+                className="grid grid-cols-[1fr_auto_auto] gap-3 items-baseline text-sm border-b border-white/10 last:border-b-0 py-2"
               >
-                <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+                <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
                   {formatDate(p.created_at)}
                 </span>
-                <span className="font-semibold">
+                <span className="font-semibold tabular-nums text-white/80">
                   ${p.amount_clp.toLocaleString("es-CL")}
                 </span>
                 <PaymentStatusBadge status={p.status} />
@@ -194,21 +171,23 @@ export default async function SubscripcionMiPage() {
             ))}
           </div>
         )}
-      </Card>
+      </GlassPanel>
     </div>
   );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-baseline border-b border-border last:border-b-0 py-2">
-      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-fg-muted">
+    <div className="flex items-center justify-between gap-4">
+      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
         {label}
       </span>
-      <span className="text-sm font-semibold">{value}</span>
+      <span className="text-sm font-semibold text-white/80">{value}</span>
     </div>
   );
 }
+
+type BadgeTone = "up" | "warn" | "down" | "info" | "neutral";
 
 function StatusBadge({
   subscription,
@@ -216,59 +195,46 @@ function StatusBadge({
   subscription: Subscription;
 }) {
   const { status } = subscription;
-  let bg = "bg-cream";
-  let text = "text-fg-muted";
-  let border = "border-border";
+  let tone: BadgeTone = "neutral";
+  let solid = false;
   let label = status.toUpperCase();
   if (status === "active") {
-    bg = "bg-orange";
-    text = "text-fg";
+    tone = "up";
+    solid = true;
     label = "● ACTIVA";
   } else if (status === "trial") {
-    bg = "bg-orange";
-    text = "text-fg";
+    tone = "warn";
     label = "TRIAL";
   } else if (status === "cancelled") {
-    bg = "bg-warning";
-    text = "text-fg";
+    tone = "neutral";
     label = "CANCELADA · ACCESO HASTA EL FIN";
   } else if (status === "expired") {
-    bg = "bg-danger";
-    text = "text-white";
-    border = "border-danger";
+    tone = "down";
     label = "VENCIDA";
   } else if (status === "past_due") {
-    bg = "bg-warning";
-    text = "text-fg";
+    tone = "down";
     label = "PAGO PENDIENTE";
   } else if (status === "pending") {
-    bg = "bg-cream";
-    text = "text-fg-muted";
+    tone = "info";
     label = "ESPERANDO CONFIRMACIÓN";
   }
   return (
-    <span
-      className={`inline-block font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 ${bg} ${text} ${border}`}
-    >
+    <Badge tone={tone} solid={solid}>
       {label}
-    </span>
+    </Badge>
   );
 }
 
 function PaymentStatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    approved: { label: "Pagado ✓", cls: "text-success" },
-    rejected: { label: "Rechazado", cls: "text-danger" },
-    pending: { label: "Pendiente", cls: "text-fg-muted" },
-    refunded: { label: "Reembolsado", cls: "text-warning" },
-    cancelled: { label: "Cancelado", cls: "text-fg-muted" },
+  const map: Record<string, { label: string; tone: BadgeTone }> = {
+    approved: { label: "Pagado ✓", tone: "up" },
+    rejected: { label: "Rechazado", tone: "down" },
+    pending: { label: "Pendiente", tone: "info" },
+    refunded: { label: "Reembolsado", tone: "neutral" },
+    cancelled: { label: "Cancelado", tone: "neutral" },
   };
-  const m = map[status] ?? { label: status, cls: "text-fg-muted" };
-  return (
-    <span className={`font-mono text-[10px] uppercase tracking-wider ${m.cls}`}>
-      {m.label}
-    </span>
-  );
+  const m = map[status] ?? { label: status, tone: "neutral" as BadgeTone };
+  return <Badge tone={m.tone}>{m.label}</Badge>;
 }
 
 function formatDate(iso: string): string {

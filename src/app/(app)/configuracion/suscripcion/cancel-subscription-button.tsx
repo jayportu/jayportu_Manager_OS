@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { cancelSubscriptionAction } from "@/app/suscripcion/actions";
+import { Button } from "@/components/ui/button";
+import { Alert, FIELD } from "@/components/hos";
 
 export function CancelSubscriptionButton() {
   const router = useRouter();
@@ -29,7 +31,7 @@ export function CancelSubscriptionButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-danger border-2 border-danger hover:bg-danger hover:text-white dark:hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-danger/40 bg-danger/5 px-4 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-danger transition-colors hover:bg-danger/10"
       >
         Cancelar suscripción
       </button>
@@ -37,49 +39,53 @@ export function CancelSubscriptionButton() {
   }
 
   return (
-    <div className="w-full border-2 border-danger bg-danger/5 p-4 space-y-3">
+    <div className="w-full space-y-3 rounded-2xl border border-danger/40 bg-danger/5 p-4">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-danger">
         — ¿SEGURO QUE QUIERES CANCELAR?
       </div>
-      <ul className="text-sm space-y-1">
+      <ul className="text-sm space-y-1 text-white/70">
         <li>· Mantienes acceso hasta el fin del período pagado.</li>
         <li>· No se cobra más después de esa fecha.</li>
         <li>· Sin reembolso parcial.</li>
         <li>· Tus datos no se borran — puedes reactivar cuando quieras.</li>
       </ul>
-      <div>
-        <label className="font-mono text-[10px] uppercase tracking-wider text-fg-muted block mb-1">
+      <div className="space-y-1.5">
+        <label
+          htmlFor="cancel-reason"
+          className="block font-mono text-[10px] uppercase tracking-wider text-white/40"
+        >
           ¿Por qué cancelas? (opcional)
         </label>
         <textarea
+          id="cancel-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={3}
           placeholder="Tu feedback me ayuda a mejorar DROP…"
           disabled={isPending}
-          className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
+          className={FIELD}
         />
       </div>
-      {error && (
-        <div className="text-sm text-danger">{error}</div>
-      )}
+      {error && <Alert tone="danger">{error}</Alert>}
       <div className="flex gap-2 flex-wrap">
-        <button
+        <Button
           type="button"
+          variant="clay"
           onClick={() => setOpen(false)}
           disabled={isPending}
-          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-cream text-fg border-2 border-border hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
+          className="flex-1"
         >
           Mejor sigo
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="destructive"
           onClick={handleConfirm}
           disabled={isPending}
-          className="flex-1 inline-flex items-center justify-center h-10 px-4 bg-danger text-white dark:text-ink border-2 border-danger hover:opacity-90 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
+          className="flex-1 rounded-full"
         >
           {isPending ? "Cancelando…" : "Confirmar cancelación"}
-        </button>
+        </Button>
       </div>
     </div>
   );
