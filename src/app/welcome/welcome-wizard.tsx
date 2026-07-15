@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/brand/logo";
+import { GlassPanel, ClayChip, Alert, FIELD } from "@/components/hos";
 import {
   ArrowRight,
   ArrowLeft,
@@ -149,10 +149,10 @@ export function WelcomeWizard({
               key={n}
               className={`h-1.5 rounded-full transition-all ${
                 n === step
-                  ? "w-12 bg-accent"
+                  ? "w-12 bg-orange"
                   : n < step
-                  ? "w-8 bg-accent/60"
-                  : "w-8 bg-border"
+                  ? "w-8 bg-orange/50"
+                  : "w-8 bg-white/12"
               }`}
             />
           ))}
@@ -161,7 +161,7 @@ export function WelcomeWizard({
           Paso {step} de 3
         </div>
 
-        <Card className="p-8">
+        <GlassPanel padded={false} className="p-8">
           {step === 1 && (
             <StepIdentity
               identity={identity}
@@ -185,8 +185,8 @@ export function WelcomeWizard({
           )}
 
           {error && (
-            <div className="mt-4 text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
-              {error}
+            <div className="mt-4">
+              <Alert tone="danger">{error}</Alert>
             </div>
           )}
 
@@ -194,7 +194,7 @@ export function WelcomeWizard({
             {step > 1 && (
               <Button
                 type="button"
-                variant="outline"
+                variant="clay"
                 onClick={prevStep}
                 disabled={isPending}
               >
@@ -204,6 +204,7 @@ export function WelcomeWizard({
             )}
             <Button
               type="button"
+              variant="clayPrimary"
               onClick={nextStep}
               disabled={
                 isPending ||
@@ -228,7 +229,7 @@ export function WelcomeWizard({
               {!isPending && step === 3 && <Check className="w-4 h-4" />}
             </Button>
           </div>
-        </Card>
+        </GlassPanel>
 
         <div className="text-center mt-6 text-[10px] uppercase tracking-widest text-fg-subtle font-mono">
           DROP. · THE DJ OS · v0.13
@@ -256,7 +257,7 @@ function StepIdentity({
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold tracking-tight mb-1">
+        <h1 className="font-display text-2xl leading-none mb-1">
           ¿Quién eres?
         </h1>
         <p className="text-sm text-fg-muted">
@@ -276,6 +277,7 @@ function StepIdentity({
           }
           autoFocus
           maxLength={60}
+          className={FIELD}
         />
       </div>
 
@@ -289,6 +291,7 @@ function StepIdentity({
             setIdentity((s) => ({ ...s, city: e.target.value }))
           }
           maxLength={40}
+          className={FIELD}
         />
       </div>
 
@@ -307,10 +310,11 @@ function StepIdentity({
               }
             }}
             maxLength={30}
+            className={FIELD}
           />
           <Button
             type="button"
-            variant="outline"
+            variant="clay"
             onClick={() => addGenre(genreInput)}
             disabled={!genreInput.trim() || identity.genres.length >= 8}
           >
@@ -320,20 +324,19 @@ function StepIdentity({
         {identity.genres.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {identity.genres.map((g) => (
-              <span
-                key={g}
-                className="text-xs px-2 py-1 rounded bg-accent-soft border border-accent/30 text-accent inline-flex items-center gap-1"
-              >
-                {g}
-                <button
-                  type="button"
-                  onClick={() => removeGenre(g)}
-                  className="hover:text-fg"
-                  aria-label={`Quitar ${g}`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
+              <ClayChip key={g} active>
+                <span className="inline-flex items-center gap-1.5">
+                  {g}
+                  <button
+                    type="button"
+                    onClick={() => removeGenre(g)}
+                    className="transition-opacity hover:opacity-60"
+                    aria-label={`Quitar ${g}`}
+                  >
+                    <X className="w-3 h-3" aria-hidden="true" />
+                  </button>
+                </span>
+              </ClayChip>
             ))}
           </div>
         )}
@@ -345,9 +348,9 @@ function StepIdentity({
                 type="button"
                 onClick={() => addGenre(g)}
                 disabled={identity.genres.length >= 8}
-                className="text-[11px] px-2 py-1 rounded border border-border text-fg-muted hover:border-accent/40 hover:text-fg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-full transition-transform active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E85A0C] disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                + {g}
+                <ClayChip>+ {g}</ClayChip>
               </button>
             )
           )}
@@ -367,7 +370,7 @@ function StepSocials({
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold tracking-tight mb-1">
+        <h1 className="font-display text-2xl leading-none mb-1">
           Conecta tu música
         </h1>
         <p className="text-sm text-fg-muted">
@@ -379,7 +382,7 @@ function StepSocials({
 
       <div className="space-y-2">
         <Label htmlFor="soundcloud_username" className="flex items-center gap-2">
-          <Music className="w-3.5 h-3.5 text-accent" />
+          <Music className="w-3.5 h-3.5 text-orange" />
           SoundCloud (usuario)
         </Label>
         <div className="flex items-center gap-2">
@@ -397,6 +400,7 @@ function StepSocials({
               }))
             }
             maxLength={60}
+            className={FIELD}
           />
         </div>
         <p className="text-[11px] text-fg-subtle">
@@ -417,6 +421,7 @@ function StepSocials({
           onChange={(e) =>
             setSocials((s) => ({ ...s, instagram_url: e.target.value }))
           }
+          className={FIELD}
         />
       </div>
 
@@ -433,6 +438,7 @@ function StepSocials({
           onChange={(e) =>
             setSocials((s) => ({ ...s, spotify_url: e.target.value }))
           }
+          className={FIELD}
         />
       </div>
 
@@ -449,6 +455,7 @@ function StepSocials({
           onChange={(e) =>
             setSocials((s) => ({ ...s, youtube_url: e.target.value }))
           }
+          className={FIELD}
         />
       </div>
     </div>
@@ -491,7 +498,7 @@ function StepDone({
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold tracking-tight mb-1">
+        <h1 className="font-display text-2xl leading-none mb-1">
           Listo{artistName ? `, ${artistName.trim()}` : ""}
         </h1>
         <p className="text-sm text-fg-muted">
@@ -504,31 +511,30 @@ function StepDone({
         {sections.map((s) => {
           const Icon = s.icon;
           return (
-            <div
-              key={s.title}
-              className="flex gap-3 p-3 rounded-lg bg-bg border border-border"
-            >
-              <div className="w-8 h-8 rounded-md bg-accent-soft border border-accent/30 flex items-center justify-center shrink-0">
-                <Icon className="w-4 h-4 text-accent" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-fg">{s.title}</div>
-                <div className="text-[11px] text-fg-muted leading-snug mt-0.5">
-                  {s.desc}
+            <GlassPanel key={s.title} padded={false} className="p-3">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange/10 border border-orange/30 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-orange" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-fg">{s.title}</div>
+                  <div className="text-[11px] text-fg-muted leading-snug mt-0.5">
+                    {s.desc}
+                  </div>
                 </div>
               </div>
-            </div>
+            </GlassPanel>
           );
         })}
       </div>
 
       {needsTos && (
-        <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none border-t border-border pt-4">
+        <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none border-t border-white/10 pt-4">
           <input
             type="checkbox"
             checked={tosChecked}
             onChange={(e) => setTosChecked(e.target.checked)}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-accent cursor-pointer"
+            className="mt-0.5 h-4 w-4 shrink-0 accent-orange cursor-pointer"
           />
           <span>
             He leído y acepto los{" "}
@@ -536,7 +542,7 @@ function StepDone({
               href="/terms"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-fg underline hover:text-accent transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               Términos de servicio
             </a>{" "}
@@ -545,7 +551,7 @@ function StepDone({
               href="/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-fg underline hover:text-accent transition-colors"
+              className="text-fg underline hover:text-orange transition-colors"
             >
               Política de privacidad
             </a>
