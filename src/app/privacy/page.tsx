@@ -13,7 +13,10 @@ const LAST_UPDATED = TOS_VERSION_LABEL;
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-bg text-fg">
-      <header className="bg-ink text-white border-b-2 border-orange py-6 px-6">
+      <header
+        className="sticky top-0 z-50 text-white border-b border-white/10 py-6 px-6"
+        style={{ background: "rgba(11,11,11,0.6)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
+      >
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -372,7 +375,7 @@ export default function PrivacyPage() {
           </p>
         </Section>
 
-        <div className="mt-12 pt-6 border-t-2 border-border">
+        <div className="mt-12 pt-6 border-t border-white/10">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg-muted">
             ¿Tienes dudas?{" "}
             <a
@@ -403,14 +406,7 @@ function Section({
 }) {
   return (
     <section className="mt-10">
-      <h2
-        className="mb-4"
-        style={{
-          fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-          fontSize: "24px",
-          lineHeight: 1.1,
-        }}
-      >
+      <h2 className="mb-4 font-display text-2xl leading-tight">
         {title}
       </h2>
       <div className="space-y-3 text-[15px] leading-relaxed text-fg">
