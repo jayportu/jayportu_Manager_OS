@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel, ClayChip, Toggle, Alert } from "@/components/hos";
 import { saveProfileAction } from "../configuracion/actions";
 import { AvatarUpload } from "./avatar-upload";
 import { GallerySection } from "./gallery-section";
@@ -184,27 +184,27 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Visibilidad — más completo = más arriba en Smart Match */}
       {completeness.percent < 100 && (
-        <div className="p-4 rounded-xl bg-accent-soft border border-accent/30">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-accent shrink-0" />
-            <span className="text-sm font-semibold text-fg">
+        <div className="rounded-xl border border-orange/25 bg-orange/10 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 shrink-0 text-orange" />
+            <span className="text-sm font-semibold text-white/90">
               Tu perfil está {completeness.percent}% completo
             </span>
           </div>
-          <div className="h-2 rounded-full bg-accent/15 overflow-hidden mb-2">
+          <div className="mb-2 h-2 overflow-hidden rounded-full bg-white/10">
             <div
-              className="h-full bg-accent transition-all"
+              className="h-full bg-orange transition-all"
               style={{ width: `${completeness.percent}%` }}
             />
           </div>
-          <p className="text-xs text-fg-muted">
+          <p className="text-xs text-white/55">
             Mientras más completo, más arriba apareces en las búsquedas de
             bookers (Smart Match).
             {completeness.missing.length > 0 && (
               <>
                 {" "}
                 Te falta:{" "}
-                <span className="text-fg font-medium">
+                <span className="font-medium text-white/85">
                   {completeness.missing.slice(0, 3).join(", ")}
                 </span>
                 .
@@ -215,573 +215,552 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       )}
 
       {/* Identidad */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Identidad
-        </h2>
-        <AvatarUploadMemo
-          initialUrl={form.avatar_url}
-          artistName={form.artist_name}
-          onChange={handleAvatarChange}
-        />
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="artist_name">Nombre artístico *</Label>
-            <Input
-              id="artist_name"
-              value={form.artist_name ?? ""}
-              onChange={(e) => update("artist_name", e.target.value)}
-              placeholder="JAY PORTU"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tagline">Tagline</Label>
-            <Input
-              id="tagline"
-              value={form.tagline ?? ""}
-              onChange={(e) => update("tagline", e.target.value)}
-              placeholder="DJ chileno · House & Tech House"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="bio_short">Bio corta (1-2 líneas)</Label>
-          <Textarea
-            id="bio_short"
-            value={form.bio_short ?? ""}
-            onChange={(e) => update("bio_short", e.target.value)}
-            rows={2}
-            placeholder="Para usar en cards y previews."
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Identidad</MonoLabel>
+          <AvatarUploadMemo
+            initialUrl={form.avatar_url}
+            artistName={form.artist_name}
+            onChange={handleAvatarChange}
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="bio_long">Bio larga (para press kit)</Label>
-          <Textarea
-            id="bio_long"
-            value={form.bio_long ?? ""}
-            onChange={(e) => update("bio_long", e.target.value)}
-            rows={6}
-            placeholder="Texto completo para el press kit público."
-          />
-        </div>
-      </Card>
-
-      {/* Galería */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Galería
-        </h2>
-        <p className="text-sm text-fg-muted">
-          Fotos para tu press kit público. Organízalas en carpetas (ej. Live,
-          Estudio) y se muestran con un visor a tamaño real.
-        </p>
-        <GallerySectionMemo initialGallery={galleryInitial} />
-      </Card>
-
-      {/* Estilos musicales */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Estilos musicales
-        </h2>
-        <div className="space-y-2">
-          <Label>Géneros</Label>
-          <div className="flex flex-wrap gap-2">
-            {form.genres.map((g) => (
-              <span
-                key={g}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-accent-soft text-accent border border-accent/30 rounded-full text-xs font-medium"
-              >
-                {g}
-                <button
-                  type="button"
-                  onClick={() => removeGenre(g)}
-                  className="hover:text-fg"
-                  aria-label={`Quitar ${g}`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2 mt-2">
-            <Input
-              value={genreInput}
-              onChange={(e) => setGenreInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addGenre(genreInput);
-                }
-              }}
-              placeholder="Agregar género y Enter"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addGenre(genreInput)}
-            >
-              Agregar
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-1.5 pt-2">
-            {GENRE_SUGGESTIONS.filter((g) => !form.genres.includes(g)).map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => addGenre(g)}
-                className="text-xs px-2 py-1 rounded border border-border text-fg-muted hover:border-accent hover:text-accent transition-colors"
-              >
-                + {g}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-      {/* Ubicación */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Ubicación
-        </h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="city">Ciudad</Label>
-            <Input
-              id="city"
-              value={form.city ?? ""}
-              onChange={(e) => update("city", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="country">País</Label>
-            <Input
-              id="country"
-              value={form.country ?? ""}
-              onChange={(e) => update("country", e.target.value)}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Canales públicos */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Canales públicos
-        </h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="instagram_url">Instagram URL</Label>
-            <Input
-              id="instagram_url"
-              value={form.instagram_url ?? ""}
-              onChange={(e) => update("instagram_url", e.target.value)}
-              placeholder="https://instagram.com/jay_portu"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="soundcloud_url">SoundCloud URL</Label>
-            <Input
-              id="soundcloud_url"
-              value={form.soundcloud_url ?? ""}
-              onChange={(e) => update("soundcloud_url", e.target.value)}
-              placeholder="https://soundcloud.com/jay-portu"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="youtube_url">YouTube URL</Label>
-            <Input
-              id="youtube_url"
-              value={form.youtube_url ?? ""}
-              onChange={(e) => update("youtube_url", e.target.value)}
-              placeholder="https://youtube.com/@jayportu"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="spotify_url">Spotify URL</Label>
-            <Input
-              id="spotify_url"
-              value={form.spotify_url ?? ""}
-              onChange={(e) => update("spotify_url", e.target.value)}
-              placeholder="https://open.spotify.com/artist/..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="beatport_url">Beatport URL</Label>
-            <Input
-              id="beatport_url"
-              value={form.beatport_url ?? ""}
-              onChange={(e) => update("beatport_url", e.target.value)}
-              placeholder="https://www.beatport.com/artist/..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="bandcamp_url">Bandcamp URL</Label>
-            <Input
-              id="bandcamp_url"
-              value={form.bandcamp_url ?? ""}
-              onChange={(e) => update("bandcamp_url", e.target.value)}
-              placeholder="https://tunombre.bandcamp.com"
-            />
-          </div>
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="website">Website</Label>
-            <Input
-              id="website"
-              value={form.website ?? ""}
-              onChange={(e) => update("website", e.target.value)}
-              placeholder="https://tunombre.com"
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Sets destacados (Fase 1 · 1B) */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Sets destacados
-        </h2>
-        <p className="text-sm text-fg-muted">
-          Hasta 4 sets o mixes para mostrar en tu press kit (SoundCloud,
-          Mixcloud o YouTube). Se embeben solos según la plataforma.
-        </p>
-        {(form.featured_sets ?? []).length > 0 && (
-          <div className="space-y-2">
-            {(form.featured_sets ?? []).map((s) => (
-              <div
-                key={s}
-                className="flex items-center gap-2 border border-border px-3 py-2 text-sm"
-              >
-                <span className="flex-1 truncate text-fg-muted">{s}</span>
-                <button
-                  type="button"
-                  onClick={() => removeSet(s)}
-                  className="hover:text-fg shrink-0"
-                  aria-label={`Quitar ${s}`}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        {(form.featured_sets ?? []).length < 4 && (
-          <div className="flex gap-2">
-            <Input
-              value={setUrlInput}
-              onChange={(e) => setSetUrlInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addSet(setUrlInput);
-                }
-              }}
-              placeholder="Pega la URL del set y Enter"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addSet(setUrlInput)}
-            >
-              Agregar
-            </Button>
-          </div>
-        )}
-      </Card>
-
-      {/* Discografía · Beatport */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Discografía · Beatport
-        </h2>
-        <p className="text-sm text-fg-muted">
-          Hasta 6 releases de Beatport para mostrar en tu press kit. Pega el link
-          del track o release (ej: beatport.com/track/...) y se embebe el player
-          oficial — con preview, BPM y tonalidad.
-        </p>
-        {(form.beatport_releases ?? []).length > 0 && (
-          <div className="space-y-2">
-            {(form.beatport_releases ?? []).map((s) => (
-              <div
-                key={s}
-                className="flex items-center gap-2 border border-border px-3 py-2 text-sm"
-              >
-                <span className="flex-1 truncate text-fg-muted">{s}</span>
-                <button
-                  type="button"
-                  onClick={() => removeRelease(s)}
-                  className="hover:text-fg shrink-0"
-                  aria-label={`Quitar ${s}`}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        {(form.beatport_releases ?? []).length < 6 && (
-          <div className="flex gap-2">
-            <Input
-              value={releaseInput}
-              onChange={(e) => setReleaseInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addRelease(releaseInput);
-                }
-              }}
-              placeholder="Pega el link de Beatport y Enter"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addRelease(releaseInput)}
-            >
-              Agregar
-            </Button>
-          </div>
-        )}
-      </Card>
-
-      {/* Trayectoria & identidad (Fase 1 · 1C + 1D) */}
-      <Card className="p-6 space-y-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Trayectoria & identidad
-        </h2>
-
-        {/* Alias / proyectos */}
-        <div className="space-y-2">
-          <Label>Alias / proyectos (b2b, otros nombres)</Label>
-          {(form.aliases ?? []).length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {(form.aliases ?? []).map((a) => (
-                <span
-                  key={a}
-                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border text-sm"
-                >
-                  {a}
-                  <button
-                    type="button"
-                    onClick={() => removeAlias(a)}
-                    className="hover:text-fg"
-                    aria-label={`Quitar ${a}`}
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Input
-              value={aliasInput}
-              onChange={(e) => setAliasInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addAlias(aliasInput);
-                }
-              }}
-              placeholder="Ej: SOMBRA · JAY b2b FER"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addAlias(aliasInput)}
-            >
-              Agregar
-            </Button>
-          </div>
-        </div>
-
-        {/* Sello */}
-        <div className="space-y-2">
-          <Label htmlFor="record_label">Sello / label</Label>
-          <Input
-            id="record_label"
-            value={form.record_label ?? ""}
-            onChange={(e) => update("record_label", e.target.value)}
-            placeholder="Ej: Cordillera Records"
-          />
-        </div>
-
-        {/* Marcas / clubs */}
-        <div className="space-y-2">
-          <Label>Marcas y clubs con los que trabajaste</Label>
-          <p className="text-xs text-fg-muted">
-            Aparecen como sellos de confianza en tu press kit.
-          </p>
-          {(form.brands_worked ?? []).length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {(form.brands_worked ?? []).map((b) => (
-                <span
-                  key={b}
-                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border text-sm"
-                >
-                  {b}
-                  <button
-                    type="button"
-                    onClick={() => removeBrand(b)}
-                    className="hover:text-fg"
-                    aria-label={`Quitar ${b}`}
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Input
-              value={brandInput}
-              onChange={(e) => setBrandInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addBrand(brandInput);
-                }
-              }}
-              placeholder="Ej: Club La Feria · Corona · Lollapalooza"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addBrand(brandInput)}
-            >
-              Agregar
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Tarifa referencial (Fase 1 · 1E) */}
-      <Card className="p-6 space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-              Tarifa referencial
-            </h2>
-            <p className="text-sm text-fg-muted mt-1">
-              {form.show_fee
-                ? "Visible en tu press kit. Ayuda al booker a estimar antes de escribir."
-                : "Oculta. Actívala solo si quieres mostrar un rango de fee."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => update("show_fee", !form.show_fee)}
-            aria-label="Mostrar fee"
-            className={`shrink-0 w-14 h-7 border-2 border-border rounded-full relative transition-colors ${
-              form.show_fee ? "bg-orange" : "bg-cream"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 w-5 h-5 bg-ink rounded-full transition-all ${
-                form.show_fee ? "left-7" : "left-0.5"
-              }`}
-            />
-          </button>
-        </div>
-        {form.show_fee && (
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="fee_min">Desde (CLP)</Label>
+              <Label htmlFor="artist_name">Nombre artístico *</Label>
               <Input
-                id="fee_min"
-                type="number"
-                inputMode="numeric"
-                value={form.fee_min ?? ""}
-                onChange={(e) =>
-                  update("fee_min", e.target.value ? Number(e.target.value) : null)
-                }
-                placeholder="300000"
+                id="artist_name"
+                value={form.artist_name ?? ""}
+                onChange={(e) => update("artist_name", e.target.value)}
+                placeholder="JAY PORTU"
+                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fee_max">Hasta (CLP, opcional)</Label>
+              <Label htmlFor="tagline">Tagline</Label>
               <Input
-                id="fee_max"
-                type="number"
-                inputMode="numeric"
-                value={form.fee_max ?? ""}
-                onChange={(e) =>
-                  update("fee_max", e.target.value ? Number(e.target.value) : null)
-                }
-                placeholder="800000"
+                id="tagline"
+                value={form.tagline ?? ""}
+                onChange={(e) => update("tagline", e.target.value)}
+                placeholder="DJ chileno · House & Tech House"
               />
             </div>
           </div>
-        )}
-      </Card>
-
-      {/* Contacto público */}
-      <Card className="p-6 space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Contacto público (visible en press kit y formularios)
-        </h2>
-        <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="public_email">Email de booking</Label>
-            <Input
-              id="public_email"
-              type="email"
-              value={form.public_email ?? ""}
-              onChange={(e) => update("public_email", e.target.value)}
-              placeholder="tunombre@gmail.com"
+            <Label htmlFor="bio_short">Bio corta (1-2 líneas)</Label>
+            <Textarea
+              id="bio_short"
+              value={form.bio_short ?? ""}
+              onChange={(e) => update("bio_short", e.target.value)}
+              rows={2}
+              placeholder="Para usar en cards y previews."
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="whatsapp">WhatsApp (con código país, sin +)</Label>
-            <Input
-              id="whatsapp"
-              value={form.whatsapp ?? ""}
-              onChange={(e) => update("whatsapp", e.target.value)}
-              placeholder="56988188531"
+            <Label htmlFor="bio_long">Bio larga (para press kit)</Label>
+            <Textarea
+              id="bio_long"
+              value={form.bio_long ?? ""}
+              onChange={(e) => update("bio_long", e.target.value)}
+              rows={6}
+              placeholder="Texto completo para el press kit público."
             />
           </div>
         </div>
-      </Card>
+      </GlassPanel>
+
+      {/* Galería */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Galería</MonoLabel>
+          <p className="text-sm text-white/55">
+            Fotos para tu press kit público. Organízalas en carpetas (ej. Live,
+            Estudio) y se muestran con un visor a tamaño real.
+          </p>
+          <GallerySectionMemo initialGallery={galleryInitial} />
+        </div>
+      </GlassPanel>
+
+      {/* Estilos musicales */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Estilos musicales</MonoLabel>
+          <div className="space-y-2">
+            <Label>Géneros</Label>
+            <div className="flex flex-wrap gap-2">
+              {form.genres.map((g) => (
+                <ClayChip key={g} active>
+                  <span className="inline-flex items-center gap-1.5">
+                    {g}
+                    <button
+                      type="button"
+                      onClick={() => removeGenre(g)}
+                      className="transition-opacity hover:opacity-60"
+                      aria-label={`Quitar ${g}`}
+                    >
+                      <X className="h-3 w-3" aria-hidden="true" />
+                    </button>
+                  </span>
+                </ClayChip>
+              ))}
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Input
+                value={genreInput}
+                onChange={(e) => setGenreInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addGenre(genreInput);
+                  }
+                }}
+                placeholder="Agregar género y Enter"
+              />
+              <Button
+                type="button"
+                variant="clay"
+                onClick={() => addGenre(genreInput)}
+              >
+                Agregar
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {GENRE_SUGGESTIONS.filter((g) => !form.genres.includes(g)).map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => addGenre(g)}
+                  className="rounded-full transition-transform active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E85A0C]"
+                >
+                  <ClayChip>+ {g}</ClayChip>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </GlassPanel>
+
+      {/* Ubicación */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Ubicación</MonoLabel>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Ciudad</Label>
+              <Input
+                id="city"
+                value={form.city ?? ""}
+                onChange={(e) => update("city", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="country">País</Label>
+              <Input
+                id="country"
+                value={form.country ?? ""}
+                onChange={(e) => update("country", e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </GlassPanel>
+
+      {/* Canales públicos */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Canales públicos</MonoLabel>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="instagram_url">Instagram URL</Label>
+              <Input
+                id="instagram_url"
+                value={form.instagram_url ?? ""}
+                onChange={(e) => update("instagram_url", e.target.value)}
+                placeholder="https://instagram.com/jay_portu"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="soundcloud_url">SoundCloud URL</Label>
+              <Input
+                id="soundcloud_url"
+                value={form.soundcloud_url ?? ""}
+                onChange={(e) => update("soundcloud_url", e.target.value)}
+                placeholder="https://soundcloud.com/jay-portu"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="youtube_url">YouTube URL</Label>
+              <Input
+                id="youtube_url"
+                value={form.youtube_url ?? ""}
+                onChange={(e) => update("youtube_url", e.target.value)}
+                placeholder="https://youtube.com/@jayportu"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="spotify_url">Spotify URL</Label>
+              <Input
+                id="spotify_url"
+                value={form.spotify_url ?? ""}
+                onChange={(e) => update("spotify_url", e.target.value)}
+                placeholder="https://open.spotify.com/artist/..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="beatport_url">Beatport URL</Label>
+              <Input
+                id="beatport_url"
+                value={form.beatport_url ?? ""}
+                onChange={(e) => update("beatport_url", e.target.value)}
+                placeholder="https://www.beatport.com/artist/..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="bandcamp_url">Bandcamp URL</Label>
+              <Input
+                id="bandcamp_url"
+                value={form.bandcamp_url ?? ""}
+                onChange={(e) => update("bandcamp_url", e.target.value)}
+                placeholder="https://tunombre.bandcamp.com"
+              />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={form.website ?? ""}
+                onChange={(e) => update("website", e.target.value)}
+                placeholder="https://tunombre.com"
+              />
+            </div>
+          </div>
+        </div>
+      </GlassPanel>
+
+      {/* Sets destacados (Fase 1 · 1B) */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Sets destacados</MonoLabel>
+          <p className="text-sm text-white/55">
+            Hasta 4 sets o mixes para mostrar en tu press kit (SoundCloud,
+            Mixcloud o YouTube). Se embeben solos según la plataforma.
+          </p>
+          {(form.featured_sets ?? []).length > 0 && (
+            <div className="space-y-2">
+              {(form.featured_sets ?? []).map((s) => (
+                <div
+                  key={s}
+                  className="flex items-center gap-2 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-2 text-sm"
+                >
+                  <span className="flex-1 truncate text-white/70">{s}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeSet(s)}
+                    className="shrink-0 transition-colors hover:text-danger"
+                    aria-label={`Quitar ${s}`}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {(form.featured_sets ?? []).length < 4 && (
+            <div className="flex gap-2">
+              <Input
+                value={setUrlInput}
+                onChange={(e) => setSetUrlInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addSet(setUrlInput);
+                  }
+                }}
+                placeholder="Pega la URL del set y Enter"
+              />
+              <Button
+                type="button"
+                variant="clay"
+                onClick={() => addSet(setUrlInput)}
+              >
+                Agregar
+              </Button>
+            </div>
+          )}
+        </div>
+      </GlassPanel>
+
+      {/* Discografía · Beatport */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Discografía · Beatport</MonoLabel>
+          <p className="text-sm text-white/55">
+            Hasta 6 releases de Beatport para mostrar en tu press kit. Pega el link
+            del track o release (ej: beatport.com/track/...) y se embebe el player
+            oficial — con preview, BPM y tonalidad.
+          </p>
+          {(form.beatport_releases ?? []).length > 0 && (
+            <div className="space-y-2">
+              {(form.beatport_releases ?? []).map((s) => (
+                <div
+                  key={s}
+                  className="flex items-center gap-2 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-2 text-sm"
+                >
+                  <span className="flex-1 truncate text-white/70">{s}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeRelease(s)}
+                    className="shrink-0 transition-colors hover:text-danger"
+                    aria-label={`Quitar ${s}`}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {(form.beatport_releases ?? []).length < 6 && (
+            <div className="flex gap-2">
+              <Input
+                value={releaseInput}
+                onChange={(e) => setReleaseInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addRelease(releaseInput);
+                  }
+                }}
+                placeholder="Pega el link de Beatport y Enter"
+              />
+              <Button
+                type="button"
+                variant="clay"
+                onClick={() => addRelease(releaseInput)}
+              >
+                Agregar
+              </Button>
+            </div>
+          )}
+        </div>
+      </GlassPanel>
+
+      {/* Trayectoria & identidad (Fase 1 · 1C + 1D) */}
+      <GlassPanel>
+        <div className="space-y-5">
+          <MonoLabel>Trayectoria & identidad</MonoLabel>
+
+          {/* Alias / proyectos */}
+          <div className="space-y-2">
+            <Label>Alias / proyectos (b2b, otros nombres)</Label>
+            {(form.aliases ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {(form.aliases ?? []).map((a) => (
+                  <span
+                    key={a}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-sm text-white/80"
+                  >
+                    {a}
+                    <button
+                      type="button"
+                      onClick={() => removeAlias(a)}
+                      className="transition-colors hover:text-danger"
+                      aria-label={`Quitar ${a}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Input
+                value={aliasInput}
+                onChange={(e) => setAliasInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addAlias(aliasInput);
+                  }
+                }}
+                placeholder="Ej: SOMBRA · JAY b2b FER"
+              />
+              <Button
+                type="button"
+                variant="clay"
+                onClick={() => addAlias(aliasInput)}
+              >
+                Agregar
+              </Button>
+            </div>
+          </div>
+
+          {/* Sello */}
+          <div className="space-y-2">
+            <Label htmlFor="record_label">Sello / label</Label>
+            <Input
+              id="record_label"
+              value={form.record_label ?? ""}
+              onChange={(e) => update("record_label", e.target.value)}
+              placeholder="Ej: Cordillera Records"
+            />
+          </div>
+
+          {/* Marcas / clubs */}
+          <div className="space-y-2">
+            <Label>Marcas y clubs con los que trabajaste</Label>
+            <p className="text-xs text-white/45">
+              Aparecen como sellos de confianza en tu press kit.
+            </p>
+            {(form.brands_worked ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {(form.brands_worked ?? []).map((b) => (
+                  <span
+                    key={b}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-sm text-white/80"
+                  >
+                    {b}
+                    <button
+                      type="button"
+                      onClick={() => removeBrand(b)}
+                      className="transition-colors hover:text-danger"
+                      aria-label={`Quitar ${b}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Input
+                value={brandInput}
+                onChange={(e) => setBrandInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addBrand(brandInput);
+                  }
+                }}
+                placeholder="Ej: Club La Feria · Corona · Lollapalooza"
+              />
+              <Button
+                type="button"
+                variant="clay"
+                onClick={() => addBrand(brandInput)}
+              >
+                Agregar
+              </Button>
+            </div>
+          </div>
+        </div>
+      </GlassPanel>
+
+      {/* Tarifa referencial (Fase 1 · 1E) */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Tarifa referencial</MonoLabel>
+          <Toggle
+            checked={form.show_fee}
+            onChange={() => update("show_fee", !form.show_fee)}
+            label="Mostrar tarifa en tu press kit"
+            sub={
+              form.show_fee
+                ? "Visible en tu press kit. Ayuda al booker a estimar antes de escribir."
+                : "Oculta. Actívala solo si quieres mostrar un rango de fee."
+            }
+          />
+          {form.show_fee && (
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="fee_min">Desde (CLP)</Label>
+                <Input
+                  id="fee_min"
+                  type="number"
+                  inputMode="numeric"
+                  value={form.fee_min ?? ""}
+                  onChange={(e) =>
+                    update("fee_min", e.target.value ? Number(e.target.value) : null)
+                  }
+                  placeholder="300000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fee_max">Hasta (CLP, opcional)</Label>
+                <Input
+                  id="fee_max"
+                  type="number"
+                  inputMode="numeric"
+                  value={form.fee_max ?? ""}
+                  onChange={(e) =>
+                    update("fee_max", e.target.value ? Number(e.target.value) : null)
+                  }
+                  placeholder="800000"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </GlassPanel>
+
+      {/* Contacto público */}
+      <GlassPanel>
+        <div className="space-y-4">
+          <MonoLabel>Contacto público (visible en press kit y formularios)</MonoLabel>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="public_email">Email de booking</Label>
+              <Input
+                id="public_email"
+                type="email"
+                value={form.public_email ?? ""}
+                onChange={(e) => update("public_email", e.target.value)}
+                placeholder="tunombre@gmail.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp">WhatsApp (con código país, sin +)</Label>
+              <Input
+                id="whatsapp"
+                value={form.whatsapp ?? ""}
+                onChange={(e) => update("whatsapp", e.target.value)}
+                placeholder="56988188531"
+              />
+            </div>
+          </div>
+        </div>
+      </GlassPanel>
 
       {/* Tech rider — se edita en Configuración (editor simple IDEAL/ALT) */}
-      <Card className="p-6 space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent">
-          Tech rider & hospitality
-        </h2>
-        <p className="text-sm text-fg-muted">
-          Tu tech rider y hospitality se editan en Configuración:{" "}
-          <strong>un equipo por línea</strong>, en los cuadros IDEAL y
-          ALTERNATIVO. Se muestran tal cual en tu press kit público.
-        </p>
-        <a
-          href="/configuracion#tech-rider"
-          className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors w-fit"
-        >
-          Editar tech rider →
-        </a>
-      </Card>
+      <GlassPanel>
+        <div className="space-y-3">
+          <MonoLabel>Tech rider & hospitality</MonoLabel>
+          <p className="text-sm text-white/55">
+            Tu tech rider y hospitality se editan en Configuración:{" "}
+            <strong>un equipo por línea</strong>, en los cuadros IDEAL y
+            ALTERNATIVO. Se muestran tal cual en tu press kit público.
+          </p>
+          <Button asChild variant="clay">
+            <a href="/configuracion#tech-rider">Editar tech rider →</a>
+          </Button>
+        </div>
+      </GlassPanel>
 
       {/* Submit */}
-      <div className="sticky bottom-0 bg-bg/95 backdrop-blur border border-border rounded-xl p-4 flex items-center justify-between gap-4">
+      <div className="sticky bottom-0 flex items-center justify-between gap-4 rounded-xl border border-white/12 bg-bg/95 p-4 backdrop-blur">
         {message && (
-          <div
-            role="status"
-            aria-live="polite"
-            className={`flex items-center gap-1.5 text-sm font-medium px-2.5 py-1 rounded-md ${
-              message.type === "ok"
-                ? "text-success bg-success/10"
-                : "text-danger bg-danger/10"
-            }`}
-          >
-            {message.type === "ok" ? (
-              <Check className="w-4 h-4 shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 shrink-0" />
-            )}
-            {message.text}
+          <div role="status" aria-live="polite">
+            <Alert tone={message.type === "ok" ? "success" : "danger"}>
+              <span className="inline-flex items-center gap-1.5">
+                {message.type === "ok" ? (
+                  <Check className="h-4 w-4 shrink-0" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                )}
+                {message.text}
+              </span>
+            </Alert>
           </div>
         )}
         <div className="ml-auto">
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" variant="clayPrimary" disabled={isPending}>
             {isPending ? "Guardando…" : "Guardar cambios"}
           </Button>
         </div>
