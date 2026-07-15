@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 // `qrcode` (~30 KB) se importa dinámicamente dentro de los handlers: solo se
 // baja cuando el usuario genera/descarga un QR, no al cargar el press kit.
 import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 import {
   QrCode,
   Download,
@@ -135,21 +136,19 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
   }
 
   return (
-    <div className="border-2 border-border bg-bg-panel p-5 mb-6">
-      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-        — COMPARTIR PRESS KIT
-      </div>
+    <GlassPanel className="mb-6">
+      <MonoLabel>Compartir press kit</MonoLabel>
 
       {/* UTM picker */}
-      <div className="space-y-2">
-        <div className="text-[11px] font-mono uppercase tracking-wider text-fg-muted">
+      <div className="mt-3 space-y-2">
+        <div className="text-[11px] font-mono uppercase tracking-wider text-white/50">
           ¿Dónde vas a compartir el link? (opcional · trackeamos la fuente)
         </div>
         <div className="relative">
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="w-full md:w-auto md:min-w-[280px] flex items-center justify-between gap-3 border-2 border-border bg-cream px-3 py-2 text-sm font-mono"
+            className="w-full md:w-auto md:min-w-[280px] flex items-center justify-between gap-3 rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2 text-sm font-mono text-white/90 hover:border-white/25 transition-colors"
           >
             <span>{preset?.label ?? "Sin tag (link directo)"}</span>
             <ChevronDown
@@ -157,7 +156,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
             />
           </button>
           {open && (
-            <div className="absolute z-20 mt-1 w-full md:min-w-[320px] border-2 border-border bg-bg-panel shadow-[5px_5px_0_0_#0A0A0A] max-h-[300px] overflow-y-auto">
+            <div className="absolute z-20 mt-1 w-full md:min-w-[320px] rounded-xl border border-white/12 bg-bg-panel shadow-2xl max-h-[300px] overflow-y-auto">
               {UTM_PRESETS.map((p) => (
                 <button
                   key={p.value}
@@ -166,7 +165,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
                     setSelectedSource(p.value);
                     setOpen(false);
                   }}
-                  className={`block w-full text-left px-3 py-2 text-sm font-mono border-b border-border/10 last:border-b-0 hover:bg-orange hover:text-ink transition-colors ${
+                  className={`block w-full text-left px-3 py-2 text-sm font-mono border-b border-white/10 last:border-b-0 hover:bg-orange hover:text-ink transition-colors ${
                     selectedSource === p.value ? "bg-orange/20" : ""
                   }`}
                 >
@@ -179,7 +178,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
       </div>
 
       {/* Final URL preview */}
-      <div className="mt-3 border border-border/30 bg-cream p-3 font-mono text-[11px] break-all leading-relaxed">
+      <div className="mt-3 rounded-xl border border-white/12 bg-white/[0.04] p-3 font-mono text-[11px] break-all leading-relaxed text-white/80">
         {finalUrl}
       </div>
 
@@ -187,7 +186,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           type="button"
-          variant={copied ? "default" : "outline"}
+          variant={copied ? "clayPrimary" : "clay"}
           size="sm"
           onClick={handleCopy}
         >
@@ -205,7 +204,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
         </Button>
         <Button
           type="button"
-          variant={showQR ? "default" : "outline"}
+          variant={showQR ? "clayPrimary" : "clay"}
           size="sm"
           onClick={() => setShowQR((s) => !s)}
         >
@@ -216,25 +215,23 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
 
       {/* QR display + download */}
       {showQR && (
-        <div className="mt-5 border-2 border-dashed border-border p-5 bg-cream">
+        <div className="mt-5 rounded-2xl border border-dashed border-white/15 p-5 bg-white/[0.02]">
           <div className="flex flex-col md:flex-row md:items-start gap-5">
             <div className="flex-shrink-0 flex flex-col items-center">
               <canvas
                 ref={canvasRef}
-                className="border-2 border-border bg-cream"
+                className="rounded-xl border border-white/12"
                 width={360}
                 height={360}
                 style={{ width: 240, height: 240 }}
               />
-              <div className="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-fg-muted">
+              <div className="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-white/50">
                 DROP<span className="text-orange">.</span> · /p/{artistSlug}
               </div>
             </div>
             <div className="flex-1">
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
-                — QR PARA FLYERS · MERCH · PENDRIVES
-              </div>
-              <p className="text-sm leading-relaxed text-fg mb-4">
+              <MonoLabel>QR para flyers · merch · pendrives</MonoLabel>
+              <p className="mt-2 text-sm leading-relaxed text-white/70 mb-4">
                 Imprímelo en flyers, stickers, pendrives promo o pégalo en
                 instagram stories. El QR ya incluye el UTM seleccionado, así
                 trackeas de dónde llega cada visita.
@@ -242,7 +239,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="clay"
                   size="sm"
                   onClick={downloadPNG}
                 >
@@ -251,7 +248,7 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="clay"
                   size="sm"
                   onClick={downloadSVG}
                 >
@@ -263,6 +260,6 @@ export function ShareTools({ publicUrl, artistSlug }: ShareToolsProps) {
           </div>
         </div>
       )}
-    </div>
+    </GlassPanel>
   );
 }

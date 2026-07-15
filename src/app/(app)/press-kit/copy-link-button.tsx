@@ -26,7 +26,7 @@ export function CopyLinkButton({ url }: { url: string }) {
   }
 
   return (
-    <Button onClick={handleCopy} variant={copied ? "default" : "outline"} size="sm">
+    <Button onClick={handleCopy} variant={copied ? "clayPrimary" : "clay"} size="sm">
       {copied ? (
         <>
           <Check className="w-4 h-4" />

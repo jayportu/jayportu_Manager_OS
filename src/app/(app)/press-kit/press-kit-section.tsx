@@ -3,14 +3,12 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GlassPanel, Alert } from "@/components/hos";
 import {
   FileText,
   Upload,
   Trash2,
-  Check,
-  AlertCircle,
   ExternalLink,
   Wand2,
 } from "lucide-react";
@@ -160,137 +158,129 @@ export function PressKitSection({
   }
 
   return (
-    <Card className="p-6 space-y-5">
-      {/* Mode toggle */}
-      <div>
-        <div className="text-xs uppercase tracking-wider text-fg-muted font-semibold mb-2">
-          ¿Cómo se muestra tu press kit público?
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <ModeOption
-            active={mode === "generated"}
-            onClick={() => switchMode("generated")}
-            disabled={isPending}
-            icon={Wand2}
-            label="Generado por la app"
-            desc="La página se arma con tus datos: bio, géneros, links, tech rider."
-          />
-          <ModeOption
-            active={mode === "pdf"}
-            onClick={() => switchMode("pdf")}
-            disabled={isPending || !hasPdf}
-            icon={FileText}
-            label="PDF propio"
-            desc={
-              hasPdf
-                ? "Mostramos el PDF que subiste tal cual."
-                : "Sube un PDF primero (abajo)."
-            }
-          />
-        </div>
-      </div>
-
-      {/* Upload */}
-      <div className="pt-4 border-t border-border">
-        <div className="text-xs uppercase tracking-wider text-fg-muted font-semibold mb-2">
-          {hasPdf ? "PDF subido" : "Subir tu PDF"}
+    <GlassPanel>
+      <div className="space-y-5">
+        {/* Mode toggle */}
+        <div>
+          <div className="text-xs uppercase tracking-wider text-white/45 font-semibold mb-2">
+            ¿Cómo se muestra tu press kit público?
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <ModeOption
+              active={mode === "generated"}
+              onClick={() => switchMode("generated")}
+              disabled={isPending}
+              icon={Wand2}
+              label="Generado por la app"
+              desc="La página se arma con tus datos: bio, géneros, links, tech rider."
+            />
+            <ModeOption
+              active={mode === "pdf"}
+              onClick={() => switchMode("pdf")}
+              disabled={isPending || !hasPdf}
+              icon={FileText}
+              label="PDF propio"
+              desc={
+                hasPdf
+                  ? "Mostramos el PDF que subiste tal cual."
+                  : "Sube un PDF primero (abajo)."
+              }
+            />
+          </div>
         </div>
 
-        {hasPdf ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-bg border border-border">
-              <div className="w-10 h-10 rounded-lg bg-accent-soft border border-accent/30 flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5 text-accent" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold truncate">
-                  {pdfFilename || "press-kit.pdf"}
+        {/* Upload */}
+        <div className="pt-4 border-t border-white/10">
+          <div className="text-xs uppercase tracking-wider text-white/45 font-semibold mb-2">
+            {hasPdf ? "PDF subido" : "Subir tu PDF"}
+          </div>
+
+          {hasPdf ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                <div className="w-10 h-10 rounded-lg bg-orange/15 border border-orange/30 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-orange" />
                 </div>
-                <div className="text-[11px] text-fg-muted">
-                  {formatBytes(pdfSizeBytes)} · subido a Supabase Storage
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold truncate">
+                    {pdfFilename || "press-kit.pdf"}
+                  </div>
+                  <div className="text-[11px] text-white/50">
+                    {formatBytes(pdfSizeBytes)} · subido a Supabase Storage
+                  </div>
                 </div>
+                <a
+                  href={pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-orange hover:underline flex items-center gap-1 shrink-0"
+                >
+                  Abrir <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  onClick={chooseFile}
+                  disabled={isPending}
+                  variant="clay"
+                  size="sm"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Reemplazar PDF
+                </Button>
+                <Button
+                  onClick={removePdf}
+                  disabled={isPending}
+                  variant="clay"
+                  size="sm"
+                  className="text-danger"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Borrar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="text-xs text-white/50 mb-3">
+                Si ya tienes un press kit diseñado en PDF, súbelo. Máximo 25 MB.
+              </p>
+              <Button onClick={chooseFile} disabled={isPending} variant="clayPrimary" size="sm">
+                <Upload className="w-3.5 h-3.5" />
+                {isPending ? "Subiendo…" : "Elegir PDF"}
+              </Button>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        {publicUrl && (
+          <div className="pt-4 border-t border-white/10">
+            <p className="text-xs text-white/50">
+              Tu press kit público:{" "}
               <a
-                href={pdfUrl}
+                href={publicUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-accent hover:underline flex items-center gap-1 shrink-0"
+                className="text-orange hover:underline inline-flex items-center gap-1"
               >
-                Abrir <ExternalLink className="w-3 h-3" />
+                {publicUrl} <ExternalLink className="w-3 h-3" />
               </a>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                onClick={chooseFile}
-                disabled={isPending}
-                variant="outline"
-                size="sm"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                Reemplazar PDF
-              </Button>
-              <Button
-                onClick={removePdf}
-                disabled={isPending}
-                variant="outline"
-                size="sm"
-                className="text-danger border-danger/30 hover:bg-danger/10 hover:text-danger"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Borrar
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <p className="text-xs text-fg-muted mb-3">
-              Si ya tienes un press kit diseñado en PDF, súbelo. Máximo 25 MB.
             </p>
-            <Button onClick={chooseFile} disabled={isPending} size="sm">
-              <Upload className="w-3.5 h-3.5" />
-              {isPending ? "Subiendo…" : "Elegir PDF"}
-            </Button>
           </div>
         )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/pdf"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+        {error && <Alert tone="danger">{error}</Alert>}
+        {info && <Alert tone="success">{info}</Alert>}
       </div>
-
-      {publicUrl && (
-        <div className="pt-4 border-t border-border">
-          <p className="text-xs text-fg-muted">
-            Tu press kit público:{" "}
-            <a
-              href={publicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent hover:underline inline-flex items-center gap-1"
-            >
-              {publicUrl} <ExternalLink className="w-3 h-3" />
-            </a>
-          </p>
-        </div>
-      )}
-
-      {error && (
-        <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{error}</span>
-        </div>
-      )}
-      {info && (
-        <div className="text-sm text-success bg-success/10 border border-success/30 rounded p-3 flex items-start gap-2">
-          <Check className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{info}</span>
-        </div>
-      )}
-    </Card>
+    </GlassPanel>
   );
 }
 
@@ -314,33 +304,33 @@ function ModeOption({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex gap-3 p-3 rounded-lg border text-left transition-colors ${
+      className={`flex gap-3 p-3 rounded-xl border text-left transition-colors ${
         active
-          ? "border-accent bg-accent-soft/30"
-          : "border-border bg-bg hover:border-fg-muted"
+          ? "border-orange bg-orange/10"
+          : "border-white/10 bg-white/[0.03] hover:border-white/25"
       } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <div
         className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
           active
-            ? "bg-accent text-bg"
-            : "bg-secondary border border-border text-fg-muted"
+            ? "bg-orange text-ink"
+            : "bg-white/[0.06] border border-white/10 text-white/55"
         }`}
       >
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
         <div
-          className={`text-sm font-semibold ${active ? "text-accent" : "text-fg"}`}
+          className={`text-sm font-semibold ${active ? "text-orange" : "text-white"}`}
         >
           {label}
           {active && (
-            <span className="ml-2 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent text-bg">
+            <span className="ml-2 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange text-ink">
               activo
             </span>
           )}
         </div>
-        <div className="text-[11px] text-fg-muted mt-0.5 leading-snug">
+        <div className="text-[11px] text-white/50 mt-0.5 leading-snug">
           {desc}
         </div>
       </div>
