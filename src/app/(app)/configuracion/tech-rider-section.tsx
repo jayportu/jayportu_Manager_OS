@@ -14,7 +14,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
 import { ListPlus } from "lucide-react";
 import { saveProfileAction } from "./actions";
 import { RiderVisualPreview } from "@/components/tech-rider/preview";
@@ -84,16 +84,15 @@ export function TechRiderSection({
   }
 
   return (
-    <Card className="p-6 space-y-5">
+    <GlassPanel>
+      <div className="space-y-5">
       <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-            — TECH RIDER
-          </div>
-          <h2 className="font-display text-3xl leading-none mt-2">
+        <div className="space-y-2">
+          <MonoLabel>Tech rider</MonoLabel>
+          <h2 className="font-display text-3xl leading-none">
             Tu rider<span className="text-orange">.</span>
           </h2>
-          <p className="text-sm text-fg-muted mt-2 max-w-xl">
+          <p className="text-sm text-white/55 max-w-xl">
             Lo que necesitas en cabina. Escribe{" "}
             <strong>un equipo por línea</strong> — se muestra tal cual en tu
             press kit público, en los cuadros IDEAL y ALTERNATIVO.
@@ -102,7 +101,7 @@ export function TechRiderSection({
         {!ideal.trim() && !alt.trim() && (
           <Button
             type="button"
-            variant="outline"
+            variant="clay"
             onClick={loadExample}
             disabled={isPending}
             className="shrink-0"
@@ -141,26 +140,23 @@ export function TechRiderSection({
 
       <RiderVisualPreview idealText={ideal} artistName={artistName} />
 
-      <div className="flex items-center gap-3">
+      <div className="space-y-3">
         <Button
           type="button"
           onClick={save}
           disabled={isPending || !dirty}
-          variant="orange"
+          variant="clayPrimary"
         >
           {isPending ? "Guardando…" : "Guardar tech rider"}
         </Button>
         {message && (
-          <span
-            className={`text-sm ${
-              message.type === "ok" ? "text-success" : "text-danger"
-            }`}
-          >
+          <Alert tone={message.type === "ok" ? "success" : "danger"}>
             {message.text}
-          </span>
+          </Alert>
         )}
       </div>
-    </Card>
+      </div>
+    </GlassPanel>
   );
 }
 
@@ -181,7 +177,7 @@ function RiderField({
 }) {
   return (
     <div>
-      <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted mb-1.5 block">
+      <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/50 mb-1.5 block">
         {label}
       </label>
       <textarea
@@ -190,7 +186,7 @@ function RiderField({
         placeholder={placeholder}
         disabled={disabled}
         rows={rows}
-        className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm leading-relaxed resize-y focus:outline-none focus:border-orange disabled:opacity-50 placeholder:text-fg-subtle"
+        className={`${FIELD} resize-y leading-relaxed disabled:opacity-50`}
       />
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, Badge, Alert } from "@/components/hos";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Mail, ExternalLink } from "lucide-react";
 
@@ -30,9 +30,10 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
       : "https://dropgigs.com") + "/api/gmail/callback";
 
   return (
-    <Card className="p-6 space-y-4">
+    <GlassPanel>
+      <div className="space-y-4">
       {/* Estado en vivo */}
-      <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-border">
+      <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div
             className={`w-3 h-3 rounded-full ${
@@ -40,18 +41,29 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
                 ? "bg-success"
                 : serverConfigured
                 ? "bg-warning"
-                : "bg-fg-subtle"
+                : "bg-white/30"
             }`}
           />
           <div>
-            <div className="text-sm font-semibold">
-              {connectedEmail
-                ? `Conectado a ${connectedEmail}`
-                : serverConfigured
-                ? "Server configurado · falta conectar Google"
-                : "Server no configurado"}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-semibold text-white/85">
+                {connectedEmail
+                  ? `Conectado a ${connectedEmail}`
+                  : serverConfigured
+                  ? "Server configurado · falta conectar Google"
+                  : "Server no configurado"}
+              </span>
+              <Badge
+                tone={connectedEmail ? "up" : serverConfigured ? "warn" : "neutral"}
+              >
+                {connectedEmail
+                  ? "Conectado"
+                  : serverConfigured
+                  ? "Falta conectar"
+                  : "No configurado"}
+              </Badge>
             </div>
-            <div className="text-xs text-fg-muted mt-0.5">
+            <div className="text-xs text-white/45 mt-0.5">
               {connectedEmail
                 ? "Gmail + Calendar disponibles. Si Calendar da error, reconecta con el botón de abajo."
                 : serverConfigured
@@ -62,18 +74,18 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
         </div>
         {connectedEmail ? (
           <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="clay" size="sm">
               <a href="/api/gmail/auth">
                 <Mail className="w-4 h-4" />
                 Reconectar
               </a>
             </Button>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="clay" size="sm">
               <Link href="/gmail">Ir a Gmail</Link>
             </Button>
           </div>
         ) : serverConfigured ? (
-          <Button asChild size="sm">
+          <Button asChild variant="clayPrimary" size="sm">
             <a href="/api/gmail/auth">
               <Mail className="w-4 h-4" />
               Conectar Google
@@ -84,24 +96,23 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
 
       {/* Aviso de reconexión necesaria para Calendar */}
       {connectedEmail && (
-        <div className="text-xs bg-accent-soft border border-accent/30 rounded p-3">
-          <strong className="text-accent">💡 Calendar habilitado:</strong> Si
-          conectaste Gmail antes del Sprint 7, necesitas hacer click en{" "}
+        <Alert tone="info" title="💡 Calendar habilitado">
+          Si conectaste Gmail antes del Sprint 7, necesitas hacer click en{" "}
           <strong>Reconectar</strong> arriba para autorizar también
           Google Calendar (te va a pedir el nuevo permiso de calendario).
-        </div>
+        </Alert>
       )}
 
       {/* Instrucciones */}
       {!connectedEmail && (
         <details open={!serverConfigured}>
-          <summary className="cursor-pointer text-sm font-semibold flex items-center justify-between list-none py-2">
+          <summary className="cursor-pointer text-sm font-semibold text-white/85 flex items-center justify-between list-none py-2">
             <span>Setup Google Cloud Console</span>
-            <span className="text-fg-muted group-open:rotate-180 transition-transform">
+            <span className="text-white/45 group-open:rotate-180 transition-transform">
               ▾
             </span>
           </summary>
-          <div className="space-y-5 mt-3 pt-3 border-t border-border">
+          <div className="space-y-5 mt-3 pt-3 border-t border-white/10">
             <Step n={1} title="Crear proyecto Google Cloud">
               <p className="text-sm text-fg-muted mb-2">
                 Entra a Google Cloud Console y crea un proyecto nuevo:
@@ -234,7 +245,8 @@ export function GmailSetup({ serverConfigured, connectedEmail }: Props) {
           </div>
         </details>
       )}
-    </Card>
+      </div>
+    </GlassPanel>
   );
 }
 
@@ -269,10 +281,10 @@ function CommandLine({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <code className="flex-1 text-xs bg-bg border border-border rounded px-3 py-2 font-mono overflow-x-auto whitespace-nowrap">
+      <code className="flex-1 text-xs bg-black/40 border border-white/12 rounded-lg px-3 py-2 font-mono text-white/80 overflow-x-auto whitespace-nowrap">
         {cmd}
       </code>
-      <Button onClick={onCopy} variant="outline" size="sm">
+      <Button onClick={onCopy} variant="clay" size="sm">
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
       </Button>
     </div>

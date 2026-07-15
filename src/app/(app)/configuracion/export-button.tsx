@@ -41,7 +41,7 @@ export function ExportButton() {
   }
 
   return (
-    <Button onClick={handleExport} disabled={loading} variant="outline">
+    <Button onClick={handleExport} disabled={loading} variant="clay">
       <Download className="w-4 h-4" />
       {loading ? "Generando…" : "Exportar todo a JSON"}
     </Button>
