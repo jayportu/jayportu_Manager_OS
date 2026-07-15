@@ -28,14 +28,17 @@ export async function SiteHeader() {
     ? NAV_LINKS
     : NAV_LINKS.filter((l) => l.href !== "/eventos");
   return (
-    <header className="sticky top-0 z-50 bg-ink border-b-2 border-orange">
+    <header
+      className="sticky top-0 z-50 border-b border-white/10"
+      style={{ background: "rgba(11,11,11,0.6)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
+    >
       <div className="max-w-[1140px] mx-auto px-6 h-[62px] flex items-center gap-6">
         <Link href="/" className="text-white" style={{ fontFamily: SATOSHI, fontWeight: 900, fontSize: 28, lineHeight: 0.9, letterSpacing: "-0.02em" }}>
           DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span>
         </Link>
-        <nav className="hidden md:flex gap-6 ml-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
+        <nav className="hidden md:flex gap-1 ml-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em]">
           {navLinks.map((l) => (
-            <Link key={l.href} href={l.href} className="text-white/70 hover:text-orange transition-colors">
+            <Link key={l.href} href={l.href} className="rounded-lg px-3 py-1.5 text-white/65 hover:text-white transition-colors">
               {l.label}
             </Link>
           ))}
@@ -43,31 +46,34 @@ export async function SiteHeader() {
         <div className="flex-1" />
         {/* "Entrar" degradado a link (es para usuarios que vuelven, no
             adquisición); el CTA fuerte es "Elige tu perfil". */}
-        <Link href="/login" className="hidden md:inline font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/70 hover:text-orange transition-colors">
+        <Link href="/login" className="hidden md:inline rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white/75 hover:text-white transition-colors">
           Entrar
         </Link>
         {/* Menú móvil (sin JS): <details> como disclosure. Se cierra solo al
             navegar porque cada página re-renderiza el header. */}
         <details className="md:hidden relative">
           <summary
-            className="list-none [&::-webkit-details-marker]:hidden cursor-pointer p-1.5 -mr-1 text-white"
+            className="list-none [&::-webkit-details-marker]:hidden cursor-pointer p-1.5 -mr-1 text-white/85 hover:text-white transition-colors"
             aria-label="Abrir menú"
           >
             <Menu className="w-6 h-6" />
           </summary>
-          <div className="absolute right-0 top-[calc(100%+1px)] z-50 min-w-[190px] bg-ink border-2 border-orange flex flex-col">
+          <div
+            className="absolute right-0 top-[calc(100%+8px)] z-50 min-w-[190px] rounded-xl overflow-hidden border border-white/10 flex flex-col"
+            style={{ background: "rgba(11,11,11,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
+          >
             {navLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/80 hover:bg-orange hover:text-ink border-b border-cream/10 last:border-b-0 transition-colors"
+                className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/80 hover:bg-white/5 hover:text-orange border-b border-white/10 last:border-b-0 transition-colors"
               >
                 {l.label}
               </Link>
             ))}
             <Link
               href="/login"
-              className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/80 hover:bg-orange hover:text-ink border-t border-orange/40 transition-colors"
+              className="px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/80 hover:bg-white/5 hover:text-orange border-t border-white/10 transition-colors"
             >
               Entrar
             </Link>
@@ -90,7 +96,10 @@ export async function SiteFooter() {
     ["Cómo funciona", "/#conexion"],
   ];
   return (
-    <footer className="bg-ink text-white border-t-2 border-orange">
+    <footer
+      className="text-white border-t border-white/10"
+      style={{ background: "rgba(11,11,11,0.6)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
+    >
       <div className="max-w-[1140px] mx-auto px-6 py-14">
         <p style={{ fontFamily: ANTON, fontSize: 38, lineHeight: 0.92, maxWidth: "18ch" }}>
           Hecho por la escena, <span className="text-fg-subtle">para la escena.</span>
@@ -105,7 +114,7 @@ export async function SiteFooter() {
           <div className="flex-1" />
           <FootCol title="Síguenos" links={[["@drop.gigs", "https://instagram.com/drop.gigs"]]} />
         </div>
-        <div className="mt-10 pt-5 border-t border-[#2a2a2a] font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle flex gap-3 flex-wrap items-center">
+        <div className="mt-10 pt-5 border-t border-white/10 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40 flex gap-3 flex-wrap items-center">
           <span style={{ fontFamily: SATOSHI, fontWeight: 900, fontSize: 22, letterSpacing: "-0.02em" }}>DROP<span className="text-orange" style={{ marginLeft: "-0.06em" }}>.</span></span>
           <span>— The DJ OS · © 2026 · dropgigs.com</span>
         </div>

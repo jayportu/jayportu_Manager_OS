@@ -47,9 +47,10 @@ export function HeaderProfileMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Elegir perfil"
-        className={`inline-flex items-center gap-1.5 whitespace-nowrap px-4 py-2 border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.12em] transition-colors ${
-          open ? "bg-ink text-orange" : "bg-orange text-ink hover:bg-ink hover:text-orange"
+        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.12em] transition-colors active:translate-y-px ${
+          open ? "hos-clay-btn text-orange" : "bg-orange text-ink"
         }`}
+        style={open ? undefined : { boxShadow: "var(--hos-clay-btn)" }}
       >
         <span className="hidden sm:inline">Elige tu perfil</span>
         <span className="sm:hidden">Perfil</span>
@@ -61,7 +62,8 @@ export function HeaderProfileMenu() {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+2px)] z-50 min-w-[230px] bg-ink border-2 border-orange flex flex-col"
+          className="absolute right-0 top-[calc(100%+8px)] z-50 min-w-[230px] rounded-xl overflow-hidden border border-white/10 flex flex-col"
+          style={{ background: "rgba(11,11,11,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
         >
           {PROFILE_LINKS.map((p) => (
             <Link
@@ -69,16 +71,14 @@ export function HeaderProfileMenu() {
               href={p.href}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="group/item flex items-center justify-between gap-4 px-4 py-3 border-b border-cream/10 last:border-b-0 hover:bg-orange transition-colors"
+              className="group/item flex items-center justify-between gap-4 px-4 py-3 border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors"
             >
-              <span className="font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/85 group-hover/item:text-ink">
+              <span className="font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white/85 group-hover/item:text-white">
                 {p.label}
               </span>
               <span
                 className={`font-mono text-[9px] font-bold uppercase tracking-[0.08em] ${
-                  p.available
-                    ? "text-orange group-hover/item:text-ink"
-                    : "text-white/40 group-hover/item:text-ink/70"
+                  p.available ? "text-orange" : "text-white/40"
                 }`}
               >
                 {p.available ? "Empezar →" : "Próximamente"}
