@@ -79,13 +79,13 @@ export function FeatureTabs() {
               aria-pressed={on}
               className={`flex items-center gap-3 text-left border-l-2 px-4 py-3.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 on
-                  ? "border-l-accent bg-bg-panel text-fg"
-                  : "border-l-border text-fg-muted hover:text-fg hover:bg-bg-panel"
+                  ? "border-l-accent bg-white/[0.06] text-fg"
+                  : "border-l-border text-fg-muted hover:text-fg hover:bg-white/[0.04]"
               }`}
             >
               <span
                 className={`grid place-items-center w-[34px] h-[34px] rounded-[9px] shrink-0 transition-colors ${
-                  on ? "bg-accent-soft text-accent" : "bg-bg-subtle text-fg-subtle"
+                  on ? "bg-accent-soft text-accent" : "bg-white/[0.04] text-fg-subtle"
                 }`}
               >
                 <Icon className="w-[18px] h-[18px]" />
@@ -97,11 +97,11 @@ export function FeatureTabs() {
       </div>
 
       {/* Preview */}
-      <div className="relative overflow-hidden bg-bg-panel border border-border rounded-[16px] p-7 min-h-[300px]">
+      <div className="relative overflow-hidden hos-glass rounded-[16px] p-7 min-h-[300px]">
         <span
           aria-hidden
           className="pointer-events-none absolute -right-12 -top-12 w-60 h-60 rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(232,90,12,.13), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, rgb(var(--drop-orange) / 0.13), transparent 70%)" }}
         />
         {/* key={active} → remonta y re-dispara el fade en cada cambio */}
         <div key={active} className="relative motion-safe:animate-fpfade">

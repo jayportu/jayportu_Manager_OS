@@ -58,13 +58,13 @@ export function ProductShowcase() {
               aria-pressed={on}
               className={`flex items-center gap-3 text-left border-l-2 px-4 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 on
-                  ? "border-l-accent bg-bg-panel text-fg"
-                  : "border-l-border text-fg-muted hover:text-fg hover:bg-bg-panel"
+                  ? "border-l-accent bg-white/[0.06] text-fg"
+                  : "border-l-border text-fg-muted hover:text-fg hover:bg-white/[0.04]"
               }`}
             >
               <span
                 className={`grid place-items-center w-[32px] h-[32px] rounded-[9px] shrink-0 transition-colors ${
-                  on ? "bg-accent-soft text-accent" : "bg-bg-subtle text-fg-subtle"
+                  on ? "bg-accent-soft text-accent" : "bg-white/[0.04] text-fg-subtle"
                 }`}
               >
                 <Icon className="w-[17px] h-[17px]" />
@@ -77,9 +77,9 @@ export function ProductShowcase() {
 
       {/* Marco de navegador con la captura */}
       <div>
-        <div className="overflow-hidden rounded-[14px] border border-border bg-bg-panel shadow-2xl">
+        <div className="overflow-hidden rounded-[14px] hos-glass shadow-2xl">
           {/* barra del navegador */}
-          <div className="flex items-center gap-2 border-b border-border bg-bg-subtle px-4 py-2.5">
+          <div className="flex items-center gap-2 border-b border-border bg-white/[0.03] px-4 py-2.5">
             <span className="flex gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-danger/60" />
               <span className="w-2.5 h-2.5 rounded-full bg-warning/60" />
