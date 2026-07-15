@@ -8,10 +8,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, Alert, MonoLabel, FIELD } from "@/components/hos";
 import { TOS_VERSION } from "@/lib/legal";
 import { translateSupabaseError } from "@/lib/auth-errors";
 import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
@@ -203,8 +204,9 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
   }
 
   return (
-    <Card className="p-8">
-      <h1 className="text-xl font-semibold mb-1">
+    <GlassPanel padded={false} className="p-8">
+      <MonoLabel>{mode === "login" ? "Entrar" : "Únete"}</MonoLabel>
+      <h1 className="mt-2 font-display text-3xl leading-none mb-1">
         {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
       </h1>
       <p className="text-sm text-fg-muted mb-6">
@@ -221,7 +223,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={googleLoading || loading}
-        className="w-full inline-flex items-center justify-center gap-2.5 h-11 px-4 border-2 border-border bg-bg-panel hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 mb-4"
+        className="w-full inline-flex items-center justify-center gap-2.5 h-11 px-4 rounded-full border border-white/15 bg-white/[0.04] text-white/85 hover:bg-white/[0.08] font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 mb-4"
       >
         {/* Logo Google oficial */}
         <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
@@ -235,11 +237,11 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
 
       {/* Divider "o" */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex-1 h-px bg-ink/15" />
+        <div className="flex-1 h-px bg-white/10" />
         <span className="font-mono text-[10px] uppercase tracking-widest text-fg-subtle">
           o
         </span>
-        <div className="flex-1 h-px bg-ink/15" />
+        <div className="flex-1 h-px bg-white/10" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -254,7 +256,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
             required
             autoComplete="email"
             readOnly={!!inviteEmail}
-            className={inviteEmail ? "bg-cream/60" : undefined}
+            className={cn(FIELD, inviteEmail && "cursor-not-allowed bg-white/[0.02] text-white/60")}
           />
           {emailMismatch && (
             <div className="text-[11px] text-danger">
@@ -277,6 +279,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
             autoComplete={
               mode === "login" ? "current-password" : "new-password"
             }
+            className={FIELD}
           />
           {mode === "login" && (
             <div className="text-right">
@@ -302,6 +305,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
               required
               minLength={6}
               autoComplete="new-password"
+              className={FIELD}
             />
             {passwordMismatch && (
               <div className="text-[11px] text-danger">
@@ -311,26 +315,18 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           </div>
         )}
 
-        {error && (
-          <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
-            {error}
-          </div>
-        )}
+        {error && <Alert tone="danger">{error}</Alert>}
         {/* Si el login falla, el camino de recuperación tiene que estar donde el
             DJ está mirando (el error), no perdido arriba en 12px. */}
         {mode === "login" && error && (
           <a
             href="/auth/forgot-password"
-            className="flex items-center justify-center gap-1.5 h-10 border-2 border-accent text-accent font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-accent hover:text-bg transition-colors"
+            className="flex items-center justify-center gap-1.5 h-10 rounded-full border border-accent/50 text-accent font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-accent hover:text-ink transition-colors"
           >
             Recuperar mi contraseña →
           </a>
         )}
-        {info && (
-          <div className="text-sm text-accent bg-accent-soft border border-accent/30 rounded-md px-3 py-2">
-            {info}
-          </div>
-        )}
+        {info && <Alert tone="info">{info}</Alert>}
 
         {mode === "signup" && (
           <label className="flex items-start gap-2.5 text-[13px] text-fg-muted leading-snug cursor-pointer select-none">
@@ -374,6 +370,8 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
 
         <Button
           type="submit"
+          variant="clayPrimary"
+          size="lg"
           className="w-full"
           disabled={
             loading ||
@@ -401,7 +399,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
               ¿Primera vez?{" "}
               <button
                 type="button"
-                className="text-accent hover:underline"
+                className="text-orange hover:underline"
                 onClick={() => {
                   setMode("signup");
                   setError(null);
@@ -416,7 +414,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
               ¿Ya tienes cuenta?{" "}
               <button
                 type="button"
-                className="text-accent hover:underline"
+                className="text-orange hover:underline"
                 onClick={() => {
                   setMode("login");
                   setError(null);
@@ -432,7 +430,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
 
       {/* Sprint 23.5 — Cross-link a /beta para DJs sin cuenta aún */}
       {!inviteEmail && (
-        <div className="border-t-2 border-border/10 mt-6 pt-5 text-center">
+        <div className="border-t border-white/10 mt-6 pt-5 text-center">
           <div className="text-xs text-fg-muted mb-2">
             ¿Aún no tienes cuenta y eres DJ?
           </div>
@@ -444,6 +442,6 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
           </a>
         </div>
       )}
-    </Card>
+    </GlassPanel>
   );
 }
