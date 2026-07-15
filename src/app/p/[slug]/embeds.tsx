@@ -66,9 +66,9 @@ export function SoundcloudEmbed({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+        className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
       >
-        <span className="text-sm text-fg-muted">Ver en SoundCloud →</span>
+        <span className="text-sm text-white/70">Ver en SoundCloud →</span>
       </a>
     );
   }
@@ -78,7 +78,7 @@ export function SoundcloudEmbed({
   )}&color=%23E85A0C&inverse=true&auto_play=false&show_user=true&hide_related=true`;
 
   return (
-    <div className="rounded-lg overflow-hidden border border-border bg-bg-panel">
+    <div className="rounded-2xl overflow-hidden hos-glass">
       <iframe
         width="100%"
         height="166"
@@ -157,7 +157,7 @@ export function YoutubeEmbed({
 
   if (embedSrc) {
     return (
-      <div className="aspect-video rounded-lg overflow-hidden border border-border bg-bg-panel">
+      <div className="aspect-video rounded-2xl overflow-hidden hos-glass">
         <iframe
           width="100%"
           height="100%"
@@ -179,7 +179,7 @@ export function YoutubeEmbed({
       href={safeUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-border bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+      className="flex items-center justify-center gap-2 h-12 rounded-full bg-orange text-ink shadow-[var(--hos-clay-btn)] font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-transform active:translate-y-px hover:brightness-95"
     >
       <span aria-hidden="true">▶</span> Ver canal en YouTube
     </a>
@@ -271,7 +271,7 @@ export function SpotifyEmbed({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-border bg-orange text-ink font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+        className="flex items-center justify-center gap-2 h-12 rounded-full bg-orange text-ink shadow-[var(--hos-clay-btn)] font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-transform active:translate-y-px hover:brightness-95"
       >
         Escuchar en Spotify →
       </a>
@@ -286,7 +286,7 @@ export function SpotifyEmbed({
       src={`https://open.spotify.com/embed/${info.type}/${info.id}`}
       width="100%"
       height={height}
-      style={{ borderRadius: 12 }}
+      className="block rounded-2xl hos-glass"
       frameBorder="0"
       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
       loading="lazy"
@@ -351,9 +351,9 @@ export function MixcloudEmbed({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+        className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
       >
-        <span className="text-sm text-fg-muted">Escuchar en Mixcloud →</span>
+        <span className="text-sm text-white/70">Escuchar en Mixcloud →</span>
       </a>
     ) : null;
   }
@@ -361,7 +361,7 @@ export function MixcloudEmbed({
     feed
   )}`;
   return (
-    <div className="rounded-lg overflow-hidden border border-border bg-bg-panel">
+    <div className="rounded-2xl overflow-hidden hos-glass">
       <iframe
         width="100%"
         height="120"
@@ -402,9 +402,9 @@ export function BeatportEmbed({ url }: { url: string }) {
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+        className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
       >
-        <span className="text-sm text-fg-muted">Ver en Beatport →</span>
+        <span className="text-sm text-white/70">Ver en Beatport →</span>
       </a>
     );
   }
@@ -417,7 +417,7 @@ export function BeatportEmbed({ url }: { url: string }) {
       frameBorder="0"
       loading="lazy"
       title="Beatport player"
-      className="block rounded-lg overflow-hidden border border-border"
+      className="block rounded-2xl overflow-hidden hos-glass"
     />
   );
 }
@@ -456,9 +456,9 @@ export function SetEmbed({ url, userId }: { url: string; userId: string }) {
       href={u}
       target="_blank"
       rel="noopener noreferrer"
-      className="block p-4 rounded-lg border border-border bg-bg-panel hover:border-accent/30 transition-colors text-center"
+      className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
     >
-      <span className="text-sm text-fg-muted">Escuchar set →</span>
+      <span className="text-sm text-white/70">Escuchar set →</span>
     </a>
   );
 }

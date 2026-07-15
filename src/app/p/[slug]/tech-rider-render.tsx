@@ -25,7 +25,7 @@ export function TechRiderRender({ items, hospitalityNote }: Props) {
 
   return (
     <details className="group">
-      <summary className="cursor-pointer flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-accent font-semibold mb-2 list-none">
+      <summary className="cursor-pointer flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.3em] text-orange font-semibold mb-2 list-none">
         <span>Ver equipo detallado</span>
         <span className="text-fg-muted group-open:rotate-180 transition-transform">
           ▾
@@ -35,7 +35,7 @@ export function TechRiderRender({ items, hospitalityNote }: Props) {
         {visibleCategories.map((cat) => (
           <div
             key={cat}
-            className="p-4 rounded-lg bg-bg-panel border border-border"
+            className="p-4 rounded-2xl hos-glass"
           >
             <div className="text-xs uppercase tracking-wider text-fg-muted mb-3 font-semibold">
               {RIDER_CATEGORY_LABELS[cat]}
@@ -66,7 +66,7 @@ export function TechRiderRender({ items, hospitalityNote }: Props) {
         ))}
       </div>
       {hospitalityNote && groups.hospitality.length === 0 && (
-        <div className="mt-4 p-4 rounded-lg bg-bg-panel border border-border">
+        <div className="mt-4 p-4 rounded-2xl hos-glass">
           <div className="text-xs uppercase tracking-wider text-fg-muted mb-2 font-semibold">
             Hospitality
           </div>
