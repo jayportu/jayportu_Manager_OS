@@ -75,7 +75,7 @@ export default async function BookersLandingPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(90% 120% at 50% -10%, rgba(232,90,12,.20), transparent 55%)",
+              "radial-gradient(90% 120% at 50% -10%, rgb(var(--drop-orange) / 0.20), transparent 55%)",
           }}
         />
         <div className="relative max-w-[1140px] mx-auto px-6 pt-20 pb-16 md:pt-28 md:pb-24 text-center">
@@ -96,13 +96,13 @@ export default async function BookersLandingPage() {
           <div className="mt-8 flex flex-wrap gap-3.5 justify-center">
             <Link
               href="/signup/booker"
-              className="inline-flex items-center gap-2 h-[52px] px-7 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-colors hover:bg-[#F2742A] shadow-[0_6px_24px_-10px_rgba(232,90,12,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              className="inline-flex items-center gap-2 h-[52px] px-7 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-all hover:brightness-110 shadow-[0_6px_24px_-10px_rgb(var(--drop-orange)/0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               Crear cuenta gratis →
             </Link>
             <Link
               href="/dj"
-              className="inline-flex items-center gap-2 h-[52px] px-7 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-bg-panel text-fg border border-border transition-colors hover:border-border-strong"
+              className="inline-flex items-center gap-2 h-[52px] px-7 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] hos-glass text-fg transition-colors hover:border-border-strong"
             >
               Ver DJs
             </Link>
@@ -229,7 +229,7 @@ export default async function BookersLandingPage() {
               <details
                 key={item.q}
                 open={i === 0}
-                className="group bg-bg-panel border border-border rounded-[12px] open:border-border-strong overflow-hidden"
+                className="group hos-glass rounded-[12px] open:border-border-strong overflow-hidden"
               >
                 <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer px-5 py-[18px] font-semibold text-[16px] flex justify-between items-center gap-4">
                   <span>{item.q}</span>
@@ -250,11 +250,11 @@ export default async function BookersLandingPage() {
       <section className="pb-20 md:pb-[90px]">
         <div className="max-w-[1140px] mx-auto px-6">
           <Reveal>
-            <div className="relative overflow-hidden rounded-[24px] border border-border bg-bg-panel px-6 py-14 md:px-10 md:py-[60px] text-center">
+            <div className="relative overflow-hidden rounded-[24px] hos-glass px-6 py-14 md:px-10 md:py-[60px] text-center">
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-0"
-                style={{ background: "radial-gradient(100% 140% at 50% 0%, rgba(232,90,12,.22), transparent 60%)" }}
+                style={{ background: "radial-gradient(100% 140% at 50% 0%, rgb(var(--drop-orange) / 0.22), transparent 60%)" }}
               />
               <h2
                 className="relative z-10 text-balance"
@@ -268,7 +268,7 @@ export default async function BookersLandingPage() {
               <div className="relative z-10 flex flex-wrap gap-3.5 justify-center">
                 <Link
                   href="/signup/booker"
-                  className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-colors hover:bg-[#F2742A] shadow-[0_6px_24px_-10px_rgba(232,90,12,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-all hover:brightness-110 shadow-[0_6px_24px_-10px_rgb(var(--drop-orange)/0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 >
                   Crear cuenta gratis →
                 </Link>
@@ -296,7 +296,7 @@ function PathCard({
   steps: [string, string][];
 }) {
   return (
-    <div className="flex flex-col rounded-[16px] border border-border bg-bg-panel p-6 md:p-7">
+    <div className="flex flex-col rounded-[16px] hos-glass p-6 md:p-7">
       <div className="flex items-center gap-3">
         <span className="grid place-items-center w-11 h-11 rounded-[12px] bg-accent-soft border border-accent/30 shrink-0">
           <Icon className="w-5 h-5 text-accent" strokeWidth={1.6} aria-hidden />
@@ -363,7 +363,7 @@ const WHY: { icon: LucideIcon; title: string; desc: string }[] = [
 
 function FeatureCard({ icon: Icon, title, desc }: { icon: LucideIcon; title: string; desc: string }) {
   return (
-    <div className="rounded-[14px] border border-border bg-bg-panel p-5">
+    <div className="rounded-[14px] hos-glass p-5">
       <Icon className="w-6 h-6 text-accent" strokeWidth={1.5} aria-hidden />
       <div className="mt-3 text-[15px] font-semibold text-fg">{title}</div>
       <p className="mt-1.5 text-[13px] text-fg-muted leading-snug">{desc}</p>
@@ -437,7 +437,7 @@ function DjCard({ dj, className = "" }: { dj: PublicDjProfile; className?: strin
   return (
     <Link
       href={`/p/${dj.public_slug}`}
-      className={`group relative block aspect-[3/4] rounded-[14px] overflow-hidden border border-border bg-gradient-to-b from-bg-subtle to-bg transition-[transform,box-shadow] duration-300 hover:scale-[1.04] hover:z-10 hover:shadow-[0_24px_60px_-22px_rgba(232,90,12,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
+      className={`group relative block aspect-[3/4] rounded-[14px] overflow-hidden hos-glass transition-[transform,box-shadow] duration-300 hover:scale-[1.04] hover:z-10 hover:shadow-[0_24px_60px_-22px_rgb(var(--drop-orange)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
     >
       {cardImg ? (
         <Image
@@ -452,7 +452,7 @@ function DjCard({ dj, className = "" }: { dj: PublicDjProfile; className?: strin
         <span
           aria-hidden
           className="absolute inset-0 grid place-items-center"
-          style={{ fontFamily: ANTON, fontSize: 52, color: "#F7F7F7" }}
+          style={{ fontFamily: ANTON, fontSize: 52, color: "rgb(var(--drop-fg))" }}
         >
           {initials || "DJ"}
           <span className="text-accent">.</span>
@@ -466,7 +466,7 @@ function DjCard({ dj, className = "" }: { dj: PublicDjProfile; className?: strin
       )}
       <div
         className="absolute inset-x-0 bottom-0 z-[2] p-3.5"
-        style={{ background: "linear-gradient(transparent, rgba(8,8,8,.92))" }}
+        style={{ background: "linear-gradient(transparent, rgb(var(--drop-bg-dark) / 0.92))" }}
       >
         <div className="uppercase truncate" style={{ fontFamily: ANTON, fontSize: 22, lineHeight: 0.9 }}>
           {dj.artist_name}
