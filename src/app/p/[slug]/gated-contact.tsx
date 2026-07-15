@@ -57,8 +57,8 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
 
   if (state.status === "loading") {
     return (
-      <div className="border-2 border-border bg-bg-panel p-3.5">
-        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+      <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3.5">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-white/45">
           Cargando contacto…
         </div>
       </div>
@@ -67,25 +67,25 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
 
   if (state.status === "locked") {
     return (
-      <div className="border-2 border-border bg-bg-panel p-3.5">
+      <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3.5">
         <div className="flex items-center gap-2 mb-2">
           <Lock className="w-4 h-4 text-orange" />
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/85">
             Contacto bloqueado
           </span>
         </div>
-        <p className="text-[13px] leading-snug text-fg mb-3">
+        <p className="text-[13px] leading-snug text-white/70 mb-3">
           Debes tener cuenta como{" "}
-          <span className="font-semibold">booker</span> para ver el email y
-          WhatsApp del DJ.
+          <span className="font-semibold text-white/90">booker</span> para ver el
+          email y WhatsApp del DJ.
         </p>
         <a
           href="/signup/booker"
-          className="block text-center bg-orange text-ink border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.08em] py-2.5 hover:bg-ink hover:text-orange transition-colors"
+          className="flex w-full items-center justify-center rounded-full h-10 px-4 bg-orange text-ink shadow-[var(--hos-clay-btn)] font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-transform active:translate-y-px hover:brightness-95"
         >
           Crear cuenta de booker →
         </a>
-        <div className="text-center text-[11px] mt-2 text-fg-muted">
+        <div className="text-center text-[11px] mt-2 text-white/50">
           ¿Ya tienes cuenta?{" "}
           <a
             href="/login"
@@ -105,14 +105,14 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
     <div className="space-y-1 text-sm">
       {email && (
         <div className="flex items-baseline gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-white/45 shrink-0 w-16">
             Email
           </span>
           <TrackedLink
             href={`mailto:${email}`}
             userId={djUserId}
             event="click_email"
-            className="font-medium text-fg hover:text-orange transition-colors break-all"
+            className="font-medium text-white/85 hover:text-orange transition-colors break-all"
           >
             {email}
           </TrackedLink>
@@ -120,7 +120,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
       )}
       {whatsapp && wa && (
         <div className="flex items-baseline gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted shrink-0 w-16">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-white/45 shrink-0 w-16">
             WhatsApp
           </span>
           <TrackedLink
@@ -128,7 +128,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
             userId={djUserId}
             event="click_whatsapp"
             external
-            className="font-medium text-fg hover:text-orange transition-colors"
+            className="font-medium text-white/85 hover:text-orange transition-colors"
           >
             +{whatsapp.replace(/[^0-9]/g, "")}
           </TrackedLink>
@@ -142,7 +142,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
               userId={djUserId}
               event="click_whatsapp"
               external
-              className="inline-flex items-center justify-center h-10 px-3 bg-ink text-orange border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-orange hover:text-ink transition-colors"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-orange text-ink shadow-[var(--hos-clay-btn)] font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-transform active:translate-y-px hover:brightness-95"
             >
               WhatsApp
             </TrackedLink>
@@ -152,7 +152,7 @@ export function GatedContact({ djUserId }: { djUserId: string }) {
               href={`mailto:${email}`}
               userId={djUserId}
               event="click_email"
-              className="inline-flex items-center justify-center h-10 px-3 bg-bg-panel border-2 border-border font-mono text-[11px] font-bold uppercase tracking-[0.08em] hover:bg-ink hover:text-orange transition-colors"
+              className="hos-clay-btn inline-flex items-center justify-center h-10 px-4 rounded-full text-white/85 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-transform active:translate-y-px"
             >
               Email
             </TrackedLink>

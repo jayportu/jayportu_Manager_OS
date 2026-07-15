@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Alert, FIELD } from "@/components/hos";
+import { cn } from "@/lib/utils";
 
 interface BookingFormProps {
   userId: string;
   artistName: string;
 }
+
+const LABEL =
+  "flex items-end min-h-[30px] leading-tight font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/60";
 
 export function BookingForm({ userId, artistName }: BookingFormProps) {
   const [isPending, startTransition] = useTransition();
@@ -80,12 +82,9 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
 
   if (submitted) {
     return (
-      <div className="text-center py-6">
-        <div className="text-2xl font-display text-accent mb-2">¡Gracias!</div>
-        <p className="text-sm text-fg-muted">
-          {artistName} te va a contactar pronto.
-        </p>
-      </div>
+      <Alert tone="success" title="¡Gracias!">
+        {artistName} te va a contactar pronto.
+      </Alert>
     );
   }
 
@@ -97,90 +96,103 @@ export function BookingForm({ userId, artistName }: BookingFormProps) {
           fila quedan alineados aunque una etiqueta ocupe 2 líneas. */}
       <div className="grid md:grid-cols-2 gap-4 items-end">
         <div className="space-y-2">
-          <Label htmlFor="name" className="flex items-end min-h-[30px] leading-tight">Nombre *</Label>
-          <Input
+          <label htmlFor="name" className={LABEL}>Nombre *</label>
+          <input
             id="name"
             required
             value={form.name}
             onChange={(e) => update("name", e.target.value)}
             placeholder="Tu nombre"
+            className={FIELD}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="event_date" className="flex items-end min-h-[30px] leading-tight">Fecha (si la tienes)</Label>
+          <label htmlFor="event_date" className={LABEL}>Fecha (si la tienes)</label>
           {/* lang fija el formato del picker nativo a día-mes-año (audiencia
               LATAM); sin esto, un navegador en inglés muestra mm/dd/yyyy. */}
-          <Input
+          <input
             id="event_date"
             type="date"
             lang="es-CL"
             value={form.event_date}
             onChange={(e) => update("event_date", e.target.value)}
+            className={FIELD}
           />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 items-end">
         <div className="space-y-2">
-          <Label htmlFor="event_type" className="flex items-end min-h-[30px] leading-tight">Tipo de evento</Label>
-          <Input
+          <label htmlFor="event_type" className={LABEL}>Tipo de evento</label>
+          <input
             id="event_type"
             value={form.event_type}
             onChange={(e) => update("event_type", e.target.value)}
             placeholder="Club, rooftop, evento privado…"
+            className={FIELD}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="venue" className="flex items-end min-h-[30px] leading-tight">Venue / lugar</Label>
-          <Input
+          <label htmlFor="venue" className={LABEL}>Venue / lugar</label>
+          <input
             id="venue"
             value={form.venue}
             onChange={(e) => update("venue", e.target.value)}
             placeholder="Nombre del club o lugar"
+            className={FIELD}
           />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 items-end">
         <div className="space-y-2">
-          <Label htmlFor="email" className="flex items-end min-h-[30px] leading-tight">Email</Label>
-          <Input
+          <label htmlFor="email" className={LABEL}>Email</label>
+          <input
             id="email"
             type="email"
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
             placeholder="tu@email.com"
+            className={cn(FIELD, "font-mono")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="phone" className="flex items-end min-h-[30px] leading-tight">WhatsApp / Teléfono</Label>
-          <Input
+          <label htmlFor="phone" className={LABEL}>WhatsApp / Teléfono</label>
+          <input
             id="phone"
             value={form.phone}
             onChange={(e) => update("phone", e.target.value)}
             placeholder="+56 9 ..."
+            className={FIELD}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message">Mensaje</Label>
-        <Textarea
+        <label
+          htmlFor="message"
+          className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/60"
+        >
+          Mensaje
+        </label>
+        <textarea
           id="message"
           rows={4}
           value={form.message}
           onChange={(e) => update("message", e.target.value)}
           placeholder="Cuéntame brevemente el evento."
+          className={cn(FIELD, "resize-none")}
         />
       </div>
 
-      {error && (
-        <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded px-3 py-2">
-          {error}
-        </div>
-      )}
+      {error && <Alert tone="danger">{error}</Alert>}
 
-      <Button type="submit" disabled={isPending} className="w-full md:w-auto">
+      <Button
+        type="submit"
+        variant="clayPrimary"
+        disabled={isPending}
+        className="w-full md:w-auto"
+      >
         {isPending ? "Enviando…" : "Enviar"}
       </Button>
     </form>
