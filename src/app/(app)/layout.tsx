@@ -147,9 +147,10 @@ export default async function AppLayout({
         className="pointer-events-none fixed inset-0 z-0"
         style={{
           background:
-            "radial-gradient(75% 55% at 88% -8%, rgba(232,90,12,0.17), transparent 60%)," +
-            "radial-gradient(60% 55% at -8% 6%, rgba(232,90,12,0.13), transparent 55%)," +
-            "radial-gradient(55% 60% at 55% 118%, rgba(110,168,254,0.05), transparent 60%)",
+            "radial-gradient(70% 50% at 85% -5%, rgba(232,90,12,0.22), transparent 60%)," +
+            "radial-gradient(60% 55% at -8% 8%, rgba(232,90,12,0.16), transparent 55%)," +
+            "radial-gradient(95% 75% at 50% 28%, rgba(232,90,12,0.07), transparent 72%)," +
+            "radial-gradient(55% 60% at 55% 118%, rgba(110,168,254,0.08), transparent 60%)",
         }}
       />
       {/* Sidebar fijo (desktop) — se mantiene en su lugar, scrollea internamente si hace falta */}

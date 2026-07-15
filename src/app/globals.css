@@ -127,10 +127,10 @@
     --hos-clay-raised: 7px 7px 16px #070707, -6px -6px 13px #242424;
     --hos-clay-inset: inset 5px 5px 11px #070707, inset -5px -5px 11px #242424;
     --hos-clay-btn: inset 0 1px 0 rgba(255,255,255,.5), 5px 5px 13px #060606;
-    --hos-glass-bg: linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035));
-    --hos-glass-border: rgba(255,255,255,0.16);
-    --hos-glass-blur: 20px;
-    --hos-glass-shadow: 0 12px 44px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.20);
+    --hos-glass-bg: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.055));
+    --hos-glass-border: rgba(255,255,255,0.22);
+    --hos-glass-blur: 24px;
+    --hos-glass-shadow: 0 14px 48px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.28);
   }
 
   * {
