@@ -55,7 +55,7 @@ export function RolePicker() {
         const active = !!r.active;
         const cls = `flex flex-col rounded-[14px] border p-6 min-h-[224px] ${
           active
-            ? "bg-bg-panel border-accent transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_24px_60px_-24px_rgba(232,90,12,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            ? "hos-glass transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:border-border-strong hover:shadow-[0_24px_60px_-24px_rgb(var(--drop-orange)/0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             : "bg-bg-panel/40 border-border cursor-default select-none"
         }`;
         const inner = (

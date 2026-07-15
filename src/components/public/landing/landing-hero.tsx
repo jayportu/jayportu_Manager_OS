@@ -146,7 +146,7 @@ export function LandingHero({
           className="absolute inset-0 z-[2]"
           style={{
             background:
-              "linear-gradient(90deg,#0B0B0B 22%,rgba(11,11,11,.45) 56%,transparent 84%)",
+              "linear-gradient(90deg,rgb(var(--drop-bg)) 22%,rgb(var(--drop-bg) / 0.45) 56%,transparent 84%)",
           }}
         />
         {/* público en silueta */}
@@ -204,7 +204,7 @@ export function LandingHero({
         className="absolute inset-0 z-[1] pointer-events-none"
         style={{
           background:
-            "radial-gradient(120% 90% at 50% 0%, transparent 40%, rgba(11,11,11,.85) 100%)",
+            "radial-gradient(120% 90% at 50% 0%, transparent 40%, rgb(var(--drop-bg) / 0.85) 100%)",
         }}
       />
       {/* grano sutil */}
@@ -279,13 +279,13 @@ export function LandingHero({
         <div className="flex flex-wrap gap-3.5">
           <Link
             href="/beta"
-            className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-colors hover:bg-[#F2742A] shadow-[0_6px_24px_-10px_rgba(232,90,12,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-accent text-ink border border-accent transition-all hover:brightness-110 shadow-[0_6px_24px_-10px_rgb(var(--drop-orange)/0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             Soy DJ · Armar mi press kit →
           </Link>
           <Link
             href="/dj"
-            className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] bg-transparent text-fg border border-border-strong transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="inline-flex items-center gap-2 h-[50px] px-6 rounded-[12px] font-mono text-[12px] font-bold uppercase tracking-[0.07em] hos-glass text-fg transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             Buscar DJs
           </Link>
