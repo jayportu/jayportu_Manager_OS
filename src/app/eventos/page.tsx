@@ -37,7 +37,12 @@ export default async function EventosPage() {
       <SiteHeader />
 
       {/* HERO */}
-      <section className="border-b-2 border-border relative overflow-hidden">
+      <section className="relative overflow-hidden border-b border-white/10">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "radial-gradient(90% 60% at 15% -10%, rgba(232,90,12,0.18), transparent 60%)" }}
+        />
         <span
           aria-hidden
           className="absolute pointer-events-none select-none"
@@ -63,7 +68,10 @@ export default async function EventosPage() {
       {/* FEED */}
       <section className="max-w-[1140px] mx-auto px-6 py-14 w-full flex-1">
         {eventos.length === 0 ? (
-          <div className="border-2 border-dashed border-border/40 bg-bg-panel p-12 text-center">
+          <div
+            className="rounded-2xl border border-dashed border-white/15 p-12 text-center"
+            style={{ background: "rgba(255,255,255,.02)" }}
+          >
             <div style={{ fontFamily: ANTON, fontSize: 30 }}>
               Aún no hay eventos publicados<span className="text-orange">.</span>
             </div>
@@ -72,7 +80,7 @@ export default async function EventosPage() {
             </p>
             <Link
               href="/dj"
-              className="inline-block mt-6 px-6 py-3 bg-ink text-white border-2 border-border font-mono text-[12px] font-bold uppercase tracking-[0.12em] hover:bg-orange hover:text-ink transition-colors"
+              className="inline-block mt-6 rounded-full px-6 py-3 bg-orange text-ink font-mono text-[12px] font-bold uppercase tracking-[0.12em] transition-transform hover:-translate-y-0.5"
             >
               Buscar DJs →
             </Link>

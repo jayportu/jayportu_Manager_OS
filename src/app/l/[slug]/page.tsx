@@ -60,15 +60,23 @@ export default async function LinkInBioPublicPage({ params }: PageProps) {
     .join(" · ");
 
   return (
-    <main className="min-h-screen bg-ink text-white flex justify-center px-5 py-10">
-      <div className="w-full max-w-[420px] text-center">
+    <main className="relative min-h-screen bg-bg text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(80% 40% at 50% -5%, rgba(232,90,12,0.28), transparent 60%), radial-gradient(70% 50% at 50% 105%, rgba(232,90,12,0.10), transparent 55%)",
+        }}
+      />
+      <div className="relative z-10 mx-auto w-full max-w-[420px] px-5 py-12 text-center">
         {profile.avatar_url ? (
           <Image
             src={profile.avatar_url}
             alt={profile.artist_name}
             width={96}
             height={96}
-            className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-white"
+            className="w-24 h-24 rounded-full object-cover mx-auto border border-white/15"
           />
         ) : (
           <div
@@ -105,14 +113,23 @@ export default async function LinkInBioPublicPage({ params }: PageProps) {
         )}
 
         {/* Links activos */}
-        <div className="mt-6 flex flex-col gap-3">
-          {links.map((l) => (
+        <div className="mt-6 flex flex-col gap-2.5">
+          {links.map((l, i) => (
             <a
               key={l.id}
               href={normalizeUrl(l.url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full bg-[#1f1f1f] border border-[#333] rounded-xl px-4 py-3.5 font-semibold hover:bg-[#262626] transition-colors"
+              className={
+                i === 0
+                  ? "block w-full rounded-2xl px-4 py-4 text-center font-semibold text-ink transition-transform hover:-translate-y-0.5"
+                  : "block w-full rounded-2xl border border-white/12 px-4 py-4 text-center font-semibold text-white/85 transition-transform hover:-translate-y-0.5"
+              }
+              style={
+                i === 0
+                  ? { background: "rgb(var(--drop-orange))", boxShadow: "6px 6px 16px rgba(0,0,0,.5)" }
+                  : { background: "rgba(255,255,255,.06)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }
+              }
             >
               {l.label}
             </a>
