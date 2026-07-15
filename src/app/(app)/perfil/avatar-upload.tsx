@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { MonoLabel, Alert } from "@/components/hos";
 import { createClient } from "@/lib/supabase/client";
 import { setAvatarUrlAction, deleteAvatarAction } from "./avatar-actions";
 import { AvatarLightbox } from "@/components/avatar-lightbox";
@@ -124,20 +125,21 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
 
   return (
     <div className="space-y-2">
-      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-muted">
-        — Foto de perfil
-      </span>
+      <MonoLabel>Foto de perfil</MonoLabel>
       <div className="flex items-center gap-4">
-        {/* Preview circular (click → tamaño real) */}
+        {/* Preview circular (click → tamaño real) — superficie clay */}
         {url ? (
           <AvatarLightbox
             src={url}
             alt="Foto de perfil"
-            className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-border bg-ink"
+            className="hos-clay h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full"
             imgClassName="w-full h-full object-cover transition-transform group-hover:scale-[1.05]"
           />
         ) : (
-          <div className="w-[72px] h-[72px] shrink-0 rounded-full overflow-hidden border-2 border-border bg-ink flex items-center justify-center">
+          <div
+            className="hos-clay flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-full"
+            aria-hidden
+          >
             <span
               className="text-orange"
               style={{
@@ -155,7 +157,7 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
           <div className="flex gap-2">
             <Button
               type="button"
-              variant="outline"
+              variant="clay"
               disabled={isPending}
               onClick={() => inputRef.current?.click()}
             >
@@ -164,15 +166,16 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
             {url && (
               <Button
                 type="button"
-                variant="ghost"
+                variant="clay"
                 disabled={isPending}
                 onClick={handleRemove}
+                className="text-danger"
               >
                 Quitar
               </Button>
             )}
           </div>
-          <p className="text-xs text-fg-subtle">JPG, PNG o WebP · máx. 10 MB</p>
+          <p className="text-xs text-white/45">JPG, PNG o WebP · máx. 10 MB</p>
         </div>
 
         <input
@@ -183,7 +186,7 @@ export function AvatarUpload({ initialUrl, artistName, onChange }: AvatarUploadP
           onChange={handleFile}
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="danger">{error}</Alert>}
     </div>
   );
 }
