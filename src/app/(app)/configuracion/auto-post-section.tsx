@@ -12,10 +12,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { DjProfile } from "@/types/database";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Zap, ZapOff } from "lucide-react";
+import { GlassPanel, MonoLabel, Toggle, Alert, FIELD } from "@/components/hos";
+import { Zap } from "lucide-react";
 import { updateAutoPostAction } from "./actions";
 
 interface Props {
@@ -94,74 +93,57 @@ export function AutoPostSection({ profile }: Props) {
   }
 
   return (
-    <Card className="p-6 space-y-5">
-      <div>
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-          — AUTOMATIZACIÓN · POST-SHOW
+    <GlassPanel>
+      <div className="space-y-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <MonoLabel>Automatización · post-show</MonoLabel>
+          <h2 className="font-display text-3xl leading-none mt-2">
+            Auto-post<span className="text-orange">.</span>
+          </h2>
+          <p className="text-sm text-white/55 mt-2 max-w-xl">
+            Cuando guardes una tracklist, DROP hace POST a tu webhook
+            (Zapier/Make/n8n) con la data del set en JSON. Tu Zap decide qué
+            hacer: subir a SoundCloud, postear en X, mandar mail al venue, etc.
+          </p>
         </div>
-        <h2 className="font-display text-3xl leading-none mt-2">
-          Auto-post<span className="text-orange">.</span>
-        </h2>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
-          Cuando guardes una tracklist, DROP hace POST a tu webhook
-          (Zapier/Make/n8n) con la data del set en JSON. Tu Zap decide qué
-          hacer: subir a SoundCloud, postear en X, mandar mail al venue, etc.
-        </p>
+        <Zap className="w-4 h-4 text-orange shrink-0 mt-1" aria-hidden />
       </div>
 
       {/* Toggle */}
-      <div className="border-2 border-border p-4 flex items-start gap-3">
-        <div className="shrink-0">
-          {enabled ? (
-            <Zap className="w-5 h-5 text-orange" />
-          ) : (
-            <ZapOff className="w-5 h-5 text-fg-muted" />
-          )}
-        </div>
-        <div className="flex-1">
-          <div className="font-mono text-[11px] font-bold uppercase tracking-wider">
-            {enabled ? "Auto-post ACTIVO" : "Auto-post desactivado"}
-          </div>
-          <p className="text-xs text-fg-muted mt-1">
-            {enabled
+      <div className="rounded-xl border border-white/12 bg-white/[0.04] p-4">
+        <Toggle
+          checked={enabled}
+          onChange={setEnabled}
+          label={enabled ? "Auto-post activo" : "Auto-post desactivado"}
+          sub={
+            enabled
               ? "Al guardar una tracklist, DROP envía el POST al webhook."
-              : "Las tracklists se guardan sin enviar a ningún lado."}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setEnabled(!enabled)}
-          className={`shrink-0 w-14 h-7 border-2 border-border relative transition-colors ${
-            enabled ? "bg-orange" : "bg-cream"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 w-5 h-5 bg-ink transition-all ${
-              enabled ? "left-7" : "left-0.5"
-            }`}
-          />
-        </button>
+              : "Las tracklists se guardan sin enviar a ningún lado."
+          }
+        />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="webhook-url">Webhook URL (Zapier/Make/n8n)</Label>
-        <Input
+        <input
           id="webhook-url"
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://hooks.zapier.com/hooks/catch/..."
+          className={FIELD}
         />
-        <div className="text-[10px] text-fg-subtle">
+        <div className="text-[10px] text-white/40">
           Soportamos cualquier endpoint HTTPS que acepte POST con JSON.
         </div>
       </div>
 
       {/* Test webhook */}
-      <div className="border-2 border-border/20 bg-cream p-3 flex items-center gap-3">
+      <div className="rounded-xl border border-white/12 bg-white/[0.04] p-3 flex items-center gap-3">
         <Button
           type="button"
-          variant="outline"
+          variant="clay"
           onClick={handleTest}
           disabled={!url.trim() || testing}
           className="shrink-0"
@@ -178,17 +160,17 @@ export function AutoPostSection({ profile }: Props) {
           </div>
         )}
         {!testResult && (
-          <div className="text-[10px] text-fg-subtle">
+          <div className="text-[10px] text-white/40">
             Envía un payload de muestra. Confirma que tu Zap recibe la data.
           </div>
         )}
       </div>
 
-      <details className="text-xs text-fg-muted">
+      <details className="text-xs text-white/55">
         <summary className="cursor-pointer font-mono uppercase tracking-wider text-[10px]">
           Ver payload JSON que recibe el webhook
         </summary>
-        <pre className="mt-2 p-3 bg-ink text-white text-[10px] overflow-auto font-mono">{`{
+        <pre className="mt-2 p-3 rounded-xl border border-white/12 bg-black/40 text-white/80 text-[10px] overflow-auto font-mono">{`{
   "event": "tracklist.saved",
   "dj": { "artist_name": "...", "city": "..." },
   "tracklist": {
@@ -210,20 +192,17 @@ export function AutoPostSection({ profile }: Props) {
       </details>
 
       {message && (
-        <div
-          className={`text-sm ${
-            message.type === "ok" ? "text-success" : "text-danger"
-          }`}
-        >
+        <Alert tone={message.type === "ok" ? "success" : "danger"}>
           {message.text}
-        </div>
+        </Alert>
       )}
 
-      <div className="flex justify-end gap-2 pt-2 border-t-2 border-border">
-        <Button onClick={handleSave} disabled={isPending} variant="orange">
+      <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+        <Button onClick={handleSave} disabled={isPending} variant="clayPrimary">
           {isPending ? "Guardando…" : "Guardar"}
         </Button>
       </div>
-    </Card>
+      </div>
+    </GlassPanel>
   );
 }

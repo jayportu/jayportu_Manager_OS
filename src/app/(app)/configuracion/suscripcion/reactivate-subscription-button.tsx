@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { reactivateSubscriptionAction } from "@/app/suscripcion/actions";
+import { Button } from "@/components/ui/button";
 
 export function ReactivateSubscriptionButton() {
   const router = useRouter();
@@ -18,13 +19,13 @@ export function ReactivateSubscriptionButton() {
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="clay"
       onClick={handleClick}
       disabled={isPending}
-      className="inline-flex items-center gap-2 h-10 px-4 bg-cream text-fg border-2 border-border hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors disabled:opacity-50"
     >
       {isPending ? "Reactivando…" : "Reactivar"}
-    </button>
+    </Button>
   );
 }

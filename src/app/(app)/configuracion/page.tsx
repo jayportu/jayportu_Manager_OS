@@ -2,6 +2,7 @@ import { getMyProfile } from "@/lib/queries/dj-profile";
 import { getMyGmailConnection } from "@/lib/queries/gmail";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { SectionHero, MonoLabel } from "@/components/hos";
 import { ExportButton } from "./export-button";
 import { GmailSetup } from "./gmail-setup";
 import { PushSetup } from "./push-setup";
@@ -18,44 +19,35 @@ export default async function ConfiguracionPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Configuración
-        </h1>
-        <p className="text-sm text-fg-muted mt-1">
-          Ajustes de la app e integraciones. Tu identidad como DJ ahora vive en{" "}
-          <Link href="/perfil" className="text-accent underline underline-offset-2">
-            Perfil
-          </Link>
-          .
-        </p>
-      </div>
+      <SectionHero kicker="Sistema · Configuración" title="Configuración" />
+      <p className="mb-8 text-sm text-white/55">
+        Ajustes de la app e integraciones. Tu identidad como DJ ahora vive en{" "}
+        <Link
+          href="/perfil"
+          className="text-orange underline underline-offset-2 hover:no-underline"
+        >
+          Perfil
+        </Link>
+        .
+      </p>
 
       {/* S19 — Link a gestión de suscripción (oculto para legacy beta users) */}
       {!["active", "expired"].includes(profile?.beta_status ?? "") && (
         <Link
           href="/configuracion/suscripcion"
-          className="block mb-8 p-5 border-2 border-border bg-bg-panel hover:bg-cream/40 transition-colors group"
+          className="group mb-8 block overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] p-5 transition-colors hover:bg-white/[0.06]"
         >
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
-                — SUSCRIPCIÓN
-              </div>
-              <div
-                className="leading-none"
-                style={{
-                  fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-                  fontSize: "26px",
-                }}
-              >
+              <MonoLabel>Suscripción</MonoLabel>
+              <div className="mt-1.5 font-display text-2xl leading-none">
                 Mi suscripción<span className="text-orange">.</span>
               </div>
-              <p className="text-xs text-fg-muted mt-1">
+              <p className="text-xs text-white/45 mt-1">
                 Estado, próximo cobro, historial y cancelación.
               </p>
             </div>
-            <span className="font-mono text-[11px] uppercase tracking-wider text-fg-muted group-hover:text-orange transition-colors">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-white/45 group-hover:text-orange transition-colors">
               Ver →
             </span>
           </div>
@@ -76,12 +68,14 @@ export default async function ConfiguracionPage() {
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Correo</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Conecta tu cuenta de Google para enviar correos a tus contactos del
-          CRM y sincronizar tu calendario. DROP. no lee tu bandeja. Setup
-          gratis con Google Cloud Console.
-        </p>
+        <div className="mb-4 space-y-2">
+          <MonoLabel>Correo</MonoLabel>
+          <p className="text-sm text-white/55">
+            Conecta tu cuenta de Google para enviar correos a tus contactos del
+            CRM y sincronizar tu calendario. DROP. no lee tu bandeja. Setup
+            gratis con Google Cloud Console.
+          </p>
+        </div>
         <GmailSetup
           serverConfigured={gmailConfigured}
           connectedEmail={gmailConnection?.google_email || null}
@@ -89,30 +83,36 @@ export default async function ConfiguracionPage() {
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Notificaciones push</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Recibe avisos en este dispositivo cuando tienes follow-ups
-          vencidos, cuando crece tu audiencia o como recordatorio
-          semanal de snapshot.
-        </p>
+        <div className="mb-4 space-y-2">
+          <MonoLabel>Notificaciones push</MonoLabel>
+          <p className="text-sm text-white/55">
+            Recibe avisos en este dispositivo cuando tienes follow-ups
+            vencidos, cuando crece tu audiencia o como recordatorio
+            semanal de snapshot.
+          </p>
+        </div>
         <PushSetup />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Contraseña</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Cambia tu contraseña cuando quieras. Si entraste con Google, acá
-          puedes fijar una contraseña propia para entrar también sin Google.
-        </p>
+        <div className="mb-4 space-y-2">
+          <MonoLabel>Contraseña</MonoLabel>
+          <p className="text-sm text-white/55">
+            Cambia tu contraseña cuando quieras. Si entraste con Google, acá
+            puedes fijar una contraseña propia para entrar también sin Google.
+          </p>
+        </div>
         <ChangePasswordSection />
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <h2 className="text-lg font-semibold mb-2">Respaldo de datos</h2>
-        <p className="text-sm text-fg-muted mb-4">
-          Descarga todos tus datos en un solo archivo JSON. Recomendado:
-          guárdalo cada cierto tiempo en iCloud o disco externo.
-        </p>
+        <div className="mb-4 space-y-2">
+          <MonoLabel>Respaldo de datos</MonoLabel>
+          <p className="text-sm text-white/55">
+            Descarga todos tus datos en un solo archivo JSON. Recomendado:
+            guárdalo cada cierto tiempo en iCloud o disco externo.
+          </p>
+        </div>
         <ExportButton />
       </div>
     </div>
