@@ -78,7 +78,7 @@ export function FacetDirectory({
         </div>
 
         {djs.length === 0 ? (
-          <div className="border-2 border-border bg-bg-panel p-10 text-center mt-6">
+          <div className="hos-glass rounded-2xl p-10 text-center mt-6">
             <p className="text-sm text-fg-muted">
               Todavía no hay DJs en esta categoría. Mira{" "}
               <Link href="/dj" className="text-orange underline">
@@ -96,7 +96,7 @@ export function FacetDirectory({
         )}
 
         {related.length > 0 && (
-          <div className="mt-12 border-t-2 border-border pt-5">
+          <div className="mt-12 border-t border-white/10 pt-5">
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
               {relatedLabel}
             </div>
@@ -105,7 +105,7 @@ export function FacetDirectory({
                 <Link
                   key={r.href}
                   href={r.href}
-                  className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1 border border-border bg-cream hover:bg-orange hover:text-ink transition-colors"
+                  className="rounded-full font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-white/12 bg-white/[0.04] text-white/70 hover:border-orange hover:text-orange transition-colors"
                 >
                   {r.label}
                 </Link>
@@ -132,7 +132,7 @@ function FacetCard({ dj }: { dj: PublicDjProfile }) {
   return (
     <Link
       href={`/p/${dj.public_slug}`}
-      className="group border-2 border-border bg-bg-panel flex flex-col hover:shadow-[8px_8px_0_#E85A0C] transition-all hover:-translate-x-1 hover:-translate-y-1"
+      className="group hos-glass rounded-2xl overflow-hidden flex flex-col hover:shadow-[8px_8px_0_rgb(var(--drop-orange))] transition-all hover:-translate-x-1 hover:-translate-y-1"
     >
       <div className="bg-ink aspect-square flex items-center justify-center relative overflow-hidden">
         {cardImg ? (
@@ -145,18 +145,18 @@ function FacetCard({ dj }: { dj: PublicDjProfile }) {
             quality={85}
           />
         ) : (
-          <span style={{ fontFamily: ANTON, fontSize: "64px", color: "#F4EFE7", lineHeight: 0.85 }}>
+          <span style={{ fontFamily: ANTON, fontSize: "64px", color: "rgb(var(--drop-fg))", lineHeight: 0.85 }}>
             {initials || "DJ"}
-            <span style={{ color: "#E85A0C" }}>.</span>
+            <span style={{ color: "rgb(var(--drop-orange))" }}>.</span>
           </span>
         )}
         {dj.is_available_now && (
-          <span className="absolute top-2 right-2 bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border border-border">
+          <span className="absolute top-2 right-2 rounded-full bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
             ★ DISPONIBLE
           </span>
         )}
       </div>
-      <div className="p-3 border-t-2 border-border flex flex-col gap-1.5">
+      <div className="p-3 border-t border-white/10 flex flex-col gap-1.5">
         <div style={{ fontFamily: ANTON, fontSize: "18px", lineHeight: 0.95, textTransform: "uppercase" }}>
           {dj.artist_name}
         </div>
@@ -169,7 +169,7 @@ function FacetCard({ dj }: { dj: PublicDjProfile }) {
             {dj.genres.slice(0, 3).map((g) => (
               <span
                 key={g}
-                className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-cream"
+                className="rounded-full font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border border-white/12 bg-white/[0.04] text-white/70"
               >
                 {g}
               </span>

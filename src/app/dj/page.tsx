@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries/directory";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { SiteHeader, SiteFooter } from "@/components/public/site-chrome";
+import { FIELD, SELECT } from "@/components/hos";
 import { getInitials, isSupabaseStorageUrl } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -110,7 +111,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
 
       <main className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Hero */}
-        <div className="border-2 border-border bg-bg-panel p-6 md:p-8 mb-6 relative overflow-hidden">
+        <div className="hos-glass rounded-2xl p-6 md:p-8 mb-6 relative overflow-hidden">
           <span
             aria-hidden="true"
             className="absolute pointer-events-none select-none hidden md:inline"
@@ -147,7 +148,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
             </p>
             {availableCount > 0 && (
               <div
-                className="mt-4 inline-flex items-center gap-2 border-2 border-border bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider"
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider"
                 title="DJs con disponibilidad abierta para tocar en estas fechas. Usa el filtro «Solo disponibles» para verlos."
               >
                 ★ {availableCount}{" "}
@@ -161,7 +162,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
         <form
           action="/dj"
           method="get"
-          className="border-2 border-border bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
+          className="hos-glass rounded-2xl p-4 md:p-5 mb-6 space-y-4"
         >
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
             — FILTROS
@@ -174,13 +175,13 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
               aria-label="Buscar DJs por nombre, ciudad o tagline"
               placeholder="🔎  Buscar por nombre, ciudad, tagline..."
               defaultValue={sp.q ?? ""}
-              className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+              className={FIELD}
             />
             <select
               name="city"
               aria-label="Filtrar por ciudad"
               defaultValue={sp.city ?? ""}
-              className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+              className={SELECT}
             >
               <option value="">Ciudad: todas</option>
               {allCities.map((c) => (
@@ -193,14 +194,14 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
               name="avail"
               aria-label="Filtrar por disponibilidad"
               defaultValue={sp.avail ?? ""}
-              className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
+              className={SELECT}
             >
               <option value="">Todos</option>
               <option value="1">Solo disponibles</option>
             </select>
             <button
               type="submit"
-              className="border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
+              className="rounded-xl bg-orange text-ink hover:brightness-110 transition-all px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
             >
               FILTRAR
             </button>
@@ -228,8 +229,10 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
                             ? newGenres.join(",")
                             : undefined,
                       })}
-                      className={`inline-flex items-center gap-1.5 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
-                        active ? "bg-orange text-ink" : "bg-cream hover:bg-orange"
+                      className={`inline-flex items-center gap-1.5 rounded-full border border-white/12 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2.5 py-1 transition-colors ${
+                        active
+                          ? "bg-orange text-ink"
+                          : "bg-white/[0.04] text-white/70 hover:border-orange hover:text-orange"
                       }`}
                     >
                       {g.genre.toUpperCase()}
@@ -259,7 +262,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
           <section className="mb-8">
             <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3 flex items-center gap-2">
               <span>★ DROP PICKS</span>
-              <span className="flex-1 h-px bg-ink/20" />
+              <span className="flex-1 h-px bg-white/10" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {dropPicks.map((d) => (
@@ -275,7 +278,7 @@ export default async function DjDirectoryPage({ searchParams }: PageProps) {
         </div>
 
         {gridDjs.length === 0 ? (
-          <div className="border-2 border-border bg-bg-panel p-10 text-center">
+          <div className="hos-glass rounded-2xl p-10 text-center">
             <p className="text-sm text-fg-muted">
               No hay DJs que coincidan con los filtros. Intenta con menos
               filtros o busca otra ciudad.
@@ -342,7 +345,7 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
 
   return (
-    <div className="group relative border-2 border-border bg-bg-panel flex flex-col hover:shadow-[8px_8px_0_#E85A0C] transition-all hover:-translate-x-1 hover:-translate-y-1">
+    <div className="group relative hos-glass rounded-2xl overflow-hidden flex flex-col hover:shadow-[8px_8px_0_rgb(var(--drop-orange))] transition-all hover:-translate-x-1 hover:-translate-y-1">
       {/* Botón corazón FUERA del <Link> del card: un <button> dentro de un
           <a> es HTML inválido. Se posiciona sobre la esquina del card. */}
       <div className="absolute top-2 left-2 z-10">
@@ -373,21 +376,21 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             style={{
               fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
               fontSize: "72px",
-              color: "#F4EFE7",
+              color: "rgb(var(--drop-fg))",
               lineHeight: 0.85,
             }}
           >
             {initials || "DJ"}
-            <span style={{ color: "#E85A0C" }}>.</span>
+            <span style={{ color: "rgb(var(--drop-orange))" }}>.</span>
           </span>
         )}
         {dj.is_available_now && (
-          <span className="absolute top-2 right-2 bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border border-border">
+          <span className="absolute top-2 right-2 rounded-full bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
             ★ DISPONIBLE
           </span>
         )}
       </div>
-      <div className="p-3 border-t-2 border-border flex flex-col gap-1.5">
+      <div className="p-3 border-t border-white/10 flex flex-col gap-1.5">
         <div
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
@@ -400,14 +403,14 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
           {dj.artist_name}
         </div>
         {dj.is_drop_pick && (
-          <span className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-orange text-ink">
+          <span className="inline-flex items-center gap-1 self-start rounded-full font-mono text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink">
             ★ Pick
           </span>
         )}
         {dj.is_verified && (
           <span
             title="Identidad e Instagram revisados por DROP."
-            className="inline-flex items-center gap-1 self-start font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-ink text-orange cursor-help"
+            className="inline-flex items-center gap-1 self-start rounded-full font-mono text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 border border-white/12 bg-white/[0.06] text-orange cursor-help"
           >
             ✓ Verificado
           </span>
@@ -428,7 +431,7 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
             <Link
               key={g}
               href={`/dj?genres=${encodeURIComponent(g.toLowerCase())}`}
-              className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-1 border border-border bg-cream hover:bg-orange hover:text-ink transition-colors"
+              className="rounded-full font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-white/12 bg-white/[0.04] text-white/70 hover:border-orange hover:text-orange transition-colors"
             >
               {g}
             </Link>
