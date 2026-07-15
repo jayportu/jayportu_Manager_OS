@@ -11,6 +11,9 @@ import {
   List as ListIcon,
   ChevronLeft,
   ChevronRight,
+  CalendarDays,
+  AtSign,
+  CheckSquare,
 } from "lucide-react";
 import type {
   Task,
@@ -25,6 +28,18 @@ import {
   deleteTaskAction,
   type TaskFormValues,
 } from "./actions";
+import {
+  GlassPanel,
+  MonoLabel,
+  Badge,
+  Alert,
+  EmptyState,
+  ClayChipButton,
+  FIELD,
+  SELECT,
+} from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -59,29 +74,33 @@ function toDateInput(due: string | null): string {
 function TaskChips({ task }: { task: Task }) {
   const over = isOverdue(task.due_at) && task.status !== "hecho";
   return (
-    <div className="flex flex-wrap items-center gap-1.5 mt-1">
-      <span
-        className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 border ${
+    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+      <Badge
+        tone={
           task.priority === "alta"
-            ? "bg-accent text-white border-accent"
-            : "text-fg-muted border-border"
-        } ${task.priority === "baja" ? "opacity-60" : ""}`}
+            ? "down"
+            : task.priority === "baja"
+              ? "neutral"
+              : "info"
+        }
+        solid={task.priority === "alta"}
       >
         {task.priority}
-      </span>
+      </Badge>
       {task.due_at && (
         <span
-          className={`text-[10px] font-mono ${
-            over ? "text-danger font-bold" : "text-fg-muted"
-          }`}
+          className={cn(
+            "inline-flex items-center gap-1 font-mono text-[10px]",
+            over ? "font-bold text-[rgb(var(--drop-danger))]" : "text-white/45"
+          )}
         >
-          🗓 {fmtDate(task.due_at)}
+          <CalendarDays width={11} height={11} aria-hidden /> {fmtDate(task.due_at)}
           {over ? " · vencida" : ""}
         </span>
       )}
       {task.contact_name && (
-        <span className="text-[10px] font-mono text-accent border border-border px-1.5 py-0.5">
-          @ {task.contact_name}
+        <span className="inline-flex items-center gap-1 rounded-full border border-white/12 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-[rgb(var(--drop-orange))]">
+          <AtSign width={10} height={10} aria-hidden /> {task.contact_name}
         </span>
       )}
     </div>
@@ -169,177 +188,207 @@ export function TasksView({
   return (
     <div>
       {/* Toggle de vista */}
-      <div className="flex items-center gap-2 mb-4">
-        <button
-          type="button"
+      <div className="mb-4 flex items-center gap-2">
+        <ClayChipButton
+          icon={ListIcon}
+          active={view === "list"}
           onClick={() => setView("list")}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 border-2 text-[11px] font-mono uppercase tracking-wider ${
-            view === "list"
-              ? "bg-accent text-white border-accent"
-              : "border-border text-fg-muted"
-          }`}
         >
-          <ListIcon className="w-3.5 h-3.5" /> Lista
-        </button>
-        <button
-          type="button"
+          Lista
+        </ClayChipButton>
+        <ClayChipButton
+          icon={LayoutGrid}
+          active={view === "kanban"}
           onClick={() => setView("kanban")}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 border-2 text-[11px] font-mono uppercase tracking-wider ${
-            view === "kanban"
-              ? "bg-accent text-white border-accent"
-              : "border-border text-fg-muted"
-          }`}
         >
-          <LayoutGrid className="w-3.5 h-3.5" /> Kanban
-        </button>
+          Kanban
+        </ClayChipButton>
       </div>
 
-      {/* Alta rápida */}
-      <div className="mb-4 border-2 border-border p-3 flex flex-col sm:flex-row gap-2 sm:items-end">
+      {/* Alta rápida — superficie sólida */}
+      <div
+        className="mb-5 flex flex-col gap-2 rounded-2xl border border-white/10 p-3 sm:flex-row sm:items-end"
+        style={{ background: "rgba(255,255,255,.03)" }}
+      >
         <div className="flex-1">
-          <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+          <label
+            htmlFor="new-task-title"
+            className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+          >
             Nueva tarea
           </label>
           <input
+            id="new-task-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") addTask();
             }}
             placeholder="Ej. Enviar rider a Club X"
-            className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className={FIELD}
           />
         </div>
         <select
+          aria-label="Prioridad"
           value={priority}
           onChange={(e) => setPriority(e.target.value as TaskPriority)}
-          className="border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
+          className={cn(SELECT, "sm:w-28")}
         >
           {PRIORITIES.map((p) => (
-            <option key={p.id} value={p.id}>
+            <option key={p.id} value={p.id} className="bg-bg-panel">
               {p.label}
             </option>
           ))}
         </select>
         <input
+          aria-label="Fecha límite"
           type="date"
           value={due}
           onChange={(e) => setDue(e.target.value)}
-          className="border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
+          className={cn(FIELD, "sm:w-40")}
         />
         <select
+          aria-label="Contacto"
           value={contactId}
           onChange={(e) => setContactId(e.target.value)}
-          className="border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent max-w-[160px]"
+          className={cn(SELECT, "sm:w-44")}
         >
-          <option value="">Sin contacto</option>
+          <option value="" className="bg-bg-panel">
+            Sin contacto
+          </option>
           {contacts.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.id} value={c.id} className="bg-bg-panel">
               {c.name}
             </option>
           ))}
         </select>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={addTask}
-          className="px-4 py-2 bg-accent text-white font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 inline-flex items-center gap-1 justify-center"
-        >
-          <Plus className="w-3.5 h-3.5" /> Agregar
-        </button>
+        <Button variant="clayPrimary" disabled={pending} onClick={addTask}>
+          <Plus /> Agregar
+        </Button>
       </div>
 
-      {err && <div className="text-xs text-danger mb-3">{err}</div>}
+      {err && (
+        <div className="mb-4">
+          <Alert tone="danger">{err}</Alert>
+        </div>
+      )}
 
       {initialTasks.length === 0 ? (
-        <p className="text-sm text-fg-muted border-2 border-dashed border-border p-6 text-center">
-          Aún no tienes tareas. Crea la primera arriba.
-        </p>
+        <EmptyState
+          icon={CheckSquare}
+          title="Sin tareas aún"
+          sub="Crea la primera arriba: un pendiente, con prioridad, fecha y contacto."
+        />
       ) : view === "list" ? (
-        <div className="flex flex-col gap-2">
-          {listOrder.map((t) => (
-            <div
-              key={t.id}
-              className={`flex items-center gap-3 border-2 border-border p-2.5 ${
-                t.status === "hecho" ? "opacity-50" : ""
-              }`}
-            >
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => toggleDone(t)}
-                aria-label="Completar"
-                className={`w-5 h-5 shrink-0 border-2 flex items-center justify-center text-xs font-bold ${
-                  t.status === "hecho"
-                    ? "bg-accent text-white border-accent"
-                    : "border-border"
-                }`}
+        <GlassPanel>
+          <div className="mb-3 flex items-center justify-between">
+            <MonoLabel>Pendientes</MonoLabel>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
+              {initialTasks.filter((t) => t.status !== "hecho").length} abiertas ·{" "}
+              {initialTasks.length} total
+            </span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {listOrder.map((t) => (
+              <div
+                key={t.id}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl border border-white/10 p-3 transition-opacity",
+                  t.status === "hecho" && "opacity-50"
+                )}
+                style={{ background: "rgba(255,255,255,.03)" }}
               >
-                {t.status === "hecho" ? "✓" : ""}
-              </button>
-              <div className="flex-1 min-w-0">
-                <div
-                  className={`text-sm font-semibold ${
-                    t.status === "hecho" ? "line-through" : ""
-                  }`}
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => toggleDone(t)}
+                  aria-label="Completar"
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[11px] font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:rgb(var(--drop-orange))] disabled:opacity-50"
+                  style={
+                    t.status === "hecho"
+                      ? {
+                          background: "rgb(var(--drop-orange))",
+                          borderColor: "rgb(var(--drop-orange))",
+                          color: "#0B0B0B",
+                        }
+                      : { borderColor: "rgba(255,255,255,.25)" }
+                  }
                 >
-                  {t.title}
+                  {t.status === "hecho" ? "✓" : ""}
+                </button>
+                <div className="min-w-0 flex-1">
+                  <div
+                    className={cn(
+                      "truncate text-sm font-semibold",
+                      t.status === "hecho" && "line-through"
+                    )}
+                  >
+                    {t.title}
+                  </div>
+                  <TaskChips task={t} />
                 </div>
-                <TaskChips task={t} />
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => setEditing(t)}
+                  className="shrink-0 text-white/40 hover:text-[rgb(var(--drop-orange))]"
+                  title="Editar"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => removeTask(t)}
+                  className="shrink-0 text-white/40 hover:text-[rgb(var(--drop-danger))]"
+                  title="Eliminar"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => setEditing(t)}
-                className="shrink-0 text-fg-muted hover:text-accent"
-                title="Editar"
-              >
-                <Pencil className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => removeTask(t)}
-                className="shrink-0 text-danger hover:opacity-80"
-                title="Eliminar"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </GlassPanel>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {COLUMNS.map((col, ci) => {
             const items = initialTasks.filter((t) => t.status === col.id);
             return (
-              <div key={col.id} className="border-2 border-border flex flex-col">
-                <div className="flex items-center justify-between px-3 py-2 bg-fg text-bg-panel">
-                  <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
+              <div
+                key={col.id}
+                className="flex flex-col overflow-hidden rounded-2xl border border-white/10"
+                style={{ background: "rgba(255,255,255,.02)" }}
+              >
+                <div className="flex items-center justify-between border-b border-white/10 px-3 py-2.5">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">
                     {col.label}
                   </span>
-                  <span className="text-[9px] font-mono bg-accent text-white rounded-full px-2">
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[9px] text-white/60">
                     {items.length}
                   </span>
                 </div>
-                <div className="p-2 flex flex-col gap-2 flex-1 min-h-[80px]">
+                <div className="flex min-h-[90px] flex-1 flex-col gap-2 p-2.5">
                   {items.length === 0 && (
-                    <div className="text-[10px] font-mono text-fg-muted p-2">
+                    <div className="p-2 font-mono text-[10px] uppercase tracking-wider text-white/25">
                       — vacío —
                     </div>
                   )}
                   {items.map((t) => (
-                    <div key={t.id} className="border-2 border-border bg-bg-panel p-2">
+                    <div
+                      key={t.id}
+                      className="rounded-xl border border-white/10 p-2.5"
+                      style={{ background: "rgba(255,255,255,.04)" }}
+                    >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="text-sm font-semibold leading-tight">
+                        <div className="text-[13px] font-semibold leading-tight">
                           {t.title}
                         </div>
-                        <div className="flex gap-1 shrink-0">
+                        <div className="flex shrink-0 gap-1">
                           <button
                             type="button"
                             disabled={pending}
                             onClick={() => setEditing(t)}
-                            className="text-fg-muted hover:text-accent"
+                            className="text-white/40 hover:text-[rgb(var(--drop-orange))]"
                             title="Editar"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -348,7 +397,7 @@ export function TasksView({
                             type="button"
                             disabled={pending}
                             onClick={() => removeTask(t)}
-                            className="text-danger hover:opacity-80"
+                            className="text-white/40 hover:text-[rgb(var(--drop-danger))]"
                             title="Eliminar"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -356,12 +405,12 @@ export function TasksView({
                         </div>
                       </div>
                       <TaskChips task={t} />
-                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+                      <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2">
                         <button
                           type="button"
                           disabled={pending || ci === 0}
                           onClick={() => moveStatus(t, -1)}
-                          className="disabled:opacity-30 text-fg-muted hover:text-fg"
+                          className="text-white/40 hover:text-white disabled:opacity-25"
                           title="Mover a la izquierda"
                         >
                           <ChevronLeft className="w-4 h-4" />
@@ -370,7 +419,7 @@ export function TasksView({
                           type="button"
                           disabled={pending || ci === COLUMNS.length - 1}
                           onClick={() => moveStatus(t, 1)}
-                          className="disabled:opacity-30 text-fg-muted hover:text-fg"
+                          className="text-white/40 hover:text-white disabled:opacity-25"
                           title="Mover a la derecha"
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -420,90 +469,128 @@ function EditTaskModal({
   const [contactId, setContactId] = useState(task.contact_id ?? "");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md bg-bg-panel border-2 border-border p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold">Editar tarea</h2>
-          <button type="button" onClick={onClose} className="text-fg-muted hover:text-fg">
-            <X className="w-5 h-5" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative w-full max-w-md rounded-2xl border border-white/12 p-5"
+        style={{
+          background: "rgba(22,22,22,0.96)",
+          boxShadow: "0 24px 60px rgba(0,0,0,.6)",
+        }}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-2xl leading-none">
+            Editar tarea
+            <span style={{ color: "rgb(var(--drop-orange))" }}>.</span>
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-white/50 hover:text-white"
+            aria-label="Cerrar"
+          >
+            <X width={20} height={20} />
           </button>
         </div>
 
-        <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <label
+          htmlFor="edit-task-title"
+          className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+        >
           Título
         </label>
         <input
+          id="edit-task-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent mb-3"
+          className={cn(FIELD, "mb-3")}
         />
 
-        <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <label
+          htmlFor="edit-task-notes"
+          className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+        >
           Notas
         </label>
         <textarea
+          id="edit-task-notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent mb-3"
+          className={cn(FIELD, "mb-3")}
         />
 
-        <div className="flex gap-2 mb-3">
+        <div className="mb-3 flex gap-2">
           <div className="flex-1">
-            <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+            <label
+              htmlFor="edit-task-priority"
+              className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+            >
               Prioridad
             </label>
             <select
+              id="edit-task-priority"
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
+              className={SELECT}
             >
               {PRIORITIES.map((p) => (
-                <option key={p.id} value={p.id}>
+                <option key={p.id} value={p.id} className="bg-bg-panel">
                   {p.label}
                 </option>
               ))}
             </select>
           </div>
           <div className="flex-1">
-            <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+            <label
+              htmlFor="edit-task-due"
+              className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+            >
               Fecha límite
             </label>
             <input
+              id="edit-task-due"
               type="date"
               value={due}
               onChange={(e) => setDue(e.target.value)}
-              className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent"
+              className={FIELD}
             />
           </div>
         </div>
 
-        <label className="block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1">
+        <label
+          htmlFor="edit-task-contact"
+          className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-wider text-white/40"
+        >
           Contacto
         </label>
         <select
+          id="edit-task-contact"
           value={contactId}
           onChange={(e) => setContactId(e.target.value)}
-          className="w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent mb-4"
+          className={cn(SELECT, "mb-4")}
         >
-          <option value="">Sin contacto</option>
+          <option value="" className="bg-bg-panel">
+            Sin contacto
+          </option>
           {contacts.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.id} value={c.id} className="bg-bg-panel">
               {c.name}
             </option>
           ))}
         </select>
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3 py-2 border-2 border-border text-[11px] font-mono uppercase tracking-wider text-fg-muted"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
+          <ClayChipButton onClick={onClose}>Cancelar</ClayChipButton>
+          <Button
+            variant="clayPrimary"
             disabled={pending || !title.trim()}
             onClick={() =>
               onSave({
@@ -514,10 +601,9 @@ function EditTaskModal({
                 contact_id: contactId,
               })
             }
-            className="px-4 py-2 bg-accent text-white font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50"
           >
             Guardar
-          </button>
+          </Button>
         </div>
       </div>
     </div>
