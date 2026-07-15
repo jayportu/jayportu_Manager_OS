@@ -42,9 +42,9 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
   return (
     <Link
       href={`/e/${ev.public_token}`}
-      className="group border-2 border-border bg-bg-panel flex flex-col hover:shadow-[6px_6px_0_#E85A0C] transition-all"
+      className="hos-glass group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_rgb(var(--drop-orange))]"
     >
-      <div className="relative aspect-[3/2] bg-ink overflow-hidden border-b-2 border-border">
+      <div className="relative aspect-[3/2] bg-ink overflow-hidden border-b border-white/10">
         {cover ? (
           <Image
             src={cover}
@@ -56,9 +56,9 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span style={{ fontFamily: ANTON, fontSize: 40, color: "#F4EFE7" }}>
+            <span className="text-fg" style={{ fontFamily: ANTON, fontSize: 40 }}>
               {ev.dj_artist_name}
-              <span style={{ color: "#E85A0C" }}>.</span>
+              <span className="text-orange">.</span>
             </span>
           </div>
         )}
