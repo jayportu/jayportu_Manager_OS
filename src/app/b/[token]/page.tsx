@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { BookingTimeline } from "@/components/booking/booking-timeline";
 import { CounterofferForm } from "./counteroffer-form";
 import { dateTime, shortDate } from "@/lib/format";
+import { GlassPanel, MonoLabel } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 
 /**
  * Bloque B · B6 — Vista pública del request para el Booker.
@@ -38,17 +40,19 @@ export async function generateMetadata({
   };
 }
 
-const STATUS_STYLES: Record<
-  string,
-  { bg: string; text: string; border: string; tag: string }
-> = {
-  nuevo: { bg: "bg-orange", text: "text-ink", border: "border-orange", tag: "Pendiente de revisión" },
-  leido: { bg: "bg-info", text: "text-white dark:text-ink", border: "border-info", tag: "Leído por el DJ" },
-  respondido: { bg: "bg-cream", text: "text-fg", border: "border-border", tag: "Respondido" },
-  cotizado: { bg: "bg-warning", text: "text-white dark:text-ink", border: "border-warning", tag: "Cotizado" },
-  contraofertado: { bg: "bg-ink", text: "text-white", border: "border-border", tag: "Contraoferta enviada" },
-  agendado: { bg: "bg-success", text: "text-white dark:text-ink", border: "border-success", tag: "Agendado ✓" },
-  rechazado: { bg: "bg-danger", text: "text-white dark:text-ink", border: "border-danger", tag: "No disponible" },
+/**
+ * Tono por estado (re-vestido al lenguaje glass Hybrid OS): mantenemos las
+ * 7 claves de estado + su `tag`; el color se expresa como acento translúcido
+ * sobre glass en vez de una superficie brutalista sólida.
+ */
+const STATUS_STYLES: Record<string, { accent: string; tag: string }> = {
+  nuevo: { accent: "var(--drop-orange)", tag: "Pendiente de revisión" },
+  leido: { accent: "var(--drop-info)", tag: "Leído por el DJ" },
+  respondido: { accent: "255 255 255", tag: "Respondido" },
+  cotizado: { accent: "var(--drop-warning)", tag: "Cotizado" },
+  contraofertado: { accent: "var(--drop-info)", tag: "Contraoferta enviada" },
+  agendado: { accent: "var(--drop-success)", tag: "Agendado ✓" },
+  rechazado: { accent: "var(--drop-danger)", tag: "No disponible" },
 };
 
 export default async function BookerViewTokenPage({ params }: PageProps) {
@@ -66,9 +70,19 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
   const style = STATUS_STYLES[booking.status] ?? STATUS_STYLES.nuevo;
 
   return (
-    <main className="min-h-screen bg-bg flex flex-col">
+    <main className="relative min-h-screen overflow-hidden bg-bg text-fg flex flex-col">
+      {/* Ambiente radial (firma Hybrid OS, como el resto de Público) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 55% at 50% -10%, rgb(var(--drop-orange) / 0.10), transparent 60%)",
+        }}
+      />
+
       {/* Header */}
-      <header className="bg-ink text-white border-b-2 border-orange py-4 px-6 flex items-center justify-between">
+      <header className="relative z-10 border-b border-white/10 py-4 px-6 flex items-center justify-between">
         <Link
           href="/"
           className="select-none flex items-baseline gap-3 hover:opacity-90 transition-opacity"
@@ -90,43 +104,56 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
         </Link>
       </header>
 
-      <div className="flex-1 px-4 py-8 md:py-12">
+      <div className="relative z-10 flex-1 px-4 py-8 md:py-12">
         <div className="max-w-2xl mx-auto">
           {/* Status hero */}
-          <div className={`border-2 ${style.border} ${style.bg} ${style.text} p-6 md:p-8 mb-6`}>
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] opacity-80 mb-2">
-              — ESTADO DEL REQUEST
-            </div>
-            <div
+          <GlassPanel padded={false} className="mb-6">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
               style={{
-                fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-                fontSize: "44px",
-                lineHeight: 0.9,
-                letterSpacing: "-0.005em",
+                background: `radial-gradient(120% 90% at 0% 0%, rgb(${style.accent} / 0.16), transparent 62%)`,
               }}
-            >
-              {style.tag}
-              <span className={booking.status === "agendado" ? "" : "opacity-90"}>.</span>
+            />
+            <div className="relative p-6 md:p-8">
+              <div
+                className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] mb-2"
+                style={{ color: `rgb(${style.accent})` }}
+              >
+                — ESTADO DEL REQUEST
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                  fontSize: "44px",
+                  lineHeight: 0.9,
+                  letterSpacing: "-0.005em",
+                  color: `rgb(${style.accent})`,
+                }}
+              >
+                {style.tag}
+                <span className={booking.status === "agendado" ? "" : "opacity-90"}>.</span>
+              </div>
+              <div className="mt-3 font-mono text-[11px] tracking-wider text-fg-muted">
+                Mandado {dateTime(booking.created_at)}
+                {booking.quoted_at && (
+                  <>
+                    {" "}· Cotizado {dateTime(booking.quoted_at)}
+                  </>
+                )}
+                {booking.agendado_at && (
+                  <>
+                    {" "}· Agendado {dateTime(booking.agendado_at)}
+                  </>
+                )}
+              </div>
             </div>
-            <div className="mt-3 font-mono text-[11px] tracking-wider opacity-80">
-              Mandado {dateTime(booking.created_at)}
-              {booking.quoted_at && (
-                <>
-                  {" "}· Cotizado {dateTime(booking.quoted_at)}
-                </>
-              )}
-              {booking.agendado_at && (
-                <>
-                  {" "}· Agendado {dateTime(booking.agendado_at)}
-                </>
-              )}
-            </div>
-          </div>
+          </GlassPanel>
 
           {/* DJ contactado */}
-          <div className="border-2 border-border bg-bg-panel p-5 mb-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-2">
-              — DJ CONTACTADO
+          <GlassPanel className="mb-4">
+            <div className="mb-2">
+              <MonoLabel>DJ CONTACTADO</MonoLabel>
             </div>
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <h2
@@ -143,70 +170,76 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
               {booking.dj_public_slug && (
                 <Link
                   href={`/p/${booking.dj_public_slug}`}
-                  className="font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-2 border-2 border-border hover:bg-orange transition-colors"
+                  className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors hover:border-orange/50 hover:text-orange"
                 >
                   Ver press kit →
                 </Link>
               )}
             </div>
-          </div>
+          </GlassPanel>
 
           {/* Detalles del request */}
-          <div className="border-2 border-border bg-bg-panel p-5 mb-4 space-y-3">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">
-              — DETALLES DEL REQUEST
-            </div>
-            <DetailRow label="A nombre de" value={booking.name} />
-            <DetailRow label="Tipo de evento" value={booking.event_type || "—"} />
-            <DetailRow
-              label="Fecha del evento"
-              value={booking.event_date ? shortDate(booking.event_date) : "Sin definir"}
-            />
-            <DetailRow label="Venue / lugar" value={booking.venue || "—"} />
-            {booking.email && <DetailRow label="Email" value={booking.email} />}
-            {booking.phone && <DetailRow label="Teléfono" value={booking.phone} />}
-            {booking.message && (
-              <div className="pt-3 border-t border-border/10">
-                <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-fg-subtle mb-1">
-                  Mensaje
+          <GlassPanel className="mb-4">
+            <div className="space-y-3">
+              <MonoLabel>DETALLES DEL REQUEST</MonoLabel>
+              <DetailRow label="A nombre de" value={booking.name} />
+              <DetailRow label="Tipo de evento" value={booking.event_type || "—"} />
+              <DetailRow
+                label="Fecha del evento"
+                value={booking.event_date ? shortDate(booking.event_date) : "Sin definir"}
+              />
+              <DetailRow label="Venue / lugar" value={booking.venue || "—"} />
+              {booking.email && <DetailRow label="Email" value={booking.email} />}
+              {booking.phone && <DetailRow label="Teléfono" value={booking.phone} />}
+              {booking.message && (
+                <div className="pt-3 border-t border-white/10">
+                  <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-fg-subtle mb-1">
+                    Mensaje
+                  </div>
+                  <p className="text-sm leading-relaxed text-fg whitespace-pre-line">
+                    {booking.message}
+                  </p>
                 </div>
-                <p className="text-sm leading-relaxed text-fg whitespace-pre-line">
-                  {booking.message}
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </GlassPanel>
 
           {/* Cotización destacada si aplica */}
           {booking.quoted_amount_clp && booking.quoted_amount_clp > 0 && (
-            <div className="border-2 border-warning bg-warning/10 p-5 mb-4">
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-warning mb-1">
-                — MONTO COTIZADO POR EL DJ
+            <GlassPanel className="mb-4">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-warning/10"
+              />
+              <div className="relative">
+                <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-warning mb-1">
+                  — MONTO COTIZADO POR EL DJ
+                </div>
+                <div
+                  style={{
+                    fontFamily:
+                      "var(--font-anton), Impact, system-ui, sans-serif",
+                    fontSize: "40px",
+                    lineHeight: 0.9,
+                  }}
+                  className="text-fg"
+                >
+                  ${booking.quoted_amount_clp.toLocaleString("es-CL")} CLP
+                </div>
               </div>
-              <div
-                style={{
-                  fontFamily:
-                    "var(--font-anton), Impact, system-ui, sans-serif",
-                  fontSize: "40px",
-                  lineHeight: 0.9,
-                }}
-                className="text-fg"
-              >
-                ${booking.quoted_amount_clp.toLocaleString("es-CL")} CLP
-              </div>
-            </div>
+            </GlassPanel>
           )}
 
           {/* Counteroffer del booker si ya la mandó */}
           {booking.status === "contraofertado" && (
-            <div className="border-2 border-border bg-ink text-white p-5 mb-4">
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-1">
-                — TU CONTRAOFERTA
+            <GlassPanel className="mb-4">
+              <div className="mb-1">
+                <MonoLabel>TU CONTRAOFERTA</MonoLabel>
               </div>
               <div className="space-y-1 mt-2">
                 {booking.counter_amount_clp && (
                   <div>
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-white/60">
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
                       Monto:{" "}
                     </span>
                     <span
@@ -229,15 +262,15 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
                   </div>
                 )}
                 {booking.counter_message && (
-                  <p className="text-sm mt-2 whitespace-pre-line">
+                  <p className="text-sm mt-2 whitespace-pre-line text-fg">
                     “{booking.counter_message}”
                   </p>
                 )}
               </div>
-              <div className="font-mono text-[10px] text-white/60 mt-3 uppercase tracking-wider">
+              <div className="font-mono text-[10px] text-fg-muted mt-3 uppercase tracking-wider">
                 Esperando respuesta del DJ
               </div>
-            </div>
+            </GlassPanel>
           )}
 
           {/* Form de counteroffer (solo si DJ ya cotizó y no se mandó counter) */}
@@ -260,27 +293,32 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
           <div className="mt-6 flex flex-wrap gap-3">
             {isAnon && (
               <>
-                <Link
-                  href={`/signup/booker?next=${encodeURIComponent(`/b/${token}`)}`}
-                  className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
+                <Button
+                  asChild
+                  variant="clayPrimary"
+                  size="lg"
+                  className="flex-1 min-w-[200px]"
                 >
-                  Crear cuenta gratis
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-cream text-fg font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange transition-colors"
-                >
-                  Ya tengo cuenta
-                </Link>
+                  <Link
+                    href={`/signup/booker?next=${encodeURIComponent(`/b/${token}`)}`}
+                  >
+                    Crear cuenta gratis
+                  </Link>
+                </Button>
+                <Button asChild variant="clay" size="lg">
+                  <Link href="/login">Ya tengo cuenta</Link>
+                </Button>
               </>
             )}
             {isOwner && (
-              <Link
-                href="/booker/requests"
-                className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange text-ink font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-orange hover:bg-ink hover:text-white transition-colors"
+              <Button
+                asChild
+                variant="clayPrimary"
+                size="lg"
+                className="flex-1 min-w-[200px]"
               >
-                Ver todos mis requests →
-              </Link>
+                <Link href="/booker/requests">Ver todos mis requests →</Link>
+              </Button>
             )}
           </div>
 
@@ -295,7 +333,7 @@ export default async function BookerViewTokenPage({ params }: PageProps) {
         </div>
       </div>
 
-      <footer className="bg-ink text-white border-t-2 border-orange py-3 px-6 text-center">
+      <footer className="relative z-10 border-t border-white/10 py-3 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · BOOKING SYSTEM · v0.13
         </div>

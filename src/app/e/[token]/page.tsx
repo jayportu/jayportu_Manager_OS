@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MapPin, Ticket, CalendarDays, ArrowUpRight } from "lucide-react";
 import { isSupabaseStorageUrl } from "@/lib/format";
 import { RsvpForm } from "./rsvp-form";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -68,11 +69,21 @@ export default async function PublicEventPage({ params }: PageProps) {
     : null;
 
   return (
-    <div className="min-h-screen bg-bg">
-      <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="relative min-h-screen overflow-hidden bg-bg text-fg">
+      {/* Ambiente radial (firma Hybrid OS, como el resto de Público) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 45% at 50% -5%, rgb(var(--drop-orange) / 0.12), transparent 60%)",
+        }}
+      />
+
+      <div className="relative z-10 max-w-lg mx-auto px-4 py-8">
         {/* Flyer / hero */}
-        <div className="border-2 border-border bg-ink text-white overflow-hidden">
-          <div className="relative aspect-[4/3] bg-ink border-b-2 border-orange">
+        <GlassPanel padded={false} className="overflow-hidden">
+          <div className="relative aspect-[4/3] bg-ink border-b border-white/10">
             {heroImg ? (
               <Image
                 src={heroImg}
@@ -89,7 +100,7 @@ export default async function PublicEventPage({ params }: PageProps) {
                   style={{
                     fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                     fontSize: "72px",
-                    color: "#E85A0C",
+                    color: "rgb(var(--drop-orange))",
                   }}
                 >
                   {(ev.dj_artist_name || "?").charAt(0).toUpperCase()}
@@ -98,9 +109,7 @@ export default async function PublicEventPage({ params }: PageProps) {
             )}
           </div>
           <div className="p-5">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange">
-              — EVENTO
-            </div>
+            <MonoLabel>EVENTO</MonoLabel>
             <h1
               className="leading-none mt-2"
               style={{
@@ -123,46 +132,48 @@ export default async function PublicEventPage({ params }: PageProps) {
               </span>
             )}
           </div>
-        </div>
+        </GlassPanel>
 
         {/* Datos */}
-        <div className="border-2 border-t-0 border-border bg-bg-panel divide-y divide-border/10">
-          <div className="flex items-center gap-3 p-4">
-            <CalendarDays className="w-5 h-5 text-orange shrink-0" />
-            <span className="text-sm font-semibold">{when || "Fecha por confirmar"}</span>
+        <GlassPanel padded={false} className="mt-4">
+          <div className="divide-y divide-white/10">
+            <div className="flex items-center gap-3 p-4">
+              <CalendarDays className="w-5 h-5 text-orange shrink-0" />
+              <span className="text-sm font-semibold">{when || "Fecha por confirmar"}</span>
+            </div>
+            {ev.location && (
+              <a
+                href={mapsUrl ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 hover:bg-white/[0.04] transition-colors"
+              >
+                <MapPin className="w-5 h-5 text-orange shrink-0" />
+                <span className="text-sm flex-1">{ev.location}</span>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+                  Cómo llegar →
+                </span>
+              </a>
+            )}
+            {ev.ticket_url && (
+              <a
+                href={ev.ticket_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 hover:bg-white/[0.04] transition-colors"
+              >
+                <Ticket className="w-5 h-5 text-orange shrink-0" />
+                <span className="text-sm flex-1 font-semibold">Comprar entradas</span>
+                <ArrowUpRight className="w-4 h-4 text-fg-muted" />
+              </a>
+            )}
           </div>
-          {ev.location && (
-            <a
-              href={mapsUrl ?? "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 hover:bg-cream transition-colors"
-            >
-              <MapPin className="w-5 h-5 text-orange shrink-0" />
-              <span className="text-sm flex-1">{ev.location}</span>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
-                Cómo llegar →
-              </span>
-            </a>
-          )}
-          {ev.ticket_url && (
-            <a
-              href={ev.ticket_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 hover:bg-cream transition-colors"
-            >
-              <Ticket className="w-5 h-5 text-orange shrink-0" />
-              <span className="text-sm flex-1 font-semibold">Comprar entradas</span>
-              <ArrowUpRight className="w-4 h-4 text-fg-muted" />
-            </a>
-          )}
-        </div>
+        </GlassPanel>
 
         {ev.description && (
-          <div className="border-2 border-t-0 border-border bg-bg-panel p-4 text-sm text-fg whitespace-pre-wrap">
+          <GlassPanel className="mt-4 text-sm text-fg whitespace-pre-wrap">
             {ev.description}
-          </div>
+          </GlassPanel>
         )}
 
         {/* Contador + RSVP */}
