@@ -42,7 +42,7 @@ export function EventCard({ ev }: { ev: FeedEvent }) {
   return (
     <Link
       href={`/e/${ev.public_token}`}
-      className="hos-glass group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_rgb(var(--drop-orange))]"
+      className="hos-glass hos-sweep-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_rgb(var(--drop-orange))]"
     >
       <div className="relative aspect-[3/2] bg-ink overflow-hidden border-b border-white/10">
         {cover ? (

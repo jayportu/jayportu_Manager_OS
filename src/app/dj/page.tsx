@@ -345,7 +345,7 @@ function DjCard({ dj }: { dj: Awaited<ReturnType<typeof listPublicDjs>>[number] 
     [dj.avatar_url, dj.hero_image_url].find(isSupabaseStorageUrl) ?? "";
 
   return (
-    <div className="group relative hos-glass rounded-2xl overflow-hidden flex flex-col hover:shadow-[8px_8px_0_rgb(var(--drop-orange))] transition-all hover:-translate-x-1 hover:-translate-y-1">
+    <div className="group relative hos-glass hos-sweep-card rounded-2xl overflow-hidden flex flex-col hover:shadow-[8px_8px_0_rgb(var(--drop-orange))] transition-all hover:-translate-x-1 hover:-translate-y-1">
       {/* Botón corazón FUERA del <Link> del card: un <button> dentro de un
           <a> es HTML inválido. Se posiciona sobre la esquina del card. */}
       <div className="absolute top-2 left-2 z-10">

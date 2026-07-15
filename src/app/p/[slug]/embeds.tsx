@@ -66,7 +66,7 @@ export function SoundcloudEmbed({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
+        className="block p-4 rounded-2xl hos-glass hos-sweep-card text-center transition-transform hover:-translate-y-0.5"
       >
         <span className="text-sm text-white/70">Ver en SoundCloud →</span>
       </a>
@@ -351,7 +351,7 @@ export function MixcloudEmbed({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
+        className="block p-4 rounded-2xl hos-glass hos-sweep-card text-center transition-transform hover:-translate-y-0.5"
       >
         <span className="text-sm text-white/70">Escuchar en Mixcloud →</span>
       </a>
@@ -402,7 +402,7 @@ export function BeatportEmbed({ url }: { url: string }) {
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
+        className="block p-4 rounded-2xl hos-glass hos-sweep-card text-center transition-transform hover:-translate-y-0.5"
       >
         <span className="text-sm text-white/70">Ver en Beatport →</span>
       </a>
@@ -456,7 +456,7 @@ export function SetEmbed({ url, userId }: { url: string; userId: string }) {
       href={u}
       target="_blank"
       rel="noopener noreferrer"
-      className="block p-4 rounded-2xl hos-glass text-center transition-transform hover:-translate-y-0.5"
+      className="block p-4 rounded-2xl hos-glass hos-sweep-card text-center transition-transform hover:-translate-y-0.5"
     >
       <span className="text-sm text-white/70">Escuchar set →</span>
     </a>

@@ -78,7 +78,7 @@ export function VenueCard({
   }
 
   return (
-    <GlassPanel>
+    <GlassPanel sweep>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="flex items-center gap-1.5 font-display text-xl leading-tight">

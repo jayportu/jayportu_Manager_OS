@@ -187,8 +187,28 @@
   }
   .hos-clay-inset { background: var(--hos-clay-bg); box-shadow: var(--hos-clay-inset); }
   .hos-clay-btn { background: var(--hos-clay-bg); box-shadow: var(--hos-clay-raised); }
-  .hos-sweep {
-    background: linear-gradient(90deg, transparent, rgba(244,239,231,0.12), transparent);
+  /* Brillo glass en hover para tarjetas interactivas (clickeables/cards).
+     Autocontenida: sirve tanto para <GlassPanel sweep> como para cards con .hos-glass cruda. */
+  .hos-sweep-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .hos-sweep-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 38%, rgba(244,239,231,0.14) 50%, transparent 62%);
+    background-size: 250% 100%;
+    background-position: 175% 0;
+    opacity: 0;
+    transition: opacity 0.3s ease, background-position 0.7s ease;
+  }
+  .hos-sweep-card:hover::after,
+  .hos-sweep-card:focus-visible::after {
+    opacity: 1;
+    background-position: -75% 0;
   }
 }
 
@@ -224,9 +244,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hos-sweep, .hos-clay-btn, .hos-clay,
+  .hos-clay-btn, .hos-clay,
   .animate-pulse, .animate-blink, .animate-logo-strobe, .animate-ticker-scroll {
     transition: none !important;
     animation: none !important;
+  }
+  .hos-sweep-card::after {
+    display: none !important;
   }
 }

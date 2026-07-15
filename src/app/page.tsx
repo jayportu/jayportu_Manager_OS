@@ -325,7 +325,7 @@ function LandingDjCard({ dj, className = "" }: { dj: PublicDjProfile; className?
   return (
     <Link
       href={`/p/${dj.public_slug}`}
-      className={`group relative block aspect-[3/4] rounded-[14px] overflow-hidden hos-glass transition-[transform,box-shadow] duration-300 hover:scale-[1.04] hover:z-10 hover:shadow-[0_24px_60px_-22px_rgb(var(--drop-orange)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
+      className={`group relative block aspect-[3/4] rounded-[14px] overflow-hidden hos-glass hos-sweep-card transition-[transform,box-shadow] duration-300 hover:scale-[1.04] hover:z-10 hover:shadow-[0_24px_60px_-22px_rgb(var(--drop-orange)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
     >
       {cardImg ? (
         <Image

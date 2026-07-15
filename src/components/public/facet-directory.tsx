@@ -132,7 +132,7 @@ function FacetCard({ dj }: { dj: PublicDjProfile }) {
   return (
     <Link
       href={`/p/${dj.public_slug}`}
-      className="group hos-glass rounded-2xl overflow-hidden flex flex-col hover:shadow-[8px_8px_0_rgb(var(--drop-orange))] transition-all hover:-translate-x-1 hover:-translate-y-1"
+      className="group hos-glass hos-sweep-card rounded-2xl overflow-hidden flex flex-col hover:shadow-[8px_8px_0_rgb(var(--drop-orange))] transition-all hover:-translate-x-1 hover:-translate-y-1"
     >
       <div className="bg-ink aspect-square flex items-center justify-center relative overflow-hidden">
         {cardImg ? (
