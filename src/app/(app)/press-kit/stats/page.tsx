@@ -6,13 +6,20 @@ import {
 } from "@/lib/queries/presskit";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft, Eye, MousePointerClick, Send, Inbox } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import {
   PRESSKIT_EVENT_LABELS,
   BOOKING_STATUS_LABELS,
   type BookingStatus,
 } from "@/types/database";
+import {
+  SectionHero,
+  GlassPanel,
+  MonoLabel,
+  KpiTile,
+  Badge,
+  ClayChip,
+} from "@/components/hos";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +28,20 @@ interface PageProps {
 }
 
 const RANGES = [7, 30, 90];
+
+/* Estado del booking → tono del Badge. */
+const BOOKING_TONE: Record<
+  BookingStatus,
+  "up" | "warn" | "down" | "info" | "neutral"
+> = {
+  nuevo: "info",
+  leido: "neutral",
+  respondido: "neutral",
+  cotizado: "warn",
+  contraofertado: "warn",
+  agendado: "up",
+  rechazado: "down",
+};
 
 /**
  * Día YYYY-MM-DD en hora de Chile, `offset` días-calendario atrás.
@@ -133,68 +154,50 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       <Link
         href="/press-kit"
-        className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-white/50 hover:text-white"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-3.5 h-3.5" />
         Volver al press kit
       </Link>
 
-      {/* Hero */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-5">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — PRESS KIT · ESTADÍSTICAS
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
-          STATS<span className="text-orange">.</span>
-        </h1>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
-          Cómo rinde tu press kit público: quién lo ve, qué tocan y cuántos
-          terminan escribiéndote.
-        </p>
-      </div>
+      <SectionHero
+        kicker="Press kit · Estadísticas"
+        title="Stats"
+        sub="Cómo rinde tu press kit público: quién lo ve, qué tocan y cuántos terminan escribiéndote."
+      />
 
       {/* Selector de rango */}
-      <div className="flex items-center gap-1.5 mb-5">
+      <div className="mb-5 flex items-center gap-1.5">
         {RANGES.map((r) => (
-          <Link
-            key={r}
-            href={`/press-kit/stats?d=${r}`}
-            className={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-1.5 border-2 transition-colors ${
-              days === r
-                ? "bg-ink text-orange border-border"
-                : "border-border text-fg hover:bg-ink hover:text-orange"
-            }`}
-          >
-            {r} días
+          <Link key={r} href={`/press-kit/stats?d=${r}`}>
+            <ClayChip active={days === r}>{r} días</ClayChip>
           </Link>
         ))}
       </div>
 
       {noData ? (
-        <Card className="p-10 text-center">
-          <Eye className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
+        <GlassPanel className="text-center py-10">
+          <Eye className="w-10 h-10 mx-auto text-white/40 mb-3" />
           <h3 className="font-semibold mb-1">Sin datos en este rango</h3>
-          <p className="text-sm text-fg-muted max-w-md mx-auto">
+          <p className="text-sm text-white/50 max-w-md mx-auto">
             Comparte tu link público para empezar a recibir visitas. Cuando
             alguien lo abra, vas a ver acá de dónde llega y qué mira.
           </p>
-        </Card>
+        </GlassPanel>
       ) : (
         <>
           {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border mb-5">
-            <KpiTile label="Visitas" value={views} icon={Eye} />
-            <KpiTile label="Clicks" value={clicks} icon={MousePointerClick} />
-            <KpiTile label="Solicitudes" value={formSubmits} icon={Send} highlight />
-            <KpiTile label="Conversión" value={`${conv}%`} icon={Inbox} sub="envíos / visitas" />
+          <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <KpiTile label="Visitas" value={views} />
+            <KpiTile label="Clicks" value={clicks} />
+            <KpiTile label="Solicitudes" value={formSubmits} accent />
+            <KpiTile label="Conversión" value={`${conv}%`} sub="envíos / visitas" />
           </div>
 
           {/* Embudo */}
-          <Card className="p-5 mb-5">
-            <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
-              — Embudo
-            </h2>
-            <div className="space-y-2">
+          <GlassPanel className="mb-5">
+            <MonoLabel>Embudo</MonoLabel>
+            <div className="mt-3 space-y-2.5">
               <FunnelBar label="Visitas" value={views} base={views} />
               <FunnelBar
                 label="Abrió formulario"
@@ -209,16 +212,14 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
                 pct={views > 0 ? Math.min(100, Math.round((formSubmits / views) * 100)) : 0}
               />
             </div>
-          </Card>
+          </GlassPanel>
 
           {/* Visitas por día */}
-          <Card className="p-5 mb-5">
+          <GlassPanel className="mb-5">
             <div className="flex items-end justify-between mb-3">
-              <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-                — Visitas por día
-              </h2>
+              <MonoLabel>Visitas por día</MonoLabel>
               {peak && peak.n > 0 && (
-                <span className="font-mono text-[10px] text-fg-subtle">
+                <span className="font-mono text-[10px] text-white/40">
                   pico {peak.n} · {peak.day.slice(5)}
                 </span>
               )}
@@ -228,40 +229,38 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
                 <div
                   key={s.day}
                   title={`${s.day}: ${s.n}`}
-                  className="flex-1 bg-orange/80 hover:bg-orange transition-colors"
+                  className="flex-1 rounded-t-sm bg-orange/80 hover:bg-orange transition-colors"
                   style={{ height: `${Math.max(2, (s.n / maxDay) * 100)}%` }}
                 />
               ))}
             </div>
-            <div className="flex justify-between font-mono text-[9px] text-fg-subtle mt-1.5">
+            <div className="flex justify-between font-mono text-[9px] text-white/40 mt-1.5">
               <span>{series[0]?.day.slice(5)}</span>
               <span>{series[series.length - 1]?.day.slice(5)}</span>
             </div>
-          </Card>
+          </GlassPanel>
 
           <div className="grid md:grid-cols-2 gap-5 mb-5">
             {/* Por canal */}
-            <Card className="p-5">
-              <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
-                — Por canal
-              </h2>
+            <GlassPanel>
+              <MonoLabel>Por canal</MonoLabel>
               {channels.length === 0 ? (
-                <p className="text-sm text-fg-muted">Aún sin clicks.</p>
+                <p className="text-sm text-white/50 mt-3">Aún sin clicks.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="mt-3 space-y-2.5">
                   {channels.map(([event, n]) => (
                     <div key={event}>
-                      <div className="flex justify-between text-[12px] mb-0.5">
-                        <span>
+                      <div className="flex justify-between text-[12px] mb-1">
+                        <span className="text-white/60">
                           {PRESSKIT_EVENT_LABELS[
                             event as keyof typeof PRESSKIT_EVENT_LABELS
                           ] || event}
                         </span>
-                        <span className="font-mono text-fg-muted">{n}</span>
+                        <span className="font-mono text-white/45">{n}</span>
                       </div>
-                      <div className="h-1.5 bg-ink/10">
+                      <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
                         <div
-                          className="h-full bg-ink"
+                          className="h-full rounded-full bg-white/35"
                           style={{ width: `${(n / maxChannel) * 100}%` }}
                         />
                       </div>
@@ -269,34 +268,32 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
                   ))}
                 </div>
               )}
-            </Card>
+            </GlassPanel>
 
             {/* De dónde llegan */}
-            <Card className="p-5">
-              <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
-                — De dónde llegan
-              </h2>
-              <SourceList title="Sitios" rows={topN(refMap)} empty="Tráfico directo" />
-              <SourceList title="Países" rows={topN(countryMap)} />
-              {utmMap.size > 0 && <SourceList title="Campañas (UTM)" rows={topN(utmMap)} />}
-            </Card>
+            <GlassPanel>
+              <MonoLabel>De dónde llegan</MonoLabel>
+              <div className="mt-3">
+                <SourceList title="Sitios" rows={topN(refMap)} empty="Tráfico directo" />
+                <SourceList title="Países" rows={topN(countryMap)} />
+                {utmMap.size > 0 && <SourceList title="Campañas (UTM)" rows={topN(utmMap)} />}
+              </div>
+            </GlassPanel>
           </div>
 
           {/* Solicitudes */}
-          <Card className="p-5">
+          <GlassPanel>
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
-                — Solicitudes ({rangeBookings.length})
-              </h2>
+              <MonoLabel>Solicitudes ({rangeBookings.length})</MonoLabel>
               <Link
                 href="/press-kit"
-                className="font-mono text-[10px] font-bold uppercase tracking-wider text-accent hover:underline"
+                className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange hover:underline"
               >
                 Ver bandeja →
               </Link>
             </div>
             {rangeBookings.length === 0 ? (
-              <p className="text-sm text-fg-muted">
+              <p className="text-sm text-white/50">
                 Sin solicitudes en este rango.
               </p>
             ) : (
@@ -304,50 +301,19 @@ export default async function PressKitStatsPage({ searchParams }: PageProps) {
                 {Array.from(bookingsByStatus.entries())
                   .sort((a, b) => b[1] - a[1])
                   .map(([status, n]) => (
-                    <span
+                    <Badge
                       key={status}
-                      className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 border-2 border-border bg-cream"
+                      tone={BOOKING_TONE[status as BookingStatus] ?? "neutral"}
                     >
                       {BOOKING_STATUS_LABELS[status as BookingStatus] || status}{" "}
                       <span className="font-bold">{n}</span>
-                    </span>
+                    </Badge>
                   ))}
               </div>
             )}
-          </Card>
+          </GlassPanel>
         </>
       )}
-    </div>
-  );
-}
-
-function KpiTile({
-  label,
-  value,
-  icon: Icon,
-  highlight,
-  sub,
-}: {
-  label: string;
-  value: number | string;
-  icon: React.ComponentType<{ className?: string }>;
-  highlight?: boolean;
-  sub?: string;
-}) {
-  return (
-    <div
-      className={`p-4 border-r-2 border-border last:border-r-0 ${
-        highlight ? "bg-orange" : "bg-bg-panel"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
-          — {label}
-        </span>
-        <Icon className="w-3.5 h-3.5 opacity-50" />
-      </div>
-      <div className="font-display text-4xl leading-none mt-2">{value}</div>
-      {sub && <div className="font-mono text-[9px] text-fg-muted mt-1">{sub}</div>}
     </div>
   );
 }
@@ -367,15 +333,15 @@ function FunnelBar({
   const width = base > 0 ? Math.min(100, Math.max(2, (value / base) * 100)) : 0;
   return (
     <div>
-      <div className="flex justify-between text-[12px] mb-0.5">
-        <span>{label}</span>
-        <span className="font-mono text-fg-muted">
+      <div className="flex justify-between text-[12px] mb-1">
+        <span className="text-white/60">{label}</span>
+        <span className="font-mono text-white/45">
           {value}
-          {pct !== undefined && <span className="text-fg-subtle"> · {pct}%</span>}
+          {pct !== undefined && <span className="text-white/35"> · {pct}%</span>}
         </span>
       </div>
-      <div className="h-3 bg-ink/10 border border-border/20">
-        <div className="h-full bg-orange" style={{ width: `${width}%` }} />
+      <div className="h-3 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full rounded-full bg-orange" style={{ width: `${width}%` }} />
       </div>
     </div>
   );
@@ -392,17 +358,17 @@ function SourceList({
 }) {
   return (
     <div className="mb-3 last:mb-0">
-      <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-subtle mb-1">
+      <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-white/40 mb-1">
         {title}
       </div>
       {rows.length === 0 ? (
-        <div className="text-[12px] text-fg-muted">{empty || "—"}</div>
+        <div className="text-[12px] text-white/50">{empty || "—"}</div>
       ) : (
         <div className="space-y-0.5">
           {rows.map(([value, n]) => (
             <div key={value} className="flex justify-between text-[12px]">
-              <span className="truncate mr-2">{value}</span>
-              <span className="font-mono text-fg-muted">{n}</span>
+              <span className="truncate mr-2 text-white/60">{value}</span>
+              <span className="font-mono text-white/45">{n}</span>
             </div>
           ))}
         </div>
