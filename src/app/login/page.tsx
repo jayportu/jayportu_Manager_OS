@@ -15,6 +15,7 @@
 import { Logo } from "@/components/brand/logo";
 import { LoginForm } from "./login-form";
 import { startBetaInviteFlow } from "@/lib/queries/beta-invite";
+import { GlassPanel, Alert, MonoLabel } from "@/components/hos";
 
 interface PageProps {
   searchParams: Promise<{ invite?: string; auth_error?: string; next?: string }>;
@@ -78,8 +79,17 @@ export default async function LoginPage({ searchParams }: PageProps) {
         : null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden p-4 bg-bg">
+      {/* Ambiente radial (firma Hybrid OS, como otras públicas) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 70% at 50% -10%, rgb(var(--drop-orange) / 0.14), transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <Logo variant="wordmark" tone="ink" size={120} priority />
@@ -90,28 +100,29 @@ export default async function LoginPage({ searchParams }: PageProps) {
 
         {/* Banner de error desde /auth/callback (link expirado, etc.) */}
         {authError && (
-          <div className="mb-5 border-2 border-danger bg-danger/10 p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-danger mb-1">
-              — ERROR DE CONFIRMACIÓN
-            </div>
-            <div className="text-sm font-semibold mb-1">{authError.title}</div>
-            <div className="text-sm text-fg leading-relaxed">{authError.body}</div>
+          <div className="mb-5">
+            <Alert tone="danger" title="— ERROR DE CONFIRMACIÓN">
+              <div className="mt-1 text-sm font-semibold text-fg">
+                {authError.title}
+              </div>
+              <div className="mt-0.5 text-sm text-fg leading-relaxed">
+                {authError.body}
+              </div>
+            </Alert>
           </div>
         )}
 
         {/* Banner de invite (si aplica) */}
         {invite && (
-          <div className="mb-5 border-2 border-border bg-orange p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] mb-1">
-              — ESTÁS DENTRO · BETA
-            </div>
-            <div className="text-sm leading-relaxed">
+          <GlassPanel className="mb-5">
+            <MonoLabel>ESTÁS DENTRO · BETA</MonoLabel>
+            <div className="mt-1.5 text-sm leading-relaxed text-fg">
               Hola <strong>{invite.artist_name}</strong>, te aprobamos
               para la beta cerrada de DROP. Crea tu cuenta con el email{" "}
               <strong className="font-mono break-all">{invite.email}</strong>{" "}
               para activar tus 15 días.
             </div>
-          </div>
+          </GlassPanel>
         )}
 
         <LoginForm
