@@ -2,9 +2,10 @@
 
 import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, EmptyState } from "@/components/hos";
 import { createClient } from "@/lib/supabase/client";
 import {
   addGalleryImageAction,
@@ -126,12 +127,16 @@ export function GallerySection({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-end gap-3 flex-wrap">
-        <div className="space-y-1.5 flex-1 min-w-[180px]">
-          <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-muted">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="min-w-[180px] flex-1 space-y-1.5">
+          <label
+            htmlFor="gallery-folder"
+            className="block font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-white/40"
+          >
             — Carpeta (opcional)
           </label>
           <Input
+            id="gallery-folder"
             value={folder}
             onChange={(e) => setFolder(e.target.value)}
             placeholder="Ej: Live, Estudio, Backstage…"
@@ -148,14 +153,14 @@ export function GallerySection({
         </div>
         <Button
           type="button"
-          variant="outline"
+          variant="clay"
           disabled={isPending || gallery.length >= MAX_GALLERY}
           onClick={() => inputRef.current?.click()}
         >
-          {isPending ? progress ?? "Subiendo…" : "Subir fotos"}
+          {isPending ? "Subiendo…" : "Subir fotos"}
         </Button>
       </div>
-      <p className="text-xs text-fg-subtle">
+      <p className="text-xs text-white/45">
         JPG, PNG o WebP · máx. 10 MB c/u · hasta {MAX_GALLERY} fotos. Las fotos que
         subas con una carpeta escrita arriba quedan agrupadas en ella.
       </p>
@@ -169,24 +174,32 @@ export function GallerySection({
         onChange={handleFiles}
       />
 
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {progress && (
+        <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/40">
+          {progress}
+        </p>
+      )}
+
+      {error && <Alert tone="danger">{error}</Alert>}
 
       {gallery.length === 0 ? (
-        <p className="text-sm text-fg-subtle border-2 border-dashed border-border p-6 text-center">
-          Aún no subiste fotos. La galería aparece en tu press kit público.
-        </p>
+        <EmptyState
+          icon={ImageIcon}
+          title="Aún no subiste fotos"
+          sub="La galería aparece en tu press kit público."
+        />
       ) : (
         <div className="space-y-5">
           {grouped.map(({ folder: f, items }) => (
             <div key={f ?? "__none__"} className="space-y-2">
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted">
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">
                 — {f || NO_FOLDER} · {items.length}
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
                 {items.map((img) => (
                   <div
                     key={img.url}
-                    className="relative aspect-square border-2 border-border bg-bg-subtle overflow-hidden group"
+                    className="group relative aspect-square overflow-hidden rounded-xl border border-white/12 bg-white/[0.04]"
                   >
                     <Image
                       src={img.url}
@@ -200,9 +213,9 @@ export function GallerySection({
                       onClick={() => handleRemove(img.url)}
                       disabled={isPending}
                       aria-label="Quitar foto"
-                      className="absolute top-1 right-1 w-7 h-7 flex items-center justify-center bg-ink/80 text-white border border-border opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-danger transition-opacity disabled:opacity-50"
+                      className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-ink/80 text-white opacity-0 transition-opacity hover:bg-danger focus:opacity-100 group-hover:opacity-100 disabled:opacity-50"
                     >
-                      <X className="w-4 h-4" aria-hidden="true" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
