@@ -2,9 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
+import { Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { GlassPanel, Alert, Badge, TableShell, Th, Td, FIELD } from "@/components/hos";
 import { parseCSV } from "@/lib/csv";
 import {
   CONTACT_TYPES,
@@ -165,31 +166,40 @@ export function ImportForm() {
     });
   }
 
-  return (
-    <Card className="p-6 space-y-4">
-      <div>
-        <label className="text-sm font-medium mb-2 block">
-          Pega tu CSV acá
-        </label>
-        <Textarea
-          value={csv}
-          onChange={(e) => setCsv(e.target.value)}
-          rows={10}
-          placeholder="name,type,city,...
-Club La Feria,club,Santiago,..."
-          className="font-mono text-xs"
-        />
-      </div>
+  const messageTone = message?.startsWith("✓")
+    ? "success"
+    : message?.startsWith("Error")
+      ? "danger"
+      : "info";
 
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="text-sm text-fg-muted">{message}</div>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={handlePreview}>
+  return (
+    <GlassPanel>
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="csv-input" className="text-sm font-medium mb-2 block">
+            Pega tu CSV acá
+          </label>
+          <Textarea
+            id="csv-input"
+            value={csv}
+            onChange={(e) => setCsv(e.target.value)}
+            rows={10}
+            placeholder="name,type,city,...
+Club La Feria,club,Santiago,..."
+            className={FIELD}
+          />
+        </div>
+
+        {message && <Alert tone={messageTone}>{message}</Alert>}
+
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="clay" onClick={handlePreview}>
             Validar
           </Button>
           {preview && (
             <Button
               type="button"
+              variant="clayPrimary"
               onClick={handleImport}
               disabled={isPending || preview.filter((r) => r._ok).length === 0}
             >
@@ -199,54 +209,60 @@ Club La Feria,club,Santiago,..."
             </Button>
           )}
         </div>
-      </div>
 
-      {preview && (
-        <div className="overflow-x-auto border border-border rounded-lg">
-          <table className="w-full text-xs">
-            <thead className="bg-bg-subtle">
-              <tr className="text-fg-muted uppercase tracking-wider">
-                <th className="text-left px-3 py-2 font-semibold">Nombre</th>
-                <th className="text-left px-3 py-2 font-semibold">Tipo</th>
-                <th className="text-left px-3 py-2 font-semibold">Ciudad</th>
-                <th className="text-left px-3 py-2 font-semibold">Estado</th>
-                <th className="text-left px-3 py-2 font-semibold">Score</th>
-                <th className="text-left px-3 py-2 font-semibold">Status</th>
+        {preview && (
+          <TableShell bare>
+            <thead>
+              <tr>
+                <Th>Nombre</Th>
+                <Th>Tipo</Th>
+                <Th>Ciudad</Th>
+                <Th>Estado</Th>
+                <Th>Score</Th>
+                <Th>Status</Th>
               </tr>
             </thead>
             <tbody>
               {preview.slice(0, 50).map((r, i) => (
-                <tr
-                  key={i}
-                  className="border-t border-border"
-                >
-                  <td className="px-3 py-2">{r.name || <span className="text-danger">—</span>}</td>
-                  <td className="px-3 py-2 text-fg-muted">{r.type}</td>
-                  <td className="px-3 py-2 text-fg-muted">{r.city || "—"}</td>
-                  <td className="px-3 py-2 text-fg-muted">{r.status}</td>
-                  <td className="px-3 py-2 text-fg-muted">
+                <tr key={i}>
+                  <Td>{r.name || <span className="text-danger">—</span>}</Td>
+                  <Td className="text-white/50">{r.type}</Td>
+                  <Td className="text-white/50">{r.city || "—"}</Td>
+                  <Td className="text-white/50">{r.status}</Td>
+                  <Td className="text-white/50">
                     {typeof r.score === "number" ? r.score : "auto"}
-                  </td>
-                  <td className="px-3 py-2">
+                  </Td>
+                  <Td>
                     {!r._ok ? (
-                      <span className="text-danger">{r._error}</span>
+                      <Badge tone="down">{r._error}</Badge>
                     ) : r._warn ? (
-                      <span className="text-warning" title={r._warn}>OK ⚠</span>
+                      <span title={r._warn}>
+                        <Badge tone="warn">
+                          <AlertTriangle className="w-3 h-3" /> OK
+                        </Badge>
+                      </span>
                     ) : (
-                      <span className="text-success">OK</span>
+                      <Badge tone="up">
+                        <Check className="w-3 h-3" /> OK
+                      </Badge>
                     )}
-                  </td>
+                  </Td>
                 </tr>
               ))}
+              {preview.length > 50 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="border-b border-white/[0.06] px-3 py-2 text-center text-xs text-white/40"
+                  >
+                    ... y {preview.length - 50} más
+                  </td>
+                </tr>
+              )}
             </tbody>
-          </table>
-          {preview.length > 50 && (
-            <div className="text-xs text-fg-muted text-center py-2">
-              ... y {preview.length - 50} más
-            </div>
-          )}
-        </div>
-      )}
-    </Card>
+          </TableShell>
+        )}
+      </div>
+    </GlassPanel>
   );
 }
