@@ -11,6 +11,8 @@ import { RefreshCw, Trash2, Check, AlertCircle } from "lucide-react";
 import {
   saveSoundCloudAccountAction,
   saveYouTubeAccountAction,
+  saveInstagramAccountAction,
+  saveSpotifyAccountAction,
   deletePlatformAccountAction,
   syncNowAction,
 } from "./platform-accounts-actions";
@@ -33,6 +35,17 @@ export function PlatformAccountsSection({ accounts }: Props) {
 
   const youtube = accounts.find((a) => a.platform === "youtube");
   const [ytHandle, setYtHandle] = useState(youtube?.username || "");
+
+  const instagram = accounts.find((a) => a.platform === "instagram");
+  const [igHandle, setIgHandle] = useState(instagram?.username || "");
+
+  const spotify = accounts.find((a) => a.platform === "spotify");
+  // El input de Spotify espera una URL/id de artista; guardamos el nombre en `username`
+  // (para mostrarlo lindo), así que pre-llenamos con la URL reconstruida desde external_id
+  // para que "Actualizar" reenvíe un valor válido.
+  const [spUrl, setSpUrl] = useState(
+    spotify?.external_id ? `https://open.spotify.com/artist/${spotify.external_id}` : ""
+  );
 
   function saveSC() {
     setError(null);
@@ -103,6 +116,74 @@ export function PlatformAccountsSection({ accounts }: Props) {
     startTransition(async () => {
       await deletePlatformAccountAction("youtube");
       setYtHandle("");
+      setInfo(null);
+      router.refresh();
+    });
+  }
+
+  function saveIG() {
+    setError(null);
+    setInfo(null);
+    if (!igHandle.trim()) {
+      setError("Ingresá tu usuario de Instagram");
+      return;
+    }
+    startTransition(async () => {
+      const r = await saveInstagramAccountAction({ username: igHandle });
+      if (r.ok) {
+        setInfo("Guardado. Pulsa 'Sincronizar ahora' para traer la data.");
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
+    });
+  }
+
+  async function removeIG() {
+    const { ok } = await confirm({
+      title: "¿Quitar la cuenta de Instagram?",
+      message: "Los snapshots ya guardados quedan, pero deja de sincronizar.",
+      variant: "warning",
+      confirmLabel: "Quitar",
+    });
+    if (!ok) return;
+    startTransition(async () => {
+      await deletePlatformAccountAction("instagram");
+      setIgHandle("");
+      setInfo(null);
+      router.refresh();
+    });
+  }
+
+  function saveSP() {
+    setError(null);
+    setInfo(null);
+    if (!spUrl.trim()) {
+      setError("Pegá el link de tu perfil de artista en Spotify");
+      return;
+    }
+    startTransition(async () => {
+      const r = await saveSpotifyAccountAction({ url: spUrl });
+      if (r.ok) {
+        setInfo("Guardado. Pulsa 'Sincronizar ahora' para traer la data.");
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
+    });
+  }
+
+  async function removeSP() {
+    const { ok } = await confirm({
+      title: "¿Quitar la cuenta de Spotify?",
+      message: "Los snapshots ya guardados quedan, pero deja de sincronizar.",
+      variant: "warning",
+      confirmLabel: "Quitar",
+    });
+    if (!ok) return;
+    startTransition(async () => {
+      await deletePlatformAccountAction("spotify");
+      setSpUrl("");
       setInfo(null);
       router.refresh();
     });
@@ -269,6 +350,158 @@ export function PlatformAccountsSection({ accounts }: Props) {
                 <div className="mt-2 flex items-start gap-1.5 text-danger">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                   <span>Último error: {youtube.last_error}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Instagram */}
+        <div className="border-t border-white/10 pt-5">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="flex items-center gap-2 font-display text-xl leading-none tracking-tight">
+                Instagram
+                {instagram && <Badge tone="up">conectado</Badge>}
+              </h3>
+              <p className="mt-1.5 text-xs text-white/55">
+                Sync de followers vía Business Discovery (requiere cuenta Business/Creator)
+              </p>
+              <p className="mt-1 text-xs text-white/45">
+                Tu cuenta debe ser Business o Creator y pública. Si no, no vamos a poder enlazarla.
+              </p>
+            </div>
+            {instagram && (
+              <Button
+                variant="clay"
+                size="sm"
+                onClick={removeIG}
+                disabled={isPending}
+                className="shrink-0 text-danger hover:text-danger"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </div>
+
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="ig-handle" className="text-xs">
+                Usuario o URL
+              </Label>
+              <Input
+                id="ig-handle"
+                value={igHandle}
+                onChange={(e) => setIgHandle(e.target.value)}
+                placeholder="@tucuenta  o  instagram.com/tucuenta"
+                disabled={isPending}
+              />
+            </div>
+            <Button onClick={saveIG} disabled={isPending} size="sm" variant="clayPrimary">
+              {instagram ? "Actualizar" : "Conectar"}
+            </Button>
+          </div>
+
+          {instagram && (
+            <div className="mt-3 space-y-1 text-xs text-white/55">
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {instagram.last_followers !== null && (
+                  <span>
+                    Followers: <strong className="text-white">{instagram.last_followers.toLocaleString("es-CL")}</strong>
+                  </span>
+                )}
+                {instagram.last_track_count !== null && (
+                  <span>
+                    Posts: <strong className="text-white">{instagram.last_track_count}</strong>
+                  </span>
+                )}
+                {instagram.last_synced_at && (
+                  <span>
+                    Última sync: <strong className="text-white">{relativeTime(instagram.last_synced_at)}</strong>
+                  </span>
+                )}
+              </div>
+              {instagram.last_error && (
+                <div className="mt-2 flex items-start gap-1.5 text-danger">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>Último error: {instagram.last_error}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Spotify */}
+        <div className="border-t border-white/10 pt-5">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="flex items-center gap-2 font-display text-xl leading-none tracking-tight">
+                Spotify
+                {spotify && <Badge tone="up">conectado</Badge>}
+              </h3>
+              <p className="mt-1.5 text-xs text-white/55">
+                Followers + popularity del artista (Spotify Web API)
+              </p>
+              {spotify && (
+                <p className="mt-1 truncate text-xs text-white/45">
+                  Artista: <span className="text-white/70">{spotify.username}</span>
+                </p>
+              )}
+            </div>
+            {spotify && (
+              <Button
+                variant="clay"
+                size="sm"
+                onClick={removeSP}
+                disabled={isPending}
+                className="shrink-0 text-danger hover:text-danger"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </div>
+
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="sp-url" className="text-xs">
+                Link del perfil de artista
+              </Label>
+              <Input
+                id="sp-url"
+                value={spUrl}
+                onChange={(e) => setSpUrl(e.target.value)}
+                placeholder="https://open.spotify.com/artist/..."
+                disabled={isPending}
+              />
+            </div>
+            <Button onClick={saveSP} disabled={isPending} size="sm" variant="clayPrimary">
+              {spotify ? "Actualizar" : "Conectar"}
+            </Button>
+          </div>
+
+          {spotify && (
+            <div className="mt-3 space-y-1 text-xs text-white/55">
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {spotify.last_followers !== null && (
+                  <span>
+                    Followers: <strong className="text-white">{spotify.last_followers.toLocaleString("es-CL")}</strong>
+                  </span>
+                )}
+                {spotify.last_track_count !== null && (
+                  <span>
+                    Popularidad: <strong className="text-white">{spotify.last_track_count}</strong>
+                  </span>
+                )}
+                {spotify.last_synced_at && (
+                  <span>
+                    Última sync: <strong className="text-white">{relativeTime(spotify.last_synced_at)}</strong>
+                  </span>
+                )}
+              </div>
+              {spotify.last_error && (
+                <div className="mt-2 flex items-start gap-1.5 text-danger">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>Último error: {spotify.last_error}</span>
                 </div>
               )}
             </div>

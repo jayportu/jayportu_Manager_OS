@@ -15,7 +15,7 @@ export default async function RedesPage() {
       <SectionHero
         kicker="Perfil · Redes & Cuentas"
         title="Redes & Cuentas"
-        sub="Conecta tus perfiles públicos para que los snapshots de Growth se actualicen solos. SoundCloud usa scraping HTML público — gratis y sin OAuth."
+        sub="Conecta tus perfiles públicos (SoundCloud, YouTube, Instagram, Spotify) para que los snapshots de Growth se actualicen solos."
       />
       <PlatformAccountsSection accounts={accounts} />
     </div>

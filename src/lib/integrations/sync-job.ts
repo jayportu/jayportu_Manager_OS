@@ -12,6 +12,8 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchSoundCloudProfile } from "./soundcloud";
 import { fetchYouTubeChannel } from "./youtube";
+import { fetchInstagramBusinessProfile } from "./instagram";
+import { fetchSpotifyArtist } from "./spotify";
 import { santiagoToday, santiagoToUtcISO } from "@/lib/tz";
 
 interface AccountRow {
@@ -19,6 +21,7 @@ interface AccountRow {
   user_id: string;
   platform: string;
   username: string;
+  external_id: string | null;
   last_followers: number | null;
 }
 
@@ -71,6 +74,19 @@ async function syncOneAccount(acc: AccountRow): Promise<AccountResult> {
       snapshotExtras = {
         total_views_lifetime: channel.view_count,
       };
+    } else if (acc.platform === "instagram") {
+      const p = await fetchInstagramBusinessProfile(acc.username);
+      followers = p.followers_count;
+      trackOrVideoCount = p.media_count;
+      externalId = p.external_id;
+      notes = `Auto-sync de instagram.com/${p.username}`;
+    } else if (acc.platform === "spotify") {
+      // popularity (0-100) reusa el slot de track_count → snapshot.total_posts; la UI lo rotula "Popularidad"
+      const a = await fetchSpotifyArtist(acc.external_id || acc.username);
+      followers = a.followers;
+      trackOrVideoCount = a.popularity;
+      externalId = a.external_id;
+      notes = `Auto-sync de ${a.url}`;
     } else {
       throw new Error(`Plataforma "${acc.platform}" no soporta auto-sync aún`);
     }
@@ -152,7 +168,7 @@ export async function syncUserAccounts(
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("platform_accounts")
-    .select("id, user_id, platform, username, last_followers")
+    .select("id, user_id, platform, username, external_id, last_followers")
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
   const results: AccountResult[] = [];
@@ -174,7 +190,7 @@ export async function syncAllAutoAccounts(): Promise<{
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("platform_accounts")
-    .select("id, user_id, platform, username, last_followers")
+    .select("id, user_id, platform, username, external_id, last_followers")
     .eq("auto_sync_enabled", true);
   if (error) throw new Error(error.message);
 

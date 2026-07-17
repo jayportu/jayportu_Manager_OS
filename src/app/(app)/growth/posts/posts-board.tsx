@@ -10,6 +10,7 @@ import {
   PlayCircle,
   Instagram,
   Youtube,
+  Music,
   Music2,
   Twitter,
   Facebook,
@@ -38,6 +39,7 @@ const COLUMNS: { status: PostStatus; label: string; accent?: boolean }[] = [
 const PLATFORM_ICON: Record<SocialPlatform, LucideIcon> = {
   instagram: Instagram,
   youtube: Youtube,
+  spotify: Music,
   soundcloud: Cloud,
   tiktok: Music2,
   twitter: Twitter,
