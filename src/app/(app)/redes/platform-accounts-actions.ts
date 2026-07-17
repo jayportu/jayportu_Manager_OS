@@ -5,10 +5,22 @@ import { createClient } from "@/lib/supabase/server";
 import {
   upsertPlatformAccount,
   deletePlatformAccount,
+  updateAccountSyncResult,
 } from "@/lib/queries/platform-accounts";
 import { syncUserAccounts } from "@/lib/integrations/sync-job";
 import { normalizeSoundCloudHandle } from "@/lib/integrations/soundcloud";
 import { normalizeYouTubeInput } from "@/lib/integrations/youtube";
+import {
+  isSpotifyConfigured,
+  parseSpotifyArtistId,
+  fetchSpotifyArtist,
+} from "@/lib/integrations/spotify";
+import {
+  isMetaConfigured,
+  normalizeInstagramHandle,
+  fetchInstagramBusinessProfile,
+  InstagramNotEligibleError,
+} from "@/lib/integrations/instagram";
 
 type Result<T = void> =
   | { ok: true; data: T }
@@ -58,6 +70,112 @@ export async function saveYouTubeAccountAction(input: {
       username: raw,
       auto_sync_enabled: input.auto_sync_enabled ?? true,
     });
+    revalidatePath("/configuracion");
+    revalidatePath("/growth");
+    return { ok: true, data: { id: acc.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+export async function saveSpotifyAccountAction(input: {
+  url: string;
+}): Promise<Result<{ id: string }>> {
+  try {
+    if (!isSpotifyConfigured()) {
+      return {
+        ok: false,
+        error:
+          "Spotify no está disponible todavía (falta configurar la integración).",
+      };
+    }
+    const id = parseSpotifyArtistId(input.url);
+    if (!id) {
+      return {
+        ok: false,
+        error:
+          "Pegá el link de tu perfil de ARTISTA en Spotify (open.spotify.com/artist/...).",
+      };
+    }
+    let artist;
+    try {
+      artist = await fetchSpotifyArtist(id);
+    } catch {
+      return {
+        ok: false,
+        error: "No pudimos verificar ese artista en Spotify. Revisá el link o probá de nuevo en un momento.",
+      };
+    }
+    const acc = await upsertPlatformAccount({
+      platform: "spotify",
+      username: artist.name,
+    });
+    // best-effort: la cuenta ya quedó guardada aunque falle poblar stats
+    try {
+      await updateAccountSyncResult(acc.id, {
+        followers: artist.followers,
+        track_count: artist.popularity,
+        external_id: artist.external_id,
+        error: null,
+      });
+    } catch {
+      // ignore
+    }
+    revalidatePath("/configuracion");
+    revalidatePath("/growth");
+    return { ok: true, data: { id: acc.id } };
+  } catch (e) {
+    return err(e);
+  }
+}
+
+export async function saveInstagramAccountAction(input: {
+  username: string;
+}): Promise<Result<{ id: string }>> {
+  try {
+    if (!isMetaConfigured()) {
+      return {
+        ok: false,
+        error:
+          "Instagram no está disponible todavía (falta configurar la integración).",
+      };
+    }
+    const handle = normalizeInstagramHandle(input.username);
+    if (!handle) {
+      return { ok: false, error: "Ingresá tu usuario de Instagram" };
+    }
+    let profile;
+    try {
+      profile = await fetchInstagramBusinessProfile(handle);
+    } catch (e) {
+      if (e instanceof InstagramNotEligibleError) {
+        return {
+          ok: false,
+          error:
+            "Esta cuenta no cumple las condiciones para enlazar: tiene que ser una cuenta Business o Creator y pública en Instagram.",
+        };
+      }
+      return {
+        ok: false,
+        error:
+          "No pudimos verificar esa cuenta de Instagram. Probá de nuevo en un momento.",
+      };
+    }
+    const acc = await upsertPlatformAccount({
+      platform: "instagram",
+      username: handle,
+    });
+    // best-effort: la cuenta ya quedó guardada aunque falle poblar stats
+    try {
+      await updateAccountSyncResult(acc.id, {
+        followers: profile.followers_count,
+        track_count: profile.media_count,
+        external_id: profile.external_id,
+        error: null,
+      });
+    } catch {
+      // ignore
+    }
     revalidatePath("/configuracion");
     revalidatePath("/growth");
     return { ok: true, data: { id: acc.id } };

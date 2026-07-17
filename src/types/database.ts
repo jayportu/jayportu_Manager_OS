@@ -870,6 +870,7 @@ export interface CampaignContact {
 export const SOCIAL_PLATFORMS = [
   "instagram",
   "youtube",
+  "spotify",
   "soundcloud",
   "tiktok",
   "twitter",
@@ -881,6 +882,7 @@ export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
 export const SOCIAL_PLATFORM_LABELS: Record<SocialPlatform, string> = {
   instagram: "Instagram",
   youtube: "YouTube",
+  spotify: "Spotify",
   soundcloud: "SoundCloud",
   tiktok: "TikTok",
   twitter: "Twitter / X",
