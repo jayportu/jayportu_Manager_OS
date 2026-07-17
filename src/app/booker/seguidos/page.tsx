@@ -9,6 +9,8 @@ import {
 import { Plus, Bell, Heart } from "lucide-react";
 import { relativeTime, isSupabaseStorageUrl } from "@/lib/format";
 import { NotifyToggleIcon } from "@/components/booker/notify-toggle-icon";
+import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel, Badge, EmptyState } from "@/components/hos";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +39,8 @@ export default async function BookerSeguidosPage() {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — DJS QUE SIGUES
-        </div>
+      <GlassPanel padded={false} className="mb-6 p-6 md:p-7">
+        <MonoLabel>DJS QUE SIGUES</MonoLabel>
         <div className="mt-2 flex flex-wrap items-end gap-3 justify-between">
           <h1
             className="leading-none"
@@ -52,32 +52,29 @@ export default async function BookerSeguidosPage() {
           >
             SEGUIDOS<span className="text-orange">.</span>
           </h1>
-          <Link
-            href="/booker/buscar"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Sumar DJs
-          </Link>
+          <Button asChild variant="clay">
+            <Link href="/booker/buscar">
+              <Plus className="w-4 h-4" />
+              Sumar DJs
+            </Link>
+          </Button>
         </div>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+        <p className="text-sm text-white/55 mt-2 max-w-xl">
           Updates recientes de los DJs que sigues + tu listado completo abajo.
           Activa los avisos por email desde cada perfil para recibir un correo
           cuando publiquen disponibilidad o agenden shows.
         </p>
-      </div>
+      </GlassPanel>
 
       {/* Feed de updates */}
       {feed.length > 0 ? (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange">
-              — Updates recientes
-            </h2>
+            <MonoLabel>Updates recientes</MonoLabel>
             {unreadCount > 0 && (
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink border-2 border-orange">
+              <Badge tone="warn" solid>
                 {unreadCount} nuevo{unreadCount === 1 ? "" : "s"}
-              </span>
+              </Badge>
             )}
           </div>
           <div className="space-y-2">
@@ -87,9 +84,9 @@ export default async function BookerSeguidosPage() {
           </div>
         </section>
       ) : favorites.length > 0 ? (
-        <div className="mb-10 border-2 border-dashed border-border/30 bg-cream p-6 text-center">
-          <Bell className="w-6 h-6 mx-auto text-fg-muted mb-2" />
-          <p className="text-sm text-fg-muted">
+        <div className="mb-10 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-6 text-center">
+          <Bell className="w-6 h-6 mx-auto text-white/40 mb-2" />
+          <p className="text-sm text-white/55">
             Todavía no hay novedades de los DJs que sigues.
             <br className="hidden sm:block" />
             Te avisamos cuando publiquen disponibilidad o agenden shows.
@@ -99,21 +96,33 @@ export default async function BookerSeguidosPage() {
 
       {/* Grilla de DJs (todos los seguidos) */}
       {favorites.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={Heart}
+          title="Todavía no sigues a nadie"
+          sub="Cuando encuentres un DJ que te interese en el directorio o en un press kit, dale al corazón y activa los avisos por email para enterarte cuando publique disponibilidad o agende shows."
+          action={
+            <Button asChild variant="clay" size="lg">
+              <Link href="/booker/buscar">
+                <Plus className="w-4 h-4" />
+                Ver directorio de DJs
+              </Link>
+            </Button>
+          }
+        />
       ) : (
         <section>
-          <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-            — Todos los DJs que sigues ({favorites.length})
-          </h2>
+          <MonoLabel className="mb-3 block">
+            Todos los DJs que sigues ({favorites.length})
+          </MonoLabel>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {favorites.map((dj) => (
               <Link
                 key={dj.dj_user_id}
                 href={`/p/${dj.public_slug}`}
-                className="group border-2 border-border bg-bg-panel overflow-hidden hover:bg-cream/40 transition-colors"
+                className="group hos-glass hos-sweep-card rounded-2xl overflow-hidden transition-colors hover:border-white/30"
               >
                 {isSupabaseStorageUrl(dj.hero_image_url) ? (
-                  <div className="relative w-full aspect-[4/3] border-b-2 border-border">
+                  <div className="relative w-full aspect-[4/3] border-b border-white/10">
                     <Image
                       src={dj.hero_image_url}
                       alt={dj.artist_name}
@@ -123,7 +132,7 @@ export default async function BookerSeguidosPage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-full aspect-[4/3] bg-ink text-orange flex items-center justify-center border-b-2 border-border">
+                  <div className="w-full aspect-[4/3] bg-ink text-orange flex items-center justify-center border-b border-white/10">
                     <span
                       style={{
                         fontFamily:
@@ -139,7 +148,7 @@ export default async function BookerSeguidosPage() {
                 <div className="p-3">
                   <div className="flex items-start gap-2">
                     <div
-                      className="text-fg truncate flex-1"
+                      className="text-white truncate flex-1"
                       style={{
                         fontFamily:
                           "var(--font-anton), Impact, system-ui, sans-serif",
@@ -156,7 +165,7 @@ export default async function BookerSeguidosPage() {
                       />
                     </span>
                   </div>
-                  <div className="font-mono text-[10px] text-fg-muted uppercase tracking-wider mt-1">
+                  <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider mt-1">
                     {dj.city || "—"}
                   </div>
                 </div>
@@ -174,10 +183,8 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
   return (
     <Link
       href={`/p/${update.public_slug}`}
-      className={`grid grid-cols-[56px_1fr_auto] items-start gap-3 p-3 transition-colors hover:bg-cream/60 ${
-        update.unread
-          ? "bg-cream border-2 border-orange"
-          : "bg-bg-panel border-2 border-border"
+      className={`grid grid-cols-[56px_1fr_auto] items-start gap-3 p-3 rounded-2xl hos-glass hos-sweep-card transition-colors ${
+        update.unread ? "border-orange" : "hover:border-white/30"
       }`}
     >
       {/* Avatar */}
@@ -206,7 +213,7 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
       {/* Body */}
       <div className="min-w-0">
         <div
-          className="text-fg truncate"
+          className="text-white truncate"
           style={{
             fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
             fontSize: "20px",
@@ -215,14 +222,14 @@ function UpdateCard({ update }: { update: FeedUpdate }) {
         >
           {update.artist_name}
         </div>
-        <div className="text-sm text-fg mt-1">
+        <div className="text-sm text-white mt-1">
           <span className="text-orange font-bold">{title}</span>
-          {detail && <span className="text-fg-muted"> · {detail}</span>}
+          {detail && <span className="text-white/50"> · {detail}</span>}
         </div>
       </div>
       {/* Meta column */}
       <div className="flex flex-col items-end gap-1 shrink-0">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/40">
           {update.unread && <span className="text-orange mr-1">●</span>}
           {relativeTime(update.created_at)}
         </div>
@@ -273,25 +280,4 @@ function formatUpdate(u: FeedUpdate): { title: string; detail: string } {
     title: "Publicó disponibilidad",
     detail: range || p.available_note || "",
   };
-}
-
-function EmptyState() {
-  return (
-    <div className="border-2 border-dashed border-border/30 bg-cream p-12 text-center">
-      <Heart className="w-10 h-10 mx-auto text-orange mb-3" />
-      <h2 className="text-lg font-bold mb-1">Todavía no sigues a nadie</h2>
-      <p className="text-sm text-fg-muted mb-4 max-w-md mx-auto">
-        Cuando encuentres un DJ que te interese en el directorio o en un
-        press kit, dale al corazón y activa los avisos por email para
-        enterarte cuando publique disponibilidad o agende shows.
-      </p>
-      <Link
-        href="/booker/buscar"
-        className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
-      >
-        <Plus className="w-4 h-4" />
-        Ver directorio de DJs
-      </Link>
-    </div>
-  );
 }

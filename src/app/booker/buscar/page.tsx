@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SearchX } from "lucide-react";
 import {
   listPublicDjs,
   listPublicGenres,
@@ -6,6 +7,16 @@ import {
   listLiveDjUserIds,
 } from "@/lib/queries/directory";
 import { getMyFavoriteDjIds } from "@/lib/queries/booker";
+import {
+  GlassPanel,
+  MonoLabel,
+  Badge,
+  ClayChip,
+  EmptyState,
+  FIELD,
+  SELECT,
+} from "@/components/hos";
+import { Button } from "@/components/ui/button";
 import { BuscarCard } from "./buscar-card";
 
 export const dynamic = "force-dynamic";
@@ -67,10 +78,8 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — BUSCAR DJS · {djs.length} EN EL DIRECTORIO
-        </div>
+      <GlassPanel padded={false} className="mb-6 p-6 md:p-7">
+        <MonoLabel>BUSCAR DJS · {djs.length} EN EL DIRECTORIO</MonoLabel>
         <h1
           className="mt-2 leading-none"
           style={{
@@ -81,30 +90,30 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
         >
           BUSCAR<span className="text-orange">.</span>
         </h1>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+        <p className="text-sm text-white/55 mt-2 max-w-xl">
           Filtra por género, ciudad, disponibilidad y presupuesto. Escucha un
           set y guarda al DJ en favoritos sin salir de acá.
         </p>
         {availableCount > 0 && (
           <div
-            className="mt-4 inline-flex items-center gap-2 border-2 border-border bg-orange text-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider"
+            className="mt-4"
             title="DJs con disponibilidad abierta. Usa el filtro «Solo disponibles» para verlos."
           >
-            ★ {availableCount}{" "}
-            {availableCount === 1 ? "disponible" : "disponibles"} ahora
+            <Badge tone="up" solid>
+              ★ {availableCount}{" "}
+              {availableCount === 1 ? "disponible" : "disponibles"} ahora
+            </Badge>
           </div>
         )}
-      </div>
+      </GlassPanel>
 
       {/* Filtros */}
       <form
         action="/booker/buscar"
         method="get"
-        className="border-2 border-border bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
+        className="hos-glass rounded-2xl p-4 md:p-5 mb-6 space-y-4"
       >
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-          — FILTROS
-        </div>
+        <MonoLabel>FILTROS</MonoLabel>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_150px_150px_150px_140px_auto] gap-2">
           <input
@@ -112,13 +121,9 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             name="q"
             placeholder="🔎  Nombre, ciudad, tagline..."
             defaultValue={sp.q ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[12px] uppercase tracking-[0.04em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className={FIELD}
           />
-          <select
-            name="city"
-            defaultValue={sp.city ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
-          >
+          <select name="city" defaultValue={sp.city ?? ""} className={SELECT}>
             <option value="">Ciudad: todas</option>
             {allCities.map((c) => (
               <option key={c.city} value={c.city}>
@@ -126,11 +131,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
               </option>
             ))}
           </select>
-          <select
-            name="avail"
-            defaultValue={sp.avail ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
-          >
+          <select name="avail" defaultValue={sp.avail ?? ""} className={SELECT}>
             <option value="">Disponibilidad</option>
             <option value="1">Solo disponibles</option>
           </select>
@@ -141,27 +142,24 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
             step={50000}
             placeholder="Presupuesto $"
             defaultValue={sp.budget ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+            className={FIELD}
           />
           <input
             type="date"
             name="date"
             title="Libre en esta fecha"
             defaultValue={sp.date ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
+            className={FIELD}
           />
-          <button
-            type="submit"
-            className="border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
-          >
+          <Button type="submit" variant="clayPrimary" className="w-full md:w-auto">
             FILTRAR
-          </button>
+          </Button>
         </div>
 
         {/* Géneros chips */}
         {allGenres.length > 0 && (
           <div>
-            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-2">
+            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
               Géneros:
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -176,12 +174,13 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
                     href={buildHref(sp, {
                       genres: newGenres.length > 0 ? newGenres.join(",") : undefined,
                     })}
-                    className={`inline-flex items-center gap-1.5 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
-                      active ? "bg-orange text-ink" : "bg-cream hover:bg-orange"
-                    }`}
                   >
-                    {g.genre.toUpperCase()}
-                    {!active && <span className="text-fg-muted">{g.count}</span>}
+                    <ClayChip active={active}>
+                      {g.genre.toUpperCase()}
+                      {!active && (
+                        <span className="ml-1 text-white/45">{g.count}</span>
+                      )}
+                    </ClayChip>
                   </Link>
                 );
               })}
@@ -190,7 +189,7 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
               <div className="mt-2">
                 <Link
                   href={buildHref(sp, { genres: undefined })}
-                  className="font-mono text-[9px] uppercase tracking-wider underline text-fg-muted hover:text-fg"
+                  className="font-mono text-[9px] uppercase tracking-wider underline text-white/50 hover:text-white"
                 >
                   Limpiar géneros
                 </Link>
@@ -201,23 +200,22 @@ export default async function BookerBuscarPage({ searchParams }: PageProps) {
       </form>
 
       {/* Resultados */}
-      <div className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-orange mb-3">
-        — {djs.length} {djs.length === 1 ? "RESULTADO" : "RESULTADOS"}
+      <MonoLabel className="mb-3 block">
+        {djs.length} {djs.length === 1 ? "RESULTADO" : "RESULTADOS"}
         {sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) && (
-          <span className="text-fg-muted">
+          <span className="text-white/50">
             {" "}
             · LIBRES EL {sp.date.split("-").reverse().join("/")}
           </span>
         )}
-      </div>
+      </MonoLabel>
 
       {djs.length === 0 ? (
-        <div className="border-2 border-border bg-bg-panel p-10 text-center">
-          <p className="text-sm text-fg-muted">
-            No hay DJs que coincidan con los filtros. Prueba con menos filtros,
-            otra ciudad o un presupuesto más alto.
-          </p>
-        </div>
+        <EmptyState
+          icon={SearchX}
+          title="Sin resultados"
+          sub="No hay DJs que coincidan con los filtros. Prueba con menos filtros, otra ciudad o un presupuesto más alto."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {djs.map((d) => (
