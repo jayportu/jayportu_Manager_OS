@@ -1,6 +1,4 @@
-import { Card } from "@/components/ui/card";
 import {
-  Shield,
   Users,
   UserCheck,
   TrendingUp,
@@ -8,6 +6,16 @@ import {
   FileImage,
   Megaphone,
 } from "lucide-react";
+import {
+  SectionHero,
+  GlassPanel,
+  Badge,
+  TableShell,
+  Th,
+  Td,
+  EmptyState,
+  MonoLabel,
+} from "@/components/hos";
 import {
   assertAdmin,
   getAllUsers,
@@ -42,22 +50,17 @@ export default async function AdminPage() {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto">
       {/* Header — la navegación entre secciones la da la barra fija (admin/layout). */}
-      <div className="mb-7">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Shield className="w-6 h-6 text-accent" />
-          Backoffice
-        </h1>
-        <p className="text-sm text-fg-muted mt-1">
-          Vista privada. Métricas globales y listado de todos los usuarios
-          registrados.
-        </p>
-      </div>
+      <SectionHero
+        kicker="Admin"
+        title="Backoffice"
+        sub="Vista privada. Métricas globales y listado de todos los usuarios registrados."
+      />
 
       {/* KPIs */}
       <section className="mb-7">
-        <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3">
-          Métricas globales
-        </h2>
+        <div className="mb-3">
+          <MonoLabel>Métricas globales</MonoLabel>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Kpi
             label="Usuarios totales"
@@ -112,145 +115,128 @@ export default async function AdminPage() {
 
       {/* Tabla usuarios */}
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-fg-muted font-semibold mb-3">
-          Usuarios ({users.length})
-        </h2>
+        <div className="mb-3">
+          <MonoLabel>Usuarios ({users.length})</MonoLabel>
+        </div>
         {users.length === 0 ? (
-          <Card className="p-8 text-center text-sm text-fg-muted">
-            No hay usuarios registrados aún.
-          </Card>
+          <EmptyState icon={Users} title="No hay usuarios registrados aún." />
         ) : (
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-bg-subtle border-b border-border">
-                  <tr className="text-left text-[10px] uppercase tracking-wider text-fg-muted">
-                    <th className="px-3 py-2.5 font-semibold">Artista</th>
-                    <th className="px-3 py-2.5 font-semibold">Email</th>
-                    <th className="px-3 py-2.5 font-semibold">Ciudad</th>
-                    <th className="px-3 py-2.5 font-semibold">Signup</th>
-                    <th className="px-3 py-2.5 font-semibold">Último login</th>
-                    <th className="px-3 py-2.5 font-semibold text-right">Cont.</th>
-                    <th className="px-3 py-2.5 font-semibold text-right">Posts</th>
-                    <th className="px-3 py-2.5 font-semibold text-right">Snaps</th>
-                    <th className="px-3 py-2.5 font-semibold">Estado</th>
-                    <th className="px-3 py-2.5 font-semibold text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => {
-                    const isOnboarded = !!u.onboarding_completed_at;
-                    return (
-                      <tr
-                        key={u.user_id}
-                        className="border-b border-border last:border-b-0 hover:bg-bg-subtle/40 transition-colors"
-                      >
-                        <td className="px-3 py-2.5 font-semibold">
-                          {u.artist_name || (
-                            <span className="text-fg-subtle italic">sin nombre</span>
+          <GlassPanel padded={false}>
+            <TableShell bare>
+              <thead>
+                <tr>
+                  <Th>Artista</Th>
+                  <Th>Email</Th>
+                  <Th>Ciudad</Th>
+                  <Th>Signup</Th>
+                  <Th>Último login</Th>
+                  <Th align="right">Cont.</Th>
+                  <Th align="right">Posts</Th>
+                  <Th align="right">Snaps</Th>
+                  <Th>Estado</Th>
+                  <Th align="right">Acciones</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => {
+                  const isOnboarded = !!u.onboarding_completed_at;
+                  return (
+                    <tr
+                      key={u.user_id}
+                      className="transition-colors hover:bg-white/[0.06]"
+                    >
+                      <Td className="font-semibold text-white/90">
+                        {u.artist_name || (
+                          <span className="text-white/40 italic">sin nombre</span>
+                        )}
+                        {u.is_admin && (
+                          <span className="ml-2 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent">
+                            admin
+                          </span>
+                        )}
+                      </Td>
+                      <Td className="text-xs text-white/60">{u.email}</Td>
+                      <Td className="text-xs text-white/60">{u.city || "—"}</Td>
+                      <Td className="text-xs text-white/60 whitespace-nowrap">
+                        {shortDate(u.created_at)}
+                      </Td>
+                      <Td className="text-xs text-white/60 whitespace-nowrap">
+                        {u.last_sign_in_at
+                          ? relativeTime(u.last_sign_in_at)
+                          : (
+                            <span className="text-white/40 italic">nunca</span>
                           )}
-                          {u.is_admin && (
-                            <span className="ml-2 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft border border-accent/30 text-accent">
-                              admin
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5 text-fg-muted text-xs">
-                          {u.email}
-                        </td>
-                        <td className="px-3 py-2.5 text-fg-muted text-xs">
-                          {u.city || "—"}
-                        </td>
-                        <td className="px-3 py-2.5 text-fg-muted text-xs whitespace-nowrap">
-                          {shortDate(u.created_at)}
-                        </td>
-                        <td className="px-3 py-2.5 text-fg-muted text-xs whitespace-nowrap">
-                          {u.last_sign_in_at
-                            ? relativeTime(u.last_sign_in_at)
-                            : (
-                              <span className="text-fg-subtle italic">nunca</span>
-                            )}
-                        </td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">
-                          {u.contacts_count}
-                        </td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">
-                          {u.posts_count}
-                        </td>
-                        <td className="px-3 py-2.5 text-right tabular-nums">
-                          {u.snapshots_count}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          {u.account_status === "banned" ? (
-                            <span
-                              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-danger/15 border border-danger/40 text-danger"
-                              title={u.account_status_reason || undefined}
-                            >
-                              baneado
-                            </span>
-                          ) : u.account_status === "suspended" ? (
-                            <span
-                              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning"
-                              title={u.account_status_reason || undefined}
-                            >
-                              suspendido
-                            </span>
-                          ) : isOnboarded ? (
-                            <span
-                              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success/15 border border-success/30 text-success"
-                              title={`Completó el wizard ${dateTime(u.onboarding_completed_at!)}`}
-                            >
-                              activo
-                            </span>
-                          ) : (
-                            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-warning">
-                              pendiente
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          {u.is_admin ? (
-                            <span className="text-fg-subtle text-xs">—</span>
-                          ) : isOnboarded ? (
-                            <div className="inline-flex flex-col items-end gap-1.5">
-                              <VerifyDjButton
-                                djUserId={u.user_id}
-                                verified={!!u.verified_at}
-                                name={u.artist_name || u.email}
-                              />
-                              <DjVerificationChips
-                                djUserId={u.user_id}
-                                verifications={u.verifications}
-                              />
-                              <DropPickButton
-                                djUserId={u.user_id}
-                                isPick={u.is_drop_pick}
-                                name={u.artist_name || u.email}
-                              />
-                              <AccountStatusControl
-                                userId={u.user_id}
-                                artistName={u.artist_name}
-                                status={u.account_status}
-                              />
-                            </div>
-                          ) : (
-                            <DeletePendingUserButton
-                              userId={u.user_id}
-                              email={u.email}
+                      </Td>
+                      <Td align="right" className="tabular-nums text-white/75">
+                        {u.contacts_count}
+                      </Td>
+                      <Td align="right" className="tabular-nums text-white/75">
+                        {u.posts_count}
+                      </Td>
+                      <Td align="right" className="tabular-nums text-white/75">
+                        {u.snapshots_count}
+                      </Td>
+                      <Td>
+                        {u.account_status === "banned" ? (
+                          <span title={u.account_status_reason || undefined}>
+                            <Badge tone="down">baneado</Badge>
+                          </span>
+                        ) : u.account_status === "suspended" ? (
+                          <span title={u.account_status_reason || undefined}>
+                            <Badge tone="warn">suspendido</Badge>
+                          </span>
+                        ) : isOnboarded ? (
+                          <span
+                            title={`Completó el wizard ${dateTime(u.onboarding_completed_at!)}`}
+                          >
+                            <Badge tone="up">activo</Badge>
+                          </span>
+                        ) : (
+                          <Badge tone="warn">pendiente</Badge>
+                        )}
+                      </Td>
+                      <Td align="right">
+                        {u.is_admin ? (
+                          <span className="text-white/40 text-xs">—</span>
+                        ) : isOnboarded ? (
+                          <div className="inline-flex flex-col items-end gap-1.5">
+                            <VerifyDjButton
+                              djUserId={u.user_id}
+                              verified={!!u.verified_at}
+                              name={u.artist_name || u.email}
                             />
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                            <DjVerificationChips
+                              djUserId={u.user_id}
+                              verifications={u.verifications}
+                            />
+                            <DropPickButton
+                              djUserId={u.user_id}
+                              isPick={u.is_drop_pick}
+                              name={u.artist_name || u.email}
+                            />
+                            <AccountStatusControl
+                              userId={u.user_id}
+                              artistName={u.artist_name}
+                              status={u.account_status}
+                            />
+                          </div>
+                        ) : (
+                          <DeletePendingUserButton
+                            userId={u.user_id}
+                            email={u.email}
+                          />
+                        )}
+                      </Td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </TableShell>
+          </GlassPanel>
         )}
       </section>
 
-      <p className="text-[11px] text-fg-subtle mt-6 text-center">
+      <p className="text-[11px] text-white/40 mt-6 text-center">
         Los datos se leen vía service_role (RLS bypass). Solo accesible para
         usuarios con <code>is_admin=true</code> en dj_profile.
       </p>
@@ -270,17 +256,17 @@ function Kpi({
   icon: typeof Users;
 }) {
   return (
-    <Card className="p-4">
+    <div className="hos-clay rounded-2xl px-4 py-4">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-[10px] uppercase tracking-wider text-fg-muted font-semibold">
-          {label}
+        <div className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-white/45">
+          — {label}
         </div>
-        <Icon className="w-3.5 h-3.5 text-fg-subtle" />
+        <Icon className="w-3.5 h-3.5 text-white/30" />
       </div>
       <div className="font-display text-3xl leading-none tabular-nums">
         {value}
       </div>
-      <div className="text-[10px] text-fg-subtle mt-1.5">{sub}</div>
-    </Card>
+      <div className="text-[10px] text-white/40 mt-1.5">{sub}</div>
+    </div>
   );
 }

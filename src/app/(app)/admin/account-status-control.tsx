@@ -11,8 +11,11 @@ import { useRouter } from "next/navigation";
 import { Ban, PauseCircle, RotateCcw, Trash2 } from "lucide-react";
 import { setAccountStatusAction, deleteUserAction } from "./actions";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { adminBtn } from "@/components/admin/buttons";
 import type { AccountStatus } from "@/types/database";
+
+/** Botón-pill semántico (Hybrid OS) — color = tipo de acción. */
+const PILL =
+  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface Props {
   userId: string;
@@ -119,7 +122,7 @@ export function AccountStatusControl({ userId, artistName, status }: Props) {
             type="button"
             onClick={() => changeStatus("active")}
             disabled={pending}
-            className={adminBtn("primary")}
+            className={`${PILL} border-transparent bg-[rgb(var(--drop-orange))] text-black hover:opacity-90`}
             title="Reactivar cuenta"
           >
             <RotateCcw className="w-3 h-3" />
@@ -131,7 +134,7 @@ export function AccountStatusControl({ userId, artistName, status }: Props) {
             type="button"
             onClick={() => changeStatus("suspended")}
             disabled={pending}
-            className={adminBtn("warn")}
+            className={`${PILL} border-warning/50 text-warning hover:bg-warning/15`}
             title="Suspender temporalmente"
           >
             <PauseCircle className="w-3 h-3" />
@@ -143,7 +146,7 @@ export function AccountStatusControl({ userId, artistName, status }: Props) {
             type="button"
             onClick={() => changeStatus("banned")}
             disabled={pending}
-            className={adminBtn("danger")}
+            className={`${PILL} border-danger/50 text-danger hover:bg-danger/15`}
             title="Banear permanentemente"
           >
             <Ban className="w-3 h-3" />
@@ -154,7 +157,7 @@ export function AccountStatusControl({ userId, artistName, status }: Props) {
           type="button"
           onClick={remove}
           disabled={pending}
-          className={adminBtn("dangerSolid")}
+          className={`${PILL} border-transparent bg-danger text-white dark:text-ink hover:opacity-90`}
           title="Eliminar la cuenta y todos sus datos (irreversible)"
         >
           <Trash2 className="w-3 h-3" />

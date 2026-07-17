@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { notifyAndDeleteUserAction } from "./actions";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { adminBtn } from "@/components/admin/buttons";
 
 interface Props {
   userId: string;
@@ -64,7 +63,7 @@ export function DeletePendingUserButton({ userId, email }: Props) {
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className={adminBtn("danger")}
+        className="inline-flex items-center gap-1 rounded-full border border-danger/50 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger/15 disabled:opacity-50 disabled:cursor-not-allowed"
         title="Avisar al user y borrar cuenta huérfana"
       >
         <Trash2 className="w-3 h-3" />
