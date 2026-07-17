@@ -2,13 +2,25 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Send, Copy, Check, X } from "lucide-react";
+import { Send, Copy, Check, X, Star } from "lucide-react";
 import type { FoundingInvite } from "@/lib/queries/founding-invites";
 import {
   sendFoundingInviteAction,
   revokeFoundingInviteAction,
 } from "./actions";
 import { useConfirm } from "@/components/admin/confirm-dialog";
+import {
+  GlassPanel,
+  Alert,
+  EmptyState,
+  TableShell,
+  Th,
+  Td,
+  Badge,
+  FIELD,
+} from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 function inviteLink(token: string): string {
   const origin =
@@ -34,10 +46,10 @@ function shortDate(iso: string | null): string {
   }
 }
 
-const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-warning/15 border-warning/30 text-warning",
-  accepted: "bg-success/15 border-success/30 text-success",
-  revoked: "bg-fg-muted/15 border-fg-muted/30 text-fg-muted",
+const STATUS_TONE: Record<string, "up" | "warn" | "down" | "info" | "neutral"> = {
+  pending: "warn",
+  accepted: "up",
+  revoked: "neutral",
 };
 const STATUS_LABEL: Record<string, string> = {
   pending: "pendiente",
@@ -114,53 +126,43 @@ export function FoundingInvitesClient({
   return (
     <div className="space-y-6">
       {/* Form de invitación */}
-      <form
-        onSubmit={handleInvite}
-        className="border-2 border-border bg-bg-panel p-4 md:p-5 flex flex-col sm:flex-row gap-3 sm:items-end"
-      >
-        <div className="flex-1 space-y-1">
-          <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
-            Email del booker
-          </label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="hola@venue.com"
-            className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
-          />
-        </div>
-        <div className="flex-1 space-y-1">
-          <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
-            Nombre (opcional)
-          </label>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Club X / Carlos"
-            className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={pending}
-          className="inline-flex items-center justify-center gap-2 h-10 px-4 border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50"
+      <GlassPanel>
+        <form
+          onSubmit={handleInvite}
+          className="flex flex-col gap-3 sm:flex-row sm:items-end"
         >
-          <Send className="w-3.5 h-3.5" />
-          {pending ? "Enviando…" : "Invitar"}
-        </button>
-      </form>
+          <div className="flex-1 space-y-1.5">
+            <Label htmlFor="founding-email">Email del booker</Label>
+            <input
+              id="founding-email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="hola@venue.com"
+              className={FIELD}
+            />
+          </div>
+          <div className="flex-1 space-y-1.5">
+            <Label htmlFor="founding-name">Nombre (opcional)</Label>
+            <input
+              id="founding-name"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Club X / Carlos"
+              className={FIELD}
+            />
+          </div>
+          <Button type="submit" variant="clayPrimary" disabled={pending}>
+            <Send className="h-3.5 w-3.5" />
+            {pending ? "Enviando…" : "Invitar"}
+          </Button>
+        </form>
+      </GlassPanel>
 
       {msg && (
-        <div
-          className={`border-2 px-3 py-2 text-sm ${
-            msg.type === "ok"
-              ? "border-success/40 bg-success/10 text-success"
-              : "border-danger/40 bg-danger/10 text-danger"
-          }`}
-        >
+        <Alert tone={msg.type === "ok" ? "success" : "danger"}>
           {msg.text}
           {msg.link && (
             <button
@@ -168,93 +170,88 @@ export function FoundingInvitesClient({
               onClick={() => copy(msg.link!, "msg")}
               className="ml-2 inline-flex items-center gap-1 underline"
             >
-              {copied === "msg" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {copied === "msg" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               copiar link
             </button>
           )}
-        </div>
+        </Alert>
       )}
 
       {/* Tabla de invitaciones */}
       {invites.length === 0 ? (
-        <div className="border-2 border-dashed border-border/30 bg-cream p-8 text-center text-sm text-fg-muted">
-          Todavía no hay invitaciones Founding.
-        </div>
+        <EmptyState icon={Star} title="Todavía no hay invitaciones Founding." />
       ) : (
-        <div className="border-2 border-border bg-bg-panel overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-bg-subtle border-b border-border">
-              <tr className="text-left text-[10px] uppercase tracking-wider text-fg-muted">
-                <th className="px-3 py-2.5 font-semibold">Email</th>
-                <th className="px-3 py-2.5 font-semibold">Nombre</th>
-                <th className="px-3 py-2.5 font-semibold">Estado</th>
-                <th className="px-3 py-2.5 font-semibold">Enviada</th>
-                <th className="px-3 py-2.5 font-semibold">Vence</th>
-                <th className="px-3 py-2.5 font-semibold text-right">Acción</th>
+        <GlassPanel padded={false}>
+          <TableShell bare>
+            <thead>
+              <tr>
+                <Th>Email</Th>
+                <Th>Nombre</Th>
+                <Th>Estado</Th>
+                <Th>Enviada</Th>
+                <Th>Vence</Th>
+                <Th align="right">Acción</Th>
               </tr>
             </thead>
             <tbody>
               {invites.map((inv) => (
                 <tr
                   key={inv.id}
-                  className="border-b border-border last:border-b-0 hover:bg-bg-subtle/40 transition-colors"
+                  className="transition-colors hover:bg-white/[0.02]"
                 >
-                  <td className="px-3 py-2.5">{inv.email}</td>
-                  <td className="px-3 py-2.5 text-fg-muted text-xs">
+                  <Td>{inv.email}</Td>
+                  <Td className="text-xs text-white/55">
                     {inv.full_name || "—"}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <span
-                      className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                        STATUS_STYLE[inv.status] ?? ""
-                      }`}
-                    >
-                      {STATUS_LABEL[inv.status] ?? inv.status}
-                    </span>
-                    {isExpired(inv) && (
-                      <span className="ml-1 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border bg-danger/15 border-danger/30 text-danger">
-                        caducada
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2.5 text-fg-muted text-xs whitespace-nowrap">
+                  </Td>
+                  <Td>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <Badge tone={STATUS_TONE[inv.status] ?? "neutral"}>
+                        {STATUS_LABEL[inv.status] ?? inv.status}
+                      </Badge>
+                      {isExpired(inv) && <Badge tone="down">caducada</Badge>}
+                    </div>
+                  </Td>
+                  <Td className="whitespace-nowrap text-xs text-white/55">
                     {inv.invite_sent_at ? "Sí" : "—"}
-                  </td>
-                  <td
-                    className={`px-3 py-2.5 text-xs whitespace-nowrap ${
-                      isExpired(inv) ? "text-danger" : "text-fg-muted"
+                  </Td>
+                  <Td
+                    className={`whitespace-nowrap text-xs ${
+                      isExpired(inv) ? "text-danger" : "text-white/55"
                     }`}
                   >
                     {inv.status === "pending" ? shortDate(inv.expires_at) : "—"}
-                  </td>
-                  <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                  </Td>
+                  <Td align="right" className="whitespace-nowrap">
                     {inv.status === "pending" && inv.invite_token && (
-                      <>
-                        <button
+                      <div className="inline-flex items-center gap-1.5">
+                        <Button
                           type="button"
+                          variant="clay"
+                          size="sm"
                           onClick={() => copy(inviteLink(inv.invite_token!), inv.id)}
-                          className="inline-flex items-center gap-1 px-2 py-1 border border-border/40 font-mono text-[9px] uppercase tracking-wider hover:bg-ink hover:text-white transition-colors mr-1"
                           title="Copiar link de invitación"
                         >
-                          {copied === inv.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                          {copied === inv.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                           link
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="clay"
+                          size="sm"
                           onClick={() => handleRevoke(inv)}
                           disabled={pending}
-                          className="inline-flex items-center gap-1 px-2 py-1 border border-danger/50 text-danger font-mono text-[9px] uppercase tracking-wider hover:bg-danger hover:text-white dark:hover:text-ink transition-colors disabled:opacity-50"
+                          className="text-danger"
                         >
-                          <X className="w-3 h-3" /> revocar
-                        </button>
-                      </>
+                          <X className="h-3 w-3" /> revocar
+                        </Button>
+                      </div>
                     )}
-                  </td>
+                  </Td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </TableShell>
+        </GlassPanel>
       )}
     </div>
   );
