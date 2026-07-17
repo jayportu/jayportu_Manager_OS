@@ -3,10 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SelectNative } from "@/components/ui/select-native";
+import { GlassPanel, MonoLabel, Alert, FIELD, SELECT } from "@/components/hos";
 import { DollarSign, X } from "lucide-react";
 import {
   PAYMENT_STATUSES,
@@ -77,10 +77,10 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
           e.preventDefault();
           setOpen(true);
         }}
-        className={`inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
+        className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-full px-3 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
           hasFinanceInfo
-            ? "bg-orange text-ink hover:bg-ink hover:text-orange"
-            : "bg-cream hover:bg-ink hover:text-orange"
+            ? "bg-[rgb(var(--drop-orange))] text-black hover:opacity-90"
+            : "border border-white/12 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-orange"
         }`}
         title="Editar info de cobro"
       >
@@ -92,103 +92,104 @@ export function FinanceEditDialog({ eventId, title, current }: Props) {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
         >
-          <Card
-            className="bg-bg-panel w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
+          <div
+            className="w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-                  — INFO DE COBRO
+            <GlassPanel padded={false} className="max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <MonoLabel>INFO DE COBRO</MonoLabel>
+                    <h2 className="font-display text-2xl leading-none mt-1">{title}</h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="text-white/50 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <h2 className="font-display text-2xl leading-none mt-1">{title}</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="text-fg-muted hover:text-fg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            <form onSubmit={handleSave} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="amount" className="text-[10px]">
-                  Monto cobrado (CLP)
-                </Label>
-                <Input
-                  id="amount"
-                  value={amountClp}
-                  onChange={(e) => {
-                    const v = e.target.value.replace(/\D/g, "");
-                    setAmountClp(
-                      v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : ""
-                    );
-                  }}
-                  placeholder="$420.000"
-                  inputMode="numeric"
-                />
-              </div>
+                <form onSubmit={handleSave} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="amount" className="text-[10px]">
+                      Monto cobrado (CLP)
+                    </Label>
+                    <Input
+                      id="amount"
+                      className={FIELD}
+                      value={amountClp}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/\D/g, "");
+                        setAmountClp(
+                          v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : ""
+                        );
+                      }}
+                      placeholder="$420.000"
+                      inputMode="numeric"
+                    />
+                  </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="pay-status-edit" className="text-[10px]">
-                  Estado del pago
-                </Label>
-                <SelectNative
-                  id="pay-status-edit"
-                  value={paymentStatus}
-                  onChange={(e) =>
-                    setPaymentStatus(e.target.value as PaymentStatus)
-                  }
-                >
-                  {PAYMENT_STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {PAYMENT_STATUS_LABELS[s]}
-                    </option>
-                  ))}
-                </SelectNative>
-              </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pay-status-edit" className="text-[10px]">
+                      Estado del pago
+                    </Label>
+                    <SelectNative
+                      id="pay-status-edit"
+                      className={SELECT}
+                      value={paymentStatus}
+                      onChange={(e) =>
+                        setPaymentStatus(e.target.value as PaymentStatus)
+                      }
+                    >
+                      {PAYMENT_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {PAYMENT_STATUS_LABELS[s]}
+                        </option>
+                      ))}
+                    </SelectNative>
+                  </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="doc-edit" className="text-[10px]">
-                  Documento
-                </Label>
-                <SelectNative
-                  id="doc-edit"
-                  value={documentType}
-                  onChange={(e) =>
-                    setDocumentType(e.target.value as DocumentType)
-                  }
-                >
-                  {DOCUMENT_TYPES.map((d) => (
-                    <option key={d} value={d}>
-                      {DOCUMENT_TYPE_LABELS[d]}
-                    </option>
-                  ))}
-                </SelectNative>
-              </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="doc-edit" className="text-[10px]">
+                      Documento
+                    </Label>
+                    <SelectNative
+                      id="doc-edit"
+                      className={SELECT}
+                      value={documentType}
+                      onChange={(e) =>
+                        setDocumentType(e.target.value as DocumentType)
+                      }
+                    >
+                      {DOCUMENT_TYPES.map((d) => (
+                        <option key={d} value={d}>
+                          {DOCUMENT_TYPE_LABELS[d]}
+                        </option>
+                      ))}
+                    </SelectNative>
+                  </div>
 
-              {error && (
-                <div className="text-sm text-danger bg-danger/10 border-2 border-danger px-3 py-2">
-                  {error}
-                </div>
-              )}
+                  {error && <Alert tone="danger">{error}</Alert>}
 
-              <div className="flex justify-end gap-2 pt-3 border-t-2 border-border">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" variant="orange" disabled={isPending}>
-                  {isPending ? "Guardando…" : "Guardar"}
-                </Button>
+                  <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+                    <Button
+                      type="button"
+                      variant="clay"
+                      onClick={() => setOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button type="submit" variant="clayPrimary" disabled={isPending}>
+                      {isPending ? "Guardando…" : "Guardar"}
+                    </Button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </Card>
+            </GlassPanel>
+          </div>
         </div>
       )}
     </>

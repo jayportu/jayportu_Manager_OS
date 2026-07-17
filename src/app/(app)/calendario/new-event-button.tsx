@@ -3,11 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SelectNative } from "@/components/ui/select-native";
+import { GlassPanel, Alert, FIELD, SELECT } from "@/components/hos";
 import { Plus, X } from "lucide-react";
 import {
   CALENDAR_EVENT_TYPES,
@@ -117,7 +117,7 @@ export function NewEventButton({
     <>
       <Button
         onClick={() => setOpen(true)}
-        variant={buttonVariant || "default"}
+        variant={buttonVariant || "clayPrimary"}
         size={buttonSize || "sm"}
       >
         <Plus className="w-4 h-4" />
@@ -129,202 +129,211 @@ export function NewEventButton({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={close}
         >
-          <Card
-            className="bg-bg-panel w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-2xl"
+          <div
+            className="w-full max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Nuevo evento</h2>
-              <button
-                type="button"
-                onClick={close}
-                className="text-fg-muted hover:text-fg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="type" className="text-xs">
-                    Tipo
-                  </Label>
-                  <SelectNative
-                    id="type"
-                    value={type}
-                    onChange={(e) => setType(e.target.value as CalendarEventType)}
+            <GlassPanel padded={false} className="max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-2xl leading-none">Nuevo evento</h2>
+                  <button
+                    type="button"
+                    onClick={close}
+                    className="text-white/50 hover:text-white"
                   >
-                    {CALENDAR_EVENT_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {CALENDAR_EVENT_TYPE_LABELS[t]}
-                      </option>
-                    ))}
-                  </SelectNative>
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="location" className="text-xs">
-                    Lugar
-                  </Label>
-                  <Input
-                    id="location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Club, dirección…"
-                  />
-                </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="title" className="text-xs">
-                  Título *
-                </Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="JAY @ Club La Feria"
-                  required
-                />
-              </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="type" className="text-xs">
+                        Tipo
+                      </Label>
+                      <SelectNative
+                        id="type"
+                        className={SELECT}
+                        value={type}
+                        onChange={(e) => setType(e.target.value as CalendarEventType)}
+                      >
+                        {CALENDAR_EVENT_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {CALENDAR_EVENT_TYPE_LABELS[t]}
+                          </option>
+                        ))}
+                      </SelectNative>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="location" className="text-xs">
+                        Lugar
+                      </Label>
+                      <Input
+                        id="location"
+                        className={FIELD}
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Club, dirección…"
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="start_at" className="text-xs">
-                    Inicio
-                  </Label>
-                  <Input
-                    id="start_at"
-                    type="datetime-local"
-                    value={startAt}
-                    onChange={(e) => setStartAt(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="end_at" className="text-xs">
-                    Fin
-                  </Label>
-                  <Input
-                    id="end_at"
-                    type="datetime-local"
-                    value={endAt}
-                    onChange={(e) => setEndAt(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="description" className="text-xs">
-                  Descripción
-                </Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  placeholder="Fee, condiciones, rider, etc."
-                />
-              </div>
-
-              {/* Sprint 19 — Bloque financiero opcional */}
-              {type === "show" && (
-                <div className="border-2 border-dashed border-border p-3 space-y-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={showFinance}
-                      onChange={(e) => setShowFinance(e.target.checked)}
-                      className="w-4 h-4 accent-orange"
+                  <div className="space-y-1.5">
+                    <Label htmlFor="title" className="text-xs">
+                      Título *
+                    </Label>
+                    <Input
+                      id="title"
+                      className={FIELD}
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="JAY @ Club La Feria"
+                      required
                     />
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange">
-                      💰 Agregar info de cobro
-                    </span>
-                  </label>
-                  {showFinance && (
-                    <div className="space-y-3 pl-6">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="amount" className="text-[10px]">
-                          Monto (CLP)
-                        </Label>
-                        <Input
-                          id="amount"
-                          value={amountClp}
-                          onChange={(e) => {
-                            const v = e.target.value.replace(/\D/g, "");
-                            setAmountClp(
-                              v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : ""
-                            );
-                          }}
-                          placeholder="$420.000"
-                          inputMode="numeric"
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="start_at" className="text-xs">
+                        Inicio
+                      </Label>
+                      <Input
+                        id="start_at"
+                        className={FIELD}
+                        type="datetime-local"
+                        value={startAt}
+                        onChange={(e) => setStartAt(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="end_at" className="text-xs">
+                        Fin
+                      </Label>
+                      <Input
+                        id="end_at"
+                        className={FIELD}
+                        type="datetime-local"
+                        value={endAt}
+                        onChange={(e) => setEndAt(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="description" className="text-xs">
+                      Descripción
+                    </Label>
+                    <Textarea
+                      id="description"
+                      className={FIELD}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={3}
+                      placeholder="Fee, condiciones, rider, etc."
+                    />
+                  </div>
+
+                  {/* Sprint 19 — Bloque financiero opcional */}
+                  {type === "show" && (
+                    <div className="rounded-xl border border-dashed border-white/15 p-3 space-y-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showFinance}
+                          onChange={(e) => setShowFinance(e.target.checked)}
+                          className="w-4 h-4 accent-orange"
                         />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label htmlFor="pay-status" className="text-[10px]">
-                            Estado pago
-                          </Label>
-                          <SelectNative
-                            id="pay-status"
-                            value={paymentStatus}
-                            onChange={(e) =>
-                              setPaymentStatus(e.target.value as PaymentStatus)
-                            }
-                          >
-                            {PAYMENT_STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {PAYMENT_STATUS_LABELS[s]}
-                              </option>
-                            ))}
-                          </SelectNative>
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange">
+                          💰 Agregar info de cobro
+                        </span>
+                      </label>
+                      {showFinance && (
+                        <div className="space-y-3 pl-6">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="amount" className="text-[10px]">
+                              Monto (CLP)
+                            </Label>
+                            <Input
+                              id="amount"
+                              className={FIELD}
+                              value={amountClp}
+                              onChange={(e) => {
+                                const v = e.target.value.replace(/\D/g, "");
+                                setAmountClp(
+                                  v ? `$${parseInt(v, 10).toLocaleString("es-CL")}` : ""
+                                );
+                              }}
+                              placeholder="$420.000"
+                              inputMode="numeric"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <Label htmlFor="pay-status" className="text-[10px]">
+                                Estado pago
+                              </Label>
+                              <SelectNative
+                                id="pay-status"
+                                className={SELECT}
+                                value={paymentStatus}
+                                onChange={(e) =>
+                                  setPaymentStatus(e.target.value as PaymentStatus)
+                                }
+                              >
+                                {PAYMENT_STATUSES.map((s) => (
+                                  <option key={s} value={s}>
+                                    {PAYMENT_STATUS_LABELS[s]}
+                                  </option>
+                                ))}
+                              </SelectNative>
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="doc" className="text-[10px]">
+                                Documento
+                              </Label>
+                              <SelectNative
+                                id="doc"
+                                className={SELECT}
+                                value={documentType}
+                                onChange={(e) =>
+                                  setDocumentType(e.target.value as DocumentType)
+                                }
+                              >
+                                {DOCUMENT_TYPES.map((d) => (
+                                  <option key={d} value={d}>
+                                    {DOCUMENT_TYPE_LABELS[d]}
+                                  </option>
+                                ))}
+                              </SelectNative>
+                            </div>
+                          </div>
                         </div>
-                        <div className="space-y-1.5">
-                          <Label htmlFor="doc" className="text-[10px]">
-                            Documento
-                          </Label>
-                          <SelectNative
-                            id="doc"
-                            value={documentType}
-                            onChange={(e) =>
-                              setDocumentType(e.target.value as DocumentType)
-                            }
-                          >
-                            {DOCUMENT_TYPES.map((d) => (
-                              <option key={d} value={d}>
-                                {DOCUMENT_TYPE_LABELS[d]}
-                              </option>
-                            ))}
-                          </SelectNative>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
 
-              {error && (
-                <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded px-3 py-2">
-                  {error}
-                </div>
-              )}
+                  {error && <Alert tone="danger">{error}</Alert>}
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-border">
-                <Button type="button" variant="ghost" onClick={close}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={isPending}>
-                  {isPending ? "Creando…" : "Crear en Google Calendar"}
-                </Button>
+                  <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+                    <Button type="button" variant="clay" onClick={close}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" variant="clayPrimary" disabled={isPending}>
+                      {isPending ? "Creando…" : "Crear en Google Calendar"}
+                    </Button>
+                  </div>
+
+                  <p className="text-[10px] text-white/40 text-center pt-2">
+                    El evento se crea en tu Google Calendar (calendario primario)
+                    y queda registrado en la app.
+                  </p>
+                </form>
               </div>
-
-              <p className="text-[10px] text-fg-subtle text-center pt-2">
-                El evento se crea en tu Google Calendar (calendario primario)
-                y queda registrado en la app.
-              </p>
-            </form>
-          </Card>
+            </GlassPanel>
+          </div>
         </div>
       )}
     </>
