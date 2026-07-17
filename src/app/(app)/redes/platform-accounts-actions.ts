@@ -94,7 +94,7 @@ export async function saveSpotifyAccountAction(input: {
       return {
         ok: false,
         error:
-          "Pegá el link de tu perfil de ARTISTA en Spotify (open.spotify.com/artist/...).",
+          "Pega el link de tu perfil de ARTISTA en Spotify (open.spotify.com/artist/...).",
       };
     }
     let artist;
@@ -103,7 +103,7 @@ export async function saveSpotifyAccountAction(input: {
     } catch {
       return {
         ok: false,
-        error: "No pudimos verificar ese artista en Spotify. Revisá el link o probá de nuevo en un momento.",
+        error: "No pudimos verificar ese artista en Spotify. Revisa el link o prueba de nuevo en un momento.",
       };
     }
     const acc = await upsertPlatformAccount({
@@ -142,7 +142,7 @@ export async function saveInstagramAccountAction(input: {
     }
     const handle = normalizeInstagramHandle(input.username);
     if (!handle) {
-      return { ok: false, error: "Ingresá tu usuario de Instagram" };
+      return { ok: false, error: "Ingresa tu usuario de Instagram" };
     }
     let profile;
     try {
@@ -158,7 +158,7 @@ export async function saveInstagramAccountAction(input: {
       return {
         ok: false,
         error:
-          "No pudimos verificar esa cuenta de Instagram. Probá de nuevo en un momento.",
+          "No pudimos verificar esa cuenta de Instagram. Prueba de nuevo en un momento.",
       };
     }
     const acc = await upsertPlatformAccount({

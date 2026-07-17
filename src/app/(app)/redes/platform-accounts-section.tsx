@@ -125,7 +125,7 @@ export function PlatformAccountsSection({ accounts }: Props) {
     setError(null);
     setInfo(null);
     if (!igHandle.trim()) {
-      setError("Ingresá tu usuario de Instagram");
+      setError("Ingresa tu usuario de Instagram");
       return;
     }
     startTransition(async () => {
@@ -159,7 +159,7 @@ export function PlatformAccountsSection({ accounts }: Props) {
     setError(null);
     setInfo(null);
     if (!spUrl.trim()) {
-      setError("Pegá el link de tu perfil de artista en Spotify");
+      setError("Pega el link de tu perfil de artista en Spotify");
       return;
     }
     startTransition(async () => {
