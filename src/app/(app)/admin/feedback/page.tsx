@@ -4,6 +4,7 @@
 
 import { assertAdmin } from "@/lib/queries/admin";
 import { listFeedbackReports } from "@/lib/queries/beta";
+import { SectionHero, Badge } from "@/components/hos";
 import { FeedbackTable } from "./feedback-table";
 
 export const dynamic = "force-dynamic";
@@ -19,25 +20,23 @@ export default async function AdminFeedbackPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-6 border-2 border-border bg-bg-panel p-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — ADMIN · FEEDBACK
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
-          FEEDBACK<span className="text-orange">.</span>
-        </h1>
-        <div className="mt-3 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-wider">
-          <span className="px-2.5 py-1 bg-orange border-2 border-border">
-            {counts.new} NUEVOS
-          </span>
-          <span className="px-2.5 py-1 bg-info text-white dark:text-ink border-2 border-info">
-            {counts.in_progress} EN CURSO
-          </span>
-          <span className="px-2.5 py-1 bg-success text-white dark:text-ink border-2 border-success">
-            {counts.resolved} RESUELTOS
-          </span>
-        </div>
-      </div>
+      <SectionHero
+        kicker="ADMIN · FEEDBACK"
+        title="FEEDBACK"
+        actions={
+          <>
+            <Badge tone="warn" solid>
+              {counts.new} NUEVOS
+            </Badge>
+            <Badge tone="info" solid>
+              {counts.in_progress} EN CURSO
+            </Badge>
+            <Badge tone="up" solid>
+              {counts.resolved} RESUELTOS
+            </Badge>
+          </>
+        }
+      />
 
       <FeedbackTable initialReports={reports} />
     </div>
