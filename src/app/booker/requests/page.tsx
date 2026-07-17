@@ -3,6 +3,8 @@ import { listMyBookerRequests } from "@/lib/queries/booker";
 import { BOOKING_STATUS_LABELS } from "@/types/database";
 import { dateTime, shortDate } from "@/lib/format";
 import { Inbox, ArrowRight, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel, Badge, EmptyState } from "@/components/hos";
 
 /**
  * Bloque B · B4a — Inbox del Booker.
@@ -14,13 +16,13 @@ import { Inbox, ArrowRight, Plus } from "lucide-react";
  */
 export const dynamic = "force-dynamic";
 
-const STATUS_STYLES: Record<string, string> = {
-  nuevo: "bg-orange text-ink border-orange",
-  leido: "bg-info text-white dark:text-ink border-info",
-  respondido: "bg-cream text-fg border-border",
-  cotizado: "bg-warning text-white dark:text-ink border-warning",
-  agendado: "bg-success text-white dark:text-ink border-success",
-  rechazado: "bg-danger text-white dark:text-ink border-danger",
+const STATUS_TONES: Record<string, "up" | "warn" | "down" | "info" | "neutral"> = {
+  nuevo: "info",
+  leido: "neutral",
+  respondido: "neutral",
+  cotizado: "warn",
+  agendado: "up",
+  rechazado: "down",
 };
 
 export default async function BookerRequestsPage() {
@@ -29,10 +31,8 @@ export default async function BookerRequestsPage() {
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — MIS REQUESTS
-        </div>
+      <GlassPanel padded={false} className="mb-6 p-6 md:p-7">
+        <MonoLabel>MIS REQUESTS</MonoLabel>
         <div className="mt-2 flex flex-wrap items-end gap-3 justify-between">
           <h1
             className="leading-none"
@@ -44,41 +44,51 @@ export default async function BookerRequestsPage() {
           >
             INBOX<span className="text-orange">.</span>
           </h1>
-          <Link
-            href="/booker/buscar"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Buscar DJs
-          </Link>
+          <Button asChild variant="clay">
+            <Link href="/booker/buscar">
+              <Plus className="w-4 h-4" />
+              Buscar DJs
+            </Link>
+          </Button>
         </div>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+        <p className="text-sm text-white/55 mt-2 max-w-xl">
           Todos los DJs que contactaste desde la web — su estado se
           actualiza en vivo a medida que el DJ revisa, cotiza y agenda.
         </p>
-      </div>
+      </GlassPanel>
 
       {/* Lista */}
       {bookings.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={Inbox}
+          title="SIN REQUESTS TODAVÍA"
+          sub="Cuando contactes un DJ desde su press kit, su request va a aparecer acá con el estado en vivo."
+          action={
+            <Button asChild variant="clay" size="lg">
+              <Link href="/booker/buscar">
+                Buscar DJs
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => {
-            const styleClass = STATUS_STYLES[b.status] ?? "bg-cream text-fg border-border";
+            const tone = STATUS_TONES[b.status] ?? "neutral";
             return (
-              <article
+              <GlassPanel
                 key={b.id}
-                className="border-2 border-border bg-bg-panel p-5 hover:bg-cream/50 transition-colors"
+                sweep
+                className="transition-colors hover:border-white/30"
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`font-mono text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 border-2 ${styleClass}`}
-                      >
+                      <Badge tone={tone}>
                         {BOOKING_STATUS_LABELS[b.status] ?? b.status}
-                      </span>
-                      <span className="font-mono text-[10px] text-fg-subtle tracking-wider">
+                      </Badge>
+                      <span className="font-mono text-[10px] text-white/40 tracking-wider">
                         ENVIADO {dateTime(b.created_at)}
                       </span>
                     </div>
@@ -92,18 +102,18 @@ export default async function BookerRequestsPage() {
                     >
                       {b.event_type || "Booking"}
                       {b.event_date && (
-                        <span className="text-fg-muted ml-2">
+                        <span className="text-white/50 ml-2">
                           · {shortDate(b.event_date)}
                         </span>
                       )}
                     </h2>
                     {b.venue && (
-                      <div className="text-sm text-fg mt-0.5">
+                      <div className="text-sm text-white/80 mt-0.5">
                         Venue: {b.venue}
                       </div>
                     )}
                     {b.message && (
-                      <p className="text-sm text-fg-muted mt-2 line-clamp-2">
+                      <p className="text-sm text-white/55 mt-2 line-clamp-2">
                         “{b.message}”
                       </p>
                     )}
@@ -114,47 +124,18 @@ export default async function BookerRequestsPage() {
                       </div>
                     )}
                   </div>
-                  <Link
-                    href={`/b/${b.view_token}`}
-                    className="shrink-0 inline-flex items-center gap-2 px-3 py-2 border-2 border-border font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
-                  >
-                    Ver detalle
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  <Button asChild variant="clay" size="sm" className="shrink-0">
+                    <Link href={`/b/${b.view_token}`}>
+                      Ver detalle
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </Button>
                 </div>
-              </article>
+              </GlassPanel>
             );
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="border-2 border-dashed border-border bg-bg-panel p-10 text-center">
-      <Inbox className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
-      <h2
-        className="leading-tight mb-2"
-        style={{
-          fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-          fontSize: "32px",
-        }}
-      >
-        SIN REQUESTS TODAVÍA
-      </h2>
-      <p className="text-sm text-fg-muted max-w-md mx-auto mb-6">
-        Cuando contactes un DJ desde su press kit, su request va a aparecer
-        acá con el estado en vivo.
-      </p>
-      <Link
-        href="/booker/buscar"
-        className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
-      >
-        Buscar DJs
-        <ArrowRight className="w-4 h-4" />
-      </Link>
     </div>
   );
 }
