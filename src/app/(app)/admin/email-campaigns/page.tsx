@@ -5,30 +5,42 @@ import {
   getCampaignDashboard,
 } from "@/lib/queries/email-campaigns";
 import { relativeTime } from "@/lib/format";
+import {
+  SectionHero,
+  GlassPanel,
+  MonoLabel,
+  KpiTile,
+  Badge,
+  Alert,
+  EmptyState,
+  ClayChip,
+} from "@/components/hos";
 import { AutoRefresh } from "./auto-refresh";
 
 export const dynamic = "force-dynamic";
 
-function evMeta(t: string): { icon: string; label: string; color: string } {
+type EvTone = "up" | "warn" | "down" | "info" | "neutral";
+
+function evMeta(t: string): { icon: string; label: string; tone: EvTone } {
   switch (t) {
     case "delivered":
-      return { icon: "✓", label: "Entregado", color: "#1e9e5a" };
+      return { icon: "✓", label: "Entregado", tone: "up" };
     case "bounced":
-      return { icon: "⚠", label: "Rebotó", color: "#E85A0C" };
+      return { icon: "⚠", label: "Rebotó", tone: "down" };
     case "complained":
-      return { icon: "🚫", label: "Queja (spam)", color: "#c0392b" };
+      return { icon: "🚫", label: "Queja (spam)", tone: "down" };
     case "opened":
-      return { icon: "👁", label: "Abrió", color: "#7A7670" };
+      return { icon: "👁", label: "Abrió", tone: "info" };
     case "clicked":
-      return { icon: "🖱", label: "Click", color: "#E85A0C" };
+      return { icon: "🖱", label: "Click", tone: "info" };
     case "sent":
-      return { icon: "➤", label: "Enviado", color: "#7A7670" };
+      return { icon: "➤", label: "Enviado", tone: "up" };
     case "delivery_delayed":
-      return { icon: "⏳", label: "Demorado", color: "#7A7670" };
+      return { icon: "⏳", label: "Demorado", tone: "warn" };
     case "suppressed":
-      return { icon: "⛔", label: "Suprimido", color: "#7A7670" };
+      return { icon: "⛔", label: "Suprimido", tone: "neutral" };
     default:
-      return { icon: "•", label: t, color: "#7A7670" };
+      return { icon: "•", label: t, tone: "neutral" };
   }
 }
 
@@ -52,12 +64,12 @@ export default async function EmailCampaignsPage({
   if (!selected) {
     return (
       <div className="p-6 md:p-10 max-w-6xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Megaphone className="w-6 h-6 text-accent" /> Campañas de correo
-        </h1>
-        <p className="text-sm text-fg-muted mt-3">
-          Todavía no hay campañas registradas.
-        </p>
+        <SectionHero kicker="Admin · Correo" title="Campañas" />
+        <EmptyState
+          icon={Megaphone}
+          title="Sin campañas"
+          sub="Todavía no hay campañas registradas."
+        />
       </div>
     );
   }
@@ -68,18 +80,45 @@ export default async function EmailCampaignsPage({
   const healthy = d.bounceRate <= 5 && d.complaintRate <= 0.1;
 
   const kpis: Array<{
-    lbl: string;
-    num: number;
-    sub: string;
-    good?: boolean;
-    warn?: boolean;
+    label: string;
+    value: number;
+    sub?: string;
+    delta?: string;
+    tone?: "up" | "down" | "flat";
   }> = [
-    { lbl: "Enviados", num: d.enviados, sub: `de ${d.total} · ${d.programados} programados` },
-    { lbl: "Entregados", num: d.delivered, sub: `${pct(d.delivered, d.enviados)}%`, good: true },
-    { lbl: "Rebotados", num: d.bounced, sub: `${d.bounceRate.toFixed(1)}%`, warn: true },
-    { lbl: "Quejas", num: d.complained, sub: `${d.complaintRate.toFixed(2)}%`, warn: true },
-    { lbl: "Aperturas", num: d.opened, sub: `${pct(d.opened, d.delivered)}%` },
-    { lbl: "Clicks", num: d.clicked, sub: `${pct(d.clicked, d.delivered)}%` },
+    {
+      label: "Enviados",
+      value: d.enviados,
+      sub: `de ${d.total} · ${d.programados} programados`,
+    },
+    {
+      label: "Entregados",
+      value: d.delivered,
+      delta: `${pct(d.delivered, d.enviados)}%`,
+      tone: "up",
+    },
+    {
+      label: "Rebotados",
+      value: d.bounced,
+      delta: `${d.bounceRate.toFixed(1)}%`,
+      tone: d.bounced > 0 ? "down" : "flat",
+    },
+    {
+      label: "Quejas",
+      value: d.complained,
+      delta: `${d.complaintRate.toFixed(2)}%`,
+      tone: d.complained > 0 ? "down" : "flat",
+    },
+    {
+      label: "Aperturas",
+      value: d.opened,
+      sub: `${pct(d.opened, d.delivered)}%`,
+    },
+    {
+      label: "Clicks",
+      value: d.clicked,
+      sub: `${pct(d.clicked, d.delivered)}%`,
+    },
   ];
 
   return (
@@ -87,38 +126,27 @@ export default async function EmailCampaignsPage({
       <AutoRefresh seconds={30} />
 
       {/* Header */}
-      <div className="mb-6 flex items-center gap-4 flex-wrap">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Megaphone className="w-6 h-6 text-accent" /> Campañas de correo
-        </h1>
-        <span
-          className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.1em] rounded-full px-3 py-1"
-          style={{ color: "#1e7a45", background: "#e8f5ee", border: "1px solid #bfe3cf" }}
-        >
-          <span
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ background: "#1e9e5a" }}
-          />{" "}
-          En vivo
-        </span>
-      </div>
+      <SectionHero
+        kicker="Admin · Correo"
+        title="Campañas"
+        actions={
+          <Badge tone="up">
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full bg-current animate-pulse"
+            />{" "}
+            En vivo
+          </Badge>
+        }
+      />
 
       {/* Selector de campañas */}
       <div className="flex gap-2 flex-wrap mb-6">
         {campaigns.map((c) => (
-          <a
-            key={c.id}
-            href={`/admin/email-campaigns?c=${c.slug}`}
-            className={`border rounded-md px-4 py-2.5 ${
-              c.id === selected.id
-                ? "border-border border-l-[3px] border-l-orange bg-orange/5"
-                : "border-border"
-            }`}
-          >
-            <div className="font-semibold text-sm">{c.name}</div>
-            <div className="font-mono text-[10px] text-fg-muted uppercase tracking-wider mt-0.5">
-              {c.total_recipients} contactos · {c.status}
-            </div>
+          <a key={c.id} href={`/admin/email-campaigns?c=${c.slug}`}>
+            <ClayChip active={c.id === selected.id}>
+              {c.name} · {c.total_recipients} · {c.status}
+            </ClayChip>
           </a>
         ))}
       </div>
@@ -126,83 +154,67 @@ export default async function EmailCampaignsPage({
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
         {kpis.map((k) => (
-          <div key={k.lbl} className="border border-border rounded-lg p-4 bg-card">
-            <div className="font-mono text-[10px] text-fg-muted uppercase tracking-[0.1em]">
-              {k.lbl}
-            </div>
-            <div
-              className="text-3xl font-bold leading-none mt-2 mb-1"
-              style={{ color: k.warn && k.num > 0 ? "#E85A0C" : undefined }}
-            >
-              {k.num}
-            </div>
-            <div
-              className="text-xs"
-              style={{ color: k.good ? "#1e9e5a" : "#7A7670" }}
-            >
-              {k.sub}
-            </div>
-          </div>
+          <KpiTile
+            key={k.label}
+            label={k.label}
+            value={k.value}
+            sub={k.sub}
+            delta={k.delta}
+            tone={k.tone}
+          />
         ))}
       </div>
 
       {/* Banner de salud */}
-      <div
-        className="flex items-center gap-2 rounded-md px-4 py-3 text-sm mb-6 border"
-        style={{
-          background: healthy ? "#e8f5ee" : "#fff4ed",
-          borderColor: healthy ? "#bfe3cf" : "#FFD9C2",
-        }}
-      >
-        {healthy ? "✓ " : "⚠ "}
-        <span>
+      <div className="mb-6">
+        <Alert
+          tone={healthy ? "success" : "danger"}
+          title={healthy ? "Entregabilidad sana" : "Revisar"}
+        >
           {healthy ? (
             <>
-              <b>Entregabilidad sana.</b> Rebote {d.bounceRate.toFixed(1)}% (umbral
-              5%) · Quejas {d.complaintRate.toFixed(2)}% (umbral 0.1%). Sin alertas.
+              Rebote {d.bounceRate.toFixed(1)}% (umbral 5%) · Quejas{" "}
+              {d.complaintRate.toFixed(2)}% (umbral 0.1%). Sin alertas.
             </>
           ) : (
             <>
-              <b>Revisar.</b> Rebote {d.bounceRate.toFixed(1)}% / Quejas{" "}
-              {d.complaintRate.toFixed(2)}% — sobre el umbral. Considera pausar las
-              tandas restantes.
+              Rebote {d.bounceRate.toFixed(1)}% / Quejas{" "}
+              {d.complaintRate.toFixed(2)}% — sobre el umbral. Considera pausar
+              las tandas restantes.
             </>
           )}
-        </span>
+        </Alert>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         {/* Tandas */}
-        <div className="border border-border rounded-lg p-5 bg-card">
-          <h3 className="font-mono text-[11px] uppercase tracking-[0.15em] text-accent mb-4">
-            ▸ Progreso por tanda
-          </h3>
+        <GlassPanel>
+          <MonoLabel className="mb-4 block">Progreso por tanda</MonoLabel>
           <div className="space-y-0">
             {d.tandas.map((t) => (
               <div
                 key={t.date}
-                className="flex items-center gap-3 py-2 border-t border-border/60 first:border-t-0 text-sm"
+                className="flex items-center gap-3 py-2 border-t border-white/[0.06] first:border-t-0 text-sm"
               >
-                <span style={{ color: t.done ? "#1e9e5a" : "#7A7670" }}>
+                <span className={t.done ? "text-success" : "text-white/40"}>
                   {t.done ? "✓" : "◷"}
                 </span>
                 <span>{fmtDate(t.date)}</span>
-                <span className="ml-auto font-mono text-[11px] text-fg-muted">
+                <span className="ml-auto font-mono text-[11px] text-white/40">
                   {t.total} {t.done ? "enviados" : "programados"}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </GlassPanel>
 
         {/* Feed en vivo */}
-        <div className="border border-border rounded-lg p-5 bg-card">
-          <h3 className="font-mono text-[11px] uppercase tracking-[0.15em] text-accent mb-4">
-            ▸ Eventos recientes
-          </h3>
+        <GlassPanel>
+          <MonoLabel className="mb-4 block">Eventos recientes</MonoLabel>
           {d.feed.length === 0 ? (
-            <p className="text-sm text-fg-muted">
-              Aún sin eventos. Llegan en vivo a medida que entregan/abren/rebotan.
+            <p className="text-sm text-white/50">
+              Aún sin eventos. Llegan en vivo a medida que
+              entregan/abren/rebotan.
             </p>
           ) : (
             <div className="space-y-0">
@@ -211,14 +223,17 @@ export default async function EmailCampaignsPage({
                 return (
                   <div
                     key={i}
-                    className="flex items-start gap-3 py-2 border-t border-border/60 first:border-t-0 text-sm"
+                    className="flex items-start gap-3 py-2 border-t border-white/[0.06] first:border-t-0 text-sm"
                   >
-                    <span style={{ color: m.color }}>{m.icon}</span>
-                    <div>
-                      <div>{m.label}</div>
-                      <div className="text-xs text-fg-muted">{f.to_email}</div>
+                    <div className="min-w-0">
+                      <Badge tone={m.tone}>
+                        {m.icon} {m.label}
+                      </Badge>
+                      <div className="text-xs text-white/50 mt-1 truncate">
+                        {f.to_email}
+                      </div>
                     </div>
-                    <span className="ml-auto font-mono text-[10px] text-fg-muted whitespace-nowrap">
+                    <span className="ml-auto font-mono text-[10px] text-white/40 whitespace-nowrap">
                       {relativeTime(f.occurred_at)}
                     </span>
                   </div>
@@ -226,7 +241,7 @@ export default async function EmailCampaignsPage({
               })}
             </div>
           )}
-        </div>
+        </GlassPanel>
       </div>
     </div>
   );

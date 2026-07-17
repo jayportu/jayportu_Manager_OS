@@ -10,6 +10,16 @@ import {
   type FeedbackStatus,
 } from "@/types/database";
 import { SelectNative } from "@/components/ui/select-native";
+import { Label } from "@/components/ui/label";
+import {
+  GlassPanel,
+  ClayChipButton,
+  Alert,
+  Badge,
+  EmptyState,
+  FIELD,
+  SELECT,
+} from "@/components/hos";
 import { updateFeedbackAction } from "./actions";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 
@@ -82,55 +92,42 @@ export function FeedbackTable({ initialReports }: Props) {
   }
 
   function kindBadge(k: FeedbackReportWithUser["kind"]) {
-    const bg = {
-      bug: "bg-danger text-white dark:text-ink border-danger",
-      idea: "bg-info text-white dark:text-ink border-info",
-      copy: "bg-warning text-fg dark:text-ink border-border",
-      otro: "bg-cream text-fg border-border",
-    }[k];
-    return (
-      <span
-        className={`inline-block font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-2 ${bg}`}
-      >
-        {FEEDBACK_KIND_LABELS[k]}
-      </span>
-    );
+    const tone = {
+      bug: "down",
+      idea: "info",
+      copy: "warn",
+      otro: "neutral",
+    }[k] as "down" | "info" | "warn" | "neutral";
+    return <Badge tone={tone}>{FEEDBACK_KIND_LABELS[k]}</Badge>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2 items-center">
-        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mr-2">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-white/45 mr-2">
           Filtrar:
         </div>
         {(["all", ...FEEDBACK_STATUSES] as const).map((s) => (
-          <button
+          <ClayChipButton
             key={s}
-            type="button"
+            active={filter === s}
             onClick={() => setFilter(s)}
-            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-border transition-colors ${
-              filter === s ? "bg-ink text-white" : "bg-cream hover:bg-ink/10"
-            }`}
           >
             {s === "all" ? "Todos" : FEEDBACK_STATUS_LABELS[s]} (
             {s === "all"
               ? reports.length
               : reports.filter((r) => r.status === s).length}
             )
-          </button>
+          </ClayChipButton>
         ))}
       </div>
 
-      {err && (
-        <div className="border-2 border-danger bg-danger/10 text-danger text-sm px-3 py-2">
-          {err}
-        </div>
-      )}
+      {err && <Alert tone="danger">{err}</Alert>}
 
-      <div className="border-2 border-border bg-bg-panel">
+      <GlassPanel padded={false}>
         {filtered.length === 0 && (
-          <div className="p-10 text-center text-fg-muted text-sm">
-            Sin feedback en este filtro.
+          <div className="p-4">
+            <EmptyState title="Sin feedback en este filtro." />
           </div>
         )}
         {filtered.map((r) => {
@@ -139,19 +136,22 @@ export function FeedbackTable({ initialReports }: Props) {
           const hasUnsavedNote =
             draft !== undefined && draft !== (r.admin_notes || "");
           return (
-            <div key={r.id} className="border-b border-border/10 px-4 py-3">
+            <div
+              key={r.id}
+              className="border-b border-white/[0.06] px-4 py-3 last:border-b-0"
+            >
               <div className="flex items-start gap-3">
                 <div className="shrink-0 pt-1">{kindBadge(r.kind)}</div>
                 <div className="flex-1 min-w-0">
                   <div
-                    className={`text-sm cursor-pointer ${
+                    className={`text-sm text-white/90 cursor-pointer ${
                       isExp ? "" : "line-clamp-2"
                     }`}
                     onClick={() => setExpanded(isExp ? null : r.id)}
                   >
                     {r.description}
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center font-mono text-[10px] text-fg-muted">
+                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center font-mono text-[10px] text-white/45">
                     <span>
                       {new Date(r.created_at).toLocaleString("es-CL", {
                         timeZone: "America/Santiago",
@@ -159,13 +159,13 @@ export function FeedbackTable({ initialReports }: Props) {
                     </span>
                     {r.page_url && <span>· URL: {r.page_url}</span>}
                     {(r.artist_name || r.email) && (
-                      <span className="text-fg">
+                      <span className="text-white/70">
                         ·{" "}
-                        <span className="font-semibold text-fg">
+                        <span className="font-semibold text-white/90">
                           {r.artist_name || "—"}
                         </span>
                         {r.email && (
-                          <span className="text-fg-muted"> · {r.email}</span>
+                          <span className="text-white/45"> · {r.email}</span>
                         )}
                       </span>
                     )}
@@ -181,17 +181,21 @@ export function FeedbackTable({ initialReports }: Props) {
                     </a>
                   )}
                   {isExp && r.user_agent && (
-                    <div className="mt-2 text-[10px] font-mono text-fg-subtle break-all">
+                    <div className="mt-2 text-[10px] font-mono text-white/35 break-all">
                       UA: {r.user_agent}
                     </div>
                   )}
 
                   {isExp && (
                     <div className="mt-3 space-y-1.5">
-                      <label className="block font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">
+                      <Label
+                        htmlFor={`admin-notes-${r.id}`}
+                        className="block text-white/45"
+                      >
                         Resumen del fix (admin notes)
-                      </label>
+                      </Label>
                       <textarea
+                        id={`admin-notes-${r.id}`}
                         value={notesFor(r)}
                         onChange={(e) =>
                           setNoteDrafts((n) => ({
@@ -201,7 +205,7 @@ export function FeedbackTable({ initialReports }: Props) {
                         }
                         rows={2}
                         placeholder="Si lo marcás como 'Resuelto', este texto va al email que el DJ recibe (ej: 'Ya está arreglado. Ahora el calendario muestra siempre la hora chilena, así que tu show 05-jun 21:00 ya aparece bajo el card 05 JUN.'). Si lo dejas vacío, se manda un texto genérico cordial."
-                        className="w-full text-xs px-2.5 py-2 border-2 border-border bg-cream/30 font-sans leading-relaxed focus:bg-bg-panel focus:outline-none focus:ring-0"
+                        className={`${FIELD} text-xs font-sans leading-relaxed`}
                       />
                       {hasUnsavedNote && (
                         <div className="font-mono text-[10px] text-warning">
@@ -218,7 +222,7 @@ export function FeedbackTable({ initialReports }: Props) {
                       handleStatusChange(r, e.target.value as FeedbackStatus)
                     }
                     disabled={isPending}
-                    className="h-8 text-xs"
+                    className={`${SELECT} h-8 text-xs`}
                   >
                     {FEEDBACK_STATUSES.map((s) => (
                       <option key={s} value={s}>
@@ -231,7 +235,7 @@ export function FeedbackTable({ initialReports }: Props) {
             </div>
           );
         })}
-      </div>
+      </GlassPanel>
     </div>
   );
 }
