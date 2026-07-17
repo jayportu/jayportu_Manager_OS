@@ -3,18 +3,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { PenSquare, X, Send, Paperclip } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Alert, MonoLabel, FIELD } from "@/components/hos";
+import { cn } from "@/lib/utils";
 import { sendNew } from "./actions";
 
 function SubmitBtn() {
   const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-border bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-    >
+    <Button type="submit" variant="clayPrimary" size="sm" disabled={pending}>
       <Send className="w-3.5 h-3.5" /> {pending ? "Enviando…" : "Enviar"}
-    </button>
+    </Button>
   );
 }
 
@@ -32,71 +31,63 @@ function ComposeModal({ onClose }: { onClose: () => void }) {
   }, [state, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-card w-full max-w-lg rounded-lg border border-border shadow-xl">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-accent">
-            ▸ Nuevo correo
-          </span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="hos-glass w-full max-w-lg overflow-hidden rounded-2xl"
+      >
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <MonoLabel>Nuevo correo</MonoLabel>
           <button
             type="button"
             onClick={onClose}
-            className="text-fg-muted hover:text-fg"
+            aria-label="Cerrar"
+            className="text-white/50 hover:text-white"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <form ref={ref} action={action} className="p-4 space-y-3">
-          <div className="font-mono text-[11px] text-fg-muted">
-            De: <span className="text-fg font-semibold">hola@dropgigs.com</span>
+        <form ref={ref} action={action} className="p-5 space-y-3">
+          <div className="font-mono text-[11px] text-white/50">
+            De: <span className="text-white font-semibold">hola@dropgigs.com</span>
           </div>
           <input
             type="email"
             name="to"
             required
+            aria-label="Para (correo del destinatario)"
             placeholder="Para (correo del destinatario)"
-            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-border bg-transparent"
+            className={FIELD}
           />
           <input
             type="text"
             name="subject"
+            aria-label="Asunto"
             placeholder="Asunto"
-            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-border bg-transparent"
+            className={FIELD}
           />
           <textarea
             name="text"
             required
             rows={9}
+            aria-label="Mensaje"
             placeholder="Escribe tu mensaje…"
-            className="w-full text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-border resize-y bg-transparent"
+            className={cn(FIELD, "resize-y")}
           />
-          <label className="flex items-center gap-2 text-xs text-fg-muted">
+          <label className="flex items-center gap-2 text-xs text-white/50">
             <Paperclip className="w-3.5 h-3.5" />
             <input type="file" name="files" multiple className="text-xs" />
           </label>
-          <div className="flex items-center gap-3">
-            {state?.ok && (
-              <span className="text-sm font-medium" style={{ color: "#1e9e5a" }}>
-                ✓ Correo enviado
-              </span>
-            )}
-            {state && !state.ok && (
-              <span className="text-sm" style={{ color: "#c0392b" }}>
-                {state.error}
-              </span>
-            )}
-            <div className="ml-auto flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-xs text-fg-muted hover:text-fg px-3 py-2"
-              >
-                Cerrar
-              </button>
-              <SubmitBtn />
-            </div>
+          {state?.ok && <Alert tone="success">✓ Correo enviado</Alert>}
+          {state && !state.ok && <Alert tone="danger">{state.error}</Alert>}
+          <div className="flex items-center justify-end gap-2">
+            <Button type="button" variant="clay" size="sm" onClick={onClose}>
+              Cerrar
+            </Button>
+            <SubmitBtn />
           </div>
-          <p className="font-mono text-[10px] text-fg-muted">
+          <p className="font-mono text-[10px] text-white/40">
             Se envía con la firma DROP. y queda en Enviados.
           </p>
         </form>
@@ -109,13 +100,9 @@ export function Compose() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 h-9 px-4 border-2 border-border bg-orange hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-      >
+      <Button variant="clayPrimary" size="sm" onClick={() => setOpen(true)}>
         <PenSquare className="w-3.5 h-3.5" /> Redactar
-      </button>
+      </Button>
       {open && <ComposeModal onClose={() => setOpen(false)} />}
     </>
   );
