@@ -33,7 +33,7 @@ export function SyncButton() {
   const busy = isPending || globallySyncing;
   return (
     <Button
-      variant="outline"
+      variant="clay"
       size="sm"
       onClick={handleClick}
       disabled={busy}
