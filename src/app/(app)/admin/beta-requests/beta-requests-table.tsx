@@ -15,6 +15,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { SelectNative } from "@/components/ui/select-native";
 import {
+  GlassPanel,
+  ClayChipButton,
+  Alert,
+  Badge,
+  TableShell,
+  Th,
+  Td,
+  EmptyState,
+  SELECT,
+} from "@/components/hos";
+import {
   approveBetaRequestAction,
   rejectBetaRequestAction,
   waitlistBetaRequestAction,
@@ -207,72 +218,57 @@ export function BetaRequestsTable({ initialRequests }: Props) {
   }
 
   function statusBadge(s: BetaRequestStatus) {
-    const bg = {
-      new: "bg-orange text-ink border-border",
-      approved: "bg-success text-white dark:text-ink border-success",
-      rejected: "bg-danger text-white dark:text-ink border-danger",
-      waitlist: "bg-warning text-fg dark:text-ink border-border",
-    }[s];
-    return (
-      <span
-        className={`inline-block font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-2 ${bg}`}
-      >
-        {BETA_REQUEST_STATUS_LABELS[s]}
-      </span>
-    );
+    const tone: Record<BetaRequestStatus, "up" | "warn" | "down" | "neutral"> = {
+      new: "warn",
+      approved: "up",
+      rejected: "down",
+      waitlist: "neutral",
+    };
+    return <Badge tone={tone[s]}>{BETA_REQUEST_STATUS_LABELS[s]}</Badge>;
   }
 
   return (
     <div className="space-y-4">
       {/* Filtros */}
       <div className="flex flex-wrap gap-2 items-center">
-        <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted mr-2">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-white/45 mr-2">
           Filtrar:
         </div>
         {(["all", ...BETA_REQUEST_STATUSES] as const).map((s) => (
-          <button
+          <ClayChipButton
             key={s}
-            type="button"
+            active={filter === s}
             onClick={() => setFilter(s)}
-            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border-2 border-border transition-colors ${
-              filter === s ? "bg-ink text-white" : "bg-cream hover:bg-ink/10"
-            }`}
           >
             {s === "all" ? "Todos" : BETA_REQUEST_STATUS_LABELS[s]} (
             {s === "all" ? requests.length : requests.filter((r) => r.status === s).length})
-          </button>
+          </ClayChipButton>
         ))}
       </div>
 
       {message && (
-        <div
-          className={`text-sm border-2 p-3 ${
-            message.type === "ok"
-              ? "border-success bg-success/10 text-success"
-              : "border-danger bg-danger/10 text-danger"
-          }`}
-        >
+        <Alert tone={message.type === "ok" ? "success" : "danger"}>
           {message.text}
-        </div>
+        </Alert>
       )}
 
       {/* Tabla */}
-      <div className="border-2 border-border bg-bg-panel overflow-x-auto">
-        <table className="w-full text-sm">
+      <GlassPanel padded={false}>
+        <TableShell bare>
           <thead>
-            <tr className="bg-cream border-b-2 border-border font-mono text-[10px] uppercase tracking-wider">
-              <th className="text-left px-3 py-2.5">Solicitud</th>
-              <th className="text-left px-3 py-2.5">Géneros</th>
-              <th className="text-left px-3 py-2.5">Estado</th>
-              <th className="text-left px-3 py-2.5">Pedido</th>
-              <th className="text-right px-3 py-2.5">Acciones</th>
+            <tr>
+              <Th>Solicitud</Th>
+              <Th>Géneros</Th>
+              <Th>Estado</Th>
+              <Th>Pedido</Th>
+              <Th align="right">Acciones</Th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-fg-muted text-sm">
-                  Sin solicitudes en este filtro.
+                <td colSpan={5} className="p-4">
+                  <EmptyState title="Sin solicitudes en este filtro." />
                 </td>
               </tr>
             )}
@@ -286,23 +282,23 @@ export function BetaRequestsTable({ initialRequests }: Props) {
               return (
                 <tr
                   key={r.id}
-                  className="border-b border-border/10 align-top hover:bg-cream/40"
+                  className="[&>td]:align-top hover:bg-white/[0.03]"
                 >
-                  <td className="px-3 py-3">
+                  <Td>
                     <button
                       type="button"
                       onClick={() => setExpanded(isExp ? null : r.id)}
                       className="text-left w-full"
                     >
-                      <div className="font-semibold">{r.artist_name}</div>
-                      <div className="text-xs text-fg-muted mt-0.5">
+                      <div className="font-semibold text-white/90">{r.artist_name}</div>
+                      <div className="text-xs text-white/50 mt-0.5">
                         {r.instagram && `@${r.instagram} · `}
                         {r.city && `${r.city} · `}
                         <span className="font-mono">{r.email}</span>
                       </div>
                       {r.motivation && (
                         <div
-                          className={`text-xs text-fg-muted mt-1.5 italic ${
+                          className={`text-xs text-white/50 mt-1.5 italic ${
                             isExp ? "" : "line-clamp-1"
                           }`}
                         >
@@ -315,30 +311,30 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                         </div>
                       )}
                     </button>
-                  </td>
-                  <td className="px-3 py-3">
+                  </Td>
+                  <Td>
                     <div className="flex flex-wrap gap-1">
                       {r.genres.length === 0 && (
-                        <span className="text-fg-subtle text-xs">—</span>
+                        <span className="text-white/30 text-xs">—</span>
                       )}
                       {r.genres.slice(0, 4).map((g) => (
                         <span
                           key={g}
-                          className="font-mono text-[10px] px-1.5 py-0.5 border border-border/30 bg-cream"
+                          className="font-mono text-[10px] px-1.5 py-0.5 rounded-md border border-white/12 bg-white/[0.04] text-white/70"
                         >
                           {g}
                         </span>
                       ))}
                     </div>
-                  </td>
-                  <td className="px-3 py-3 whitespace-nowrap">
+                  </Td>
+                  <Td className="whitespace-nowrap">
                     <SelectNative
                       value={r.status}
                       onChange={(e) =>
                         handleStatusChange(r, e.target.value as BetaRequestStatus)
                       }
                       disabled={isPending}
-                      className="h-8 text-xs"
+                      className={SELECT}
                     >
                       {BETA_REQUEST_STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -347,43 +343,44 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                       ))}
                     </SelectNative>
                     <div className="mt-1.5">{statusBadge(r.status)}</div>
-                  </td>
-                  <td className="px-3 py-3 font-mono text-[10px] text-fg-muted whitespace-nowrap">
+                  </Td>
+                  <Td className="font-mono text-[10px] text-white/50 whitespace-nowrap">
                     {date}
                     {r.invite_sent_at && (
                       <div className="mt-1 text-success">
                         Invite enviado ✓
                       </div>
                     )}
-                  </td>
-                  <td className="px-3 py-3 text-right">
+                  </Td>
+                  <Td align="right">
                     <div className="flex flex-col items-stretch gap-1 min-w-[180px]">
                       {r.status === "new" && (
                         <>
                           <Button
                             type="button"
-                            variant="orange"
+                            variant="clayPrimary"
+                            size="sm"
                             onClick={() => handleApprove(r)}
                             disabled={isPending}
-                            className="h-8 text-xs"
                           >
                             Aprobar
                           </Button>
                           <Button
                             type="button"
-                            variant="outline"
+                            variant="clay"
+                            size="sm"
                             onClick={() => handleWaitlist(r)}
                             disabled={isPending}
-                            className="h-8 text-xs"
                           >
                             Waitlist
                           </Button>
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="clay"
+                            size="sm"
                             onClick={() => handleReject(r)}
                             disabled={isPending}
-                            className="h-8 text-xs border-2 border-danger text-danger hover:bg-danger hover:text-white dark:hover:text-ink"
+                            className="text-danger"
                           >
                             Rechazar
                           </Button>
@@ -392,9 +389,9 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                       {r.status === "approved" && r.invite_token && (
                         <Button
                           type="button"
-                          variant="orange"
+                          variant="clayPrimary"
+                          size="sm"
                           onClick={() => handleCopyInviteLink(r)}
-                          className="h-8 text-xs"
                         >
                           {copiedId === r.id ? (
                             <>
@@ -410,32 +407,34 @@ export function BetaRequestsTable({ initialRequests }: Props) {
                       {r.status === "waitlist" && (
                         <Button
                           type="button"
-                          variant="orange"
+                          variant="clayPrimary"
+                          size="sm"
                           onClick={() => handleApprove(r)}
                           disabled={isPending}
-                          className="h-8 text-xs"
                         >
                           Aprobar
                         </Button>
                       )}
                       {r.status === "rejected" && (
-                        <button
+                        <Button
                           type="button"
+                          variant="clay"
+                          size="sm"
                           onClick={() => handleDelete(r)}
                           disabled={isPending}
-                          className="h-8 px-2 border-2 border-border/30 text-fg-muted hover:border-danger hover:text-danger flex items-center justify-center gap-1 text-xs"
+                          className="text-danger"
                         >
                           <Trash2 className="w-3 h-3" /> Borrar
-                        </button>
+                        </Button>
                       )}
                     </div>
-                  </td>
+                  </Td>
                 </tr>
               );
             })}
           </tbody>
-        </table>
-      </div>
+        </TableShell>
+      </GlassPanel>
     </div>
   );
 }
