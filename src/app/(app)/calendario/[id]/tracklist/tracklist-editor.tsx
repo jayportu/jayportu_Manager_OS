@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectNative } from "@/components/ui/select-native";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, Alert, FIELD, SELECT } from "@/components/hos";
 import {
   Plus,
   Trash2,
@@ -373,38 +373,36 @@ export function TracklistEditor({
   return (
     <div className="space-y-5">
       {/* KPIs en vivo */}
-      <div className="grid grid-cols-2 md:grid-cols-4 border-2 border-border">
-        <Kpi label="TRACKS" value={String(kpis.totalTracks).padStart(2, "0")} bg="bg-orange" />
-        <Kpi
-          label="BPM AVG"
-          value={kpis.bpmAvg !== null ? String(kpis.bpmAvg) : "—"}
-          bg="bg-bg-panel"
-          sub={
-            kpis.bpmMin !== null && kpis.bpmMax !== null
-              ? `${kpis.bpmMin}–${kpis.bpmMax}`
-              : "—"
-          }
-        />
-        <Kpi
-          label="DURACIÓN"
-          value={kpis.durationLabel}
-          bg="bg-bg-panel"
-          sub="estimado · 18min/track"
-        />
-        <Kpi
-          label="TAGS"
-          value={String(tracks.filter((t) => t.tag).length).padStart(2, "0")}
-          bg="bg-ink"
-          fg="text-white"
-          sub={`${tracks.filter((t) => t.tag === "peak").length} peak`}
-        />
-      </div>
+      <GlassPanel padded={false}>
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
+          <Kpi label="TRACKS" value={String(kpis.totalTracks).padStart(2, "0")} accent />
+          <Kpi
+            label="BPM AVG"
+            value={kpis.bpmAvg !== null ? String(kpis.bpmAvg) : "—"}
+            sub={
+              kpis.bpmMin !== null && kpis.bpmMax !== null
+                ? `${kpis.bpmMin}–${kpis.bpmMax}`
+                : "—"
+            }
+          />
+          <Kpi
+            label="DURACIÓN"
+            value={kpis.durationLabel}
+            sub="estimado · 18min/track"
+          />
+          <Kpi
+            label="TAGS"
+            value={String(tracks.filter((t) => t.tag).length).padStart(2, "0")}
+            sub={`${tracks.filter((t) => t.tag === "peak").length} peak`}
+          />
+        </div>
+      </GlassPanel>
 
       {/* Acciones rápidas */}
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
-          variant="outline"
+          variant="clay"
           onClick={() => fileRef.current?.click()}
           disabled={isPending}
         >
@@ -420,7 +418,7 @@ export function TracklistEditor({
         />
         <Button
           type="button"
-          variant="outline"
+          variant="clay"
           onClick={copySoundCloud}
           disabled={tracks.length === 0}
         >
@@ -442,7 +440,7 @@ export function TracklistEditor({
         {autoPost.enabled && autoPost.hasUrl ? (
           <Button
             type="button"
-            variant="orange"
+            variant="clayPrimary"
             onClick={fireWebhook}
             disabled={webhookFiring || tracks.length === 0}
           >
@@ -452,7 +450,7 @@ export function TracklistEditor({
         ) : (
           <Link
             href="/configuracion#auto-post"
-            className="inline-flex items-center gap-1.5 h-10 px-4 border-2 border-border/30 bg-cream/50 hover:border-border text-fg-muted hover:text-fg font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-white/12 bg-white/[0.04] text-white/40 hover:text-white/70 hover:border-white/25 font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
             title="Configura el webhook en /configuracion para enviar"
           >
             <Zap className="w-4 h-4" />
@@ -462,20 +460,14 @@ export function TracklistEditor({
       </div>
 
       {webhookResult && (
-        <div
-          className={`text-sm border-2 p-3 ${
-            webhookResult.ok
-              ? "border-success bg-success/10 text-success"
-              : "border-danger bg-danger/10 text-danger"
-          }`}
-        >
+        <Alert tone={webhookResult.ok ? "success" : "danger"}>
           {webhookResult.text}
-        </div>
+        </Alert>
       )}
 
       {/* Preview de import */}
       {importPreview && (
-        <Card className="p-4 border-2 border-orange bg-orange/5">
+        <GlassPanel className="border-orange/40 bg-orange/5">
           <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-orange mb-2">
             Preview · {importPreview.format} · {importPreview.tracks.length} tracks
           </div>
@@ -484,7 +476,7 @@ export function TracklistEditor({
               {importPreview.errors.join(" · ")}
             </div>
           )}
-          <div className="max-h-48 overflow-auto text-xs font-mono space-y-0.5 bg-bg-panel border-2 border-border p-2">
+          <div className="max-h-48 overflow-auto text-xs font-mono space-y-0.5 rounded-xl border border-white/10 bg-white/[0.03] p-2">
             {importPreview.tracks.slice(0, 25).map((t, i) => (
               <div key={i}>
                 {String(i + 1).padStart(2, "0")}. {t.artist || "—"} — {t.title || "—"}
@@ -493,13 +485,13 @@ export function TracklistEditor({
               </div>
             ))}
             {importPreview.tracks.length > 25 && (
-              <div className="text-fg-subtle">…+{importPreview.tracks.length - 25} más</div>
+              <div className="text-white/40">…+{importPreview.tracks.length - 25} más</div>
             )}
           </div>
           <div className="flex gap-2 mt-3">
             <Button
               type="button"
-              variant="orange"
+              variant="clayPrimary"
               onClick={confirmImport}
               disabled={isPending || importPreview.tracks.length === 0}
             >
@@ -507,7 +499,7 @@ export function TracklistEditor({
             </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="clay"
               onClick={() => {
                 setImportPreview(null);
                 if (fileRef.current) fileRef.current.value = "";
@@ -517,22 +509,18 @@ export function TracklistEditor({
               Cancelar
             </Button>
           </div>
-        </Card>
+        </GlassPanel>
       )}
 
       {message && (
-        <div
-          className={`text-sm ${
-            message.type === "ok" ? "text-success" : "text-danger"
-          }`}
-        >
+        <Alert tone={message.type === "ok" ? "success" : "danger"}>
           {message.text}
-        </div>
+        </Alert>
       )}
 
       {/* Lista de tracks */}
-      <Card className="p-0 overflow-hidden">
-        <div className="bg-ink text-white px-4 py-2 grid grid-cols-12 gap-2 font-mono text-[10px] font-bold uppercase tracking-wider">
+      <GlassPanel padded={false}>
+        <div className="bg-white/[0.04] text-white/60 px-4 py-2 grid grid-cols-12 gap-2 font-mono text-[10px] font-bold uppercase tracking-wider">
           <div className="col-span-1">#</div>
           <div className="col-span-3">Artista</div>
           <div className="col-span-4">Título</div>
@@ -542,7 +530,7 @@ export function TracklistEditor({
           <div className="col-span-1 text-right">—</div>
         </div>
         {tracks.length === 0 && (
-          <div className="p-8 text-center text-sm text-fg-muted">
+          <div className="p-8 text-center text-sm text-white/50">
             Aún no hay tracks. Agrega abajo o importa un CSV.
           </div>
         )}
@@ -556,10 +544,10 @@ export function TracklistEditor({
               onDragStart={() => onDragStart(track.id)}
               onDragOver={onDragOver}
               onDrop={() => onDrop(track.id)}
-              className="border-b border-border/20 px-4 py-2 grid grid-cols-12 gap-2 items-center group hover:bg-cream cursor-move"
+              className="border-b border-white/10 px-4 py-2 grid grid-cols-12 gap-2 items-center group/row hover:bg-white/[0.03] cursor-move"
             >
-              <div className="col-span-1 flex items-center gap-1 font-mono text-xs text-fg-muted">
-                <GripVertical className="w-3 h-3 opacity-0 group-hover:opacity-100" />
+              <div className="col-span-1 flex items-center gap-1 font-mono text-xs text-white/50">
+                <GripVertical className="w-3 h-3 opacity-0 group-hover/row:opacity-100" />
                 {String(idx + 1).padStart(2, "0")}
               </div>
               {isEditing ? (
@@ -572,7 +560,7 @@ export function TracklistEditor({
                         [track.id]: { ...s[track.id], artist: e.target.value },
                       }))
                     }
-                    className="col-span-3 h-8"
+                    className={`${FIELD} col-span-3 h-8`}
                   />
                   <Input
                     value={ed.title ?? ""}
@@ -582,7 +570,7 @@ export function TracklistEditor({
                         [track.id]: { ...s[track.id], title: e.target.value },
                       }))
                     }
-                    className="col-span-4 h-8"
+                    className={`${FIELD} col-span-4 h-8`}
                   />
                   <Input
                     value={ed.bpm ?? ""}
@@ -592,7 +580,7 @@ export function TracklistEditor({
                         [track.id]: { ...s[track.id], bpm: e.target.value },
                       }))
                     }
-                    className="col-span-1 h-8 text-center"
+                    className={`${FIELD} col-span-1 h-8 text-center`}
                     placeholder="128"
                   />
                   <Input
@@ -603,7 +591,7 @@ export function TracklistEditor({
                         [track.id]: { ...s[track.id], music_key: e.target.value },
                       }))
                     }
-                    className="col-span-1 h-8 text-center"
+                    className={`${FIELD} col-span-1 h-8 text-center`}
                     placeholder="9A"
                   />
                   <SelectNative
@@ -617,7 +605,7 @@ export function TracklistEditor({
                         },
                       }))
                     }
-                    className="col-span-1 h-8"
+                    className={`${SELECT} col-span-1 h-8`}
                   >
                     <option value="">—</option>
                     {TRACK_TAGS.map((t) => (
@@ -631,14 +619,14 @@ export function TracklistEditor({
                       type="button"
                       onClick={() => saveEdit(track)}
                       disabled={isPending}
-                      className="h-8 px-2 bg-orange text-ink border-2 border-border font-mono text-[10px] font-bold uppercase"
+                      className="h-8 px-2 rounded-lg bg-orange text-ink font-mono text-[10px] font-bold uppercase"
                     >
                       OK
                     </button>
                     <button
                       type="button"
                       onClick={() => cancelEdit(track.id)}
-                      className="h-8 px-2 bg-cream border-2 border-border font-mono text-[10px] font-bold uppercase"
+                      className="h-8 px-2 rounded-lg border border-white/12 bg-white/[0.04] text-white/70 font-mono text-[10px] font-bold uppercase"
                     >
                       X
                     </button>
@@ -676,12 +664,12 @@ export function TracklistEditor({
                   >
                     {track.tag ? (
                       <span
-                        className={`px-1.5 py-0.5 border border-border ${
+                        className={`px-1.5 py-0.5 rounded-full border font-mono text-[9px] font-bold uppercase tracking-wider ${
                           track.tag === "peak"
-                            ? "bg-orange text-ink"
+                            ? "border-orange/40 bg-orange/15 text-orange"
                             : track.tag === "intro"
-                            ? "bg-info text-white dark:text-ink"
-                            : "bg-ink text-white"
+                            ? "border-info/40 bg-info/15 text-info"
+                            : "border-white/15 bg-white/[0.06] text-white/60"
                         }`}
                       >
                         {track.tag}
@@ -695,7 +683,7 @@ export function TracklistEditor({
                       type="button"
                       onClick={() => handleDelete(track)}
                       disabled={isPending}
-                      className="h-7 w-7 border border-border/30 hover:border-danger hover:bg-danger hover:text-white dark:hover:text-ink flex items-center justify-center"
+                      className="h-7 w-7 rounded-lg border border-white/12 text-white/60 hover:border-danger hover:bg-danger hover:text-white flex items-center justify-center transition-colors"
                       aria-label="Borrar"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -708,27 +696,27 @@ export function TracklistEditor({
         })}
 
         {/* Fila para nuevo track */}
-        <div className="bg-cream px-4 py-2 grid grid-cols-12 gap-2 items-center border-t-2 border-border">
-          <div className="col-span-1 font-mono text-xs text-fg-muted">
+        <div className="bg-white/[0.03] px-4 py-2 grid grid-cols-12 gap-2 items-center border-t border-white/10">
+          <div className="col-span-1 font-mono text-xs text-white/50">
             {String(tracks.length + 1).padStart(2, "0")}
           </div>
           <Input
             value={draft.artist}
             onChange={(e) => setDraft((d) => ({ ...d, artist: e.target.value }))}
             placeholder="Artista"
-            className="col-span-3 h-8"
+            className={`${FIELD} col-span-3 h-8`}
           />
           <Input
             value={draft.title}
             onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
             placeholder="Título"
-            className="col-span-4 h-8"
+            className={`${FIELD} col-span-4 h-8`}
           />
           <Input
             value={draft.bpm}
             onChange={(e) => setDraft((d) => ({ ...d, bpm: e.target.value }))}
             placeholder="128"
-            className="col-span-1 h-8 text-center"
+            className={`${FIELD} col-span-1 h-8 text-center`}
           />
           <Input
             value={draft.music_key}
@@ -736,14 +724,14 @@ export function TracklistEditor({
               setDraft((d) => ({ ...d, music_key: e.target.value }))
             }
             placeholder="9A"
-            className="col-span-1 h-8 text-center"
+            className={`${FIELD} col-span-1 h-8 text-center`}
           />
           <SelectNative
             value={draft.tag}
             onChange={(e) =>
               setDraft((d) => ({ ...d, tag: e.target.value as Draft["tag"] }))
             }
-            className="col-span-1 h-8"
+            className={`${SELECT} col-span-1 h-8`}
           >
             <option value="">—</option>
             {TRACK_TAGS.map((t) => (
@@ -755,7 +743,7 @@ export function TracklistEditor({
           <div className="col-span-1 flex justify-end">
             <Button
               type="button"
-              variant="orange"
+              variant="clayPrimary"
               onClick={handleAdd}
               disabled={isPending}
               className="h-8 px-3"
@@ -767,7 +755,7 @@ export function TracklistEditor({
 
         {/* Sello (opcional, una fila más) */}
         {(draft.artist || draft.title) && (
-          <div className="bg-cream px-4 pb-2 grid grid-cols-12 gap-2 items-center">
+          <div className="bg-white/[0.03] px-4 pb-2 grid grid-cols-12 gap-2 items-center">
             <div className="col-span-1" />
             <Input
               value={draft.label}
@@ -775,16 +763,16 @@ export function TracklistEditor({
                 setDraft((d) => ({ ...d, label: e.target.value }))
               }
               placeholder="Sello (opcional)"
-              className="col-span-7 h-8"
+              className={`${FIELD} col-span-7 h-8`}
             />
-            <div className="col-span-4 font-mono text-[10px] text-fg-subtle self-center">
+            <div className="col-span-4 font-mono text-[10px] text-white/40 self-center">
               Enter para agregar más rápido
             </div>
           </div>
         )}
-      </Card>
+      </GlassPanel>
 
-      <div className="text-[10px] font-mono text-fg-subtle">
+      <div className="text-[10px] font-mono text-white/40">
         ID tracklist: {tracklistId.slice(0, 8)}… · evento: {calendarEventId.slice(0, 8)}…
       </div>
     </div>
@@ -794,29 +782,28 @@ export function TracklistEditor({
 function Kpi({
   label,
   value,
-  bg,
-  fg = "text-fg",
   sub,
+  accent = false,
 }: {
   label: string;
   value: string;
-  bg: string;
-  fg?: string;
   sub?: string;
+  accent?: boolean;
 }) {
-  const isLast = bg === "bg-ink";
   return (
-    <div
-      className={`${bg} ${fg} p-4 ${
-        isLast ? "" : "border-r-2 border-border"
-      }`}
-    >
-      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em]">
+    <div className={`p-4 ${accent ? "bg-orange/10" : ""}`}>
+      <div
+        className={`font-mono text-[10px] font-bold uppercase tracking-[0.1em] ${
+          accent ? "text-orange" : "text-white/50"
+        }`}
+      >
         — {label}
       </div>
-      <div className="font-display text-3xl leading-none mt-2">{value}</div>
+      <div className="font-display text-3xl leading-none mt-2 text-fg">
+        {value}
+      </div>
       {sub && (
-        <div className="font-mono text-[10px] mt-2 opacity-80">{sub}</div>
+        <div className="font-mono text-[10px] mt-2 text-white/45">{sub}</div>
       )}
     </div>
   );

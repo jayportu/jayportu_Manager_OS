@@ -16,6 +16,7 @@ import {
 import { getMyProfile } from "@/lib/queries/dj-profile";
 import { TracklistEditor } from "./tracklist-editor";
 import { ArrowLeft } from "lucide-react";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 interface PageProps {
@@ -63,10 +64,8 @@ export default async function TracklistPage({ params }: PageProps) {
         Volver al calendario
       </Link>
 
-      <div className="border-2 border-border bg-bg-panel p-6 mb-5">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — TRACKLIST · POST-SHOW
-        </div>
+      <GlassPanel className="mb-5">
+        <MonoLabel>TRACKLIST · POST-SHOW</MonoLabel>
         <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
           {event.title || "Set"}<span className="text-orange">.</span>
         </h1>
@@ -78,7 +77,7 @@ export default async function TracklistPage({ params }: PageProps) {
           })}
           {event.location ? ` · ${event.location}` : ""}
         </p>
-      </div>
+      </GlassPanel>
 
       <TracklistEditor
         tracklistId={tracklist.id}

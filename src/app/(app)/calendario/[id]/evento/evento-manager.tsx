@@ -3,8 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel, Badge, Alert, FIELD } from "@/components/hos";
+import { cn } from "@/lib/utils";
 import {
   Globe,
   Copy,
@@ -151,29 +152,27 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — EVENTO PÚBLICO
-        </div>
+        <MonoLabel className="tracking-[0.12em]">EVENTO PÚBLICO</MonoLabel>
         <h1 className="font-display text-3xl leading-none mt-2">{event.title}</h1>
       </div>
 
       {/* Publicación */}
-      <Card className="p-5">
+      <GlassPanel>
         {!isPublic ? (
           <div className="text-center py-2">
-            <Globe className="w-8 h-8 mx-auto text-fg-subtle mb-2" />
-            <p className="text-sm text-fg-muted mb-4 max-w-sm mx-auto">
+            <Globe className="w-8 h-8 mx-auto text-white/40 mb-2" />
+            <p className="text-sm text-white/60 mb-4 max-w-sm mx-auto">
               Publica este show como página pública para compartir por
               Instagram o WhatsApp. Los fans confirman asistencia y quedan como
               leads tuyos.
             </p>
             {isShow ? (
-              <Button onClick={publish} disabled={pending} variant="orange">
+              <Button onClick={publish} disabled={pending} variant="clayPrimary">
                 <Globe className="w-4 h-4" />
                 {pending ? "Publicando…" : "Publicar como evento"}
               </Button>
             ) : (
-              <p className="text-xs text-fg-muted border-2 border-dashed border-border/30 bg-cream px-3 py-2 max-w-sm mx-auto">
+              <p className="text-xs text-white/60 rounded-xl border border-dashed border-white/15 bg-white/[0.03] px-3 py-2 max-w-sm mx-auto">
                 Solo los eventos de tipo <strong>show</strong> se pueden publicar.
                 Cambia el tipo en el calendario para habilitarlo.
               </p>
@@ -182,10 +181,8 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
         ) : (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-success/15 text-success border border-success/30">
-                ● En vivo
-              </span>
-              <span className="text-xs text-fg-muted">
+              <Badge tone="up">● En vivo</Badge>
+              <span className="text-xs text-white/60">
                 Cualquiera con el link puede ver y confirmar.
               </span>
             </div>
@@ -194,9 +191,9 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                 readOnly
                 value={link}
                 onFocus={(e) => e.currentTarget.select()}
-                className="flex-1 border-2 border-border bg-cream px-3 py-2 font-mono text-xs"
+                className={cn(FIELD, "flex-1")}
               />
-              <Button onClick={copyLink} variant="outline">
+              <Button onClick={copyLink} variant="clay">
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? "Copiado" : "Copiar"}
               </Button>
@@ -204,7 +201,7 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
 
             {/* Link de entradas (opcional) — antes era una feature muerta sin UI */}
             <div>
-              <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted flex items-center gap-1.5 mb-1">
+              <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/50 flex items-center gap-1.5 mb-1">
                 <Ticket className="w-3.5 h-3.5" /> Link de entradas (opcional)
               </label>
               <div className="flex gap-2">
@@ -213,9 +210,9 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
                   value={ticketUrl}
                   onChange={(e) => setTicketUrl(e.target.value)}
                   placeholder="https://..."
-                  className="flex-1 border-2 border-border bg-bg-panel px-3 py-2 font-mono text-xs focus:outline-none focus:border-orange"
+                  className={cn(FIELD, "flex-1")}
                 />
-                <Button onClick={saveTicket} variant="outline" disabled={pending}>
+                <Button onClick={saveTicket} variant="clay" disabled={pending}>
                   {ticketSaved ? <Check className="w-4 h-4" /> : "Guardar"}
                 </Button>
               </div>
@@ -225,50 +222,52 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
               type="button"
               onClick={unpublish}
               disabled={pending}
-              className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted hover:text-danger"
+              className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/50 hover:text-danger"
             >
               Despublicar
             </button>
           </div>
         )}
         {notice && <div className="text-sm text-success mt-3">{notice}</div>}
-      </Card>
+      </GlassPanel>
 
       {/* M11 — vista previa de lo que el público verá. Evita publicar la
           descripción del calendario (que puede tener notas privadas/fee) sin
           que el DJ se dé cuenta. */}
-      <Card className="p-5">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted flex items-center gap-1.5 mb-2">
+      <GlassPanel>
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 flex items-center gap-1.5 mb-2">
           <Eye className="w-3.5 h-3.5" /> Esto ve el público
         </div>
-        <div className="border-2 border-border bg-cream p-3 space-y-1">
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-1">
           <div className="font-display text-xl leading-none">{event.title}</div>
-          <div className="text-xs text-fg-muted">
+          <div className="text-xs text-white/60">
             {fmtWhen(event.start_at) || "Fecha por confirmar"}
             {event.location ? ` · ${event.location}` : ""}
           </div>
           {event.description ? (
-            <p className="text-sm text-fg whitespace-pre-wrap pt-1">
+            <p className="text-sm text-white/90 whitespace-pre-wrap pt-1">
               {event.description}
             </p>
           ) : (
-            <p className="text-xs text-fg-subtle pt-1 italic">
+            <p className="text-xs text-white/40 pt-1 italic">
               Sin descripción.
             </p>
           )}
         </div>
         {event.description && (
-          <p className="text-[11px] text-fg-muted mt-2">
-            ⚠ La descripción sale tal cual del calendario. Si tiene notas
-            privadas o tu fee, edítala en el calendario antes de compartir.
-          </p>
+          <div className="mt-3">
+            <Alert tone="warn">
+              ⚠ La descripción sale tal cual del calendario. Si tiene notas
+              privadas o tu fee, edítala en el calendario antes de compartir.
+            </Alert>
+          </div>
         )}
-      </Card>
+      </GlassPanel>
 
       {/* RSVPs */}
-      <Card className="p-5">
+      <GlassPanel>
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted flex items-center gap-1.5">
+          <h2 className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5" /> Asistentes ({rsvps.length})
             {notifyCount > 0 && (
               <span className="inline-flex items-center gap-1 text-orange ml-1">
@@ -277,39 +276,33 @@ export function EventoManager({ event, rsvps, siteUrl }: Props) {
             )}
           </h2>
           {rsvps.length > 0 && (
-            <Button onClick={exportCsv} variant="outline" size="sm">
+            <Button onClick={exportCsv} variant="clay" size="sm">
               <Download className="w-3.5 h-3.5" /> CSV
             </Button>
           )}
         </div>
         {rsvps.length === 0 ? (
-          <p className="text-sm text-fg-muted">
+          <p className="text-sm text-white/60">
             {isPublic
               ? "Aún nadie confirmó. Comparte el link para empezar a recibir RSVPs."
               : "Publica el evento para empezar a recibir RSVPs."}
           </p>
         ) : (
-          <div className="border-2 border-border divide-y divide-border/10">
+          <div className="rounded-xl border border-white/10 divide-y divide-white/10 overflow-hidden">
             {rsvps.map((r) => (
               <div key={r.id} className="flex items-center gap-3 px-3 py-2 text-sm">
                 <span className="flex-1 min-w-0 truncate">
                   {r.name || "(sin nombre)"}
-                  <span className="text-fg-subtle"> · {r.email}</span>
+                  <span className="text-white/40"> · {r.email}</span>
                 </span>
-                <span
-                  className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 border ${
-                    r.status === "going"
-                      ? "border-success/40 text-success"
-                      : "border-border/20 text-fg-muted"
-                  }`}
-                >
+                <Badge tone={r.status === "going" ? "up" : "neutral"}>
                   {r.status === "going" ? "Voy" : "Quizás"}
-                </span>
+                </Badge>
               </div>
             ))}
           </div>
         )}
-      </Card>
+      </GlassPanel>
     </div>
   );
 }
