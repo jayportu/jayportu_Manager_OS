@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getMyBookerAccount } from "@/lib/queries/booker";
+import { GlassPanel, MonoLabel, Badge } from "@/components/hos";
 import { BookerProfileForm } from "./booker-profile-form";
 import { BookerVerificationRequest } from "./verification-request";
 
@@ -18,10 +19,8 @@ export default async function BookerPerfilPage() {
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto">
       {/* Hero */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — MI PERFIL
-        </div>
+      <GlassPanel className="mb-6">
+        <MonoLabel>MI PERFIL</MonoLabel>
         <div className="mt-2 flex flex-wrap items-end gap-3 justify-between">
           <h1
             className="leading-none"
@@ -34,20 +33,16 @@ export default async function BookerPerfilPage() {
             PERFIL<span className="text-orange">.</span>
           </h1>
           {booker.verified_at ? (
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 border-2 border-success bg-success/10 text-success">
-              ✓ Verificado por DROP.
-            </span>
+            <Badge tone="up">✓ Verificado por DROP.</Badge>
           ) : (
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 border-2 border-border/30 bg-cream text-fg-muted">
-              Sin verificar
-            </span>
+            <Badge tone="neutral">Sin verificar</Badge>
           )}
         </div>
         <p className="text-sm text-fg-muted mt-2 max-w-xl">
           Tus datos como booker. Lo que marques como visible aparece para los
           DJs cuando los contactes. El email es tu acceso y no se cambia acá.
         </p>
-      </div>
+      </GlassPanel>
 
       <BookerVerificationRequest
         verified={!!booker.verified_at}

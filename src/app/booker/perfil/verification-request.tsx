@@ -11,6 +11,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, GlassPanel, FIELD } from "@/components/hos";
 import { requestBookerVerification } from "../actions";
 
 export function BookerVerificationRequest({
@@ -29,17 +30,17 @@ export function BookerVerificationRequest({
 
   if (requested) {
     return (
-      <div className="border-2 border-warning/40 bg-warning/10 p-5 mb-6 flex items-start gap-3">
-        <Clock className="w-5 h-5 text-warning shrink-0 mt-0.5" />
-        <div>
-          <div className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-warning">
+      <div className="mb-6">
+        <Alert tone="warn">
+          <span className="flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-warning">
+            <Clock className="w-4 h-4 shrink-0" />
             Verificación en revisión
-          </div>
-          <p className="text-sm text-fg-muted mt-1">
+          </span>
+          <span className="mt-1 block text-fg-muted">
             Recibimos tu solicitud. Te avisamos por email en cuanto quede verificada.
             Mientras tanto ya puedes buscar y contactar DJs.
-          </p>
-        </div>
+          </span>
+        </Alert>
       </div>
     );
   }
@@ -57,7 +58,7 @@ export function BookerVerificationRequest({
   }
 
   return (
-    <div className="border-2 border-border bg-bg-panel p-5 mb-6">
+    <GlassPanel className="mb-6">
       <div className="flex items-center gap-2">
         <BadgeCheck className="w-5 h-5 text-accent" />
         <div className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fg">
@@ -75,21 +76,22 @@ export function BookerVerificationRequest({
         rows={3}
         maxLength={1000}
         placeholder="https://instagram.com/tu_venue — o cuéntanos brevemente sobre tus eventos."
-        className="mt-3 w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-none"
+        className={`${FIELD} mt-3 resize-none`}
       />
       {error && (
-        <div className="mt-2 border-2 border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+        <div className="mt-2">
+          <Alert tone="danger">{error}</Alert>
         </div>
       )}
       <Button
         type="button"
         onClick={handleRequest}
         disabled={pending || !evidence.trim()}
+        variant="clayPrimary"
         className="mt-3"
       >
         {pending ? "Enviando…" : "Solicitar verificación"}
       </Button>
-    </div>
+    </GlassPanel>
   );
 }
