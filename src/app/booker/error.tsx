@@ -5,6 +5,9 @@
  * (listFollowFeed / listInterestedDjs / listReceivedPitches) lanzaba, la
  * página crasheaba sin red de seguridad. Esto degrada con un mensaje + retry.
  */
+import { GlassPanel } from "@/components/hos";
+import { Button } from "@/components/ui/button";
+
 export default function BookerError({
   reset,
 }: {
@@ -13,7 +16,7 @@ export default function BookerError({
 }) {
   return (
     <div className="p-10 max-w-md mx-auto text-center">
-      <div className="border-2 border-border bg-bg-panel p-8">
+      <GlassPanel padded={false} className="p-8 text-center">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
           — ALGO FALLÓ
         </div>
@@ -30,14 +33,10 @@ export default function BookerError({
         <p className="text-sm text-fg-muted mb-5">
           No pudimos cargar esta sección. Prueba de nuevo en un momento.
         </p>
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
-        >
+        <Button type="button" variant="clay" size="lg" onClick={reset}>
           Reintentar
-        </button>
-      </div>
+        </Button>
+      </GlassPanel>
     </div>
   );
 }

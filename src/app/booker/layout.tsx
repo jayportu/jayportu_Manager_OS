@@ -111,7 +111,7 @@ export default async function BookerLayout({
           children
         )}
       </main>
-      <footer className="bg-ink text-white border-t-2 border-orange py-3 px-6 text-center">
+      <footer className="hos-glass border-t border-white/10 py-3 px-6 text-center">
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-fg-subtle">
           DROP<span className="text-orange">.</span> · BOOKER PORTAL · v0.13
         </div>

@@ -39,7 +39,7 @@ export function BookerTopBar({ fullName, email }: Props) {
   const initial = (fullName || email || "B").trim().charAt(0).toUpperCase();
 
   return (
-    <header className="bg-ink text-white border-b-2 border-orange sticky top-0 z-40">
+    <header className="hos-glass text-white sticky top-0 z-40">
       <div className="px-4 md:px-6 py-3 flex items-center gap-4 md:gap-6 flex-wrap">
         {/* Logo */}
         <Link
@@ -70,11 +70,12 @@ export function BookerTopBar({ fullName, email }: Props) {
               <Link
                 key={href}
                 href={href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "px-3 py-2 flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em] border-2 transition-colors whitespace-nowrap",
+                  "px-3 py-2 rounded-full flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors whitespace-nowrap",
                   active
-                    ? "bg-orange text-ink border-orange"
-                    : "border-transparent text-white/80 hover:text-white hover:border-cream/30"
+                    ? "bg-orange text-ink shadow-[var(--hos-clay-btn)]"
+                    : "text-white/80 hover:text-white hover:bg-white/[0.06]"
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -87,7 +88,7 @@ export function BookerTopBar({ fullName, email }: Props) {
 
         {/* User card + logout */}
         <div className="flex items-center gap-2 ml-auto">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#161616] border border-[#2a2a2a]">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10">
             <div
               className="w-7 h-7 bg-orange text-ink flex items-center justify-center"
               style={{
@@ -110,7 +111,7 @@ export function BookerTopBar({ fullName, email }: Props) {
           <form method="POST" action="/logout">
             <button
               type="submit"
-              className="p-2 border-2 border-cream/20 hover:border-orange hover:text-orange transition-colors block"
+              className="p-2 rounded-full border border-white/15 text-white/70 hover:border-orange hover:text-orange transition-colors block"
               aria-label="Salir"
               title="Salir"
             >

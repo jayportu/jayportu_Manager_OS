@@ -13,6 +13,7 @@ import { ArrowRight, ArrowLeft, Check, Search, Megaphone, Heart } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GlassPanel, Alert, FIELD, SELECT } from "@/components/hos";
 import { completeBookerOnboarding, type BookerOnboardingInput } from "./actions";
 
 const BOOKER_TYPES = [
@@ -79,14 +80,14 @@ export function BookerWelcomeWizard({ initial }: { initial: BookerOnboardingInpu
           Paso {step} de 3
         </div>
 
-        <div className="border-2 border-border bg-bg-panel p-6 md:p-8">
+        <GlassPanel padded={false} className="p-6 md:p-8">
           {step === 1 && <StepAbout form={form} set={set} />}
           {step === 2 && <StepContact form={form} set={set} />}
           {step === 3 && <StepDone name={form.fullName} />}
 
           {error && (
-            <div className="mt-4 border-2 border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
-              {error}
+            <div className="mt-4">
+              <Alert tone="danger">{error}</Alert>
             </div>
           )}
 
@@ -94,7 +95,7 @@ export function BookerWelcomeWizard({ initial }: { initial: BookerOnboardingInpu
             {step > 1 && (
               <Button
                 type="button"
-                variant="outline"
+                variant="clay"
                 onClick={() => {
                   setError(null);
                   setStep((s) => (s - 1) as Step);
@@ -105,13 +106,13 @@ export function BookerWelcomeWizard({ initial }: { initial: BookerOnboardingInpu
                 Atrás
               </Button>
             )}
-            <Button type="button" onClick={next} disabled={pending} className="flex-1">
+            <Button type="button" variant="clayPrimary" onClick={next} disabled={pending} className="flex-1">
               {pending ? "Guardando…" : step === 3 ? "Empezar" : "Continuar"}
               {!pending && step < 3 && <ArrowRight className="w-4 h-4" />}
               {!pending && step === 3 && <Check className="w-4 h-4" />}
             </Button>
           </div>
-        </div>
+        </GlassPanel>
       </div>
     </div>
   );
@@ -138,6 +139,7 @@ function StepAbout({
         <Label htmlFor="full-name">Tu nombre o el de tu organización *</Label>
         <Input
           id="full-name"
+          className={FIELD}
           placeholder="Club X / Carlos Pérez"
           value={form.fullName}
           onChange={(e) => set("fullName", e.target.value)}
@@ -152,10 +154,10 @@ function StepAbout({
           id="booker-type"
           value={form.bookerType}
           onChange={(e) => set("bookerType", e.target.value)}
-          className="w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm font-mono focus:outline-none focus:border-orange"
+          className={SELECT}
         >
           {BOOKER_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
+            <option key={t.value} value={t.value} className="bg-bg-panel">
               {t.label}
             </option>
           ))}
@@ -166,6 +168,7 @@ function StepAbout({
         <Label htmlFor="city">Ciudad</Label>
         <Input
           id="city"
+          className={FIELD}
           placeholder="Santiago"
           value={form.city}
           onChange={(e) => set("city", e.target.value)}
@@ -197,6 +200,7 @@ function StepContact({
         <Label htmlFor="whatsapp">WhatsApp</Label>
         <Input
           id="whatsapp"
+          className={FIELD}
           placeholder="+56 9 1234 5678"
           value={form.whatsapp}
           onChange={(e) => set("whatsapp", e.target.value)}
@@ -208,6 +212,7 @@ function StepContact({
         <Label htmlFor="instagram">Instagram</Label>
         <Input
           id="instagram"
+          className={FIELD}
           type="url"
           placeholder="https://instagram.com/tu_organizacion"
           value={form.instagramUrl}
@@ -220,6 +225,7 @@ function StepContact({
         <Label htmlFor="website">Sitio web</Label>
         <Input
           id="website"
+          className={FIELD}
           type="url"
           placeholder="https://tu-evento.com"
           value={form.websiteUrl}
@@ -265,9 +271,9 @@ function StepDone({ name }: { name: string }) {
         {items.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.title} className="flex gap-3 p-3 rounded-lg bg-bg border border-border">
-              <div className="w-8 h-8 rounded-md bg-accent-soft border border-accent/30 flex items-center justify-center shrink-0">
-                <Icon className="w-4 h-4 text-accent" />
+            <div key={s.title} className="flex gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.04]">
+              <div className="w-8 h-8 rounded-lg border border-orange/30 bg-orange/10 flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-orange" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-fg">{s.title}</div>

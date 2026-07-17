@@ -11,6 +11,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { GlassPanel, Alert } from "@/components/hos";
 import { TOS_VERSION_LABEL } from "@/lib/legal";
 import { acceptBookerTos } from "./actions";
 
@@ -34,7 +35,8 @@ export function BookerTosGate() {
 
   return (
     <div className="mx-auto max-w-md px-6 py-16">
-      <div className="border-2 border-border bg-bg-panel p-6 space-y-4">
+      <GlassPanel padded={false} className="p-6">
+        <div className="space-y-4">
         <h1 className="font-mono text-sm font-bold uppercase tracking-wider text-fg">
           Actualizamos nuestros términos
         </h1>
@@ -74,15 +76,11 @@ export function BookerTosGate() {
           </span>
         </label>
 
-        {error && (
-          <div className="border-2 border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
-            {error}
-          </div>
-        )}
+        {error && <Alert tone="danger">{error}</Alert>}
 
         <Button
           type="button"
-          variant="default"
+          variant="clayPrimary"
           size="lg"
           disabled={!accepted || pending}
           onClick={handleAccept}
@@ -90,7 +88,8 @@ export function BookerTosGate() {
         >
           {pending ? "Guardando…" : "Aceptar y continuar →"}
         </Button>
-      </div>
+        </div>
+      </GlassPanel>
     </div>
   );
 }
