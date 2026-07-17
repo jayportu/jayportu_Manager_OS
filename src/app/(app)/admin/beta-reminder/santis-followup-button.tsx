@@ -2,9 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send, CheckCircle2 } from "lucide-react";
 import { sendSantisTechRiderFollowupAction } from "./actions";
 import { useConfirm } from "@/components/admin/confirm-dialog";
+import { Alert, GlassPanel } from "@/components/hos";
 
 type Result =
   | { ok: true; emailId: string; email: string }
@@ -34,7 +35,7 @@ export function SantisFollowupButton() {
     <div className="space-y-3">
       <Button
         type="button"
-        variant="outline"
+        variant="clay"
         onClick={handleSend}
         disabled={isPending}
       >
@@ -43,25 +44,23 @@ export function SantisFollowupButton() {
       </Button>
 
       {result && !result.ok && (
-        <div className="border-2 border-danger bg-danger/10 p-3 text-sm flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
-          <div>
-            <div className="font-bold text-danger">Error</div>
-            <div className="text-fg">{result.error}</div>
-          </div>
-        </div>
+        <Alert tone="danger" title="Error">
+          {result.error}
+        </Alert>
       )}
 
       {result && result.ok && (
-        <div className="border-2 border-border bg-cream p-3 text-sm flex items-start gap-2">
-          <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
-          <div>
-            <div className="font-bold">Enviado a {result.email}</div>
-            <div className="font-mono text-[11px] text-fg-subtle mt-0.5">
-              {result.emailId}
+        <GlassPanel>
+          <div className="flex items-start gap-2 text-sm">
+            <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold">Enviado a {result.email}</div>
+              <div className="font-mono text-[11px] text-fg-subtle mt-0.5">
+                {result.emailId}
+              </div>
             </div>
           </div>
-        </div>
+        </GlassPanel>
       )}
     </div>
   );
