@@ -35,7 +35,7 @@ export function MarkPaidButton({ eventId }: { eventId: string }) {
         onClick={handleClick}
         disabled={isPending}
         title="Marcar como pagado"
-        className="inline-flex items-center justify-center gap-1.5 h-8 px-3 border-2 border-success bg-success text-white dark:text-ink hover:opacity-90 font-mono text-[10px] font-bold uppercase tracking-wider transition-opacity disabled:opacity-50"
+        className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-full border border-success/40 bg-success/15 text-success hover:bg-success/25 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
       >
         <Check className="w-3 h-3" aria-hidden="true" />
         {isPending ? "..." : "Pagado"}

@@ -60,7 +60,7 @@ export function AutoSync({ lastSyncAt, staleMinutes = 5 }: Props) {
 
   if (!syncing) return null;
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3 py-2 rounded-lg bg-bg-panel border border-border shadow-lg text-xs">
+    <div className="hos-glass fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-2xl text-xs">
       <RefreshCw className="w-3.5 h-3.5 animate-spin text-accent" />
       Sincronizando calendario…
     </div>
