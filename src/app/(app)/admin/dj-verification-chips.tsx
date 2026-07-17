@@ -42,10 +42,10 @@ export function DjVerificationChips({
             disabled={pending}
             onClick={() => toggle(c.key, !on)}
             title={on ? `Quitar ${c.label}` : `Verificar ${c.label}`}
-            className={`px-1.5 py-0.5 border font-mono text-[9px] uppercase tracking-wider transition-colors disabled:opacity-50 ${
+            className={`rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50 ${
               on
-                ? "border-success bg-success text-white dark:text-ink"
-                : "border-border text-fg-muted hover:border-success hover:text-success"
+                ? "border-transparent bg-success text-black"
+                : "border-white/15 text-white/55 hover:border-success hover:text-success"
             }`}
           >
             {on ? "✓ " : ""}

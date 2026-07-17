@@ -37,10 +37,10 @@ export function DropPickButton({
           ? `Quitar "${name}" de DROP Picks`
           : `Marcar "${name}" como DROP Pick`
       }
-      className={`inline-flex items-center gap-1 px-2 py-1 border font-mono text-[9px] uppercase tracking-wider transition-colors disabled:opacity-50 ${
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50 ${
         isPick
-          ? "border-orange bg-orange text-ink"
-          : "border-border text-fg-muted hover:border-orange hover:text-orange"
+          ? "border-transparent bg-[rgb(var(--drop-orange))] text-black"
+          : "border-white/15 text-white/55 hover:border-[rgb(var(--drop-orange))] hover:text-[rgb(var(--drop-orange))]"
       }`}
     >
       <Star className="w-3 h-3" fill={isPick ? "currentColor" : "none"} /> Pick
