@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { markPitchViewedAction } from "../actions";
 
 /**
@@ -18,16 +19,17 @@ export function PitchPressKitLink({
   slug: string;
 }) {
   return (
-    <Link
-      href={`/p/${slug}`}
-      target="_blank"
-      onClick={() => {
-        void markPitchViewedAction(pitchId);
-      }}
-      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border-2 border-border font-mono text-[10px] font-bold tracking-wider uppercase hover:bg-orange hover:border-orange transition-colors"
-    >
-      Press kit
-      <ArrowRight className="w-3.5 h-3.5" />
-    </Link>
+    <Button asChild variant="clay" size="sm" className="shrink-0 gap-1.5 [&_svg]:!size-3.5">
+      <Link
+        href={`/p/${slug}`}
+        target="_blank"
+        onClick={() => {
+          void markPitchViewedAction(pitchId);
+        }}
+      >
+        Press kit
+        <ArrowRight className="w-3.5 h-3.5" />
+      </Link>
+    </Button>
   );
 }

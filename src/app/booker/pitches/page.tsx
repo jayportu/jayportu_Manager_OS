@@ -2,6 +2,7 @@ import Image from "next/image";
 import { listReceivedPitches } from "@/lib/queries/booker";
 import { relativeTime, isSupabaseStorageUrl } from "@/lib/format";
 import { Send, CalendarClock } from "lucide-react";
+import { GlassPanel, MonoLabel, EmptyState } from "@/components/hos";
 import { PitchPressKitLink } from "./pitch-presskit-link";
 
 /**
@@ -16,10 +17,8 @@ export default async function PitchesPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — PITCHES RECIBIDOS
-        </div>
+      <GlassPanel padded={false} className="p-6 md:p-7 mb-6">
+        <MonoLabel>PITCHES RECIBIDOS</MonoLabel>
         <h1
           className="leading-none mt-2"
           style={{
@@ -30,35 +29,24 @@ export default async function PitchesPage() {
         >
           PITCHES<span className="text-orange">.</span>
         </h1>
-        <p className="text-sm text-fg-muted mt-2 max-w-xl">
+        <p className="text-sm text-white/55 mt-2 max-w-xl">
           DJs que te mandaron un pitch para tocar en tu lugar. Lee su
           propuesta y abre su press kit (ahí está su contacto) si te interesa.
         </p>
-      </div>
+      </GlassPanel>
 
       {pitches.length === 0 ? (
-        <div className="border-2 border-dashed border-border bg-bg-panel p-10 text-center">
-          <Send className="w-12 h-12 mx-auto text-fg-subtle mb-4" />
-          <h2
-            className="leading-tight mb-2"
-            style={{
-              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-              fontSize: "30px",
-            }}
-          >
-            SIN PITCHES TODAVÍA
-          </h2>
-          <p className="text-sm text-fg-muted max-w-md mx-auto">
-            Cuando un DJ te mande un pitch, va a aparecer acá con su mensaje y
-            su press kit.
-          </p>
-        </div>
+        <EmptyState
+          icon={Send}
+          title="SIN PITCHES TODAVÍA"
+          sub="Cuando un DJ te mande un pitch, va a aparecer acá con su mensaje y su press kit."
+        />
       ) : (
         <div className="space-y-3">
           {pitches.map((p) => {
             const initial = (p.artist_name || "DJ").trim().charAt(0).toUpperCase();
             return (
-              <article key={p.id} className="border-2 border-border bg-bg-panel p-5">
+              <GlassPanel key={p.id}>
                 <div className="flex items-start gap-3">
                   {isSupabaseStorageUrl(p.avatar_url) ? (
                     <Image
@@ -66,11 +54,11 @@ export default async function PitchesPage() {
                       alt={p.artist_name}
                       width={48}
                       height={48}
-                      className="w-12 h-12 object-cover border-2 border-border shrink-0"
+                      className="w-12 h-12 object-cover rounded-xl border border-white/10 shrink-0"
                     />
                   ) : (
                     <div
-                      className="w-12 h-12 bg-orange text-ink flex items-center justify-center border-2 border-border shrink-0"
+                      className="w-12 h-12 rounded-xl bg-ink text-orange flex items-center justify-center border border-white/10 shrink-0"
                       style={{
                         fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
                         fontSize: "22px",
@@ -82,11 +70,11 @@ export default async function PitchesPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold">{p.artist_name || "DJ"}</span>
-                      <span className="font-mono text-[9px] text-fg-subtle uppercase tracking-wider">
+                      <span className="font-mono text-[9px] text-white/40 uppercase tracking-wider">
                         {relativeTime(p.created_at)}
                       </span>
                     </div>
-                    <div className="text-xs text-fg-muted">
+                    <div className="text-xs text-white/55">
                       {[p.city, p.genres.slice(0, 2).join(" · ")]
                         .filter(Boolean)
                         .join(" · ") || "—"}
@@ -98,17 +86,17 @@ export default async function PitchesPage() {
                 </div>
 
                 {p.message && (
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed mt-3 p-3 bg-cream/60 border border-border/15">
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed mt-3 p-3 rounded-xl bg-white/[0.04] border border-white/10">
                     {p.message}
                   </p>
                 )}
                 {p.availability && (
-                  <div className="text-xs text-fg-muted mt-2 inline-flex items-center gap-1.5">
+                  <div className="text-xs text-white/55 mt-2 inline-flex items-center gap-1.5">
                     <CalendarClock className="w-3.5 h-3.5 text-orange" />
                     Disponible: {p.availability}
                   </div>
                 )}
-              </article>
+              </GlassPanel>
             );
           })}
         </div>
