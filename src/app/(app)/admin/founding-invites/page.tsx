@@ -1,4 +1,5 @@
-import { Star } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
+import { MonoLabel } from "@/components/hos";
 import { assertAdmin } from "@/lib/queries/admin";
 import { listFoundingInvites } from "@/lib/queries/founding-invites";
 import { FoundingInvitesClient } from "./founding-invites-client";
@@ -14,13 +15,14 @@ export default async function AdminFoundingInvitesPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="mb-7 flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Star className="w-6 h-6 text-accent" />
-            Founding Bookers
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <MonoLabel>Admin · Founding Bookers</MonoLabel>
+          <h1 className="mt-1.5 flex items-center gap-2 font-display text-4xl leading-[0.9] tracking-tight md:text-5xl">
+            <Star className="h-7 w-7 shrink-0 text-accent" />
+            Founding Bookers<span className="text-orange">.</span>
           </h1>
-          <p className="text-sm text-fg-muted mt-1">
+          <p className="mt-2 max-w-xl text-sm text-white/55">
             {invites.length} invitaciones · {pending} pendientes · {accepted}{" "}
             aceptadas. La invitación es de un solo uso: al registrarse, el booker
             queda <strong>Founding</strong> (badge ★) y verificado automáticamente.
@@ -28,9 +30,10 @@ export default async function AdminFoundingInvitesPage() {
         </div>
         <a
           href="/admin"
-          className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
+          className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-white/50 transition-colors hover:text-white"
         >
-          ← Backoffice
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Backoffice
         </a>
       </div>
 

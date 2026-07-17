@@ -1,5 +1,15 @@
-import { Card } from "@/components/ui/card";
+import Link from "next/link";
 import { Building2, BadgeCheck } from "lucide-react";
+import {
+  SectionHero,
+  GlassPanel,
+  Badge,
+  TableShell,
+  Th,
+  Td,
+  EmptyState,
+} from "@/components/hos";
+import { Button } from "@/components/ui/button";
 import { assertAdmin } from "@/lib/queries/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BOOKER_TYPES } from "@/types/database";
@@ -54,47 +64,45 @@ export default async function AdminBookersPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
-      <div className="mb-7 flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-accent" />
-            Bookers
-          </h1>
-          <p className="text-sm text-fg-muted mt-1">
-            {bookers.length} cuentas · {verifiedCount} verificadas. Verificar
-            habilita el badge ✓ y la aparición en el directorio de lugares.
-          </p>
-        </div>
-        <a
-          href="/admin"
-          className="inline-flex items-center gap-1.5 h-9 px-3 border-2 border-border bg-cream hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.08em] transition-colors"
-        >
-          ← Backoffice
-        </a>
-      </div>
+      <SectionHero
+        kicker="Admin · Bookers"
+        title="Bookers"
+        sub={`${bookers.length} cuentas · ${verifiedCount} verificadas. Verificar habilita el badge ✓ y la aparición en el directorio de lugares.`}
+        actions={
+          <Button asChild variant="clay" size="sm">
+            <Link href="/admin">← Backoffice</Link>
+          </Button>
+        }
+      />
 
       {pending.length > 0 && (
-        <Card className="mb-6 overflow-hidden border-warning/40">
-          <div className="bg-warning/10 border-b border-warning/30 px-4 py-2.5 flex items-center gap-2">
+        <GlassPanel padded={false} className="mb-6 border-warning/40">
+          <div className="flex items-center gap-2 border-b border-warning/30 bg-warning/10 px-4 py-2.5">
             <BadgeCheck className="w-4 h-4 text-warning" />
             <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-warning">
               Pendientes de verificación · {pending.length}
             </span>
           </div>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-white/[0.06]">
             {pending.map((b) => (
-              <li key={b.user_id} className="p-4 flex flex-col sm:flex-row sm:items-start gap-3">
+              <li
+                key={b.user_id}
+                className="p-4 flex flex-col sm:flex-row sm:items-start gap-3"
+              >
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm">
-                    {b.full_name || <span className="text-fg-subtle italic">sin nombre</span>}
-                    <span className="text-fg-muted font-normal"> · {b.email}</span>
+                  <div className="font-semibold text-sm text-white/90">
+                    {b.full_name || (
+                      <span className="text-white/40 italic">sin nombre</span>
+                    )}
+                    <span className="text-white/55 font-normal"> · {b.email}</span>
                   </div>
-                  <div className="text-[11px] text-fg-subtle mt-0.5">
+                  <div className="text-[11px] text-white/45 mt-0.5">
                     {TYPE_LABEL[b.booker_type] ?? b.booker_type}
-                    {b.city ? ` · ${b.city}` : ""} · pidió {shortDate(b.verification_requested_at ?? "")}
+                    {b.city ? ` · ${b.city}` : ""} · pidió{" "}
+                    {shortDate(b.verification_requested_at ?? "")}
                   </div>
                   {b.verification_evidence && (
-                    <p className="text-[13px] text-fg-muted mt-2 whitespace-pre-wrap break-words border-l-2 border-border pl-3">
+                    <p className="text-[13px] text-white/60 mt-2 whitespace-pre-wrap break-words border-l-2 border-white/15 pl-3">
                       {b.verification_evidence}
                     </p>
                   )}
@@ -109,101 +117,92 @@ export default async function AdminBookersPage() {
               </li>
             ))}
           </ul>
-        </Card>
+        </GlassPanel>
       )}
 
       {bookers.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-fg-muted">
-          No hay cuentas de booker todavía.
-        </Card>
+        <EmptyState
+          icon={Building2}
+          title="No hay cuentas de booker todavía."
+        />
       ) : (
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-bg-subtle border-b border-border">
-                <tr className="text-left text-[10px] uppercase tracking-wider text-fg-muted">
-                  <th className="px-3 py-2.5 font-semibold">Nombre / Org</th>
-                  <th className="px-3 py-2.5 font-semibold">Email</th>
-                  <th className="px-3 py-2.5 font-semibold">Tipo</th>
-                  <th className="px-3 py-2.5 font-semibold">Ciudad</th>
-                  <th className="px-3 py-2.5 font-semibold">Signup</th>
-                  <th className="px-3 py-2.5 font-semibold">Directorio</th>
-                  <th className="px-3 py-2.5 font-semibold">Pitches</th>
-                  <th className="px-3 py-2.5 font-semibold">Estado</th>
-                  <th className="px-3 py-2.5 font-semibold text-right">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookers.map((b) => (
-                  <tr
-                    key={b.user_id}
-                    className="border-b border-border last:border-b-0 hover:bg-bg-subtle/40 transition-colors"
-                  >
-                    <td className="px-3 py-2.5 font-semibold">
-                      {b.full_name || (
-                        <span className="text-fg-subtle italic">sin nombre</span>
+        <GlassPanel padded={false}>
+          <TableShell bare>
+            <thead>
+              <tr>
+                <Th>Nombre / Org</Th>
+                <Th>Email</Th>
+                <Th>Tipo</Th>
+                <Th>Ciudad</Th>
+                <Th>Signup</Th>
+                <Th>Directorio</Th>
+                <Th>Pitches</Th>
+                <Th>Estado</Th>
+                <Th align="right">Acción</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookers.map((b) => (
+                <tr
+                  key={b.user_id}
+                  className="transition-colors hover:bg-white/[0.06]"
+                >
+                  <Td className="font-semibold text-white/90">
+                    {b.full_name || (
+                      <span className="text-white/40 italic">sin nombre</span>
+                    )}
+                  </Td>
+                  <Td className="text-white/60 text-xs">{b.email}</Td>
+                  <Td className="text-white/60 text-xs">
+                    {TYPE_LABEL[b.booker_type] ?? b.booker_type}
+                  </Td>
+                  <Td className="text-white/60 text-xs">
+                    {[b.city, b.country].filter(Boolean).join(", ") || "—"}
+                  </Td>
+                  <Td className="text-white/60 text-xs whitespace-nowrap">
+                    {shortDate(b.created_at)}
+                  </Td>
+                  <Td>{b.in_directory ? "Sí" : "—"}</Td>
+                  <Td>{b.accepts_pitches ? "Sí" : "—"}</Td>
+                  <Td>
+                    <div className="flex flex-wrap items-center gap-1">
+                      {b.is_founding && (
+                        <Badge tone="warn" solid>
+                          ★ founding
+                        </Badge>
                       )}
-                    </td>
-                    <td className="px-3 py-2.5 text-fg-muted text-xs">{b.email}</td>
-                    <td className="px-3 py-2.5 text-fg-muted text-xs">
-                      {TYPE_LABEL[b.booker_type] ?? b.booker_type}
-                    </td>
-                    <td className="px-3 py-2.5 text-fg-muted text-xs">
-                      {[b.city, b.country].filter(Boolean).join(", ") || "—"}
-                    </td>
-                    <td className="px-3 py-2.5 text-fg-muted text-xs whitespace-nowrap">
-                      {shortDate(b.created_at)}
-                    </td>
-                    <td className="px-3 py-2.5">{b.in_directory ? "Sí" : "—"}</td>
-                    <td className="px-3 py-2.5">{b.accepts_pitches ? "Sí" : "—"}</td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex flex-wrap items-center gap-1">
-                        {b.is_founding && (
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange/20 border border-orange/50 text-orange font-bold">
-                            ★ founding
-                          </span>
-                        )}
-                        {b.verified_at ? (
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success/15 border border-success/30 text-success">
-                            verificado
-                          </span>
-                        ) : (
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-warning">
-                            sin verificar
-                          </span>
-                        )}
-                        {b.account_status === "suspended" && (
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/25 border border-warning/50 text-warning font-bold">
-                            suspendido
-                          </span>
-                        )}
-                        {b.account_status === "banned" && (
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-danger/20 border border-danger/50 text-danger font-bold">
-                            baneado
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <div className="inline-flex flex-col items-end gap-1.5">
-                        <VerifyBookerButton
-                          bookerUserId={b.user_id}
-                          verified={!!b.verified_at}
-                          name={b.full_name || b.email}
-                        />
-                        <BookerStatusControl
-                          bookerUserId={b.user_id}
-                          name={b.full_name || b.email}
-                          status={b.account_status}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                      {b.verified_at ? (
+                        <Badge tone="up">verificado</Badge>
+                      ) : (
+                        <Badge tone="warn">sin verificar</Badge>
+                      )}
+                      {b.account_status === "suspended" && (
+                        <Badge tone="warn">suspendido</Badge>
+                      )}
+                      {b.account_status === "banned" && (
+                        <Badge tone="down">baneado</Badge>
+                      )}
+                    </div>
+                  </Td>
+                  <Td align="right">
+                    <div className="inline-flex flex-col items-end gap-1.5">
+                      <VerifyBookerButton
+                        bookerUserId={b.user_id}
+                        verified={!!b.verified_at}
+                        name={b.full_name || b.email}
+                      />
+                      <BookerStatusControl
+                        bookerUserId={b.user_id}
+                        name={b.full_name || b.email}
+                        status={b.account_status}
+                      />
+                    </div>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </TableShell>
+        </GlassPanel>
       )}
     </div>
   );
