@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Play, ArrowUpRight } from "lucide-react";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
+import { Button } from "@/components/ui/button";
 import { SetEmbed } from "@/app/p/[slug]/embeds";
 import { isSupabaseStorageUrl } from "@/lib/format";
 import type { PublicDjProfile } from "@/lib/queries/directory";
@@ -69,9 +70,9 @@ export function BuscarCard({
   const fee = feeLabel(dj);
 
   return (
-    <div className="group border-2 border-border bg-bg-panel flex flex-col">
+    <div className="group relative hos-glass hos-sweep-card rounded-2xl overflow-hidden flex flex-col">
       {/* Imagen + overlays */}
-      <div className="relative aspect-[4/3] bg-ink border-b-2 border-border overflow-hidden">
+      <div className="relative aspect-[4/3] bg-ink border-b border-white/10 overflow-hidden">
         {cardImg ? (
           <Image
             src={cardImg}
@@ -92,12 +93,12 @@ export function BuscarCard({
               }}
             >
               {initials || "DJ"}
-              <span style={{ color: "#E85A0C" }}>.</span>
+              <span style={{ color: "rgb(var(--drop-orange))" }}>.</span>
             </span>
           </div>
         )}
         {dj.is_available_now && (
-          <span className="absolute top-2 right-2 bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border border-border">
+          <span className="absolute top-2 right-2 rounded-full bg-orange text-ink px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
             ★ DISPONIBLE
           </span>
         )}
@@ -112,7 +113,7 @@ export function BuscarCard({
         </div>
         {/* Badge LIVE: el DJ está conectado ahora → respuesta al instante. */}
         {isLive && (
-          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 bg-ink text-orange border border-orange px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
+          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-ink text-orange border border-orange px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
             <span
               className="w-[6px] h-[6px] bg-orange rounded-full animate-blink"
               aria-hidden="true"
@@ -140,12 +141,12 @@ export function BuscarCard({
 
         <div className="flex flex-wrap gap-1.5">
           {dj.is_drop_pick && (
-            <span className="inline-flex items-center font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-orange text-ink">
+            <span className="inline-flex items-center gap-1 rounded-full font-mono text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink">
               ★ Pick
             </span>
           )}
           {dj.is_verified && (
-            <span className="inline-flex items-center font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-ink text-orange">
+            <span className="inline-flex items-center gap-1 rounded-full font-mono text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 border border-white/12 bg-white/[0.06] text-orange">
               ✓ Verificado
             </span>
           )}
@@ -157,8 +158,8 @@ export function BuscarCard({
         </div>
 
         {fee && (
-          <div className="inline-flex self-start items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-border bg-cream text-fg">
-            <span className="text-fg-muted">Fee ref.</span> {fee}
+          <div className="inline-flex self-start items-center gap-1 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-white/12 bg-white/[0.04] text-white/80">
+            <span className="text-white/45">Fee ref.</span> {fee}
           </div>
         )}
 
@@ -169,7 +170,7 @@ export function BuscarCard({
               <Link
                 key={g}
                 href={genreHref(g, filters)}
-                className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border bg-cream hover:bg-orange hover:text-ink transition-colors"
+                className="rounded-full font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border border-white/12 bg-white/[0.04] text-white/70 hover:border-orange hover:text-orange transition-colors"
               >
                 {g}
               </Link>
@@ -185,26 +186,23 @@ export function BuscarCard({
         {/* Acciones */}
         <div className="mt-auto pt-1 flex items-center gap-2">
           {hasSet && (
-            <button
+            <Button
               type="button"
+              variant={showSet ? "clayPrimary" : "clay"}
+              size="sm"
               onClick={() => setShowSet((s) => !s)}
               aria-expanded={showSet}
-              className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 transition-colors ${
-                showSet
-                  ? "bg-orange text-ink border-orange"
-                  : "bg-bg-panel text-fg border-border hover:bg-orange hover:border-orange"
-              }`}
+              className="gap-1 [&_svg]:!size-3"
             >
               <Play className="w-3 h-3" />
               {showSet ? "Ocultar" : "Escuchar set"}
-            </button>
+            </Button>
           )}
-          <Link
-            href={`/p/${dj.public_slug}`}
-            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 border-border bg-ink text-white hover:bg-orange hover:text-ink hover:border-orange transition-colors ml-auto"
-          >
-            Contactar <ArrowUpRight className="w-3 h-3" />
-          </Link>
+          <Button asChild variant="clay" size="sm" className="ml-auto gap-1 [&_svg]:!size-3">
+            <Link href={`/p/${dj.public_slug}`}>
+              Contactar <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          </Button>
         </div>
 
         {/* Player lazy: solo se monta el iframe al abrir */}

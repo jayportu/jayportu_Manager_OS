@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Play, ArrowUpRight, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { FavoriteButtonClient } from "@/components/booker/favorite-button-client";
 import { SetEmbed } from "@/app/p/[slug]/embeds";
 import { isSupabaseStorageUrl } from "@/lib/format";
@@ -40,9 +41,9 @@ export function MatchCard({
   const strong = score >= 70;
 
   return (
-    <div className="group border-2 border-border bg-bg-panel flex flex-col">
+    <div className="hos-glass hos-sweep-card group flex flex-col overflow-hidden rounded-2xl">
       {/* Imagen + overlays */}
-      <div className="relative aspect-[4/3] bg-ink border-b-2 border-border overflow-hidden">
+      <div className="relative aspect-[4/3] bg-ink border-b border-white/10 overflow-hidden">
         {cardImg ? (
           <Image
             src={cardImg}
@@ -63,14 +64,14 @@ export function MatchCard({
               }}
             >
               {initials || "DJ"}
-              <span style={{ color: "#E85A0C" }}>.</span>
+              <span style={{ color: "rgb(var(--drop-orange))" }}>.</span>
             </span>
           </div>
         )}
         {/* % de match — atenuado si es parcial (M5) */}
         <span
-          className={`absolute top-2 right-2 px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wider border-2 border-border ${
-            strong ? "bg-orange text-ink" : "bg-cream text-fg-muted"
+          className={`absolute top-2 right-2 rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em] ${
+            strong ? "bg-orange text-ink" : "bg-white/10 text-white/60"
           }`}
         >
           {score}% {strong ? "match" : "parcial"}
@@ -131,26 +132,23 @@ export function MatchCard({
         {/* Acciones */}
         <div className="mt-auto pt-1 flex items-center gap-2">
           {hasSet && (
-            <button
+            <Button
               type="button"
+              variant={showSet ? "clayPrimary" : "clay"}
+              size="sm"
               onClick={() => setShowSet((s) => !s)}
               aria-expanded={showSet}
-              className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 transition-colors ${
-                showSet
-                  ? "bg-orange text-ink border-orange"
-                  : "bg-bg-panel text-fg border-border hover:bg-orange hover:border-orange"
-              }`}
+              className="[&_svg]:!size-3"
             >
               <Play className="w-3 h-3" />
               {showSet ? "Ocultar" : "Escuchar set"}
-            </button>
+            </Button>
           )}
-          <Link
-            href={`/p/${dj.public_slug}`}
-            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1.5 border-2 border-border bg-ink text-white hover:bg-orange hover:text-ink hover:border-orange transition-colors ml-auto"
-          >
-            Ver press kit <ArrowUpRight className="w-3 h-3" />
-          </Link>
+          <Button asChild variant="clay" size="sm" className="ml-auto [&_svg]:!size-3">
+            <Link href={`/p/${dj.public_slug}`}>
+              Ver press kit <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          </Button>
         </div>
 
         {/* Player lazy */}

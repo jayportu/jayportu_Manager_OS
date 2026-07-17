@@ -7,6 +7,17 @@ import {
 import { rankDjsForGig, type GigNeed } from "@/lib/match/score";
 import { parseFreeText, type ParsedQuery } from "@/lib/match/parse-query";
 import { getMyBookerAccount, getMyFavoriteDjIds } from "@/lib/queries/booker";
+import {
+  GlassPanel,
+  MonoLabel,
+  Badge,
+  ClayChip,
+  Alert,
+  FIELD,
+  SELECT,
+} from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { MatchCard } from "./match-card";
 
 export const dynamic = "force-dynamic";
@@ -134,15 +145,13 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
       {/* Hero */}
-      <div className="border-2 border-border bg-bg-panel p-6 md:p-7 mb-6">
+      <GlassPanel className="mb-6">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-            — SMART MATCH
-          </span>
+          <MonoLabel>SMART MATCH</MonoLabel>
           {isFounding && (
-            <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-ink text-orange border border-border">
+            <Badge tone="warn" solid>
               ★ Founding
-            </span>
+            </Badge>
           )}
         </div>
         <h1
@@ -159,168 +168,159 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           Describe tu evento una vez y DROP te ordena los DJs que mejor calzan —
           con el porqué de cada match. Sin filtrar a mano.
         </p>
-      </div>
+      </GlassPanel>
 
       {/* Form del evento */}
-      <form
-        action="/booker/match"
-        method="get"
-        className="border-2 border-border bg-bg-panel p-4 md:p-5 mb-6 space-y-4"
-      >
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-          — TU EVENTO
-        </div>
+      <GlassPanel className="mb-6">
+        <form action="/booker/match" method="get" className="space-y-4">
+          <MonoLabel>TU EVENTO</MonoLabel>
 
-        {/* A6: los géneros se eligen como chips (links), no como campos del
-            form. Sin este hidden, al apretar "BUSCAR MATCH" el GET se llevaría
-            solo type/city/date/budget/q y borraría la selección de géneros. */}
-        <input type="hidden" name="genres" value={activeGenres.join(",")} />
+          {/* A6: los géneros se eligen como chips (links), no como campos del
+              form. Sin este hidden, al apretar "BUSCAR MATCH" el GET se llevaría
+              solo type/city/date/budget/q y borraría la selección de géneros. */}
+          <input type="hidden" name="genres" value={activeGenres.join(",")} />
 
-        {/* v2 — texto libre (exclusivo Founding) */}
-        {isFounding ? (
-          <div>
-            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1 flex items-center gap-2">
-              <span>En tus palabras (opcional)</span>
-              <span className="px-1.5 py-0.5 bg-ink text-orange border border-border">
-                ★ Founding
-              </span>
+          {/* v2 — texto libre (exclusivo Founding) */}
+          {isFounding ? (
+            <div>
+              <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1 flex items-center gap-2">
+                <span>En tus palabras (opcional)</span>
+                <Badge tone="warn" solid>
+                  ★ Founding
+                </Badge>
+              </div>
+              <input
+                type="text"
+                name="q"
+                defaultValue={sp.q ?? ""}
+                placeholder="ej: energía de festival para un rooftop al atardecer"
+                className={FIELD}
+              />
             </div>
+          ) : (
+            <div>
+              <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1">
+                En tus palabras
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  disabled
+                  placeholder="ej: energía de festival para un rooftop al atardecer"
+                  className={cn(FIELD, "cursor-not-allowed opacity-60")}
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <Badge tone="warn" solid>
+                    ✦ Exclusivo Founding
+                  </Badge>
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_150px_160px_auto] gap-2">
+            <select name="type" defaultValue={sp.type ?? ""} className={SELECT}>
+              <option value="">Tipo de evento</option>
+              {EVENT_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+            <select name="city" defaultValue={sp.city ?? ""} className={SELECT}>
+              <option value="">Ciudad: cualquiera</option>
+              {allCities.map((c) => (
+                <option key={c.city} value={c.city}>
+                  {c.city}
+                </option>
+              ))}
+            </select>
             <input
-              type="text"
-              name="q"
-              defaultValue={sp.q ?? ""}
-              placeholder="ej: energía de festival para un rooftop al atardecer"
-              className="w-full border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[12px] tracking-[0.02em] placeholder:text-fg-subtle focus:outline-none focus:border-orange"
+              type="date"
+              name="date"
+              defaultValue={sp.date ?? ""}
+              className={FIELD}
             />
-          </div>
-        ) : (
-          <div className="relative">
-            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-1">
-              En tus palabras
-            </div>
             <input
-              type="text"
-              disabled
-              placeholder="ej: energía de festival para un rooftop al atardecer"
-              className="w-full border-2 border-border/30 bg-cream/50 px-3 py-2 font-mono text-[12px] placeholder:text-fg-subtle cursor-not-allowed"
+              type="number"
+              name="budget"
+              min={0}
+              step={50000}
+              placeholder="Presupuesto $"
+              defaultValue={sp.budget ?? ""}
+              className={FIELD}
             />
-            <span className="absolute right-2 top-[26px] font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-1 bg-ink text-orange border border-border">
-              ✦ Exclusivo Founding
-            </span>
+            <Button type="submit" variant="clayPrimary">
+              BUSCAR MATCH
+            </Button>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_150px_160px_auto] gap-2">
-          <select
-            name="type"
-            defaultValue={sp.type ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
-          >
-            <option value="">Tipo de evento</option>
-            {EVENT_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <select
-            name="city"
-            defaultValue={sp.city ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase appearance-none focus:outline-none focus:border-orange"
-          >
-            <option value="">Ciudad: cualquiera</option>
-            {allCities.map((c) => (
-              <option key={c.city} value={c.city}>
-                {c.city}
-              </option>
-            ))}
-          </select>
-          <input
-            type="date"
-            name="date"
-            defaultValue={sp.date ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase focus:outline-none focus:border-orange"
-          />
-          <input
-            type="number"
-            name="budget"
-            min={0}
-            step={50000}
-            placeholder="Presupuesto $"
-            defaultValue={sp.budget ?? ""}
-            className="border-2 border-border bg-bg-panel px-3 py-2 font-mono text-[11px] font-bold uppercase placeholder:text-fg-subtle focus:outline-none focus:border-orange"
-          />
-          <button
-            type="submit"
-            className="border-2 border-border bg-orange text-ink hover:bg-ink hover:text-orange transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em]"
-          >
-            BUSCAR MATCH
-          </button>
-        </div>
-
-        {/* Géneros como chips (preservan los demás campos) */}
-        {allGenres.length > 0 && (
-          <div>
-            <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-2">
-              Géneros que buscas:
+          {/* Géneros como chips (preservan los demás campos) */}
+          {allGenres.length > 0 && (
+            <div>
+              <div className="font-mono text-[9px] font-bold uppercase tracking-wider text-fg-muted mb-2">
+                Géneros que buscas:
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {chipGenres.map((g) => {
+                  const active = activeGenres.includes(g.genre);
+                  const newGenres = active
+                    ? activeGenres.filter((x) => x !== g.genre)
+                    : [...activeGenres, g.genre];
+                  return (
+                    <Link
+                      key={g.genre}
+                      href={buildHref(sp, {
+                        genres: newGenres.length > 0 ? newGenres.join(",") : undefined,
+                      })}
+                      className="inline-flex"
+                    >
+                      <ClayChip active={active}>
+                        {g.genre.toUpperCase()}
+                        {!active && (
+                          <span className="ml-1 opacity-60">{g.count}</span>
+                        )}
+                      </ClayChip>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {chipGenres.map((g) => {
-                const active = activeGenres.includes(g.genre);
-                const newGenres = active
-                  ? activeGenres.filter((x) => x !== g.genre)
-                  : [...activeGenres, g.genre];
-                return (
-                  <Link
-                    key={g.genre}
-                    href={buildHref(sp, {
-                      genres: newGenres.length > 0 ? newGenres.join(",") : undefined,
-                    })}
-                    className={`inline-flex items-center gap-1.5 border-2 border-border font-mono text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-0.5 transition-colors ${
-                      active ? "bg-orange text-ink" : "bg-cream hover:bg-orange"
-                    }`}
-                  >
-                    {g.genre.toUpperCase()}
-                    {!active && <span className="text-fg-muted">{g.count}</span>}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </form>
+          )}
+        </form>
+      </GlassPanel>
 
       {/* v2 — qué interpretamos del texto libre. M3: el banner se muestra
           siempre que el Founding escribió algo (`parsed` ya implica freeText),
           para que el fallback "no pillamos géneros" no sea código muerto. */}
       {parsed && (
-        <div className="border-2 border-border bg-cream p-3 mb-4 text-sm">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-orange">
-            — INTERPRETAMOS
-          </span>{" "}
-          {parsed.vibes.length > 0 && (
-            <>
-              vibe <span className="font-semibold">{parsed.vibes.join(", ")}</span>
-              {parsed.genres.length > 0 && " → "}
-            </>
-          )}
-          {parsed.genres.length > 0 && (
-            <>
-              géneros{" "}
-              <span className="font-semibold">{parsed.genres.join(", ")}</span>
-            </>
-          )}
-          {parsed.genres.length === 0 && parsed.vibes.length === 0 && (
-            <span className="text-fg-muted">
-              no pillamos géneros claros — afina el texto o usa los chips.
-            </span>
-          )}
+        <div className="mb-4">
+          <Alert tone="info" title="INTERPRETAMOS">
+            {parsed.vibes.length > 0 && (
+              <>
+                vibe{" "}
+                <span className="font-semibold">{parsed.vibes.join(", ")}</span>
+                {parsed.genres.length > 0 && " → "}
+              </>
+            )}
+            {parsed.genres.length > 0 && (
+              <>
+                géneros{" "}
+                <span className="font-semibold">{parsed.genres.join(", ")}</span>
+              </>
+            )}
+            {parsed.genres.length === 0 && parsed.vibes.length === 0 && (
+              <span className="text-fg-muted">
+                no pillamos géneros claros — afina el texto o usa los chips.
+              </span>
+            )}
+          </Alert>
         </div>
       )}
 
       {/* Resultados o intro */}
       {!hasQuery ? (
-        <div className="border-2 border-dashed border-border/40 bg-cream p-10 text-center">
+        <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-10 text-center">
           <h2
             className="leading-tight mb-2"
             style={{
@@ -337,12 +337,12 @@ export default async function BookerMatchPage({ searchParams }: PageProps) {
           </p>
         </div>
       ) : results.length === 0 ? (
-        <div className="border-2 border-border bg-bg-panel p-10 text-center">
+        <GlassPanel padded={false} className="p-10 text-center">
           <p className="text-sm text-fg-muted">
             No encontramos DJs para esos criterios. Prueba aflojar el
             presupuesto o sacar algún filtro.
           </p>
-        </div>
+        </GlassPanel>
       ) : (
         <>
           <div className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
