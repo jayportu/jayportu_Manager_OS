@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createGigAction } from "./actions";
+import { Button } from "@/components/ui/button";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
 
 export function PublishGigForm({
   defaultCity,
@@ -44,55 +46,52 @@ export function PublishGigForm({
     });
   }
 
-  const inputCls =
-    "w-full border-2 border-border bg-bg-panel px-2 py-1.5 text-sm outline-none focus:border-accent";
-  const labelCls =
-    "block text-[10px] font-mono uppercase tracking-wider text-fg-muted mb-1";
-
   return (
-    <div className="border-2 border-border p-4 space-y-3">
-      <h2 className="font-semibold">Publicar convocatoria</h2>
-      <div>
-        <label htmlFor="gf-title" className={labelCls}>Título</label>
-        <input id="gf-title" className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Buscamos DJ house para sábado 12" />
+    <GlassPanel>
+      <div className="space-y-3">
+        <h2 className="font-semibold text-white">Publicar convocatoria</h2>
+        <div>
+          <label htmlFor="gf-title" className="mb-1 block"><MonoLabel>Título</MonoLabel></label>
+          <input id="gf-title" className={FIELD} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Buscamos DJ house para sábado 12" />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <label htmlFor="gf-date" className="mb-1 block"><MonoLabel>Fecha del evento</MonoLabel></label>
+            <input id="gf-date" type="date" className={FIELD} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="gf-city" className="mb-1 block"><MonoLabel>Ciudad</MonoLabel></label>
+            <input id="gf-city" className={FIELD} value={city} onChange={(e) => setCity(e.target.value)} />
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <label htmlFor="gf-genre" className="mb-1 block"><MonoLabel>Género/estilo (opcional)</MonoLabel></label>
+            <input id="gf-genre" className={FIELD} value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="house, techno…" />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="gf-budget" className="mb-1 block"><MonoLabel>Presupuesto CLP (opcional)</MonoLabel></label>
+            <input id="gf-budget" type="number" className={FIELD} value={budget} onChange={(e) => setBudget(e.target.value)} />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="gf-deadline" className="mb-1 block"><MonoLabel>Deadline postular (opcional)</MonoLabel></label>
+            <input id="gf-deadline" type="date" className={FIELD} value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="gf-desc" className="mb-1 block"><MonoLabel>Descripción</MonoLabel></label>
+          <textarea id="gf-desc" rows={4} className={FIELD} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Detalles del evento, requisitos, horario…" />
+        </div>
+        {err && <Alert tone="danger">{err}</Alert>}
+        <Button
+          type="button"
+          variant="clayPrimary"
+          disabled={pending || !title.trim()}
+          onClick={submit}
+        >
+          {pending ? "Publicando…" : "Publicar convocatoria"}
+        </Button>
       </div>
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
-          <label htmlFor="gf-date" className={labelCls}>Fecha del evento</label>
-          <input id="gf-date" type="date" className={inputCls} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="gf-city" className={labelCls}>Ciudad</label>
-          <input id="gf-city" className={inputCls} value={city} onChange={(e) => setCity(e.target.value)} />
-        </div>
-      </div>
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
-          <label htmlFor="gf-genre" className={labelCls}>Género/estilo (opcional)</label>
-          <input id="gf-genre" className={inputCls} value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="house, techno…" />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="gf-budget" className={labelCls}>Presupuesto CLP (opcional)</label>
-          <input id="gf-budget" type="number" className={inputCls} value={budget} onChange={(e) => setBudget(e.target.value)} />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="gf-deadline" className={labelCls}>Deadline postular (opcional)</label>
-          <input id="gf-deadline" type="date" className={inputCls} value={deadline} onChange={(e) => setDeadline(e.target.value)} />
-        </div>
-      </div>
-      <div>
-        <label htmlFor="gf-desc" className={labelCls}>Descripción</label>
-        <textarea id="gf-desc" rows={4} className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Detalles del evento, requisitos, horario…" />
-      </div>
-      {err && <div className="text-xs text-danger">{err}</div>}
-      <button
-        type="button"
-        disabled={pending || !title.trim()}
-        onClick={submit}
-        className="px-4 py-2 bg-accent text-white font-mono text-[11px] font-bold uppercase tracking-wider disabled:opacity-50"
-      >
-        {pending ? "Publicando…" : "Publicar convocatoria"}
-      </button>
-    </div>
+    </GlassPanel>
   );
 }
