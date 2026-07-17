@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ImportForm } from "./import-form";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 
 export default function ImportarPage() {
   return (
@@ -21,14 +21,12 @@ export default function ImportarPage() {
         los nombres de columna.
       </p>
 
-      <Card className="p-6 mb-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider mb-3">
-          Formato esperado
-        </h2>
-        <p className="text-sm text-fg-muted mb-3">
+      <GlassPanel className="mb-5">
+        <MonoLabel>Formato esperado</MonoLabel>
+        <p className="text-sm text-fg-muted mt-3 mb-3">
           Columnas reconocidas (todas opcionales menos <code className="text-fg">name</code>):
         </p>
-        <code className="block text-xs bg-bg p-3 rounded border border-border overflow-x-auto whitespace-pre">
+        <code className="block text-xs rounded-lg border border-white/10 bg-black/30 p-3 overflow-x-auto whitespace-pre">
 {`name,type,city,country,instagram,whatsapp,email,website,contact_person,contact_role,music_style,main_channel,status,score,notes
 Club La Feria,club,Santiago,Chile,@laferia,56987654321,booking@laferia.cl,laferia.cl,Camila Pérez,Booker,Tech House,whatsapp,contactado,88,
 Cumbres Sky,rooftop,Santiago,Chile,@cumbressky,,,cumbressky.cl,,,House,whatsapp,nuevo,76,Rooftop sunset`}
@@ -56,7 +54,7 @@ Cumbres Sky,rooftop,Santiago,Chile,@cumbressky,,,cumbressky.cl,,,House,whatsapp,
             dejan en blanco.
           </p>
         </div>
-      </Card>
+      </GlassPanel>
 
       <ImportForm />
     </div>
