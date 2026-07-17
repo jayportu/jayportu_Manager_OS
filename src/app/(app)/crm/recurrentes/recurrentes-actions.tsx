@@ -61,7 +61,7 @@ export function RecurrentesActions({ followUpId, seriesId, contactId }: Props) {
       <button
         onClick={handleComplete}
         disabled={isPending}
-        className="p-2 border-2 border-border bg-success text-white dark:text-ink hover:bg-success/90 transition-colors"
+        className="rounded-full p-2 text-success transition-colors hover:bg-success/10"
         title="Marcar hecho — crea el siguiente automático"
       >
         <Check className="w-4 h-4" />
@@ -69,7 +69,7 @@ export function RecurrentesActions({ followUpId, seriesId, contactId }: Props) {
       <button
         onClick={handlePause}
         disabled={isPending}
-        className="p-2 border-2 border-border bg-cream hover:bg-warning hover:text-white dark:hover:text-ink transition-colors"
+        className="rounded-full p-2 text-fg-muted transition-colors hover:bg-warning/10 hover:text-warning"
         title="Pausar recurrencia"
       >
         <Pause className="w-4 h-4" />
@@ -77,7 +77,7 @@ export function RecurrentesActions({ followUpId, seriesId, contactId }: Props) {
       <button
         onClick={handleDelete}
         disabled={isPending}
-        className="p-2 border-2 border-border bg-cream hover:bg-danger hover:text-white dark:hover:text-ink transition-colors"
+        className="rounded-full p-2 text-fg-muted transition-colors hover:bg-danger/10 hover:text-danger"
         title="Eliminar serie completa"
       >
         <Trash2 className="w-4 h-4" />

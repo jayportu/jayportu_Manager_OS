@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { ArrowLeft, RotateCw } from "lucide-react";
 import { listRecurringFollowUps } from "@/lib/queries/follow-ups";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { dateTime, relativeTime } from "@/lib/format";
 import { santiagoToday, santiagoDay } from "@/lib/tz";
+import {
+  GlassPanel,
+  Badge,
+  SectionHero,
+  EmptyState,
+  ClayChip,
+} from "@/components/hos";
 import { RecurrentesActions } from "./recurrentes-actions";
 
 export default async function RecurrentesPage() {
@@ -27,38 +33,33 @@ export default async function RecurrentesPage() {
     <div className="p-6 md:p-10 max-w-4xl mx-auto">
       <Link
         href="/crm"
-        className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-4"
+        className="mb-4 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted hover:text-fg"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="h-3.5 w-3.5" />
         Volver a CRM
       </Link>
 
-      <div className="border-2 border-border bg-bg-panel p-6 mb-5 relative">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange">
-          — CRM · FOLLOW-UPS RECURRENTES
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl leading-none mt-2">
-          PIPELINE DE RUTINA<span className="text-orange">.</span>
-        </h1>
-        <p className="text-sm text-fg-muted mt-2 max-w-2xl">
-          {series.length === 0
+      <SectionHero
+        kicker="CRM · FOLLOW-UPS RECURRENTES"
+        title="PIPELINE DE RUTINA"
+        sub={
+          series.length === 0
             ? "Aún no tienes follow-ups recurrentes. Crea uno desde la ficha de cualquier contacto activando el toggle 'Hacer recurrente'."
-            : `${series.length} ${series.length === 1 ? "serie activa" : "series activas"}. Cada vez que cierres uno, DROP crea automáticamente el siguiente.`}
-        </p>
-      </div>
+            : `${series.length} ${series.length === 1 ? "serie activa" : "series activas"}. Cada vez que cierres uno, DROP crea automáticamente el siguiente.`
+        }
+      />
 
       {series.length === 0 ? (
-        <Card className="p-10 text-center">
-          <RotateCw className="w-10 h-10 mx-auto text-fg-subtle mb-3" />
-          <h3 className="font-semibold mb-1">Sin recurrencias</h3>
-          <p className="text-sm text-fg-muted mb-4 max-w-md mx-auto">
-            Útil para &ldquo;mensajear al booker cada 30 días&rdquo;, &ldquo;pedir feedback
-            post-gig 7 días después&rdquo;, &ldquo;actualizar press kit cada trimestre&rdquo;, etc.
-          </p>
-          <Button asChild variant="orange">
-            <Link href="/crm">Ir al CRM</Link>
-          </Button>
-        </Card>
+        <EmptyState
+          icon={RotateCw}
+          title="Sin recurrencias"
+          sub="Útil para “mensajear al booker cada 30 días”, “pedir feedback post-gig 7 días después”, “actualizar press kit cada trimestre”, etc."
+          action={
+            <Button asChild variant="clayPrimary" size="sm">
+              <Link href="/crm">Ir al CRM</Link>
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-3">
           {series.map((f) => {
@@ -68,10 +69,10 @@ export default async function RecurrentesPage() {
             // server, que de noche en Chile ya está en el día siguiente).
             const dueToday = !overdue && santiagoDay(f.due_at) === santiagoToday();
             const tint = overdue
-              ? "border-danger bg-danger/5"
+              ? "border border-danger/40"
               : dueToday
-              ? "border-orange bg-orange/10"
-              : "border-border bg-bg-panel";
+              ? "border border-orange/40"
+              : "";
 
             const unitLabel =
               f.recurrence_unit === "days"
@@ -81,27 +82,19 @@ export default async function RecurrentesPage() {
                 : "meses";
 
             return (
-              <Card key={f.id} className={`p-4 border-2 ${tint}`}>
+              <GlassPanel key={f.id} className={tint}>
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-2 border-border bg-cream">
+                      <ClayChip>
                         cada {f.recurrence_value} {unitLabel}
-                      </span>
+                      </ClayChip>
                       <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-orange">
                         ciclo {f.recurrence_index}
                         {f.recurrence_max ? ` / ${f.recurrence_max}` : ""}
                       </span>
-                      {overdue && (
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-danger text-white dark:text-ink">
-                          atrasado
-                        </span>
-                      )}
-                      {dueToday && (
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-orange text-ink">
-                          hoy
-                        </span>
-                      )}
+                      {overdue && <Badge tone="down">atrasado</Badge>}
+                      {dueToday && <Badge tone="warn">hoy</Badge>}
                     </div>
                     <Link
                       href={f.contact_id ? `/crm/${f.contact_id}` : "/crm"}
@@ -124,7 +117,7 @@ export default async function RecurrentesPage() {
                     contactId={f.contact_id}
                   />
                 </div>
-              </Card>
+              </GlassPanel>
             );
           })}
         </div>
