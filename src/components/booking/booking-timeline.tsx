@@ -7,10 +7,12 @@
  *   - /b/[token]    (Booker view)
  *   - /press-kit/bookings/[id]   (DJ view)
  *
- * Estilo: brutalist DROP. con línea vertical naranja y nodos cuadrados.
+ * Estilo: Hybrid OS glass — panel translúcido, línea vertical + nodos con
+ * tono semántico por variante.
  */
 import type { BookingSubmission } from "@/types/database";
 import { dateTime, shortDate } from "@/lib/format";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 
 interface Props {
   booking: BookingSubmission;
@@ -106,21 +108,19 @@ export function BookingTimeline({ booking, perspective = "booker" }: Props) {
   events.sort((a, b) => a.at.localeCompare(b.at));
 
   return (
-    <div className="border-2 border-border bg-bg-panel p-5">
-      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-orange mb-4">
-        — TIMELINE
-      </div>
+    <GlassPanel>
+      <MonoLabel className="mb-4 block">TIMELINE</MonoLabel>
       <ol className="relative space-y-5">
         {/* Línea vertical */}
         <span
           aria-hidden="true"
-          className="absolute left-[5px] top-1 bottom-1 w-px bg-ink/20"
+          className="absolute left-[5px] top-1 bottom-1 w-px bg-white/15"
         />
         {events.map((ev, i) => (
           <TimelineNode key={`${ev.at}-${i}`} event={ev} isLast={i === events.length - 1} />
         ))}
       </ol>
-    </div>
+    </GlassPanel>
   );
 }
 
@@ -132,7 +132,7 @@ function TimelineNode({
   isLast: boolean;
 }) {
   const variantClass: Record<TimelineEvent["variant"], string> = {
-    neutral: "bg-ink",
+    neutral: "bg-white/50",
     info: "bg-info",
     warn: "bg-warning",
     success: "bg-success",
@@ -142,7 +142,7 @@ function TimelineNode({
     <li className="relative pl-6">
       <span
         aria-hidden="true"
-        className={`absolute left-0 top-1 w-3 h-3 ${variantClass[event.variant]} border-2 border-border`}
+        className={`absolute left-0 top-1 w-3 h-3 ${variantClass[event.variant]} border border-white/20`}
       />
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-subtle">
         {dateTime(event.at)}

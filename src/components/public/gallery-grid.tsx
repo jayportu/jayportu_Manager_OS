@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { GalleryImage } from "@/types/database";
+import { MonoLabel } from "@/components/hos";
 
 /**
  * Galería pública del press kit: miniaturas agrupadas por carpeta + lightbox
@@ -51,11 +52,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
       <div className="space-y-6">
         {grouped.map(({ folder, items }) => (
           <div key={folder ?? "__none__"} className="space-y-3">
-            {folder && (
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-fg-muted">
-                — {folder}
-              </div>
-            )}
+            {folder && <MonoLabel className="block">{folder}</MonoLabel>}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
               {items.map((img) => {
                 const idx = flat.indexOf(img);
@@ -68,7 +65,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
                       setOpenIdx(idx);
                     }}
                     aria-label={img.caption || "Ampliar foto"}
-                    className="group relative aspect-square border-2 border-border bg-bg-subtle overflow-hidden cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="group relative aspect-square rounded-lg border border-white/10 bg-white/[0.04] overflow-hidden cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <Image
                       src={img.url}
@@ -97,7 +94,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
             type="button"
             onClick={(e) => { e.stopPropagation(); close(); }}
             aria-label="Cerrar"
-            className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center bg-orange text-ink border-2 border-border hover:bg-cream transition-colors z-10"
+            className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-orange text-ink border border-white/20 hover:bg-orange/85 transition-colors z-10"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -108,7 +105,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
                 type="button"
                 onClick={(e) => { e.stopPropagation(); go(-1); }}
                 aria-label="Foto anterior"
-                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-ink/70 text-white border-2 border-border hover:bg-orange hover:text-ink transition-colors z-10"
+                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-ink/70 text-white border border-white/20 hover:bg-orange hover:text-ink transition-colors z-10"
               >
                 <ChevronLeft className="w-6 h-6" aria-hidden="true" />
               </button>
@@ -116,7 +113,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
                 type="button"
                 onClick={(e) => { e.stopPropagation(); go(1); }}
                 aria-label="Foto siguiente"
-                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-ink/70 text-white border-2 border-border hover:bg-orange hover:text-ink transition-colors z-10"
+                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-ink/70 text-white border border-white/20 hover:bg-orange hover:text-ink transition-colors z-10"
               >
                 <ChevronRight className="w-6 h-6" aria-hidden="true" />
               </button>
@@ -128,7 +125,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
             src={current.url}
             alt={current.caption || "Foto de galería"}
             onClick={(e) => e.stopPropagation()}
-            className="max-w-[90vw] max-h-[85vh] object-contain border-4 border-orange shadow-2xl"
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl border border-white/15 shadow-2xl"
           />
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-[11px] text-white/80 tracking-wider">

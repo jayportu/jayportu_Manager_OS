@@ -30,11 +30,11 @@ export async function GoogleScopeBanner() {
       : labels.slice(0, -1).join(", ") + " y " + labels[labels.length - 1];
 
   return (
-    <div className="bg-warning text-fg dark:text-ink border-b-2 border-border px-4 py-2.5">
+    <div className="bg-[rgb(var(--drop-warning)/0.1)] border-b border-[rgb(var(--drop-warning)/0.33)] px-4 py-2.5">
       <div className="max-w-5xl mx-auto flex items-center gap-3 flex-wrap">
-        <AlertTriangle className="w-4 h-4 shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-wider">
+        <AlertTriangle className="w-4 h-4 shrink-0 text-[rgb(var(--drop-warning))]" />
+        <div className="flex-1 min-w-0 text-white/80">
+          <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[rgb(var(--drop-warning))]">
             Tu conexión de Google está desactualizada
           </p>
           <p className="text-xs mt-0.5">
@@ -44,7 +44,7 @@ export async function GoogleScopeBanner() {
         </div>
         <a
           href="/api/gmail/auth"
-          className="inline-flex items-center justify-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 border-2 border-border bg-ink text-warning hover:bg-orange hover:text-ink hover:border-border transition-colors shrink-0"
+          className="hos-clay-btn inline-flex items-center justify-center gap-1.5 rounded-full font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 text-white/85 hover:text-[rgb(var(--drop-orange))] transition-colors shrink-0 active:translate-y-px"
         >
           Reconectar Google
         </a>
