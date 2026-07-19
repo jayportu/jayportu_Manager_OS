@@ -3,7 +3,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -16,8 +15,10 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { ComingSoonBadge } from "@/components/coming-soon";
 import { Logo } from "@/components/brand/logo";
+import { NavBanners } from "@/components/layout/nav-banners";
 import { NAV_GROUPS, filterNav, type NavItem } from "@/lib/nav-config";
 import { activeTopKey, buildDesktopNav, type TopKey } from "@/lib/nav-desktop";
+import { useIsomorphicLayoutEffect } from "@/lib/use-isomorphic-layout-effect";
 
 /**
  * DROP. — DesktopTopNav (Hybrid OS · navbar de vidrio flotante).
@@ -152,7 +153,7 @@ export function DesktopTopNav({
   }, [activeKey]);
 
   // Medir antes de pintar en cada cambio de ruta / buckets.
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     measure();
   }, [measure, buckets]);
 
@@ -213,36 +214,6 @@ export function DesktopTopNav({
     },
     []
   );
-
-  // ── Banners beta / trial (lógica verbatim de Topbar) ────────────────────
-  const betaBannerColor =
-    betaDaysRemaining === null || betaDaysRemaining === undefined
-      ? null
-      : betaDaysRemaining < 0
-      ? "bg-danger text-white dark:text-ink border-danger"
-      : betaDaysRemaining <= 2
-      ? "bg-warning text-fg dark:text-ink border-border"
-      : "bg-orange text-ink border-border";
-  const betaLabel =
-    betaDaysRemaining === null || betaDaysRemaining === undefined
-      ? null
-      : betaDaysRemaining < 0
-      ? "BETA TERMINÓ"
-      : betaDaysRemaining === 0
-      ? "BETA · ÚLTIMO DÍA"
-      : `BETA · ${betaDaysRemaining} ${betaDaysRemaining === 1 ? "DÍA" : "DÍAS"}`;
-  const trialBannerColor =
-    trialDaysRemaining === null || trialDaysRemaining === undefined
-      ? null
-      : trialDaysRemaining <= 2
-      ? "bg-warning text-fg dark:text-ink border-border"
-      : "bg-orange text-ink border-border";
-  const trialLabel =
-    trialDaysRemaining === null || trialDaysRemaining === undefined
-      ? null
-      : trialDaysRemaining === 0
-      ? "TRIAL · ÚLTIMO DÍA"
-      : `TRIAL · ${trialDaysRemaining} ${trialDaysRemaining === 1 ? "DÍA" : "DÍAS"}`;
 
   // ── Logout (verbatim de Topbar) ─────────────────────────────────────────
   async function handleLogout() {
@@ -398,23 +369,10 @@ export function DesktopTopNav({
           </span>
         </div>
 
-        {betaLabel && betaBannerColor && (
-          <span
-            className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border rounded-full ${betaBannerColor}`}
-            title="Estás en la beta cerrada"
-          >
-            {betaLabel}
-          </span>
-        )}
-        {trialLabel && trialBannerColor && (
-          <Link
-            href="/suscripcion"
-            className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border rounded-full hover:opacity-80 transition-opacity ${trialBannerColor} ${FOCUS_RING}`}
-            title="Click para suscribirte ahora"
-          >
-            {trialLabel}
-          </Link>
-        )}
+        <NavBanners
+          betaDaysRemaining={betaDaysRemaining}
+          trialDaysRemaining={trialDaysRemaining}
+        />
       </div>
 
       {/* ── Col centro: pastilla glass con indicador deslizante ── */}
@@ -546,7 +504,17 @@ export function DesktopTopNav({
       </div>
 
       {/* ── Col derecha: chip perfil + popover ── */}
-      <div className="relative justify-self-end z-[2]" ref={profileRef}>
+      <div
+        className="relative justify-self-end z-[2]"
+        ref={profileRef}
+        onBlur={(e) => {
+          // Tab-out del grupo (foco sale del chip/popover) cierra el popover —
+          // mismo patrón que los dropdowns del nav (handleGroupBlur).
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+            setProfileOpen(false);
+          }
+        }}
+      >
         <button
           type="button"
           aria-haspopup="menu"

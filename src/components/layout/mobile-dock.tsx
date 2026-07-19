@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MOBILE_MENU_OPEN_EVENT } from "@/components/layout/mobile-menu";
+import { useIsomorphicLayoutEffect } from "@/lib/use-isomorphic-layout-effect";
 
 /**
  * DROP. — MobileDock (Hybrid OS · dock inferior con notch).
@@ -110,7 +111,7 @@ export function MobileDock() {
   }, [activeIndex]);
 
   // Medir antes de pintar en cada cambio de ruta.
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     measure();
   }, [measure]);
 
