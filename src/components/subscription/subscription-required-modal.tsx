@@ -13,6 +13,8 @@
  */
 
 import Link from "next/link";
+import { GlassPanel, MonoLabel } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   /** Por qué se está bloqueando. Controla el copy. */
@@ -33,67 +35,62 @@ export function SubscriptionRequiredModal({ reason }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-ink/85 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] bg-ink/85 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="subscription-required-title"
     >
-      <div
-        className="w-full max-w-lg bg-cream border-[3px] border-border p-6 md:p-8"
-        style={{ boxShadow: "12px 12px 0 0 #E85A0C" }}
-      >
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange">
-          — {copy.kicker}
-        </div>
-        <h2
-          id="subscription-required-title"
-          className="font-display text-4xl md:text-5xl leading-[0.95] mt-2"
-        >
-          {copy.title}
-          <span className="text-orange">.</span>
-        </h2>
+      <div className="w-full max-w-lg">
+        <GlassPanel padded={false}>
+          <div className="p-6 md:p-8">
+            <MonoLabel className="tracking-[0.15em]">{copy.kicker}</MonoLabel>
+            <h2
+              id="subscription-required-title"
+              className="font-display text-4xl md:text-5xl leading-[0.95] mt-2 text-white"
+            >
+              {copy.title}
+              <span className="text-orange">.</span>
+            </h2>
 
-        <p className="text-sm md:text-base text-fg mt-4 leading-relaxed">
-          {copy.body}
-        </p>
+            <p className="text-sm md:text-base text-white/75 mt-4 leading-relaxed">
+              {copy.body}
+            </p>
 
-        <div className="mt-6 p-4 border-2 border-border bg-bg-panel">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
-            — PLAN
+            <div className="mt-6 p-4 rounded-xl border border-white/12 bg-white/[0.04]">
+              <MonoLabel className="tracking-[0.12em]">PLAN</MonoLabel>
+              <div
+                className="text-2xl mt-1 text-white"
+                style={{
+                  fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
+                  lineHeight: 0.95,
+                }}
+              >
+                DROP. Pro · $9.990 / mes
+              </div>
+              <p className="text-xs text-white/50 mt-1">
+                Pago con tarjeta · cancela cuando quieras
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-2">
+              <Button asChild variant="clayPrimary" size="lg" className="flex-1">
+                <Link href="/suscripcion">Suscribirme →</Link>
+              </Button>
+              <Button
+                type="button"
+                variant="clay"
+                size="lg"
+                onClick={handleLogout}
+              >
+                Salir
+              </Button>
+            </div>
+
+            <p className="text-[10px] text-white/40 text-center mt-4 font-mono uppercase tracking-wider">
+              Tus datos quedan intactos · vuelves cuando quieras
+            </p>
           </div>
-          <div
-            className="text-2xl"
-            style={{
-              fontFamily: "var(--font-anton), Impact, system-ui, sans-serif",
-              lineHeight: 0.95,
-            }}
-          >
-            DROP. Pro · $9.990 / mes
-          </div>
-          <p className="text-xs text-fg-muted mt-1">
-            Pago con tarjeta · cancela cuando quieras
-          </p>
-        </div>
-
-        <div className="mt-6 flex flex-col sm:flex-row gap-2">
-          <Link
-            href="/suscripcion"
-            className="flex-1 inline-flex items-center justify-center h-11 px-4 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
-          >
-            Suscribirme →
-          </Link>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center justify-center h-11 px-4 bg-cream text-fg border-2 border-border hover:bg-ink hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
-          >
-            Salir
-          </button>
-        </div>
-
-        <p className="text-[10px] text-fg-subtle text-center mt-4 font-mono uppercase tracking-wider">
-          Tus datos quedan intactos · vuelves cuando quieras
-        </p>
+        </GlassPanel>
       </div>
     </div>
   );

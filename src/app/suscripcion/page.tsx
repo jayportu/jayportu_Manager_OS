@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CheckoutForm } from "./checkout-form";
+import { GlassPanel, MonoLabel, Alert } from "@/components/hos";
 import {
   getOrCreateSubscription,
   evaluateSubscriptionAccess,
@@ -47,9 +48,9 @@ export default async function SuscripcionPage() {
   return (
     <div className="min-h-screen bg-bg text-fg p-6 md:p-10">
       <div className="max-w-xl mx-auto">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-orange mb-2">
-          — SUSCRIPCIÓN · DROP. PRO
-        </div>
+        <MonoLabel className="mb-2 block tracking-[0.15em]">
+          SUSCRIPCIÓN · DROP. PRO
+        </MonoLabel>
         <h1
           className="leading-none mb-2"
           style={{
@@ -65,10 +66,8 @@ export default async function SuscripcionPage() {
         </p>
 
         {/* Beneficios */}
-        <div className="border-2 border-border bg-bg-panel p-5 mb-6">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
-            — INCLUIDO
-          </div>
+        <GlassPanel className="mb-6">
+          <MonoLabel className="mb-2 block">INCLUIDO</MonoLabel>
           <ul className="text-sm space-y-1.5">
             <li>· CRM completo + campañas masivas</li>
             <li>· Press kit público con tu URL propia</li>
@@ -77,22 +76,22 @@ export default async function SuscripcionPage() {
             <li>· Avisos automáticos a tus bookers</li>
             <li>· Soporte directo conmigo (Jaime)</li>
           </ul>
-        </div>
+        </GlassPanel>
 
         {isPaying ? (
-          <div className="border-2 border-success bg-success/10 p-5 mb-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-success mb-1">
-              — YA ESTÁS SUSCRITO
-            </div>
-            <p className="text-sm">
-              Tu suscripción está activa. Puedes gestionarla desde Configuración.
-            </p>
-            <Link
-              href="/configuracion/suscripcion"
-              className="inline-flex items-center mt-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-fg border-b border-orange hover:border-border transition-colors"
-            >
-              Ir a mi suscripción →
-            </Link>
+          <div className="mb-4">
+            <Alert tone="success" title="YA ESTÁS SUSCRITO">
+              <p className="text-sm">
+                Tu suscripción está activa. Puedes gestionarla desde
+                Configuración.
+              </p>
+              <Link
+                href="/configuracion/suscripcion"
+                className="inline-flex items-center mt-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-orange hover:text-fg border-b border-orange hover:border-border transition-colors"
+              >
+                Ir a mi suscripción →
+              </Link>
+            </Alert>
           </div>
         ) : (
           <CheckoutForm userEmail={user.email ?? ""} />

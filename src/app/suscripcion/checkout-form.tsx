@@ -17,6 +17,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { subscribeAction } from "./actions";
 import { Loader2 } from "lucide-react";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface Props {
   userEmail: string;
@@ -135,14 +138,9 @@ export function CheckoutForm({ userEmail }: Props) {
   const busy = status === "tokenizing" || status === "subscribing";
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit}
-        className="bg-bg-panel border-2 border-border p-5 space-y-3"
-      >
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-1">
-          — DATOS DE TARJETA
-        </div>
+    <GlassPanel>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <MonoLabel className="block">DATOS DE TARJETA</MonoLabel>
 
         <input
           type="text"
@@ -154,7 +152,7 @@ export function CheckoutForm({ userEmail }: Props) {
           required
           maxLength={23}
           disabled={busy}
-          className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
+          className={FIELD}
         />
 
         <input
@@ -165,7 +163,7 @@ export function CheckoutForm({ userEmail }: Props) {
           onChange={(e) => setCardholderName(e.target.value.toUpperCase())}
           required
           disabled={busy}
-          className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
+          className={FIELD}
         />
 
         <div className="grid grid-cols-3 gap-2">
@@ -178,7 +176,7 @@ export function CheckoutForm({ userEmail }: Props) {
             required
             maxLength={2}
             disabled={busy}
-            className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
+            className={cn(FIELD, "text-center")}
           />
           <input
             type="text"
@@ -189,7 +187,7 @@ export function CheckoutForm({ userEmail }: Props) {
             required
             maxLength={4}
             disabled={busy}
-            className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
+            className={cn(FIELD, "text-center")}
           />
           <input
             type="password"
@@ -201,7 +199,7 @@ export function CheckoutForm({ userEmail }: Props) {
             required
             maxLength={4}
             disabled={busy}
-            className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] text-center focus:outline-none focus:border-orange"
+            className={cn(FIELD, "text-center")}
           />
         </div>
 
@@ -213,38 +211,31 @@ export function CheckoutForm({ userEmail }: Props) {
           required
           maxLength={12}
           disabled={busy}
-          className="w-full h-11 px-3 border-2 border-border bg-cream font-mono text-[12px] focus:outline-none focus:border-orange"
+          className={FIELD}
         />
 
-        <p className="text-[11px] text-fg-muted">
+        <Alert tone="info">
           🔒 Los datos viajan cifrados directo a MercadoPago. DROP no los guarda.
-        </p>
+        </Alert>
 
-        {errorMsg && (
-          <div
-            className={`border-2 p-3 text-sm ${
-              status === "needs_manual"
-                ? "border-warning bg-warning/10 text-fg"
-                : "border-danger bg-danger/10 text-danger"
-            }`}
-          >
-            {status === "needs_manual" ? (
-              <>
-                <strong>Tu tarjeta no permite cobros recurrentes.</strong>
-                <br />
-                Prueba con otra tarjeta o escríbeme a hola@dropgigs.com para
-                activar el modo manual mes-a-mes.
-              </>
-            ) : (
-              errorMsg
-            )}
-          </div>
-        )}
+        {errorMsg &&
+          (status === "needs_manual" ? (
+            <Alert tone="warn">
+              <strong>Tu tarjeta no permite cobros recurrentes.</strong>
+              <br />
+              Prueba con otra tarjeta o escríbeme a hola@dropgigs.com para
+              activar el modo manual mes-a-mes.
+            </Alert>
+          ) : (
+            <Alert tone="danger">{errorMsg}</Alert>
+          ))}
 
-        <button
+        <Button
           type="submit"
+          variant="clayPrimary"
+          size="lg"
+          className="w-full"
           disabled={busy}
-          className="w-full h-12 inline-flex items-center justify-center gap-2 bg-ink text-orange border-2 border-border hover:bg-orange hover:text-ink disabled:opacity-50 disabled:hover:bg-ink disabled:hover:text-orange font-mono text-[11px] font-bold uppercase tracking-[0.1em] transition-colors"
         >
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
           {status === "tokenizing" && "Procesando tarjeta…"}
@@ -252,12 +243,12 @@ export function CheckoutForm({ userEmail }: Props) {
           {status === "success" && "¡Listo! Redirigiendo…"}
           {(status === "idle" || status === "error" || status === "needs_manual") &&
             "Confirmar pago · $9.990 CLP →"}
-        </button>
+        </Button>
 
         <p className="text-[10px] text-fg-subtle text-center font-mono uppercase tracking-wider">
           Suscriptor: {userEmail}
         </p>
       </form>
-    </>
+    </GlassPanel>
   );
 }
