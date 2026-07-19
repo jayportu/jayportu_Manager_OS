@@ -22,6 +22,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { GlassPanel, FIELD } from "@/components/hos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export type ConfirmVariant = "default" | "warning" | "danger";
 
@@ -104,90 +107,92 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   const danger = opts?.variant === "danger";
   const warn = opts?.variant === "warning";
-  const confirmCls = danger
-    ? "bg-danger text-white dark:text-ink border-danger"
-    : warn
-      ? "bg-warning text-fg dark:text-ink border-warning"
-      : "bg-orange text-ink border-border";
 
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
       {opts && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/50 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/50 backdrop-blur-sm p-4"
           onClick={onCancel}
         >
           <div
-            className={`w-full max-w-md bg-bg-panel border-[3px] ${
-              danger ? "border-danger" : "border-border"
-            } p-5`}
+            className="w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2
-              className={`font-display text-2xl leading-none ${
-                danger ? "text-danger" : "text-fg"
-              }`}
-            >
-              {opts.title}
-            </h2>
-            {opts.message && (
-              <div className="text-sm text-fg-muted mt-2.5 leading-relaxed">
-                {opts.message}
-              </div>
-            )}
-
-            {opts.requireReason && (
-              <textarea
-                autoFocus
-                value={reason}
-                onChange={(e) => {
-                  setReason(e.target.value);
-                  if (err) setErr(null);
-                }}
-                placeholder={opts.reasonPlaceholder || "Motivo (obligatorio)…"}
-                rows={3}
-                maxLength={500}
-                className="mt-3 w-full border-2 border-border bg-bg-panel px-3 py-2 text-sm focus:outline-none focus:border-orange resize-y"
-              />
-            )}
-
-            {opts.typeToConfirm && (
-              <div className="mt-3">
-                <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-subtle block mb-1.5">
-                  Escribe {opts.typeToConfirm} para confirmar
-                </label>
-                <input
-                  autoFocus
-                  value={typed}
-                  onChange={(e) => setTyped(e.target.value)}
-                  placeholder={opts.typeToConfirm}
-                  className="w-full border-2 border-border bg-bg-panel px-3 py-2 font-mono text-sm focus:outline-none focus:border-danger"
-                />
-              </div>
-            )}
-
-            {err && <div className="text-[12px] text-danger mt-2">{err}</div>}
-
-            <div className="flex justify-end gap-2 mt-4">
-              {!opts.hideCancel && (
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-2 border-2 border-border bg-bg-panel hover:bg-cream transition-colors"
-                >
-                  {opts.cancelLabel || "Cancelar"}
-                </button>
+            <GlassPanel
+              className={cn(
+                danger && "ring-1 ring-[rgb(var(--drop-danger))]/45",
               )}
-              <button
-                type="button"
-                onClick={onConfirm}
-                disabled={!matchOk}
-                className={`font-mono text-[11px] font-bold uppercase tracking-[0.08em] px-3.5 py-2 border-2 transition-opacity ${confirmCls} disabled:opacity-40 disabled:cursor-not-allowed`}
+            >
+              <h2
+                className={cn(
+                  "font-display text-2xl leading-none",
+                  danger ? "text-danger" : "text-white",
+                )}
               >
-                {opts.confirmLabel || "Confirmar"}
-              </button>
-            </div>
+                {opts.title}
+              </h2>
+              {opts.message && (
+                <div className="text-sm text-white/70 mt-2.5 leading-relaxed">
+                  {opts.message}
+                </div>
+              )}
+
+              {opts.requireReason && (
+                <textarea
+                  autoFocus
+                  value={reason}
+                  onChange={(e) => {
+                    setReason(e.target.value);
+                    if (err) setErr(null);
+                  }}
+                  placeholder={opts.reasonPlaceholder || "Motivo (obligatorio)…"}
+                  rows={3}
+                  maxLength={500}
+                  className={cn(FIELD, "mt-3 resize-y")}
+                />
+              )}
+
+              {opts.typeToConfirm && (
+                <div className="mt-3">
+                  <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/50 block mb-1.5">
+                    Escribe {opts.typeToConfirm} para confirmar
+                  </label>
+                  <input
+                    autoFocus
+                    value={typed}
+                    onChange={(e) => setTyped(e.target.value)}
+                    placeholder={opts.typeToConfirm}
+                    className={FIELD}
+                  />
+                </div>
+              )}
+
+              {err && <div className="text-[12px] text-danger mt-2">{err}</div>}
+
+              <div className="flex justify-end gap-2 mt-4">
+                {!opts.hideCancel && (
+                  <Button type="button" variant="clay" onClick={onCancel}>
+                    {opts.cancelLabel || "Cancelar"}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant={danger || warn ? "clay" : "clayPrimary"}
+                  onClick={onConfirm}
+                  disabled={!matchOk}
+                  className={cn(
+                    danger &&
+                      "bg-[rgb(var(--drop-danger))] text-ink shadow-[var(--hos-clay-btn)]",
+                    warn &&
+                      "bg-[rgb(var(--drop-warning))] text-ink shadow-[var(--hos-clay-btn)]",
+                  )}
+                >
+                  {opts.confirmLabel || "Confirmar"}
+                </Button>
+              </div>
+            </GlassPanel>
           </div>
         </div>
       )}
