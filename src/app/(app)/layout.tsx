@@ -133,10 +133,12 @@ export default async function AppLayout({
       hasDirectoryVenues(),
     ]);
 
-  // Navbar v2 (Hybrid OS · TopNav + Dock) detrás de flag. Solo cambia el shell
-  // visual; toda la lógica pre-render (auth/onboarding/beta/subscription/counts)
-  // es idéntica en ambos caminos.
-  const navV2 = process.env.NEXT_PUBLIC_NAV_V2 === "1";
+  // Navbar v2 (Hybrid OS · TopNav + Dock) = shell por DEFECTO. Solo cambia el
+  // shell visual; toda la lógica pre-render (auth/onboarding/beta/subscription/
+  // counts) es idéntica en ambos caminos. Kill-switch: setear
+  // NEXT_PUBLIC_NAV_V2="0" en Vercel (+ redeploy) vuelve al Sidebar viejo sin
+  // revertir código.
+  const navV2 = process.env.NEXT_PUBLIC_NAV_V2 !== "0";
 
   return (
     <ConfirmProvider>
