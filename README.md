@@ -1,4 +1,5 @@
 # JAY Manager OS · DROP.
+<!-- ci: disparador de deploy Vercel — el webhook se saltó el merge del PR #303 (2026-07-19) -->
 
 App de gestión de carrera DJ. Repo interno `JAY_Manager_OS` · marca pública **DROP.** (the DJ OS). Empezó como proyecto personal de **JAY PORTU** y está diseñada desde el inicio para escalar a múltiples usuarios DJ.
 
