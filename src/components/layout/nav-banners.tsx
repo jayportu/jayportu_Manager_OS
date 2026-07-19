@@ -77,7 +77,7 @@ export function NavBanners({
       {/* Sprint 23.5 — Banner beta (mobile sm+ / desktop) */}
       {betaLabel && betaBannerColor && (
         <span
-          className={`hidden sm:inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border rounded-full ${betaBannerColor}`}
+          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border rounded-full ${betaBannerColor}`}
           title="Estás en la beta cerrada"
         >
           {betaLabel}
