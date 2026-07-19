@@ -71,20 +71,20 @@ export function AvailabilityCalendar({
       {/* Leyenda */}
       <div className="flex flex-wrap items-center gap-4 mb-4 font-mono text-[10px] uppercase tracking-wider text-fg-muted">
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 bg-orange border border-border" /> Disponible
+          <span className="w-3 h-3 rounded-[3px] bg-[rgb(var(--drop-orange))]" /> Disponible
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 bg-ink" /> Ocupado
+          <span className="w-3 h-3 rounded-[3px] bg-white/10 border border-white/15" /> Ocupado
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 bg-bg-panel border border-border" /> Sin definir
+          <span className="w-3 h-3 rounded-[3px] bg-white/[0.04] border border-white/12" /> Sin definir
         </span>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
         {grids.map(({ year, month0, cells }) => (
-          <div key={`${year}-${month0}`} className="border-2 border-border bg-bg-panel">
-            <div className="bg-ink text-white px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider">
+          <div key={`${year}-${month0}`} className="rounded-xl border border-white/12 bg-white/[0.04] overflow-hidden">
+            <div className="bg-white/[0.06] text-white px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider border-b border-white/10">
               {MONTH_NAMES[month0]} {year}
             </div>
             <div className="p-2">
@@ -105,16 +105,16 @@ export function AvailabilityCalendar({
                   const status = dayStatus(date);
                   const cls =
                     status === "available"
-                      ? "bg-orange text-ink font-bold"
+                      ? "bg-[rgb(var(--drop-orange))] text-black font-bold"
                       : status === "busy"
-                        ? "bg-ink text-white/70 line-through"
+                        ? "bg-white/10 text-white/40 line-through"
                         : status === "past"
-                          ? "text-fg-subtle/40"
+                          ? "text-white/20"
                           : "text-fg-muted";
                   return (
                     <div
                       key={i}
-                      className={`aspect-square flex items-center justify-center text-[11px] tabular-nums ${cls}`}
+                      className={`aspect-square flex items-center justify-center text-[11px] tabular-nums rounded-md ${cls}`}
                     >
                       {dayNum}
                     </div>

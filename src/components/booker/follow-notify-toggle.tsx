@@ -90,17 +90,17 @@ export function FollowNotifyToggle({ djUserId, djArtistName }: Props) {
           handleToggle();
         }
       }}
-      className="mt-5 cursor-pointer select-none p-3 bg-cream border-2 border-border flex items-center gap-3 hover:bg-bg-panel transition-colors"
+      className="mt-5 cursor-pointer select-none p-3 rounded-xl bg-white/[0.04] border border-white/12 flex items-center gap-3 hover:bg-white/[0.07] transition-colors"
     >
       {/* Pill switch */}
       <span
         aria-hidden="true"
-        className={`relative shrink-0 w-[44px] h-[24px] border-2 border-border transition-colors ${
-          on ? "bg-orange" : "bg-bg-panel"
+        className={`relative shrink-0 w-[44px] h-[24px] rounded-full border border-white/15 transition-colors ${
+          on ? "bg-[rgb(var(--drop-orange))]" : "bg-white/10"
         }`}
       >
         <span
-          className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] bg-ink transition-transform duration-200 ${
+          className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] rounded-full bg-white transition-transform duration-200 ${
             on ? "translate-x-[20px]" : "translate-x-0"
           }`}
         />
@@ -119,7 +119,7 @@ export function FollowNotifyToggle({ djUserId, djArtistName }: Props) {
 
       <Bell
         aria-hidden="true"
-        className={`shrink-0 w-[18px] h-[18px] ${on ? "text-orange" : "text-fg-muted"}`}
+        className={`shrink-0 w-[18px] h-[18px] ${on ? "text-[rgb(var(--drop-orange))]" : "text-fg-muted"}`}
         strokeWidth={2.25}
       />
     </div>

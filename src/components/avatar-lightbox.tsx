@@ -81,7 +81,7 @@ export function AvatarLightbox({
               setOpen(false);
             }}
             aria-label="Cerrar"
-            className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center bg-orange text-ink border-2 border-border hover:bg-cream transition-colors"
+            className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-orange text-ink border border-white/20 hover:bg-orange/85 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -91,7 +91,7 @@ export function AvatarLightbox({
             src={src}
             alt={alt}
             onClick={(e) => e.stopPropagation()}
-            className="max-w-[90vw] max-h-[90vh] object-contain border-4 border-orange shadow-2xl"
+            className="max-w-[90vw] max-h-[90vh] object-contain rounded-xl border border-white/15 shadow-2xl"
           />
         </div>
       )}

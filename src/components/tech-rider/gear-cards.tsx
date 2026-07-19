@@ -2,8 +2,8 @@
  * Capa 2 — Tarjetas visuales de gear para el press kit.
  *
  * Render server-side de los items del rider (parseados del texto libre) como
- * tarjetas con ícono line-art + cantidad. Estética editorial DROP (ink/cream/
- * orange, borde brutalista). A diferencia de Ready to Play —que muestra fotos
+ * tarjetas con ícono line-art + cantidad. Estética Hybrid OS glass (tiles
+ * translúcidos + acento naranja). A diferencia de Ready to Play —que muestra fotos
  * stock de equipos— acá usamos íconos vectoriales consistentes con la marca y
  * sin problemas de derechos de imagen.
  */
@@ -148,10 +148,10 @@ export function GearCards({ items }: { items: TechRiderItem[] }) {
         {gear.map((item) => (
           <div
             key={item.id}
-            className="relative flex flex-col items-center text-center gap-2 p-4 border-2 border-border bg-bg-panel"
+            className="relative flex flex-col items-center text-center gap-2 p-4 rounded-xl border border-white/10 bg-white/[0.04]"
           >
             {item.quantity > 1 && (
-              <span className="absolute top-2 right-2 font-mono text-[11px] font-bold text-white bg-orange px-1.5 py-0.5 leading-none">
+              <span className="absolute top-2 right-2 rounded-full font-mono text-[11px] font-bold text-white bg-orange px-2 py-0.5 leading-none">
                 {item.quantity}×
               </span>
             )}

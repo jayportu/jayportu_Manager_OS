@@ -127,7 +127,7 @@ export function Topbar({
       {/* Sprint 23.5 — Banner beta (mobile + desktop) */}
       {betaLabel && betaBannerColor && (
         <span
-          className={`hidden sm:inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 ${betaBannerColor}`}
+          className={`hidden sm:inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border rounded-full ${betaBannerColor}`}
           title="Estás en la beta cerrada"
         >
           {betaLabel}
@@ -139,7 +139,7 @@ export function Topbar({
       {trialLabel && trialBannerColor && (
         <a
           href="/suscripcion"
-          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border-2 hover:opacity-80 transition-opacity ${trialBannerColor} ${FOCUS_RING}`}
+          className={`inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 border rounded-full hover:opacity-80 transition-opacity ${trialBannerColor} ${FOCUS_RING}`}
           title="Click para suscribirte ahora"
         >
           {trialLabel}
@@ -157,7 +157,7 @@ export function Topbar({
         </span>
         <button
           onClick={handleLogout}
-          className={`h-9 px-3 border-2 border-border bg-ink text-orange hover:bg-orange hover:text-ink font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5 ${FOCUS_RING}`}
+          className={`hos-clay-btn h-9 px-3 rounded-full text-white/85 hover:text-[rgb(var(--drop-orange))] font-mono text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-1.5 active:translate-y-px ${FOCUS_RING}`}
         >
           <LogOut className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">SALIR</span>
