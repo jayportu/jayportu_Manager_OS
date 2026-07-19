@@ -22,7 +22,7 @@ export function RiderVisualPreview({
   const showStage = hasCabinItems(items);
 
   return (
-    <div className="mt-2 border-2 border-dashed border-border/30 bg-cream/40 p-4">
+    <div className="mt-2 rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-fg-muted mb-3">
         Vista previa · así lo ve un booker
       </div>
