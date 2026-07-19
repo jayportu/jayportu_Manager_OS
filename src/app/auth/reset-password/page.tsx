@@ -12,7 +12,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/brand/logo";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel } from "@/components/hos";
 import { ResetPasswordForm } from "./reset-password-form";
 
 export default async function ResetPasswordPage() {
@@ -22,8 +22,17 @@ export default async function ResetPasswordPage() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden p-4 bg-bg">
+      {/* Ambiente radial (firma Hybrid OS, como /login y otras públicas) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 70% at 50% -10%, rgb(var(--drop-orange) / 0.14), transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-10">
           <Logo variant="wordmark" tone="ink" size={120} priority />
           <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-2 font-mono">
@@ -34,8 +43,11 @@ export default async function ResetPasswordPage() {
         {user ? (
           <ResetPasswordForm />
         ) : (
-          <Card className="p-8">
-            <h1 className="text-xl font-semibold mb-2">Link inválido o expirado</h1>
+          <GlassPanel padded={false} className="p-8">
+            <MonoLabel>LINK INVÁLIDO</MonoLabel>
+            <h1 className="mt-2 font-display text-3xl leading-none mb-2">
+              Link inválido o expirado
+            </h1>
             <p className="text-sm text-fg-muted leading-relaxed mb-6">
               Este link para restablecer tu contraseña ya no es válido. Los links
               duran solo unos minutos y se usan una sola vez. Pide uno nuevo y
@@ -47,7 +59,7 @@ export default async function ResetPasswordPage() {
             >
               Pedir un link nuevo →
             </a>
-          </Card>
+          </GlassPanel>
         )}
 
         <div className="text-center mt-6 text-sm text-fg-muted">

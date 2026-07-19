@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { GlassPanel, Badge } from "@/components/hos";
 import { BadgeCheck, Globe, Instagram, ExternalLink, Star } from "lucide-react";
 import { BOOKER_TYPES } from "@/types/database";
 import type { BookerCredibility } from "@/lib/queries/booker";
@@ -35,9 +35,9 @@ export function BookerCredibilityCard({ data }: { data: BookerCredibility }) {
       <div className="text-[11px] uppercase tracking-wider text-fg-muted mb-2">
         Quién te escribe
       </div>
-      <Card className="overflow-hidden">
+      <GlassPanel padded={false}>
         {/* Top */}
-        <div className="flex items-center gap-3 p-4 border-b border-border">
+        <div className="flex items-center gap-3 p-4 border-b border-white/10">
           <div className="w-12 h-12 rounded-md bg-accent text-white flex items-center justify-center text-xl font-bold shrink-0">
             {initial}
           </div>
@@ -51,25 +51,23 @@ export function BookerCredibilityCard({ data }: { data: BookerCredibility }) {
             </div>
             <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
               {data.is_founding && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-ink bg-orange border border-border rounded px-1.5 py-0.5">
+                <span className="inline-flex items-center gap-1 rounded-full bg-orange px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink">
                   <Star className="w-3 h-3 fill-current" /> Founding
                 </span>
               )}
               {data.verified ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-success bg-success/10 border border-success/30 rounded px-1.5 py-0.5">
+                <Badge tone="up">
                   <BadgeCheck className="w-3 h-3" /> Verificado por DROP.
-                </span>
+                </Badge>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-fg-muted bg-bg border border-border rounded px-1.5 py-0.5">
-                  Cuenta sin verificar
-                </span>
+                <Badge tone="neutral">Cuenta sin verificar</Badge>
               )}
             </div>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 border-b border-border divide-x divide-border">
+        <div className="grid grid-cols-3 border-b border-white/10 divide-x divide-white/10">
           <Stat n={data.requests_sent} l="Requests enviados" />
           <Stat n={data.djs_booked} l="DJs contratados" />
           <Stat n={data.member_since_year || "—"} l="Miembro desde" />
@@ -84,7 +82,7 @@ export function BookerCredibilityCard({ data }: { data: BookerCredibility }) {
 
         {/* Links */}
         {(site || ig) && (
-          <div className="flex flex-wrap gap-4 px-4 py-3 border-t border-border">
+          <div className="flex flex-wrap gap-4 px-4 py-3 border-t border-white/10">
             {site && (
               <a
                 href={site}
@@ -109,7 +107,7 @@ export function BookerCredibilityCard({ data }: { data: BookerCredibility }) {
             )}
           </div>
         )}
-      </Card>
+      </GlassPanel>
     </div>
   );
 }

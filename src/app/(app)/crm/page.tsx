@@ -10,7 +10,6 @@ import {
 import { SelectNative } from "@/components/ui/select-native";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Plus, Upload, Users } from "lucide-react";
 import { relativeTime, initials, scoreColor } from "@/lib/format";
@@ -222,7 +221,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
       )}
 
       {/* Filtros */}
-      <Card className="p-4 mb-5 mt-4">
+      <GlassPanel className="mb-5 mt-4">
         <form className="grid grid-cols-1 md:grid-cols-5 gap-3" action="/crm">
           {/* Preserva los tags activos al aplicar los demás filtros */}
           {activeTags.length > 0 && (
@@ -266,7 +265,7 @@ export default async function CrmPage({ searchParams }: PageProps) {
             </Button>
           </div>
         </form>
-      </Card>
+      </GlassPanel>
 
       {/* Lista */}
       {contacts.length === 0 ? (

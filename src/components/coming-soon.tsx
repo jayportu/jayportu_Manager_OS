@@ -22,6 +22,8 @@
  *   }
  */
 import Link from "next/link";
+import { GlassPanel, MonoLabel } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 
 interface ComingSoonProps {
   /** Título grande de la feature (ej. "Tech rider editor"). */
@@ -80,10 +82,8 @@ export function ComingSoon({
 
         {/* Bullets opcionales */}
         {bullets && bullets.length > 0 && (
-          <div className="mt-8 border-2 border-border bg-bg-panel p-5">
-            <div className="font-mono text-[10px] font-bold tracking-[0.14em] text-orange uppercase mb-3">
-              — Qué tendrá
-            </div>
+          <GlassPanel className="mt-8">
+            <MonoLabel className="mb-3 block">Qué tendrá</MonoLabel>
             <ul className="space-y-2">
               {bullets.map((b, i) => (
                 <li
@@ -92,13 +92,13 @@ export function ComingSoon({
                 >
                   <span
                     aria-hidden="true"
-                    className="absolute left-0 top-[7px] w-[7px] h-[7px] bg-ink"
+                    className="absolute left-0 top-[7px] w-[7px] h-[7px] bg-orange"
                   />
                   {b}
                 </li>
               ))}
             </ul>
-          </div>
+          </GlassPanel>
         )}
 
         {/* Status note */}
@@ -110,18 +110,12 @@ export function ComingSoon({
 
         {/* Actions */}
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href={ctaHref}
-            className="inline-flex items-center px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange hover:text-ink transition-colors"
-          >
-            {ctaLabel} →
-          </Link>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center px-5 py-3 bg-cream text-fg font-mono text-[11px] font-bold tracking-[0.14em] uppercase border-2 border-border hover:bg-orange transition-colors"
-          >
-            Ver roadmap
-          </Link>
+          <Button asChild variant="clayPrimary">
+            <Link href={ctaHref}>{ctaLabel} →</Link>
+          </Button>
+          <Button asChild variant="clay">
+            <Link href="/dashboard">Ver roadmap</Link>
+          </Button>
         </div>
       </div>
     </div>
@@ -138,7 +132,7 @@ export function ComingSoon({
 export function ComingSoonBadge({ text = "pronto" }: { text?: string }) {
   return (
     <span
-      className="font-mono text-[8px] font-bold tracking-[0.12em] uppercase px-[5px] py-[1px] bg-orange/15 text-orange border border-orange/40 whitespace-nowrap"
+      className="font-mono text-[8px] font-bold tracking-[0.12em] uppercase px-[6px] py-[1px] rounded-full bg-orange/15 text-orange border border-orange/40 whitespace-nowrap"
       aria-label="Próximamente"
     >
       {text}

@@ -19,7 +19,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
 import { translateSupabaseError } from "@/lib/auth-errors";
 import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
 
@@ -65,8 +65,11 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
 
   if (sent) {
     return (
-      <Card className="p-8">
-        <h1 className="text-xl font-semibold mb-2">Revisa tu email</h1>
+      <GlassPanel padded={false} className="p-8">
+        <MonoLabel>REVISA TU EMAIL</MonoLabel>
+        <h1 className="mt-2 font-display text-3xl leading-none mb-2">
+          Revisa tu email
+        </h1>
         <p className="text-sm text-fg-muted leading-relaxed">
           Si existe una cuenta con{" "}
           <span className="font-mono text-fg break-all">{email.trim()}</span>,
@@ -86,13 +89,16 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
             Reenviar
           </button>
         </div>
-      </Card>
+      </GlassPanel>
     );
   }
 
   return (
-    <Card className="p-8">
-      <h1 className="text-xl font-semibold mb-1">¿Olvidaste tu contraseña?</h1>
+    <GlassPanel padded={false} className="p-8">
+      <MonoLabel>RECUPERAR ACCESO</MonoLabel>
+      <h1 className="mt-2 font-display text-3xl leading-none mb-1">
+        ¿Olvidaste tu contraseña?
+      </h1>
       <p className="text-sm text-fg-muted mb-6">
         Escribe tu email y te enviamos un link para crear una contraseña nueva.
       </p>
@@ -109,14 +115,11 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
             required
             autoComplete="email"
             autoFocus
+            className={FIELD}
           />
         </div>
 
-        {error && (
-          <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
-            {error}
-          </div>
-        )}
+        {error && <Alert tone="danger">{error}</Alert>}
 
         {TURNSTILE_ENABLED && (
           <TurnstileWidget
@@ -128,6 +131,8 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
 
         <Button
           type="submit"
+          variant="clayPrimary"
+          size="lg"
           className="w-full"
           disabled={loading || (TURNSTILE_ENABLED && !captchaToken)}
         >
@@ -140,6 +145,6 @@ export function ForgotPasswordForm({ initialEmail }: { initialEmail: string }) {
           ← Volver a iniciar sesión
         </a>
       </div>
-    </Card>
+    </GlassPanel>
   );
 }

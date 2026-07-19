@@ -12,6 +12,7 @@
 
 import { Logo } from "@/components/brand/logo";
 import { ForgotPasswordForm } from "./forgot-password-form";
+import { Alert } from "@/components/hos";
 
 interface PageProps {
   searchParams: Promise<{ error?: string; email?: string }>;
@@ -23,8 +24,17 @@ export default async function ForgotPasswordPage({ searchParams }: PageProps) {
   const initialEmail = typeof sp.email === "string" ? sp.email : "";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden p-4 bg-bg">
+      {/* Ambiente radial (firma Hybrid OS, como /login y otras públicas) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(90% 70% at 50% -10%, rgb(var(--drop-orange) / 0.14), transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-10">
           <Logo variant="wordmark" tone="ink" size={120} priority />
           <div className="text-[10px] uppercase tracking-[0.3em] text-fg-subtle mt-2 font-mono">
@@ -33,14 +43,11 @@ export default async function ForgotPasswordPage({ searchParams }: PageProps) {
         </div>
 
         {expired && (
-          <div className="mb-5 border-2 border-danger bg-danger/10 p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-danger mb-1">
-              — LINK EXPIRADO
-            </div>
-            <div className="text-sm text-fg leading-relaxed">
+          <div className="mb-5">
+            <Alert tone="danger" title="— LINK EXPIRADO">
               El link para restablecer tu contraseña expiró o ya se usó. Pide uno
               nuevo abajo — dura solo unos minutos.
-            </div>
+            </Alert>
           </div>
         )}
 
