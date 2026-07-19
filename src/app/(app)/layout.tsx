@@ -6,6 +6,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { MobileMenu } from "@/components/layout/mobile-menu";
 import { DesktopTopNav } from "@/components/layout/desktop-topnav";
 import { MobileDock } from "@/components/layout/mobile-dock";
+import { NavBanners } from "@/components/layout/nav-banners";
 import { NpsModal } from "@/components/feedback/nps-modal";
 import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
 import { SubscriptionRequiredModal } from "@/components/subscription/subscription-required-modal";
@@ -174,6 +175,16 @@ export default async function AppLayout({
         />
         {/* Sprint 24 — Banner proactivo: faltan scopes de Google */}
         <GoogleScopeBanner />
+        {/* Banners beta/trial en móvil (flag-ON): DesktopTopNav es md+ y el
+            MobileDock no los muestra, así que van en una tira propia md:hidden,
+            SIEMPRE visible (no dentro del drawer). empty:hidden colapsa la tira
+            cuando NavBanners devuelve null (sin banner activo → 0 alto). */}
+        <div className="md:hidden empty:hidden flex flex-wrap items-center gap-2 px-4 py-2 border-b border-white/10">
+          <NavBanners
+            betaDaysRemaining={betaState.daysRemaining}
+            trialDaysRemaining={trialDaysRemaining}
+          />
+        </div>
         {/* pb reserva el alto del dock móvil (64px + safe-area); en md+ el dock
             desaparece y no hay padding inferior. */}
         <main className="flex-1 overflow-y-auto pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
