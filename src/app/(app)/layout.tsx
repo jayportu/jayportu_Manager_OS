@@ -8,6 +8,7 @@ import { NpsModal } from "@/components/feedback/nps-modal";
 import { BetaExpiredModal } from "@/components/feedback/beta-expired-modal";
 import { SubscriptionRequiredModal } from "@/components/subscription/subscription-required-modal";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { InactivityGuard } from "@/components/inactivity-guard";
 import { GoogleScopeBanner } from "@/components/gmail/google-scope-banner";
 import { getBetaState } from "@/lib/beta-status";
 import { consumeBetaInviteIfAny } from "@/lib/queries/beta-invite";
@@ -186,6 +187,8 @@ export default async function AppLayout({
       {betaState.pendingNps && <NpsModal milestone={betaState.pendingNps} />}
       {/* Sprint 23.5 — Tracker silent de page_view (cero impacto en LCP) */}
       <PageViewTracker />
+      {/* Auto-logout por inactividad (30 min, aviso a los 28) — equipos compartidos */}
+      <InactivityGuard />
       {/* Sprint 23.5 — Modal bloqueante cuando beta expiró (admin queda exento) */}
       {profile?.beta_status === "expired" && !profile?.is_admin && (
         <BetaExpiredModal />

@@ -16,6 +16,11 @@ import { GlassPanel, Alert, MonoLabel, FIELD } from "@/components/hos";
 import { TOS_VERSION } from "@/lib/legal";
 import { translateSupabaseError } from "@/lib/auth-errors";
 import { TurnstileWidget, TURNSTILE_ENABLED } from "@/components/turnstile-widget";
+import {
+  PasswordStrength,
+  scorePassword,
+  PASSWORD_MIN_STRENGTH,
+} from "@/components/password-strength";
 
 interface Props {
   inviteEmail: string | null;
@@ -99,6 +104,12 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
     confirmPassword.length > 0 &&
     password !== confirmPassword;
 
+  // Gate de fuerza de contraseña — solo en signup. Login no molesta a cuentas
+  // ya creadas (podrían tener claves viejas de antes de esta política).
+  const passwordStrongEnough =
+    mode !== "signup" ||
+    scorePassword(password).score >= PASSWORD_MIN_STRENGTH;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -163,6 +174,15 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
       if (password !== confirmPassword) {
         setError(
           "Las contraseñas no coinciden. Revísalas e intenta de nuevo."
+        );
+        setLoading(false);
+        return;
+      }
+      // Fuerza mínima de contraseña. El botón ya está deshabilitado por debajo,
+      // pero validamos igual acá por si el estado se saltea (autofill, etc.).
+      if (scorePassword(password).score < PASSWORD_MIN_STRENGTH) {
+        setError(
+          "Tu contraseña es muy débil. Súmale mayúsculas, un número o un símbolo."
         );
         setLoading(false);
         return;
@@ -291,6 +311,11 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
               </a>
             </div>
           )}
+          {/* Medidor de fuerza — solo signup y una vez que el user empieza a
+              escribir. Educa en vivo; el submit se gatea con passwordStrongEnough. */}
+          {mode === "signup" && password.length > 0 && (
+            <PasswordStrength value={password} />
+          )}
         </div>
 
         {mode === "signup" && (
@@ -377,6 +402,7 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
             loading ||
             (mode === "signup" && !tosAccepted) ||
             passwordMismatch ||
+            !passwordStrongEnough ||
             (TURNSTILE_ENABLED && !captchaToken)
           }
         >
@@ -386,6 +412,13 @@ export function LoginForm({ inviteEmail, inviteArtistName, nextPath }: Props) {
             ? "Entrar"
             : "Crear cuenta"}
         </Button>
+        {/* Explica el botón deshabilitado por clave débil (no dejar un botón
+            muerto sin razón visible). */}
+        {mode === "signup" && password.length > 0 && !passwordStrongEnough && (
+          <p className="text-center text-[11px] text-fg-subtle">
+            Elige una contraseña al menos <span className="text-fg-muted">Regular</span> para continuar.
+          </p>
+        )}
       </form>
 
       {/* Sprint S20 — Toggle login/signup. Sin invite, NO ofrecemos "Crear
