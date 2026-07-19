@@ -146,12 +146,12 @@ export function FavoriteButtonClient({
               ? "Quitar de favoritos"
               : "Guardar en favoritos"
       }
-      className={`inline-flex items-center justify-center ${sizeCls} border-2 transition-all disabled:opacity-50 ${
+      className={`inline-flex items-center justify-center ${sizeCls} rounded-full border transition-all disabled:opacity-50 ${
         !state.loaded
-          ? "bg-cream/50 text-fg-subtle border-border/30"
+          ? "bg-white/[0.04] text-white/40 border-white/10"
           : state.favorited
-            ? "bg-orange text-ink border-orange hover:bg-cream"
-            : "bg-cream/90 backdrop-blur-sm text-fg border-border hover:bg-orange hover:border-orange"
+            ? "bg-[rgb(var(--drop-orange))] text-black border-transparent hover:bg-[rgb(var(--drop-orange))]/85"
+            : "bg-white/[0.06] backdrop-blur-sm text-white/80 border-white/15 hover:border-[rgb(var(--drop-orange))] hover:text-[rgb(var(--drop-orange))]"
       }`}
     >
       <Heart

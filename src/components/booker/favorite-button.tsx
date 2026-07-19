@@ -61,12 +61,12 @@ export function FavoriteButton({
       disabled={pending}
       aria-label={favorited ? "Quitar de favoritos" : "Guardar en favoritos"}
       aria-pressed={favorited}
-      className={`group inline-flex items-center justify-center gap-2 ${
+      className={`group inline-flex items-center justify-center gap-2 rounded-full ${
         showLabel ? "px-3 w-auto" : sizeCls
-      } border-2 transition-colors disabled:opacity-60 ${
+      } border transition-colors disabled:opacity-60 ${
         favorited
-          ? "bg-orange text-ink border-orange hover:bg-cream"
-          : "bg-cream/80 backdrop-blur-sm text-fg border-border hover:bg-orange hover:border-orange"
+          ? "bg-[rgb(var(--drop-orange))] text-black border-transparent hover:bg-[rgb(var(--drop-orange))]/85"
+          : "bg-white/[0.06] backdrop-blur-sm text-white/80 border-white/15 hover:border-[rgb(var(--drop-orange))] hover:text-[rgb(var(--drop-orange))]"
       }`}
     >
       <Heart
