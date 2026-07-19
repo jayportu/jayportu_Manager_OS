@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
+import { GlassPanel } from "@/components/hos";
+import { Button } from "@/components/ui/button";
 
 /**
  * 404 de marca a nivel raíz. Antes, cualquier `notFound()` (p.ej. un press kit
@@ -15,7 +17,7 @@ export default function NotFound() {
         <div className="flex flex-col items-center mb-8">
           <Logo variant="wordmark" tone="ink" size={100} />
         </div>
-        <div className="border-2 border-border bg-bg-panel p-8">
+        <GlassPanel className="p-8">
           <div className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-orange mb-2">
             — ERROR 404
           </div>
@@ -33,20 +35,14 @@ export default function NotFound() {
             Esta página no existe o el link ya no es válido.
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-ink text-white font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border hover:bg-orange hover:text-ink hover:border-orange transition-colors"
-            >
-              Ir al inicio
-            </Link>
-            <Link
-              href="/dj"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.14em] border-2 border-border text-fg hover:border-orange hover:text-orange transition-colors"
-            >
-              Ver DJs
-            </Link>
+            <Button asChild variant="clayPrimary">
+              <Link href="/">Ir al inicio</Link>
+            </Button>
+            <Button asChild variant="clay">
+              <Link href="/dj">Ver DJs</Link>
+            </Button>
           </div>
-        </div>
+        </GlassPanel>
       </div>
     </div>
   );

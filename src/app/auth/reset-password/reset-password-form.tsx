@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { GlassPanel, MonoLabel, Alert, FIELD } from "@/components/hos";
 import { translateSupabaseError } from "@/lib/auth-errors";
 
 export function ResetPasswordForm() {
@@ -56,18 +56,22 @@ export function ResetPasswordForm() {
 
   if (done) {
     return (
-      <Card className="p-8">
-        <h1 className="text-xl font-semibold mb-2">¡Listo!</h1>
+      <GlassPanel padded={false} className="p-8">
+        <MonoLabel>CONTRASEÑA ACTUALIZADA</MonoLabel>
+        <h1 className="mt-2 font-display text-3xl leading-none mb-2">¡Listo!</h1>
         <p className="text-sm text-fg-muted leading-relaxed">
           Tu contraseña quedó actualizada. Te estamos llevando a tu panel…
         </p>
-      </Card>
+      </GlassPanel>
     );
   }
 
   return (
-    <Card className="p-8">
-      <h1 className="text-xl font-semibold mb-1">Crea tu nueva contraseña</h1>
+    <GlassPanel padded={false} className="p-8">
+      <MonoLabel>NUEVA CONTRASEÑA</MonoLabel>
+      <h1 className="mt-2 font-display text-3xl leading-none mb-1">
+        Crea tu nueva contraseña
+      </h1>
       <p className="text-sm text-fg-muted mb-6">
         Elige una contraseña nueva para tu cuenta. Mínimo 6 caracteres.
       </p>
@@ -85,6 +89,7 @@ export function ResetPasswordForm() {
             minLength={6}
             autoComplete="new-password"
             autoFocus
+            className={FIELD}
           />
         </div>
 
@@ -99,19 +104,22 @@ export function ResetPasswordForm() {
             required
             minLength={6}
             autoComplete="new-password"
+            className={FIELD}
           />
         </div>
 
-        {error && (
-          <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-md px-3 py-2">
-            {error}
-          </div>
-        )}
+        {error && <Alert tone="danger">{error}</Alert>}
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button
+          type="submit"
+          variant="clayPrimary"
+          size="lg"
+          className="w-full"
+          disabled={loading}
+        >
           {loading ? "Guardando…" : "Guardar contraseña"}
         </Button>
       </form>
-    </Card>
+    </GlassPanel>
   );
 }
