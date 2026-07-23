@@ -53,6 +53,73 @@ const PUBLIC_PATHS = [
   // Pero /api/gmail/auth y /disconnect requieren sesión, las dejamos detrás del middleware.
 ];
 
+// ── Transición de marca "Reinventándonos" (flag DROP_TEASER) ───────────────
+// Cuando DROP_TEASER === "1", la app queda oculta al público: toda navegación
+// que no sea "/" ni infraestructura se redirige (307 temporal) al teaser en "/".
+// Rollback total = DROP_TEASER=0 (o Instant Rollback en Vercel). El código de la
+// app no cambia de comportamiento con el flag apagado.
+//
+// Prefijos que SIEMPRE siguen vivos durante el apagón:
+//   /_next            → assets del framework
+//   /api              → webhooks (MercadoPago/Resend), crons, callbacks (auth propia)
+//   /auth             → callbacks OAuth de Supabase
+//   /sitemap.xml /robots.txt /sw.js /manifest.json → infra pública
+//   /icons /brand /og /apple /favicon             → estáticos de marca/PWA
+// (los .png/.svg/etc. ya los excluye el matcher de config, se listan por claridad)
+const TEASER_ALIVE = [
+  "/_next",
+  "/api",
+  "/auth",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/sw.js",
+  "/manifest.json",
+  "/icons",
+  "/brand",
+  "/og",
+  "/apple",
+  "/favicon",
+];
+// Puerta privada del equipo: /?unlock=<DROP_TEASER_UNLOCK> setea una cookie de
+// bypass (solo ese navegador ve la app real). No se expone en ningún link.
+const TEASER_UNLOCK_COOKIE = "drop_teaser_unlock";
+
+function teaserGate(request: NextRequest, pathname: string): NextResponse | null {
+  const token = process.env.DROP_TEASER_UNLOCK;
+
+  // 1) ?unlock=<token> válido → setea cookie de bypass y limpia el query param.
+  const unlockParam = request.nextUrl.searchParams.get("unlock");
+  if (token && unlockParam && unlockParam === token) {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete("unlock");
+    const res = NextResponse.redirect(url);
+    res.cookies.set(TEASER_UNLOCK_COOKIE, token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30, // 30 días
+      path: "/",
+    });
+    return res;
+  }
+  // 2) Cookie de bypass válida → pasa a la app real (sin teaser).
+  if (token && request.cookies.get(TEASER_UNLOCK_COOKIE)?.value === token) {
+    return null;
+  }
+  // 3) "/" es el teaser (lo renderiza page.tsx) → dejar pasar.
+  if (pathname === "/") return null;
+  // 4) Infraestructura/estáticos → siguen vivos.
+  const alive = TEASER_ALIVE.some(
+    (p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p + ".")
+  );
+  if (alive) return null;
+  // 5) Resto de páginas (públicas y privadas) → al teaser (307 temporal).
+  const url = request.nextUrl.clone();
+  url.pathname = "/";
+  url.search = "";
+  return NextResponse.redirect(url, 307);
+}
+
 // UUID v4 básico — los invite_tokens son gen_random_uuid()
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -65,6 +132,15 @@ const INVITE_TTL = 60 * 60 * 24 * 7;
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // Transición de marca: con el flag on, el gate decide (teaser / bypass /
+  // rutas vivas). Si devuelve una respuesta, corta acá. Con el flag apagado
+  // esta rama no se ejecuta y el comportamiento es idéntico al de siempre.
+  if (process.env.DROP_TEASER === "1") {
+    const gated = teaserGate(request, pathname);
+    if (gated) return gated;
+  }
+
   // UI Lab (/ui-experiments): exploración aislada con datos ficticios. Público
   // SOLO cuando se sirve desde localhost/127.0.0.1 (desarrollo) para poder abrir
   // los mockups en el navegador local. En el dominio de producción (dropgigs.com)

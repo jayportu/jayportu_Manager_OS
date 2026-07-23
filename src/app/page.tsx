@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -12,6 +13,7 @@ import { FeatureTabs } from "@/components/public/landing/feature-tabs";
 import { ProductShowcase } from "@/components/public/landing/product-showcase";
 import { RolePicker } from "@/components/public/landing/role-picker";
 import { Reveal } from "@/components/public/landing/reveal";
+import { BrandTeaser } from "@/components/public/teaser/brand-teaser";
 
 /**
  * Landing público de DROP — dark (rebrand 2026-06).
@@ -28,7 +30,7 @@ import { Reveal } from "@/components/public/landing/reveal";
  * actualiza sola cuando entran DJs. Se oculta si no hay ninguno.
  */
 
-export const metadata: Metadata = {
+const APP_METADATA: Metadata = {
   title: "DROP. · The DJ OS",
   description:
     "El sistema operativo del DJ independiente. CRM, calendario con tus ingresos, press kit y growth — todo en una sola app. 15 días gratis, sin tarjeta.",
@@ -43,12 +45,62 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Flag de transición de marca ("Reinventándonos"). Cuando DROP_TEASER === "1",
+ * "/" renderiza solo la landing teaser y el middleware oculta el resto de la app.
+ * Rollback: DROP_TEASER=0 (o Instant Rollback en Vercel).
+ */
+const TEASER_ON = process.env.DROP_TEASER === "1";
+const TEASER_COPY = "Estamos reinventando DROP. para la escena.";
+
+/**
+ * Puerta privada del equipo: si el navegador trae la cookie de bypass válida
+ * (la setea el middleware con /?unlock=<DROP_TEASER_UNLOCK>), "/" muestra la app
+ * real en vez del teaser. Debe coincidir con TEASER_UNLOCK_COOKIE del middleware.
+ */
+async function isTeaserUnlocked(): Promise<boolean> {
+  const token = process.env.DROP_TEASER_UNLOCK;
+  if (!token) return false;
+  const jar = await cookies();
+  return jar.get("drop_teaser_unlock")?.value === token;
+}
+
+export function generateMetadata(): Metadata {
+  if (!TEASER_ON) return APP_METADATA;
+  return {
+    title: "DROP.",
+    description: TEASER_COPY,
+    openGraph: {
+      title: "DROP.",
+      description: TEASER_COPY,
+      type: "website",
+      url: "/",
+      siteName: "DROP.",
+      images: [{ url: "/og-teaser.png", width: 1200, height: 630, alt: "DROP." }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "DROP.",
+      description: TEASER_COPY,
+      images: ["/og-teaser.png"],
+    },
+    // Indexable, pero sin seguir links (la teaser no tiene navegación).
+    robots: { index: true, follow: false },
+  };
+}
+
 const ANTON = "var(--font-anton), Impact, system-ui, sans-serif";
 
 /** Mínimo de DJs públicos para mostrar el conteo real en el hero (si no, copy genérico). */
 const TRACTION_MIN = 25;
 
 export default async function RootPage() {
+  // Transición de marca: con el flag on, "/" muestra solo el teaser para todos
+  // (incluidos usuarios logueados), salvo que el navegador tenga el bypass del
+  // equipo. El apagón del resto de rutas lo hace el middleware. Va antes de
+  // cualquier consulta a Supabase.
+  if (TEASER_ON && !(await isTeaserUnlocked())) return <BrandTeaser />;
+
   const supabase = await createClient();
   const {
     data: { user },
